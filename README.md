@@ -100,7 +100,9 @@ En el buscador del catálogo se puede escribir `#etiqueta` para ver los juegos d
 - Las tildes dan igual al buscar (`#punteria` encuentra `puntería`). Una etiqueta se encuentra también por su principio: `#dispar` encuentra `disparos` y `disparar`.
 - El género cuenta como una etiqueta más.
 - Se pueden combinar palabras y todas tienen que coincidir. Por ejemplo, `#disparos arco` muestra solo Caza de Patos.
-- Las etiquetas aparecen en las tarjetas del catálogo, así que reutiliza las que ya existen para que los juegos parecidos salgan juntos.
+- Pon **entre 30 y 50 etiquetas por juego**. Añade sinónimos, singular y plural, objetos y animales que aparecen, sensaciones (`intenso`, `fácil`), público (`niños`, `familia`) y nombres en inglés que la gente pueda buscar (`shooter`, `dodge`).
+- Las **6 primeras** se muestran en la tarjeta del catálogo y el resto solo sirven para buscar. Pon delante las más representativas.
+- Reutiliza las etiquetas que ya existen para que los juegos parecidos salgan juntos.
 
 Reglas para que el cambio sea fluido: todo lo visible va dentro de `ctx.raiz` o en las manos con `ctx.adjuntarAMano`. Las geometrías y los materiales compartidos se registran con `ctx.recurso()`. No uses `setTimeout` ni listeners propios, sino el tiempo de `actualizar`. Así la shell puede liberar todo al cambiar y la memoria del Quest no crece.
 

@@ -309,7 +309,8 @@
       a.querySelector('img').src = j.miniatura;
       a.querySelector('h3').textContent = j.titulo;
       a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
-      a.querySelector('.etiquetas').textContent = (j.etiquetas || []).map((e) => '#' + e).join(' ');
+      // Solo las primeras: el resto sirven para buscar pero saturarían la tarjeta
+      a.querySelector('.etiquetas').textContent = (j.etiquetas || []).slice(0, 6).map((e) => '#' + e).join(' ');
       return a;
     }));
   }
