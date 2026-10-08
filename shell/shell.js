@@ -218,7 +218,28 @@ let indiceActual = Math.max(0, JUEGOS.findIndex((j) => j.id === idInicial));
 let cambiando = false;
 let errorJuego = false;
 
-const siguienteIndice = (i) => (i + 1) % JUEGOS.length;
+// ─── Orden aleatorio sin repetir ─────────────────────────────────────────
+// Cada vuelta pasa por todos los juegos en orden aleatorio. Cuando se acaban,
+// se baraja una vuelta nueva (sin empezar por el juego que acabas de jugar).
+// La primera vuelta incluye el juego inicial, así que solo baraja los demás.
+let cola = barajar(JUEGOS.map((_, i) => i).filter((i) => i !== indiceActual));
+
+function barajar(lista) {
+  for (let i = lista.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [lista[i], lista[j]] = [lista[j], lista[i]];
+  }
+  return lista;
+}
+
+// Devuelve el próximo juego sin sacarlo de la cola (para precargarlo y anunciarlo).
+function siguienteIndice() {
+  if (cola.length === 0) {
+    cola = barajar(JUEGOS.map((_, i) => i));
+    if (cola.length > 1 && cola[0] === indiceActual) cola.push(cola.shift());
+  }
+  return cola[0];
+}
 
 // Descarga el módulo (y sus recursos) sin montarlo en la escena.
 function precargar(indice) {
@@ -319,6 +340,7 @@ async function cambiarA(indice) {
     if (actual) await fundido.a(1, 0.3);
     desmontar();
     indiceActual = indice;
+    cola = cola.filter((i) => i !== indice); // ya jugado en esta vuelta
     actualizarInterfaz();
 
     // Si el juego ya estaba precargado esto es inmediato; si no, mostramos "Cargando…"
@@ -351,12 +373,12 @@ async function cambiarA(indice) {
   cambiando = false;
 
   // Precarga en segundo plano el siguiente juego para que el cambio sea instantáneo
-  const siguiente = siguienteIndice(indiceActual);
+  const siguiente = siguienteIndice();
   boton.setSiguiente(JUEGOS[siguiente].titulo);
   actualizarInterfaz();
   if (!actual) $titulo.textContent = `${JUEGOS[indiceActual].titulo} (no se pudo cargar)`;
   precargar(siguiente).then(
-    () => { if (siguiente === siguienteIndice(indiceActual)) $estado.textContent = `Siguiente: ${JUEGOS[siguiente].titulo} (listo)`; },
+    () => { if (siguiente === siguienteIndice()) $estado.textContent = `Siguiente: ${JUEGOS[siguiente].titulo} (listo)`; },
     () => { $estado.textContent = `Siguiente: ${JUEGOS[siguiente].titulo} (no se pudo precargar)`; },
   );
 }
@@ -364,7 +386,7 @@ async function cambiarA(indice) {
 function siguienteJuego() {
   if (cambiando) return;
   sonido('boton');
-  cambiarA(siguienteIndice(indiceActual));
+  cambiarA(siguienteIndice());
 }
 
 // ─── Botón de cambio detrás del hombro derecho ───────────────────────────
@@ -415,7 +437,7 @@ const $btnSiguiente = document.getElementById('btn-siguiente');
 
 function actualizarInterfaz() {
   const juego = JUEGOS[indiceActual];
-  const siguiente = JUEGOS[siguienteIndice(indiceActual)];
+  const siguiente = JUEGOS[siguienteIndice()];
   document.title = `${juego.titulo} · VR Play`;
   $titulo.textContent = juego.titulo;
   $controles.textContent = `Con ratón: ${juego.controlesEscritorio}  ·  En VR: ${juego.controlesVR}`;

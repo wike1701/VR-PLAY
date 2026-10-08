@@ -13,7 +13,7 @@ shell/
   utilidades.js         Paneles de texto 3D y liberación de memoria
   sonido.js             Efectos de sonido sintetizados
 juegos/
-  catalogo.js           Lista de juegos (el orden es el orden del botón "siguiente")
+  catalogo.js           Lista de juegos (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
   flechas/juego.js      Esquiva Flechas

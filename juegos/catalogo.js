@@ -1,6 +1,6 @@
 // Lista de juegos de la web.
 // Para añadir uno nuevo: crea su carpeta en /juegos con un juego.js y añádelo aquí.
-// El orden de esta lista es el orden en que el botón de cambio pasa de un juego a otro.
+// El botón de cambio recorre todos los juegos en orden aleatorio, sin repetir hasta completar la vuelta.
 export const JUEGOS = [
   {
     id: 'fruta',
