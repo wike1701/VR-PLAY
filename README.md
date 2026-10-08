@@ -6,6 +6,7 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 
 ```
 index.html              Catálogo con la cuadrícula de juegos
+favicon.svg             Icono de la pestaña del navegador
 play.html               Página de juego (la "shell" VR)
 shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
