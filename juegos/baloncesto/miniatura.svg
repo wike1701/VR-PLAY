@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f1a2e"/>
+      <stop offset="0.72" stop-color="#3b2f55"/>
+      <stop offset="0.72" stop-color="#c8935a"/>
+      <stop offset="1" stop-color="#a87442"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Tablero -->
+  <rect x="190" y="40" width="180" height="110" rx="4" fill="#f5f5f5"/>
+  <rect x="250" y="84" width="60" height="46" fill="none" stroke="#ff5722" stroke-width="5"/>
+  <!-- Aro y red -->
+  <ellipse cx="280" cy="140" rx="42" ry="9" fill="none" stroke="#ff5722" stroke-width="6"/>
+  <path d="M238 140 L254 196 L306 196 L322 140" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <path d="M252 142 L266 196 M266 144 L276 196 M280 145 L280 196 M294 144 L286 196 M308 142 L296 196" stroke="#fff" stroke-width="2" opacity="0.8"/>
+  <!-- Trayectoria -->
+  <path d="M70 330 Q150 30 268 120" fill="none" stroke="#ffcc80" stroke-width="4" stroke-dasharray="10 12" opacity="0.7"/>
+  <!-- Balón -->
+  <g transform="translate(232 112)">
+    <circle r="30" fill="#e8681c"/>
+    <path d="M-30 0 H30 M0 -30 V30" stroke="#2b1a10" stroke-width="3"/>
+    <path d="M-21 -21 Q-6 0 -21 21 M21 -21 Q6 0 21 21" fill="none" stroke="#2b1a10" stroke-width="3"/>
+  </g>
+  <!-- Estrellas de canasta -->
+  <g fill="#ffeb3b">
+    <path d="M150 70 l6 13 14 2 -11 9 4 14 -13 -8 -13 8 4 -14 -11 -9 14 -2z"/>
+    <path d="M352 210 l5 10 11 2 -8 7 3 11 -11 -6 -10 6 3 -11 -8 -7 11 -2z"/>
+  </g>
+</svg>

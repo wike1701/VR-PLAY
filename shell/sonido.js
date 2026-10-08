@@ -66,6 +66,10 @@ const SONIDOS = {
   disparo: () => { ruido(0.14, 1100, 0.7, 0.6); tono(240, 60, 0.12, 'square', 0.22); },
   arco: () => { tono(160, 80, 0.18, 'triangle', 0.3); ruido(0.22, 2600, 0.25, 1.5); },
   cuac: () => { tono(520, 360, 0.11, 'sawtooth', 0.12); tono(500, 340, 0.13, 'sawtooth', 0.12, 0.14); },
+  bote: () => tono(140, 70, 0.09, 'sine', 0.35),
+  red: () => ruido(0.3, 4200, 0.25, 0.7),
+  patada: () => { tono(110, 45, 0.12, 'sine', 0.5); ruido(0.06, 900, 0.35); },
+  silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
