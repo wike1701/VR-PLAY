@@ -16,6 +16,7 @@ juegos/
   catalogo.js           Lista de juegos (el orden es el orden del botón "siguiente")
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
+  flechas/juego.js      Esquiva Flechas
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

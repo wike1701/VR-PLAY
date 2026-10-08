@@ -22,4 +22,14 @@ export const JUEGOS = [
     miniatura: 'juegos/topos/miniatura.svg',
     modulo: 'juegos/topos/juego.js',
   },
+  {
+    id: 'flechas',
+    titulo: 'Esquiva Flechas',
+    genero: 'Acción',
+    descripcion: 'Las torres te disparan flechas: agáchate y apártate para que no te den. Tienes 3 vidas.',
+    controlesVR: 'Mueve el cuerpo: agáchate o da un paso a un lado cuando una torre brille en rojo.',
+    controlesEscritorio: 'Mueve el ratón a los lados para apartarte y hacia abajo para agacharte.',
+    miniatura: 'juegos/flechas/miniatura.svg',
+    modulo: 'juegos/flechas/juego.js',
+  },
 ];
