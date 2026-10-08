@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jugar · VR Play</title>
+  <style>
+    :root {
+      --bg: #0f0f14;
+      --panel: rgba(26, 26, 36, 0.88);
+      --text: #f2f2f7;
+      --muted: #a4a4bb;
+      --accent: #7c5cff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    #escena canvas { display: block; touch-action: none; }
+
+    .barra {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 12px 16px;
+      background: linear-gradient(rgba(15, 15, 20, 0.92), rgba(15, 15, 20, 0));
+    }
+    .volver { color: var(--muted); text-decoration: none; font-size: 0.9rem; white-space: nowrap; }
+    .volver:hover { color: var(--text); }
+    .titulo { font-weight: 800; font-size: 1.1rem; margin-right: auto; }
+    button {
+      font: inherit; font-size: 0.9rem; font-weight: 600;
+      padding: 9px 16px; border-radius: 999px; border: 1px solid #3a3a52;
+      background: var(--panel); color: var(--text); cursor: pointer;
+    }
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.principal { background: var(--accent); border-color: var(--accent); }
+    kbd {
+      font: inherit; font-size: 0.75rem; padding: 1px 6px; margin-left: 4px;
+      border: 1px solid #55557a; border-radius: 4px; color: var(--muted);
+    }
+
+    .pie {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      padding: 12px 16px; text-align: center; font-size: 0.85rem; color: var(--muted);
+      background: linear-gradient(rgba(15, 15, 20, 0), rgba(15, 15, 20, 0.92));
+      pointer-events: none;
+    }
+    .pie p { margin: 4px 0; }
+    #estado { color: #c9bcff; }
+
+    .carga {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--muted); pointer-events: none;
+    }
+    .carga[hidden] { display: none; }
+
+    body.en-vr .barra, body.en-vr .pie { display: none; }
+
+    @media (max-width: 600px) {
+      .titulo { width: 100%; order: -1; }
+      kbd { display: none; }
+    }
+  </style>
+
+  <!-- three.js desde la CDN de jsDelivr (versión fija) -->
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <div id="escena"></div>
+
+  <div class="barra">
+    <a class="volver" href="index.html">← Catálogo</a>
+    <div class="titulo" id="titulo">Cargando…</div>
+    <button id="btn-siguiente" type="button">Siguiente juego <kbd>N</kbd></button>
+    <button id="btn-vr" class="principal" type="button" disabled>Comprobando VR…</button>
+  </div>
+
+  <div class="pie">
+    <p id="controles"></p>
+    <p id="estado"></p>
+  </div>
+
+  <div class="carga" id="carga" hidden>Cargando…</div>
+
+  <script type="module" src="shell/shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VR Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+  /* Portal nocturno de salón recreativo: cabecera fija, explicación del cambio de juego y rejilla de miniaturas cuadradas. */
+  :root {
+    --bg: #0e0d16;
+    --surface: #1a1828;
+    --surface-2: #24213a;
+    --line: #34304f;
+    --fg: #f1effa;
+    --muted: #a19cbd;
+    --accent: #8f6bff;
+    --accent-2: #00e5ff;
+    --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+
+  .contenedor { max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
+
+  header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--accent); }
+  .buscar {
+    flex: 1;
+    max-width: 480px;
+    margin-left: auto;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.95rem;
+  }
+  .buscar::placeholder { color: var(--muted); }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+    padding-block: 40px 28px;
+  }
+  .intro h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .intro p { margin: 0 0 20px; color: var(--muted); max-width: 58ch; }
+  .boton-jugar {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .boton-jugar:hover { filter: brightness(1.1); }
+
+  .esquema {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+  }
+  .esquema svg { width: 100%; height: auto; max-width: 120px; }
+  .esquema h2 {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin: 0 0 6px;
+  }
+  .esquema p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; padding-block: 8px 20px; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 24px 16px;
+  }
+  .tarjeta { text-decoration: none; display: grid; gap: 10px; }
+  .miniatura {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    max-width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .miniatura img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+  .tarjeta:hover .miniatura img, .tarjeta:focus-visible .miniatura img { transform: scale(1.04); }
+  .insignia {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+  }
+  .tarjeta h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+  .meta { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
+  .vacio { color: var(--muted); }
+
+  .anuncio {
+    margin-block: 40px 0;
+    min-height: 90px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
+  footer nav { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--fg); }
+
+  @media (max-width: 760px) {
+    .intro { grid-template-columns: minmax(0, 1fr); padding-block: 28px 16px; }
+  }
+  @media (max-width: 520px) {
+    .cabecera { flex-wrap: wrap; }
+    .buscar { max-width: none; width: 100%; margin-left: 0; }
+    .esquema { grid-template-columns: 84px minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .miniatura img { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <input class="buscar" id="buscar" type="search" placeholder="Buscar juegos" aria-label="Buscar juegos">
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="intro">
+    <div>
+      <h1>Juegos de realidad virtual que se juegan en el navegador</h1>
+      <p>Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
+      <a class="boton-jugar" id="jugar-ya" href="play.html#fruta">Jugar ahora</a>
+    </div>
+    <aside class="esquema" aria-label="Cómo cambiar de juego">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#34304f" stroke-dasharray="4 5"/>
+        <path d="M60 30 L52 44 H68 Z" fill="#a19cbd"/>
+        <ellipse cx="60" cy="66" rx="34" ry="12" fill="#24213a" stroke="#a19cbd" stroke-width="2"/>
+        <circle cx="60" cy="62" r="14" fill="#1a1828" stroke="#f1effa" stroke-width="2"/>
+        <circle cx="88" cy="92" r="10" fill="#8f6bff"/>
+        <circle cx="88" cy="92" r="15" fill="none" stroke="#00e5ff" stroke-width="2"/>
+        <text x="60" y="18" fill="#a19cbd" font-size="9" text-anchor="middle" font-family="sans-serif">delante</text>
+      </svg>
+      <div>
+        <h2>Cambiar de juego en VR</h2>
+        <p>Lleva la mano por encima de tu hombro derecho, hacia atrás. Déjala medio segundo en el botón o aprieta el gatillo y pasarás al siguiente juego sin quitarte las gafas.</p>
+      </div>
+    </aside>
+  </section>
+
+  <div class="filtros" id="filtros" role="group" aria-label="Filtrar por género"></div>
+  <section class="rejilla" id="rejilla" aria-label="Juegos"></section>
+
+  <div class="anuncio" role="complementary" aria-label="Publicidad">Espacio publicitario</div>
+</main>
+
+<footer class="contenedor">
+  <nav>
+    <a href="#">Privacidad</a>
+    <a href="#">Cookies</a>
+    <a href="#">Contacto</a>
+  </nav>
+  <p>© 2026 VR Play</p>
+</footer>
+
+<script type="module">
+  import { JUEGOS } from './juegos/catalogo.js';
+
+  const generos = ['Todos', ...new Set(JUEGOS.map((j) => j.genero))];
+  let generoActivo = 'Todos';
+  let busqueda = '';
+
+  const $filtros = document.getElementById('filtros');
+  const $rejilla = document.getElementById('rejilla');
+
+  function pintarFiltros() {
+    $filtros.replaceChildren(...generos.map((g) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = g;
+      b.setAttribute('aria-pressed', String(g === generoActivo));
+      b.addEventListener('click', () => { generoActivo = g; pintarFiltros(); pintarRejilla(); });
+      return b;
+    }));
+  }
+
+  function pintarRejilla() {
+    const texto = busqueda.trim().toLowerCase();
+    const lista = JUEGOS.filter((j) =>
+      (generoActivo === 'Todos' || j.genero === generoActivo) &&
+      (j.titulo + ' ' + j.descripcion).toLowerCase().includes(texto));
+
+    if (lista.length === 0) {
+      const p = document.createElement('p');
+      p.className = 'vacio';
+      p.textContent = 'No hay juegos que coincidan con la búsqueda.';
+      $rejilla.replaceChildren(p);
+      return;
+    }
+
+    $rejilla.replaceChildren(...lista.map((j) => {
+      const a = document.createElement('a');
+      a.className = 'tarjeta';
+      a.href = `play.html#${j.id}`;
+      a.innerHTML = `
+        <div class="miniatura">
+          <img alt="" loading="lazy">
+          <span class="insignia">VR · RATÓN</span>
+        </div>
+        <div>
+          <h3></h3>
+          <p class="meta"></p>
+        </div>`;
+      a.querySelector('img').src = j.miniatura;
+      a.querySelector('h3').textContent = j.titulo;
+      a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
+      return a;
+    }));
+  }
+
+  document.getElementById('buscar').addEventListener('input', (e) => {
+    busqueda = e.target.value;
+    pintarRejilla();
+  });
+  document.getElementById('jugar-ya').href = `play.html#${JUEGOS[0].id}`;
+
+  pintarFiltros();
+  pintarRejilla();
+</script>
+</body>
+</html>
