@@ -1,7 +1,7 @@
 // BATEA BOLAS
 // El lanzador te tira 10 bolas por ronda: batéalas lo más lejos posible.
-// En VR el bate va en una mano (el gatillo de la otra lo cambia de mano);
-// con ratón se elige la altura del bate y se batea con un clic.
+// En VR se batea como un diestro, con el bate agarrado con las dos manos
+// (izquierda abajo, derecha encima); con ratón se elige la altura del bate y se batea con un clic.
 // El campo es más pequeño que uno real para que los home runs sean posibles.
 import * as THREE from 'three';
 
@@ -15,10 +15,13 @@ const LADO_DIAMANTE = 20;       // distancia entre bases (la real es 27,4 m)
 const RADIO_VALLA = 55;         // distancia a la valla del fondo
 const ALTO_VALLA = 2.5;
 const RED_TRASERA = 4;          // red detrás del bateador
-const DESVIO = 0.6;             // la bola pasa a esta distancia del jugador, por el lado del bate
+const DESVIO_VR = 0.75;         // la bola pasa a esta distancia a la derecha del jugador (diestro)
+const DESVIO_RATON = 0.6;
 const RADIO_BOLA = 0.045;       // algo más grande que la real (0,037) para verla bien
 const INICIO_BATE = -0.15;      // parte del bate que golpea, medida desde el puño
 const PUNTA_BATE = -0.82;
+const MANOS_JUNTAS = 0.22;      // a menos de esta distancia, las dos manos agarran el bate
+const MANOS_SEPARADAS = 0.32;   // y a más de esta, se suelta la mano izquierda
 const CHOQUE_VR = 0.04;         // grosor del bate para el choque (con un poco de margen)
 const CHOQUE_RATON = 0.07;      // con ratón hay más margen: solo se elige la altura
 const REBOTE = 0.55;            // cuánto rebota la bola en el bate
@@ -74,6 +77,12 @@ export function iniciar(ctx) {
   const casa = new THREE.Mesh(R(new THREE.BoxGeometry(0.43, 0.02, 0.43)), matCal);
   casa.position.y = 0.012;
   raiz.add(casa);
+  // Caja del bateador: dónde ponerse
+  const caja = new THREE.LineLoop(R(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-0.45, 0.012, -0.9), new THREE.Vector3(0.45, 0.012, -0.9),
+    new THREE.Vector3(0.45, 0.012, 0.9), new THREE.Vector3(-0.45, 0.012, 0.9),
+  ])), R(new THREE.LineBasicMaterial({ color: 0xffffff })));
+  raiz.add(caja);
 
   // Líneas de falta, de casa a la valla
   const geoLinea = R(new THREE.PlaneGeometry(0.1, RADIO_VALLA));
@@ -216,8 +225,12 @@ export function iniciar(ctx) {
     return g;
   }
 
-  const batesVR = ctx.manos.map((mano) => ({ mano, objeto: ctx.adjuntarAMano(mano, crearBate()) }));
-  let ladoBate = 'right';
+  // Bate de VR: no va pegado a un mando, se coloca en cada fotograma según las dos manos
+  const bateVR = crearBate();
+  raiz.add(bateVR);
+  const EJE_BATE = new THREE.Vector3(0, 0, -1);
+  const direccion = new THREE.Vector3();
+  const frente = new THREE.Vector3();
 
   // Bate del modo escritorio: gira alrededor de un punto junto al jugador
   const brazoRaton = new THREE.Group();
@@ -235,9 +248,9 @@ export function iniciar(ctx) {
   const bate = {
     inicio: new THREE.Vector3(), punta: new THREE.Vector3(),
     inicioAnterior: new THREE.Vector3(), puntaAnterior: new THREE.Vector3(),
-    mano: null, radio: CHOQUE_VR, activo: false, lista: false,
+    manos: [], dosManos: false, radio: CHOQUE_VR, activo: false, lista: false,
   };
-  let lado = 1; // 1 = bate en la derecha (la bola pasa por la derecha), -1 = izquierda
+  const desvio = () => (ctx.enVR() ? DESVIO_VR : DESVIO_RATON);
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 4.4, alto: 1.15 });
@@ -275,7 +288,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'BATEA BOLAS', tam: 1.3, color: '#ffd740' },
-        { texto: ctx.enVR() ? 'Batea con fuerza · el gatillo de la otra mano cambia el bate de mano' : 'Elige la altura con el ratón y haz clic para batear', tam: 0.7 },
+        { texto: ctx.enVR() ? 'Ponte de lado como un diestro · bate con las dos manos, la izquierda abajo' : 'Elige la altura con el ratón y haz clic para batear', tam: 0.7 },
         { texto: `${LANZAMIENTOS} lanzamientos · Récord: ${record} puntos`, tam: 0.7, color: '#ffe57f' },
       ]);
     } else if (estado === 'fin') {
@@ -318,7 +331,7 @@ export function iniciar(ctx) {
 
   function lanzar() {
     const progreso = turno / (LANZAMIENTOS - 1);
-    const objetivo = tmp.set(lado * DESVIO + (Math.random() - 0.5) * 0.3, 0.7 + Math.random() * 0.55, 0);
+    const objetivo = tmp.set(desvio() + (Math.random() - 0.5) * 0.3, 0.7 + Math.random() * 0.55, 0);
     let rapidez = 16 + progreso * 8 + Math.random() * 2;
     if (turno >= 3 && Math.random() < 0.2) rapidez *= 0.7; // bola lenta para despistar
     const t = objetivo.distanceTo(bola.position) / rapidez;
@@ -342,7 +355,7 @@ export function iniciar(ctx) {
     if (puntosGolpe === 4) {
       ctx.sonido('ovacion');
       ctx.destello(0xffd740, 0.3);
-      if (bate.mano) ctx.vibrar(bate.mano, 1, 300);
+      for (const m of bate.manos) ctx.vibrar(m, 1, 300);
     } else if (puntosGolpe > 0) {
       ctx.sonido('punto');
     } else {
@@ -377,30 +390,45 @@ export function iniciar(ctx) {
       brazoRaton.visible = false;
       barra.visible = false;
       const activas = ctx.manos.filter((m) => m.activa);
-      for (const m of activas) {
-        if (m.gatilloPulsado && (m.lado === 'left' || m.lado === 'right') && m.lado !== ladoBate) {
-          ladoBate = m.lado;
-          ctx.sonido('tic');
-        }
-      }
-      const mano = activas.find((m) => m.lado === ladoBate) || activas[0] || null;
-      for (const bv of batesVR) bv.objeto.visible = bv.mano === mano;
-      lado = (mano ? mano.lado : ladoBate) === 'left' ? -1 : 1;
-      if (!mano) {
+      const derecha = activas.find((m) => m.lado === 'right') || activas.find((m) => m.lado !== 'left') || null;
+      const izquierda = activas.find((m) => m !== derecha) || null;
+      const arriba = derecha || izquierda;
+      bateVR.visible = !!arriba;
+      if (!arriba) {
         bate.activo = false;
         bate.lista = false;
-        bate.mano = null;
+        bate.manos = [];
         return;
       }
-      if (mano !== bate.mano) bate.lista = false;
-      bate.mano = mano;
+      // ¿Agarra el bate con las dos manos? (con margen para que no parpadee)
+      const distancia = izquierda && derecha ? izquierda.posicion.distanceTo(derecha.posicion) : Infinity;
+      const dosManos = bate.dosManos ? distancia < MANOS_SEPARADAS : distancia < MANOS_JUNTAS;
+      if (dosManos !== bate.dosManos) bate.lista = false; // el bate salta: no cuenta como golpe
+      bate.dosManos = dosManos;
+
+      frente.set(0, 0, -1).transformDirection(arriba.grip.matrixWorld);
+      if (dosManos) {
+        // El puño va en la mano de abajo. La dirección sale de la mano de abajo a la de
+        // arriba, mezclada con hacia dónde apuntan los mandos para que no tiemble.
+        frente.add(tmp.set(0, 0, -1).transformDirection(izquierda.grip.matrixWorld)).normalize();
+        direccion.subVectors(derecha.posicion, izquierda.posicion).normalize()
+          .multiplyScalar(1.5 * THREE.MathUtils.clamp((distancia - 0.03) / 0.1, 0, 1))
+          .add(frente).normalize();
+        bateVR.position.copy(izquierda.posicion);
+        bate.manos = [izquierda, derecha];
+      } else {
+        direccion.copy(frente);
+        bateVR.position.copy(arriba.posicion);
+        bate.manos = [arriba];
+      }
+      bateVR.quaternion.setFromUnitVectors(EJE_BATE, direccion);
+      bate.inicio.copy(bateVR.position).addScaledVector(direccion, -INICIO_BATE);
+      bate.punta.copy(bateVR.position).addScaledVector(direccion, -PUNTA_BATE);
       bate.radio = CHOQUE_VR;
-      mano.grip.localToWorld(bate.inicio.set(0, 0, INICIO_BATE));
-      mano.grip.localToWorld(bate.punta.set(0, 0, PUNTA_BATE));
       golpeando = true; // en VR el bate siempre puede golpear
     } else {
-      lado = 1;
-      bate.mano = null;
+      bateVR.visible = false;
+      bate.manos = [];
       bate.radio = CHOQUE_RATON;
       const raton = ctx.raton;
       if (raton.dentro && giro.fase === 'listo' && raton.rayo.ray.intersectPlane(planoZona, tmp)) {
@@ -427,13 +455,13 @@ export function iniciar(ctx) {
         if (f >= 1) giro.fase = 'listo';
       }
       brazoRaton.visible = true;
-      brazoRaton.position.set(lado * (DESVIO - 0.7), alturaRaton, 0.1);
-      brazoRaton.rotation.y = lado * (angulo - Math.PI / 2);
+      brazoRaton.position.set(DESVIO_RATON - 0.7, alturaRaton, 0.1);
+      brazoRaton.rotation.y = angulo - Math.PI / 2;
       brazoRaton.updateMatrixWorld(true);
       bateRaton.localToWorld(bate.inicio.set(0, 0, INICIO_BATE));
       bateRaton.localToWorld(bate.punta.set(0, 0, PUNTA_BATE));
       barra.visible = raton.dentro;
-      barra.position.set(lado * DESVIO, alturaRaton, 0);
+      barra.position.set(DESVIO_RATON, alturaRaton, 0);
     }
     bate.activo = golpeando && bate.lista;
     if (!bate.lista) {
@@ -471,7 +499,7 @@ export function iniciar(ctx) {
     bateada = true;
     estela.visible = true;
     ctx.sonido('bate');
-    if (bate.mano) ctx.vibrar(bate.mano, 1, 120);
+    for (const m of bate.manos) ctx.vibrar(m, 1, 120);
   }
 
   function moverBola(dt) {
@@ -557,8 +585,8 @@ export function iniciar(ctx) {
   function actualizar(dt) {
     reloj -= dt;
     actualizarBate(dt);
-    zona.position.x = lado * DESVIO;
-    casa.position.x = lado * DESVIO;
+    zona.position.x = desvio();
+    casa.position.x = desvio();
 
     if (tBrazo >= 0) {
       tBrazo += dt;

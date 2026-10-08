@@ -162,7 +162,7 @@ export const JUEGOS = [
       'deporte',
     ],
     descripcion: 'El lanzador te tira 10 bolas por ronda: batéalas lejos. Sencillo, doble, triple o home run por encima de la valla.',
-    controlesVR: 'Bate en la mano derecha: golpea la bola con un movimiento rápido. El gatillo de la otra mano cambia el bate de mano.',
+    controlesVR: 'Ponte de lado como un bateador diestro y agarra el bate con las dos manos juntas (la izquierda abajo). Batea con un swing rápido.',
     controlesEscritorio: 'Elige la altura del bate con el ratón y haz clic justo cuando llegue la bola.',
     miniatura: 'juegos/beisbol/miniatura.svg',
     modulo: 'juegos/beisbol/juego.js',
