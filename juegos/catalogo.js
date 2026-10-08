@@ -32,4 +32,14 @@ export const JUEGOS = [
     miniatura: 'juegos/flechas/miniatura.svg',
     modulo: 'juegos/flechas/juego.js',
   },
+  {
+    id: 'tiro',
+    titulo: 'Galería de Tiro',
+    genero: 'Disparos',
+    descripcion: 'Se levantan muñecos por el campo: dispara a los rojos y respeta a los azules. Rondas de 60 segundos.',
+    controlesVR: 'Una pistola en cada mano: apunta con el láser y aprieta el gatillo.',
+    controlesEscritorio: 'Apunta con el ratón y haz clic para disparar.',
+    miniatura: 'juegos/tiro/miniatura.svg',
+    modulo: 'juegos/tiro/juego.js',
+  },
 ];

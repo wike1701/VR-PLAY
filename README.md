@@ -17,6 +17,7 @@ juegos/
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
   flechas/juego.js      Esquiva Flechas
+  tiro/juego.js         Galería de Tiro
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

@@ -63,6 +63,7 @@ const SONIDOS = {
   fallo: () => tono(320, 140, 0.3, 'sawtooth', 0.15),
   boton: () => { tono(660, 660, 0.08, 'sine', 0.3); tono(990, 990, 0.12, 'sine', 0.3, 0.08); },
   tic: () => tono(1200, 1200, 0.04, 'sine', 0.15),
+  disparo: () => { ruido(0.14, 1100, 0.7, 0.6); tono(240, 60, 0.12, 'square', 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
