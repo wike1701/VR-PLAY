@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9cc9e6"/>
+      <stop offset="0.42" stop-color="#d9ecf5"/>
+      <stop offset="0.42" stop-color="#cdb38b"/>
+      <stop offset="1" stop-color="#b69a70"/>
+    </linearGradient>
+    <radialGradient id="acero" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#c3cad2"/>
+      <stop offset="1" stop-color="#6b757f"/>
+    </radialGradient>
+    <radialGradient id="bronce" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#f3c39c"/>
+      <stop offset="0.45" stop-color="#b06a3b"/>
+      <stop offset="1" stop-color="#5a3018"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Árboles -->
+  <g fill="#4f7f3a">
+    <path d="M40 168 L70 90 L100 168 Z"/>
+    <path d="M300 168 L332 80 L364 168 Z"/>
+  </g>
+  <!-- Piedrecitas -->
+  <g fill="#a88f68">
+    <circle cx="60" cy="230" r="3"/><circle cx="120" cy="300" r="2.5"/><circle cx="330" cy="260" r="3"/>
+    <circle cx="250" cy="350" r="3"/><circle cx="90" cy="370" r="2.5"/><circle cx="360" cy="330" r="2"/>
+    <circle cx="180" cy="220" r="2"/><circle cx="300" cy="200" r="2.5"/>
+  </g>
+  <!-- Sombras -->
+  <g fill="#000" opacity="0.18">
+    <ellipse cx="148" cy="306" rx="46" ry="10"/>
+    <ellipse cx="270" cy="296" rx="44" ry="10"/>
+    <ellipse cx="206" cy="282" rx="16" ry="4"/>
+  </g>
+  <!-- Boliche -->
+  <circle cx="206" cy="270" r="13" fill="#ffb300"/>
+  <circle cx="202" cy="266" r="4" fill="#ffe082"/>
+  <!-- Bolas -->
+  <circle cx="148" cy="262" r="44" fill="url(#acero)"/>
+  <path d="M104 262 Q148 246 192 262 M148 218 Q132 262 148 306" fill="none" stroke="#37474f" stroke-width="2.5"/>
+  <circle cx="270" cy="254" r="42" fill="url(#bronce)"/>
+  <path d="M228 254 Q270 238 312 254 M270 212 Q254 254 270 296" fill="none" stroke="#3e2210" stroke-width="2.5"/>
+  <!-- Medida del punto -->
+  <path d="M186 296 Q196 312 206 290" fill="none" stroke="#00e5ff" stroke-width="3" stroke-dasharray="5 5"/>
+</svg>

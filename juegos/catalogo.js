@@ -130,4 +130,22 @@ export const JUEGOS = [
     miniatura: 'juegos/portero/miniatura.svg',
     modulo: 'juegos/portero/juego.js',
   },
+  {
+    id: 'petanca',
+    titulo: 'Petanca',
+    genero: 'Deportes',
+    etiquetas: [
+      'petanca', 'bolas', 'boliche', 'lanzar', 'puntería', 'tranquilo',
+      'petanque', 'boules', 'bochas', 'bolos', 'bola', 'acero', 'cochonnet', 'arrimar', 'tirar',
+      'lanzamiento', 'precisión', 'estrategia', 'táctica', 'por turnos', 'turnos', 'contra la máquina',
+      'rival', 'partida', 'mano', 'punto', 'puntos', 'grava', 'pista', 'parque', 'pueblo', 'verano',
+      'jubilados', 'abuelos', 'familia', 'relajado', 'sin prisa', 'sin moverse', 'sentado',
+      'casual', 'fácil', 'clásico', 'deporte', 'deportes',
+    ],
+    descripcion: 'Partida a 7 puntos contra la máquina: acerca tus bolas al boliche o saca las del rival de un golpe.',
+    controlesVR: 'Coge la bola del soporte con el gatillo o el botón lateral, lánzala con el brazo y suelta.',
+    controlesEscritorio: 'Haz clic en la pista donde quieres que caiga la bola; después rueda un poco.',
+    miniatura: 'juegos/petanca/miniatura.svg',
+    modulo: 'juegos/petanca/juego.js',
+  },
 ];
