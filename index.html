@@ -159,6 +159,8 @@
   }
   .tarjeta h3 { margin: 0; font-size: 1rem; font-weight: 600; }
   .meta { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
+  .etiquetas { margin: 4px 0 0; font-size: 0.8rem; color: var(--accent-2); }
+  .etiquetas:empty { display: none; }
   .vacio { color: var(--muted); }
 
   .anuncio {
@@ -198,7 +200,7 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <input class="buscar" id="buscar" type="search" placeholder="Buscar juegos" aria-label="Buscar juegos">
+    <input class="buscar" id="buscar" type="search" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
   </div>
 </header>
 
@@ -263,11 +265,24 @@
     }));
   }
 
+  // Minúsculas y sin tildes: "Disparos", "disparos" y "dísparos" son lo mismo
+  const normalizar = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+  // Búsqueda: cada palabra tiene que coincidir (se pueden combinar).
+  //   #disparos  -> juegos con una etiqueta (o género) que empiece por "disparos"
+  //   patos      -> juegos que contengan "patos" en el título, la descripción o las etiquetas
+  function coincide(juego, palabras) {
+    const etiquetas = [juego.genero, ...(juego.etiquetas || [])].map(normalizar);
+    const texto = normalizar([juego.titulo, juego.descripcion, ...etiquetas].join(' '));
+    return palabras.every((p) => p.startsWith('#')
+      ? p.length === 1 || etiquetas.some((e) => e.startsWith(p.slice(1)))
+      : texto.includes(p));
+  }
+
   function pintarRejilla() {
-    const texto = busqueda.trim().toLowerCase();
+    const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
     const lista = JUEGOS.filter((j) =>
-      (generoActivo === 'Todos' || j.genero === generoActivo) &&
-      (j.titulo + ' ' + j.descripcion).toLowerCase().includes(texto));
+      (generoActivo === 'Todos' || j.genero === generoActivo) && coincide(j, palabras));
 
     if (lista.length === 0) {
       const p = document.createElement('p');
@@ -289,10 +304,12 @@
         <div>
           <h3></h3>
           <p class="meta"></p>
+          <p class="etiquetas"></p>
         </div>`;
       a.querySelector('img').src = j.miniatura;
       a.querySelector('h3').textContent = j.titulo;
       a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
+      a.querySelector('.etiquetas').textContent = (j.etiquetas || []).map((e) => '#' + e).join(' ');
       return a;
     }));
   }

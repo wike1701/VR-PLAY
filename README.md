@@ -13,7 +13,7 @@ shell/
   utilidades.js         Paneles de texto 3D y liberación de memoria
   sonido.js             Efectos de sonido sintetizados
 juegos/
-  catalogo.js           Lista de juegos (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
+  catalogo.js           Lista de juegos con sus etiquetas para buscar por # (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
   flechas/juego.js      Esquiva Flechas
@@ -75,7 +75,32 @@ export function iniciar(ctx) {
 ```
 
 2. Añade una miniatura cuadrada (`juegos/<id>/miniatura.svg`, `.png` o `.jpg`).
-3. Añade la entrada en `juegos/catalogo.js`.
+3. Añade la entrada en `juegos/catalogo.js`, **con sus etiquetas** (ver abajo).
+
+```js
+{
+  id: 'patos',
+  titulo: 'Caza de Patos',
+  genero: 'Disparos',
+  etiquetas: ['disparos', 'disparar', 'arco', 'flechas', 'puntería', 'patos', 'caza'],
+  descripcion: '…',
+  controlesVR: '…',
+  controlesEscritorio: '…',
+  miniatura: 'juegos/patos/miniatura.svg',
+  modulo: 'juegos/patos/juego.js',
+},
+```
+
+### Etiquetas y búsqueda por `#`
+
+En el buscador del catálogo se puede escribir `#etiqueta` para ver los juegos de ese tipo. Por ejemplo, `#disparos` o `#disparar` muestran Galería de Tiro y Caza de Patos.
+
+- Cada juego necesita un campo `etiquetas` en `catalogo.js`. Si no lo tiene, solo se encontrará por título, descripción y género.
+- Pon las palabras en minúsculas y sin `#`. Incluye el sustantivo y el verbo (`disparos`, `disparar`), el arma u objeto (`arco`, `pistola`) y el tipo de juego (`puntería`, `reflejos`, `esquivar`).
+- Las tildes dan igual al buscar (`#punteria` encuentra `puntería`). Una etiqueta se encuentra también por su principio: `#dispar` encuentra `disparos` y `disparar`.
+- El género cuenta como una etiqueta más.
+- Se pueden combinar palabras y todas tienen que coincidir. Por ejemplo, `#disparos arco` muestra solo Caza de Patos.
+- Las etiquetas aparecen en las tarjetas del catálogo, así que reutiliza las que ya existen para que los juegos parecidos salgan juntos.
 
 Reglas para que el cambio sea fluido: todo lo visible va dentro de `ctx.raiz` o en las manos con `ctx.adjuntarAMano`. Las geometrías y los materiales compartidos se registran con `ctx.recurso()`. No uses `setTimeout` ni listeners propios, sino el tiempo de `actualizar`. Así la shell puede liberar todo al cambiar y la memoria del Quest no crece.
 

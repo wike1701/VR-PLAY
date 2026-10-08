@@ -1,11 +1,14 @@
 // Lista de juegos de la web.
 // Para añadir uno nuevo: crea su carpeta en /juegos con un juego.js y añádelo aquí.
+// "etiquetas" son las palabras con las que se encuentra en el buscador (#disparos, #esquivar...):
+// en minúsculas y sin #, incluyendo sinónimos y verbos (disparos, disparar...). Las tildes dan igual al buscar.
 // El botón de cambio recorre todos los juegos en orden aleatorio, sin repetir hasta completar la vuelta.
 export const JUEGOS = [
   {
     id: 'fruta',
     titulo: 'Corta Fruta',
     genero: 'Arcade',
+    etiquetas: ['cortar', 'espadas', 'fruta', 'ninja', 'reflejos', 'arcade'],
     descripcion: 'Corta con tus espadas la fruta que salta y esquiva las bombas.',
     controlesVR: 'Una espada en cada mano: corta la fruta con un movimiento rápido.',
     controlesEscritorio: 'Desliza el ratón rápido por encima de la fruta para cortarla.',
@@ -16,6 +19,7 @@ export const JUEGOS = [
     id: 'topos',
     titulo: 'Aplasta Topos',
     genero: 'Reflejos',
+    etiquetas: ['golpear', 'martillo', 'topos', 'reflejos', 'arcade'],
     descripcion: 'Golpea los topos con el martillo antes de que se escondan. Rondas de 60 segundos.',
     controlesVR: 'Un martillo en cada mano: golpea al topo cuando asome.',
     controlesEscritorio: 'Haz clic sobre el topo para aplastarlo.',
@@ -26,6 +30,7 @@ export const JUEGOS = [
     id: 'flechas',
     titulo: 'Esquiva Flechas',
     genero: 'Acción',
+    etiquetas: ['esquivar', 'flechas', 'agacharse', 'moverse', 'ejercicio', 'acción'],
     descripcion: 'Las torres te disparan flechas: agáchate y apártate para que no te den. Tienes 3 vidas.',
     controlesVR: 'Mueve el cuerpo: agáchate o da un paso a un lado cuando una torre brille en rojo.',
     controlesEscritorio: 'Mueve el ratón a los lados para apartarte y hacia abajo para agacharte.',
@@ -36,6 +41,7 @@ export const JUEGOS = [
     id: 'tiro',
     titulo: 'Galería de Tiro',
     genero: 'Disparos',
+    etiquetas: ['disparos', 'disparar', 'pistola', 'puntería', 'tiro', 'muñecos'],
     descripcion: 'Se levantan muñecos por el campo: dispara a los rojos y respeta a los azules. Rondas de 60 segundos.',
     controlesVR: 'Una pistola en cada mano: apunta con el láser y aprieta el gatillo.',
     controlesEscritorio: 'Apunta con el ratón y haz clic para disparar.',
@@ -46,6 +52,7 @@ export const JUEGOS = [
     id: 'patos',
     titulo: 'Caza de Patos',
     genero: 'Disparos',
+    etiquetas: ['disparos', 'disparar', 'arco', 'flechas', 'puntería', 'patos', 'caza'],
     descripcion: 'Tensa el arco y acierta a los patos que cruzan el cielo. Los dorados valen 5. Rondas de 60 segundos.',
     controlesVR: 'Arco en la mano izquierda: agarra la cuerda con el gatillo derecho, tensa y suelta. El botón lateral cambia el arco de mano.',
     controlesEscritorio: 'Apunta con el ratón, mantén pulsado para tensar y suelta para disparar.',
