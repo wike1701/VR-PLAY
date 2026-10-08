@@ -549,6 +549,7 @@ renderer.setAnimationLoop(() => {
   boton.grupo.visible = enVR;
   if (enVR) {
     const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa));
+    if (r.aviso) vibrar(r.aviso.mano, r.aviso.fuerza, 25); // guía para encontrar el botón
     if (r.entro) {
       vibrar(r.entro, 0.3, 30);
       sonido('tic');
