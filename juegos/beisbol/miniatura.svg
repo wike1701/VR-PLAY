@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5d9fd6"/>
+      <stop offset="0.55" stop-color="#a6d6f2"/>
+      <stop offset="0.55" stop-color="#4caf50"/>
+      <stop offset="1" stop-color="#2e7d32"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Gradas y valla -->
+  <rect x="0" y="160" width="400" height="40" fill="#455a64"/>
+  <rect x="0" y="180" width="400" height="40" fill="#37474f"/>
+  <rect x="0" y="200" width="400" height="22" fill="#1b5e20"/>
+  <rect x="0" y="198" width="400" height="5" fill="#ffd600"/>
+  <!-- Diamante -->
+  <path d="M200 395 L330 300 L200 250 L70 300 Z" fill="#c68a4e"/>
+  <path d="M200 372 L300 302 L200 268 L100 302 Z" fill="#43a047"/>
+  <rect x="190" y="372" width="20" height="14" fill="#fff"/>
+  <!-- Estela de la bola -->
+  <g stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.75" fill="none">
+    <path d="M180 300 Q230 150 300 90"/>
+  </g>
+  <!-- Bola -->
+  <g transform="translate(305 86)">
+    <circle r="26" fill="#fafafa" stroke="#222" stroke-width="2"/>
+    <path d="M-16 -18 Q-6 0 -16 18" stroke="#d32f2f" stroke-width="3" fill="none"/>
+    <path d="M16 -18 Q6 0 16 18" stroke="#d32f2f" stroke-width="3" fill="none"/>
+  </g>
+  <!-- Bate -->
+  <g transform="translate(120 330) rotate(-40)">
+    <path d="M0 -7 L150 -16 Q162 -16 162 0 Q162 16 150 16 L0 7 Z" fill="#d2a565" stroke="#8d6e3f" stroke-width="2"/>
+    <rect x="-8" y="-8" width="40" height="16" rx="4" fill="#212121"/>
+    <circle cx="-10" cy="0" r="10" fill="#212121"/>
+  </g>
+</svg>

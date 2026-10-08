@@ -23,6 +23,7 @@ juegos/
   baloncesto/juego.js   Tiro a Canasta
   portero/juego.js      Para Penaltis
   petanca/juego.js      Petanca
+  beisbol/juego.js      Batea Bolas
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

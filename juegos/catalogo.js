@@ -148,4 +148,23 @@ export const JUEGOS = [
     miniatura: 'juegos/petanca/miniatura.svg',
     modulo: 'juegos/petanca/juego.js',
   },
+  {
+    id: 'beisbol',
+    titulo: 'Batea Bolas',
+    genero: 'Deportes',
+    etiquetas: [
+      'béisbol', 'batear', 'bate', 'home run', 'deportes', 'reflejos',
+      'beisbol', 'baseball', 'softball', 'mlb', 'bateo', 'bateador', 'batazo', 'golpear', 'golpe',
+      'pelota', 'bola', 'lanzador', 'pitcher', 'strike', 'jonrón', 'cuadrangular', 'estadio',
+      'diamante', 'bases', 'valla', 'gradas', 'distancia', 'lejos', 'fuerza', 'potencia',
+      'puntería', 'precisión', 'rapidez', 'velocidad', 'curva', 'brazos', 'movimiento',
+      'ejercicio', 'sin moverse', 'casual', 'familia', 'niños', 'americano', 'puntos', 'récord',
+      'deporte',
+    ],
+    descripcion: 'El lanzador te tira 10 bolas por ronda: batéalas lejos. Sencillo, doble, triple o home run por encima de la valla.',
+    controlesVR: 'Bate en la mano derecha: golpea la bola con un movimiento rápido. El gatillo de la otra mano cambia el bate de mano.',
+    controlesEscritorio: 'Elige la altura del bate con el ratón y haz clic justo cuando llegue la bola.',
+    miniatura: 'juegos/beisbol/miniatura.svg',
+    modulo: 'juegos/beisbol/juego.js',
+  },
 ];
