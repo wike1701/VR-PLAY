@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa9e6"/>
+      <stop offset="1" stop-color="#bfe3f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <rect y="300" width="400" height="100" fill="#3a7ca5"/>
+  <g stroke="#558b2f" stroke-width="6" stroke-linecap="round">
+    <line x1="20" y1="400" x2="28" y2="300"/>
+    <line x1="44" y1="400" x2="40" y2="318"/>
+    <line x1="370" y1="400" x2="362" y2="306"/>
+    <line x1="388" y1="400" x2="394" y2="322"/>
+  </g>
+  <!-- Pato volando -->
+  <g transform="translate(250 130)">
+    <ellipse cx="0" cy="0" rx="58" ry="30" fill="#8d6e63"/>
+    <path d="M-10 -10 L-60 -70 L20 -16 Z" fill="#6d4c41"/>
+    <circle cx="58" cy="-22" r="22" fill="#2e7d32"/>
+    <path d="M76 -26 L104 -18 L76 -12 Z" fill="#ffa000"/>
+    <circle cx="64" cy="-28" r="4" fill="#111"/>
+    <path d="M-56 -4 L-80 -18 L-74 6 Z" fill="#6d4c41"/>
+  </g>
+  <!-- Plumas -->
+  <g fill="#fff" opacity="0.9">
+    <ellipse cx="190" cy="176" rx="10" ry="4" transform="rotate(-30 190 176)"/>
+    <ellipse cx="214" cy="196" rx="9" ry="4" transform="rotate(20 214 196)"/>
+  </g>
+  <!-- Flecha en vuelo -->
+  <line x1="70" y1="330" x2="200" y2="172" stroke="#d7b98e" stroke-width="6" stroke-linecap="round"/>
+  <path d="M206 164 L188 172 L200 184 Z" fill="#b0bec5"/>
+  <!-- Arco -->
+  <path d="M40 220 Q120 250 110 360" stroke="#795548" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <line x1="40" y1="220" x2="110" y2="360" stroke="#f5f5f5" stroke-width="2"/>
+  <path d="M60 342 L82 344 L70 322 Z" fill="#e53935"/>
+</svg>

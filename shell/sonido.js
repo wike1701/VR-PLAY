@@ -64,6 +64,8 @@ const SONIDOS = {
   boton: () => { tono(660, 660, 0.08, 'sine', 0.3); tono(990, 990, 0.12, 'sine', 0.3, 0.08); },
   tic: () => tono(1200, 1200, 0.04, 'sine', 0.15),
   disparo: () => { ruido(0.14, 1100, 0.7, 0.6); tono(240, 60, 0.12, 'square', 0.22); },
+  arco: () => { tono(160, 80, 0.18, 'triangle', 0.3); ruido(0.22, 2600, 0.25, 1.5); },
+  cuac: () => { tono(520, 360, 0.11, 'sawtooth', 0.12); tono(500, 340, 0.13, 'sawtooth', 0.12, 0.14); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

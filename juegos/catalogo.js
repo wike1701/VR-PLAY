@@ -42,4 +42,14 @@ export const JUEGOS = [
     miniatura: 'juegos/tiro/miniatura.svg',
     modulo: 'juegos/tiro/juego.js',
   },
+  {
+    id: 'patos',
+    titulo: 'Caza de Patos',
+    genero: 'Disparos',
+    descripcion: 'Tensa el arco y acierta a los patos que cruzan el cielo. Los dorados valen 5. Rondas de 60 segundos.',
+    controlesVR: 'Arco en la mano izquierda: agarra la cuerda con el gatillo derecho, tensa y suelta. El botón lateral cambia el arco de mano.',
+    controlesEscritorio: 'Apunta con el ratón, mantén pulsado para tensar y suelta para disparar.',
+    miniatura: 'juegos/patos/miniatura.svg',
+    modulo: 'juegos/patos/juego.js',
+  },
 ];
