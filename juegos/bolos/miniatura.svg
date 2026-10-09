@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#231a3a"/>
+      <stop offset="1" stop-color="#3b2d63"/>
+    </linearGradient>
+    <linearGradient id="pista" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9824c"/>
+      <stop offset="1" stop-color="#e2ad72"/>
+    </linearGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#7fa8ff"/>
+      <stop offset="0.5" stop-color="#1e5bd8"/>
+      <stop offset="1" stop-color="#0d2c6e"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <path d="M150 150 L250 150 L360 400 L40 400 Z" fill="url(#pista)"/>
+  <rect x="120" y="70" width="160" height="26" rx="4" fill="#7c5cff"/>
+  <!-- Bolos saltando -->
+  <g>
+    <g transform="translate(200 150)"><path d="M-9 0 Q-14 -24 -6 -34 Q-10 -44 0 -50 Q10 -44 6 -34 Q14 -24 9 0 Z" fill="#fafafa"/><rect x="-7" y="-38" width="14" height="3" fill="#d32f2f"/></g>
+    <g transform="translate(170 140) rotate(-35)"><path d="M-9 0 Q-14 -24 -6 -34 Q-10 -44 0 -50 Q10 -44 6 -34 Q14 -24 9 0 Z" fill="#fafafa"/><rect x="-7" y="-38" width="14" height="3" fill="#d32f2f"/></g>
+    <g transform="translate(232 136) rotate(40)"><path d="M-9 0 Q-14 -24 -6 -34 Q-10 -44 0 -50 Q10 -44 6 -34 Q14 -24 9 0 Z" fill="#fafafa"/><rect x="-7" y="-38" width="14" height="3" fill="#d32f2f"/></g>
+    <g transform="translate(150 118) rotate(-70)"><path d="M-9 0 Q-14 -24 -6 -34 Q-10 -44 0 -50 Q10 -44 6 -34 Q14 -24 9 0 Z" fill="#fafafa"/><rect x="-7" y="-38" width="14" height="3" fill="#d32f2f"/></g>
+    <g transform="translate(258 112) rotate(75)"><path d="M-9 0 Q-14 -24 -6 -34 Q-10 -44 0 -50 Q10 -44 6 -34 Q14 -24 9 0 Z" fill="#fafafa"/><rect x="-7" y="-38" width="14" height="3" fill="#d32f2f"/></g>
+  </g>
+  <!-- Bola -->
+  <circle cx="200" cy="300" r="62" fill="url(#bola)"/>
+  <circle cx="186" cy="280" r="7" fill="#06122e"/>
+  <circle cx="212" cy="280" r="7" fill="#06122e"/>
+  <circle cx="199" cy="302" r="7" fill="#06122e"/>
+  <!-- Estrellas -->
+  <g fill="#ffeb3b">
+    <path d="M90 90 l6 13 14 2 -11 9 4 14 -13 -8 -13 8 4 -14 -11 -9 14 -2z"/>
+    <path d="M318 180 l5 10 11 2 -8 7 3 11 -11 -6 -10 6 3 -11 -8 -7 11 -2z"/>
+  </g>
+</svg>

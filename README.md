@@ -29,6 +29,11 @@ juegos/
   petanca/juego.js      Petanca
   beisbol/juego.js      Batea Bolas
   pingpong/juego.js     Ping Pong
+  bolos/juego.js        Bolos
+  badminton/juego.js    Bádminton
+  voleibol/juego.js     Vóley Playa
+  carreras/juego.js     Carreras
+  obstaculos/juego.js   Ruta de Obstáculos
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

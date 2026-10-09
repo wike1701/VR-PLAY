@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa9e6"/>
+      <stop offset="0.45" stop-color="#cfe9f7"/>
+      <stop offset="0.45" stop-color="#5aa83f"/>
+      <stop offset="1" stop-color="#3f8a2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <!-- Circuito en curva -->
+  <path d="M60 400 Q120 260 260 200 Q330 175 400 182 L400 215 Q330 210 280 232 Q170 285 170 400 Z" fill="#4a4d52"/>
+  <path d="M60 400 Q120 260 260 200 Q330 175 400 182" fill="none" stroke="#e53935" stroke-width="8" stroke-dasharray="14 14"/>
+  <path d="M170 400 Q170 285 280 232 Q330 210 400 215" fill="none" stroke="#fafafa" stroke-width="6" stroke-dasharray="14 14"/>
+  <!-- Coche rival -->
+  <g transform="translate(300 196)">
+    <rect x="-22" y="-10" width="44" height="14" rx="3" fill="#1e88e5"/>
+    <rect x="-12" y="-18" width="24" height="10" rx="2" fill="#223344"/>
+  </g>
+  <!-- Cabina: capó y volante -->
+  <path d="M60 400 L110 300 L290 300 L340 400 Z" fill="#d32f2f"/>
+  <rect x="0" y="352" width="400" height="48" fill="#2b2b2b"/>
+  <circle cx="200" cy="372" r="62" fill="none" stroke="#1d1d1d" stroke-width="14"/>
+  <rect x="140" y="366" width="120" height="10" fill="#1d1d1d"/>
+  <circle cx="200" cy="371" r="12" fill="#d32f2f"/>
+  <!-- Bandera a cuadros -->
+  <g transform="translate(40 50) rotate(-8)">
+    <rect x="0" y="0" width="6" height="90" fill="#555"/>
+    <g>
+      <rect x="6" y="0" width="70" height="46" fill="#fff"/>
+      <path d="M6 0h14v11.5H6zM34 0h14v11.5H34zM62 0h14v11.5H62zM20 11.5h14V23H20zM48 11.5h14V23H48zM6 23h14v11.5H6zM34 23h14v11.5H34zM62 23h14v11.5H62zM20 34.5h14V46H20zM48 34.5h14V46H48z" fill="#111"/>
+    </g>
+  </g>
+</svg>

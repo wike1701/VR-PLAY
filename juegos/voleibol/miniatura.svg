@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4fb3ea"/>
+      <stop offset="0.55" stop-color="#bfe6fa"/>
+      <stop offset="0.55" stop-color="#1f84c4"/>
+      <stop offset="0.62" stop-color="#1f84c4"/>
+      <stop offset="0.62" stop-color="#e6c890"/>
+      <stop offset="1" stop-color="#d7b377"/>
+    </linearGradient>
+    <pattern id="red" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M0 0 H12 M0 0 V12" stroke="#111" stroke-width="1.5" opacity="0.65"/>
+    </pattern>
+    <clipPath id="c"><circle cx="0" cy="0" r="48"/></clipPath>
+  </defs>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <!-- Sol y palmera -->
+  <circle cx="330" cy="70" r="30" fill="#fff59d"/>
+  <path d="M60 300 Q50 200 78 120" fill="none" stroke="#8d6e4a" stroke-width="12" stroke-linecap="round"/>
+  <g fill="#3f8f3a">
+    <path d="M78 120 Q40 100 10 130 Q45 110 78 124 Z"/>
+    <path d="M78 120 Q110 90 150 110 Q110 104 80 126 Z"/>
+    <path d="M78 120 Q60 80 30 74 Q66 90 76 124 Z"/>
+    <path d="M78 120 Q100 70 130 66 Q98 90 82 124 Z"/>
+  </g>
+  <!-- Red -->
+  <rect x="120" y="190" width="270" height="50" fill="url(#red)"/>
+  <rect x="120" y="186" width="270" height="7" fill="#1565c0"/>
+  <rect x="116" y="186" width="7" height="140" fill="#eee"/>
+  <!-- Balón -->
+  <g transform="translate(250 120) rotate(-20)" clip-path="url(#c)">
+    <rect x="-48" y="-48" width="96" height="32" fill="#ffd600"/>
+    <rect x="-48" y="-16" width="96" height="32" fill="#1e63c6"/>
+    <rect x="-48" y="16" width="96" height="32" fill="#fafafa"/>
+  </g>
+  <circle cx="250" cy="120" r="48" fill="none" stroke="#333" stroke-width="2" opacity="0.4"/>
+  <!-- Líneas de movimiento -->
+  <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.7">
+    <line x1="190" y1="190" x2="170" y2="214"/>
+    <line x1="214" y1="178" x2="196" y2="204"/>
+  </g>
+</svg>

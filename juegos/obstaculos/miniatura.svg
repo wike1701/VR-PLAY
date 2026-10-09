@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fbbe8"/>
+      <stop offset="0.42" stop-color="#d6eef9"/>
+      <stop offset="0.42" stop-color="#6cb33f"/>
+      <stop offset="1" stop-color="#4f9a2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <!-- Carretera de 3 carriles hacia el horizonte -->
+  <path d="M180 168 L220 168 L380 400 L20 400 Z" fill="#505359"/>
+  <path d="M193 168 L140 400 M207 168 L260 400" stroke="#f5f5f5" stroke-width="4" stroke-dasharray="16 16"/>
+  <!-- Muro y rampa -->
+  <rect x="150" y="190" width="100" height="22" fill="#9c4b3a"/>
+  <path d="M150 201 H250 M175 190 V201 M200 201 V212 M225 190 V201" stroke="#6b5a52" stroke-width="2"/>
+  <path d="M168 262 L208 262 L202 232 L174 232 Z" fill="#ffd600"/>
+  <!-- Conos -->
+  <g fill="#ff6d00">
+    <path d="M110 330 L124 290 L138 330 Z"/>
+    <path d="M276 300 L286 272 L296 300 Z"/>
+  </g>
+  <g fill="#fff"><rect x="117" y="306" width="14" height="5"/><rect x="281" y="285" width="10" height="4"/></g>
+  <!-- Monedas -->
+  <g fill="#ffc400" stroke="#b8860b" stroke-width="2">
+    <ellipse cx="300" cy="240" rx="10" ry="12"/>
+    <ellipse cx="320" cy="270" rx="12" ry="14"/>
+  </g>
+  <!-- Coche saltando -->
+  <g transform="translate(190 120) rotate(-8)">
+    <rect x="-46" y="-14" width="92" height="28" rx="8" fill="#1565c0"/>
+    <rect x="-26" y="-34" width="52" height="24" rx="6" fill="#223344"/>
+    <circle cx="-26" cy="16" r="12" fill="#1a1a1a"/>
+    <circle cx="26" cy="16" r="12" fill="#1a1a1a"/>
+  </g>
+  <g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.7">
+    <line x1="120" y1="132" x2="96" y2="140"/>
+    <line x1="122" y1="114" x2="100" y2="116"/>
+  </g>
+</svg>
