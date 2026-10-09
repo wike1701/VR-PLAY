@@ -297,11 +297,19 @@ export function iniciar(ctx) {
   }
 
   // ─── Generar obstáculos ────────────────────────────────────────────────
+  // Siempre tiene que quedar un carril libre. Ojo con los coches lentos: van más
+  // despacio que el resto, así que las filas que salen después los alcanzan. Por eso,
+  // mientras haya uno en la carretera, su carril cuenta como ocupado en cada fila
+  // nueva, solo puede haber uno a la vez y no salen rampas (no caerías sobre él).
   function nuevaFila() {
     const z = APARICION;
     const r = Math.random();
+    const cocheLento = obstaculos.find((o) => o.tipo === 'coche' && o.activo);
+    const ocupado = cocheLento ? CARRILES.indexOf(cocheLento.x) : -1;
+    const libres = [0, 1, 2].filter((k) => k !== ocupado);
+    const carrilLibre = () => libres[Math.floor(Math.random() * libres.length)];
     const carril = () => CARRILES[Math.floor(Math.random() * 3)];
-    if (tiempo > 15 && r < 0.14) {
+    if (tiempo > 15 && r < 0.14 && !cocheLento) {
       // Rampa y, más adelante, un muro que ocupa toda la carretera
       // (más separados cuanto más rápido vas, para que el salto siempre lo supere)
       activar('rampa', carril(), z);
@@ -309,21 +317,21 @@ export function iniciar(ctx) {
       return 70;
     }
     if (r < 0.4) {
-      // Uno o dos obstáculos pequeños, siempre con un carril libre
-      const libre = Math.floor(Math.random() * 3);
+      // Uno o dos obstáculos pequeños, siempre con un carril libre (que no sea el del coche lento)
+      const libre = carrilLibre();
       for (let k = 0; k < 3; k++) {
-        if (k === libre) continue;
+        if (k === libre || k === ocupado) continue;
         if (Math.random() < 0.6) activar(Math.random() < 0.5 ? 'cono' : 'roca', CARRILES[k] + (Math.random() - 0.5) * 0.8, z);
       }
       if (Math.random() < 0.5) activar('moneda', CARRILES[libre], z);
     } else if (r < 0.6) {
-      // Valla que tapa dos carriles
-      const izquierda = Math.random() < 0.5;
+      // Valla que tapa dos carriles: deja libre el de un lado, nunca el del coche lento
+      const izquierda = ocupado === 2 ? false : ocupado === 0 ? true : Math.random() < 0.5;
       activar('valla', izquierda ? -ANCHO_CARRIL / 2 : ANCHO_CARRIL / 2, z);
       const libre = izquierda ? CARRILES[2] : CARRILES[0];
       for (let k = 0; k < 3; k++) activar('moneda', libre, z + k * 4);
-    } else if (r < 0.8) {
-      // Coche más lento en un carril
+    } else if (r < 0.8 && !cocheLento) {
+      // Coche más lento en un carril (solo uno a la vez)
       activar('coche', carril(), z, 0.45 * crucero);
     } else {
       // Fila de monedas
