@@ -135,10 +135,11 @@ export function iniciar(ctx) {
   const anterior = new THREE.Vector3();
 
   // ─── Manos ─────────────────────────────────────────────────────────────
-  // Al sujetar el mando, la mano real queda de canto: la palma mira hacia dentro
-  // (hacia la otra mano), los dedos hacia delante y el pulgar arriba. El modelo
-  // se construye igual, en el espacio del mando (-Z delante, +Y arriba), y se
-  // fusiona en una sola geometría por mano (una llamada de dibujo cada una).
+  // Espacio de agarre del mando (especificación WebXR): -Z va a lo largo del mango,
+  // hacia el pulgar; X es perpendicular al dorso (la palma mira hacia la otra mano)
+  // y +Y apunta hacia el brazo. La mano se dibuja primero con los dedos hacia -Z y
+  // luego se gira 90° en X: los dedos quedan hacia -Y (rodeando el mango), la muñeca
+  // hacia el brazo y el pulgar delante. Una sola geometría por mano (una llamada de dibujo).
   const fusionar = (piezas) => {
     const datos = { position: [], normal: [], uv: [] };
     for (const [geo, matriz] of piezas) {
@@ -167,12 +168,12 @@ export function iniciar(ctx) {
       pieza(dedo(0.056, 0.0095), dentro * 0.004, 0.009, -0.05, 0, -dentro * 0.12), // corazón
       pieza(dedo(0.051, 0.009), dentro * 0.004, -0.011, -0.05, 0, -dentro * 0.12), // anular
       pieza(dedo(0.042, 0.0085), dentro * 0.004, -0.03, -0.045, 0, -dentro * 0.12), // meñique
-      pieza(dedo(0.042, 0.011), dentro * 0.014, 0.04, -0.01, 0.55, -dentro * 0.5),  // pulgar, arriba y hacia dentro
-    ]);
+      pieza(dedo(0.042, 0.011), dentro * 0.014, 0.04, -0.01, 1.25, -dentro * 0.5),  // pulgar: tras el giro queda delante, sobre el mando
+    ]).rotateX(-Math.PI / 2); // dedos hacia -Y, pulgar hacia -Z, muñeca hacia +Y (el brazo)
   }
   const geoManos = { izquierda: geometriaMano(-1), derecha: geometriaMano(1) };
   const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const OFFSET_MANO = new THREE.Vector3(0, 0, -0.035); // centro de la zona que golpea (palma y dedos)
+  const OFFSET_MANO = new THREE.Vector3(0, -0.035, 0); // centro de la zona que golpea (palma y dedos)
   const manosVR = ctx.manos.map((mano) => {
     // Se crean las dos versiones y se enseña la que toca cuando se sabe qué mando es
     const izquierda = ctx.adjuntarAMano(mano, new THREE.Mesh(geoManos.izquierda, matMano));
@@ -185,7 +186,7 @@ export function iniciar(ctx) {
   for (const s of [-1, 1]) {
     const m = new THREE.Mesh(s < 0 ? geoManos.izquierda : geoManos.derecha, matMano);
     m.position.x = s * 0.06;
-    m.rotation.x = 0.9;
+    m.rotation.x = Math.PI - 0.6; // dedos hacia arriba y un poco hacia delante
     parRaton.add(m);
   }
   parRaton.position.set(0, 1.4, Z_RATON);
