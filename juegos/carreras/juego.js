@@ -1,32 +1,46 @@
 // CARRERAS
-// 3 vueltas a un circuito contra 3 coches de la máquina. Vas sentado en la
-// cabina: el coche se queda quieto y es el circuito el que se mueve a tu
-// alrededor (así funciona igual con gafas y sin ellas).
+// 3 vueltas a un circuito con rectas largas y curvas cerradas contra 5
+// monoplazas de la máquina. Vas sentado bajo, como en un Fórmula 1: el coche
+// se queda quieto y es el circuito el que se mueve a tu alrededor (así funciona
+// igual con gafas y sin ellas).
+// Los neumáticos tienen un límite de agarre: si entras en una curva demasiado
+// rápido el coche no gira lo que le pides, derrapa y se va hacia fuera. Hay que
+// frenar antes de las curvas cerradas.
 // En VR giras un volante "invisible" con las dos manos (como si lo agarraras),
-// aceleras con el gatillo derecho y frenas con el izquierdo. Con ratón o con
-// el dedo: a los lados para girar y mantén pulsado para acelerar.
+// aceleras con el gatillo derecho y frenas con el izquierdo. Con ratón o con el
+// dedo: a los lados para girar, mantén pulsado para acelerar y suelta para frenar.
 import * as THREE from 'three';
 
 // Sin archivos externos: todo se genera con código (ver el comentario en Corta Fruta).
 export async function precargar() {}
 
 const VUELTAS = 3;
-const ANCHO_PISTA = 10;
-const N = 500;                 // puntos del trazado
-const VELOCIDAD_MAX = 30;      // m/s (108 km/h)
-const VELOCIDAD_HIERBA = 10;
-const ACELERACION = 7;
-const FRENADA = 16;
-const BATALLA = 2.6;           // distancia entre ejes (radio de giro)
-const GIRO_MAX = 0.45;         // ángulo máximo de las ruedas
+const ANCHO_PISTA = 12;
+const N = 900;                 // puntos del trazado
+const VELOCIDAD_MAX = 55;      // m/s (unos 200 km/h)
+const VELOCIDAD_HIERBA = 14;
+const ACELERACION = 11;        // a baja velocidad; se reduce al acercarse a la máxima
+const FRENADA = 22;            // VR: gatillo izquierdo
+const FRENADA_RATON = 12;      // ratón o dedo: al soltar
+const RETENCION = 3;           // sin acelerar ni frenar
+const AGARRE = 15;             // m/s² de aceleración lateral antes de derrapar
+const BATALLA = 3;             // distancia entre ejes (radio de giro)
+const GIRO_MAX = 0.4;          // ángulo máximo de las ruedas
 const GIRO_VOLANTE = 1.6;      // radianes de volante para girar del todo
-const ACELERACION_LATERAL = 9; // los coches de la máquina frenan para no pasarse de esto en las curvas
-const OJOS = 1.15;             // altura de los ojos en la cabina
-const DISTANCIA_CHOQUE = 2.1;
-// Trazado del circuito (x, z): la salida está en el primer punto, mirando hacia el segundo
+const OJOS = 0.85;             // altura de los ojos: sentado bajo, como en un monoplaza
+const DISTANCIA_CHOQUE = 2.2;
+const MARCHAS = 6;
+// Máquina: agarre algo menor que el tuyo (en las curvas se les puede ganar) y frenada
+const AGARRE_MAQUINA = 13.5;
+const FRENADA_MAQUINA = 16;
+const ACELERACION_MAQUINA = 9;
+// Trazado del circuito (x, z): la salida está en el primer punto, mirando hacia el segundo.
+// Recta larga, horquilla, curvas enlazadas, otra horquilla, eses y recta de atrás.
 const TRAZADO = [
-  [0, 0], [0, -60], [12, -95], [45, -112], [85, -100], [105, -65], [95, -28], [68, -12],
-  [58, 18], [72, 52], [58, 84], [22, 96], [-12, 82], [-26, 50], [-16, 22],
+  [0, 0], [0, -150], [0, -290], [15, -330], [45, -342], [72, -325], [80, -290],
+  [80, -210], [100, -170], [140, -155], [185, -170], [220, -190], [250, -175], [255, -140],
+  [230, -115], [180, -95], [140, -70], [125, -30], [135, 10], [160, 45], [165, 85],
+  [145, 115], [110, 120], [40, 120], [-20, 115], [-45, 95], [-48, 60], [-30, 35], [-8, 20],
 ];
 
 export function iniciar(ctx) {
@@ -36,10 +50,10 @@ export function iniciar(ctx) {
   ctx.fondo(0x87c6ef);
   const niebla = ctx.escena.fog;
   const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 50;
-  niebla.far = 180;
+  niebla.near = 70;
+  niebla.far = 260;
   ctx.sueloBase(false);
-  ctx.vistaEscritorio(new THREE.Vector3(0, OJOS, 0.1), new THREE.Vector3(0, 0.9, -10));
+  ctx.vistaEscritorio(new THREE.Vector3(0, OJOS, 0.05), new THREE.Vector3(0, 0.55, -12));
 
   // "conjunto" sube o baja según la altura real de tus ojos; dentro van la cabina
   // (fija) y el mundo (que se mueve al revés que el coche)
@@ -54,6 +68,22 @@ export function iniciar(ctx) {
     for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * u, uv.getY(i) * v);
     return geo;
   };
+  // Fusiona piezas [geometría, x, y, z] en una sola geometría (una llamada de dibujo)
+  const fusionar = (piezas) => {
+    const datos = { position: [], normal: [], uv: [] };
+    for (const [geo, x, y, z] of piezas) {
+      const g = geo.index ? geo.toNonIndexed() : geo.clone();
+      g.translate(x, y, z);
+      for (const nombre in datos) datos[nombre].push(...g.attributes[nombre].array);
+      g.dispose();
+      geo.dispose();
+    }
+    const resultado = new THREE.BufferGeometry();
+    for (const nombre in datos) resultado.setAttribute(nombre, new THREE.Float32BufferAttribute(datos[nombre], nombre === 'uv' ? 2 : 3));
+    return R(resultado);
+  };
+  const caja = (x, y, z) => new THREE.BoxGeometry(x, y, z);
+  const rueda = (radio, ancho) => new THREE.CylinderGeometry(radio, radio, ancho, 16).rotateZ(Math.PI / 2);
 
   // ─── Trazado ───────────────────────────────────────────────────────────
   const curva = new THREE.CatmullRomCurve3(TRAZADO.map(([x, z]) => new THREE.Vector3(x, 0, z)), true, 'centripetal');
@@ -67,15 +97,23 @@ export function iniciar(ctx) {
     tangentes.push(t);
     derechas.push(new THREE.Vector3(-t.z, 0, t.x));
   }
-  // Velocidad máxima en cada punto según lo cerrada que es la curva
-  const limites = tangentes.map((t, i) => {
-    const a = tangentes[(i - 3 + N) % N];
-    const b = tangentes[(i + 3) % N];
-    const angulo = Math.acos(THREE.MathUtils.clamp(a.dot(b), -1, 1));
-    const radio = angulo > 1e-4 ? (6 * TRAMO) / angulo : 1e4;
-    return Math.min(VELOCIDAD_MAX, Math.sqrt(ACELERACION_LATERAL * radio));
-  });
   const rumboDe = (t) => Math.atan2(-t.x, -t.z);
+
+  // Velocidad de la máquina en cada punto: lo que permite la curva y, hacia atrás,
+  // lo que hace falta para llegar frenando a la siguiente curva
+  const perfil = tangentes.map((t, i) => {
+    const a = tangentes[(i - 4 + N) % N];
+    const b = tangentes[(i + 4) % N];
+    const angulo = Math.acos(THREE.MathUtils.clamp(a.dot(b), -1, 1));
+    const radio = angulo > 1e-4 ? (8 * TRAMO) / angulo : 1e4;
+    return Math.min(VELOCIDAD_MAX * 0.97, Math.sqrt(AGARRE_MAQUINA * radio));
+  });
+  for (let vuelta = 0; vuelta < 2; vuelta++) {
+    for (let i = N - 1; i >= 0; i--) {
+      const siguiente = perfil[(i + 1) % N];
+      perfil[i] = Math.min(perfil[i], Math.sqrt(siguiente * siguiente + 2 * FRENADA_MAQUINA * TRAMO));
+    }
+  }
 
   // Cinta a lo largo del trazado entre dos distancias laterales al centro
   function cinta(desde, hasta, metrosPorV, y) {
@@ -106,17 +144,15 @@ export function iniciar(ctx) {
     return R(geo);
   }
 
-  // Asfalto con línea discontinua en el centro
+  // Asfalto con las líneas blancas de los bordes
   const texAsfalto = R(ctx.texturaCanvas((g, tam, azar) => {
-    g.fillStyle = '#4a4d52';
+    g.fillStyle = '#45484d';
     g.fillRect(0, 0, tam, tam);
     for (let i = 0; i < 2500; i++) {
       g.fillStyle = azar() < 0.5 ? `rgba(255,255,255,${azar() * 0.08})` : `rgba(0,0,0,${azar() * 0.15})`;
       g.fillRect(azar() * tam, azar() * tam, 1.5, 1.5);
     }
-    g.fillStyle = 'rgba(255,255,255,0.85)';
-    g.fillRect(tam * 0.49, 0, tam * 0.02, tam * 0.5);
-    g.fillStyle = 'rgba(255,255,255,0.7)';
+    g.fillStyle = 'rgba(255,255,255,0.75)';
     g.fillRect(tam * 0.02, 0, tam * 0.012, tam);
     g.fillRect(tam * 0.966, 0, tam * 0.012, tam);
   }, { tam: 256, semilla: 17 }));
@@ -129,11 +165,11 @@ export function iniciar(ctx) {
     g.fillRect(0, tam / 2, tam, tam / 2);
   }, { tam: 32 }));
   const matPiano = R(new THREE.MeshLambertMaterial({ map: texPiano }));
-  mundo.add(new THREE.Mesh(cinta(ANCHO_PISTA / 2, ANCHO_PISTA / 2 + 0.9, 2, 0.025), matPiano));
-  mundo.add(new THREE.Mesh(cinta(-ANCHO_PISTA / 2 - 0.9, -ANCHO_PISTA / 2, 2, 0.025), matPiano));
+  mundo.add(new THREE.Mesh(cinta(ANCHO_PISTA / 2, ANCHO_PISTA / 2 + 1, 2, 0.025), matPiano));
+  mundo.add(new THREE.Mesh(cinta(-ANCHO_PISTA / 2 - 1, -ANCHO_PISTA / 2, 2, 0.025), matPiano));
   // Césped
-  const cesped = new THREE.Mesh(escalarUV(R(new THREE.PlaneGeometry(500, 500).rotateX(-Math.PI / 2)), 500 / 8), R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.cesped(0x5aa83f, { semilla: 3 })) })));
-  cesped.position.set(40, 0, -10);
+  const cesped = new THREE.Mesh(escalarUV(R(new THREE.PlaneGeometry(900, 900).rotateX(-Math.PI / 2)), 900 / 8), R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.cesped(0x5aa83f, { semilla: 3 })) })));
+  cesped.position.set(100, 0, -110);
   mundo.add(cesped);
   // Línea de salida a cuadros
   const texCuadros = R(ctx.texturaCanvas((g, tam) => {
@@ -143,44 +179,44 @@ export function iniciar(ctx) {
       g.fillRect(i * c, k * (tam / 2), c, tam / 2);
     }
   }, { tam: 128 }));
-  const meta = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO_PISTA, 1.2).rotateX(-Math.PI / 2)), R(new THREE.MeshLambertMaterial({ map: texCuadros })));
+  const meta = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO_PISTA, 1.4).rotateX(-Math.PI / 2)), R(new THREE.MeshLambertMaterial({ map: texCuadros })));
   meta.position.copy(puntos[0]).setY(0.03);
   meta.rotation.y = rumboDe(tangentes[0]);
   mundo.add(meta);
   // Arco de meta y grada
   const matArco = R(new THREE.MeshLambertMaterial({ color: 0x263238 }));
-  const geoPilar = R(new THREE.BoxGeometry(0.5, 6, 0.5));
+  const geoPilar = R(caja(0.5, 6, 0.5));
   for (const s of [-1, 1]) {
     const pilar = new THREE.Mesh(geoPilar, matArco);
     pilar.position.copy(puntos[0]).addScaledVector(derechas[0], s * (ANCHO_PISTA / 2 + 1.5)).setY(3);
     mundo.add(pilar);
   }
-  const travesano = new THREE.Mesh(R(new THREE.BoxGeometry(ANCHO_PISTA + 3.5, 1, 0.5)), R(new THREE.MeshLambertMaterial({ color: 0x7c5cff })));
+  const travesano = new THREE.Mesh(R(caja(ANCHO_PISTA + 3.5, 1, 0.5)), R(new THREE.MeshLambertMaterial({ color: 0x7c5cff })));
   travesano.position.copy(puntos[0]).setY(6);
   travesano.rotation.y = rumboDe(tangentes[0]);
   mundo.add(travesano);
-  const grada = new THREE.Mesh(R(new THREE.BoxGeometry(4, 3, 30)), R(new THREE.MeshLambertMaterial({ color: 0x546e7a })));
-  grada.position.copy(puntos[0]).addScaledVector(derechas[0], -(ANCHO_PISTA / 2 + 8)).setY(1.5);
-  grada.rotation.y = rumboDe(tangentes[0]);
+  const grada = new THREE.Mesh(R(caja(4, 3, 60)), R(new THREE.MeshLambertMaterial({ color: 0x546e7a })));
+  grada.position.copy(puntos[N - 20]).addScaledVector(derechas[N - 20], -(ANCHO_PISTA / 2 + 9)).setY(1.5);
+  grada.rotation.y = rumboDe(tangentes[N - 20]);
   mundo.add(grada);
 
   // Árboles fuera de la pista (instanciados: dos llamadas)
-  const geoCopa = R(new THREE.ConeGeometry(2.2, 6, 8).translate(0, 5, 0));
+  const geoCopa = R(new THREE.ConeGeometry(2.4, 7, 8).translate(0, 5.5, 0));
   const geoTroncoArbol = R(new THREE.CylinderGeometry(0.3, 0.4, 2, 6).translate(0, 1, 0));
   const lugares = [];
   let semilla = 7;
   const azar = () => ((semilla = (semilla * 16807) % 2147483647) / 2147483647);
-  while (lugares.length < 140) {
-    const x = -80 + azar() * 240;
-    const z = -170 + azar() * 310;
+  while (lugares.length < 220) {
+    const x = -110 + azar() * 430;
+    const z = -420 + azar() * 600;
     let lejos = true;
-    for (let i = 0; i < N; i += 4) {
-      if ((puntos[i].x - x) ** 2 + (puntos[i].z - z) ** 2 < 14 * 14) {
+    for (let i = 0; i < N; i += 6) {
+      if ((puntos[i].x - x) ** 2 + (puntos[i].z - z) ** 2 < 18 * 18) {
         lejos = false;
         break;
       }
     }
-    if (lejos) lugares.push([x, z, 0.7 + azar() * 0.7]);
+    if (lejos) lugares.push([x, z, 0.7 + azar() * 0.8]);
   }
   const copas = new THREE.InstancedMesh(geoCopa, R(new THREE.MeshLambertMaterial({ color: 0x2e6b30 })), lugares.length);
   const troncos = new THREE.InstancedMesh(geoTroncoArbol, R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 })), lugares.length);
@@ -192,74 +228,95 @@ export function iniciar(ctx) {
   });
   mundo.add(copas, troncos);
 
-  // ─── Coches de la máquina ──────────────────────────────────────────────
-  // Una geometría fusionada para las 4 ruedas
-  const fusionar = (piezas) => {
-    const datos = { position: [], normal: [], uv: [] };
-    for (const [geo, matriz] of piezas) {
-      const g = geo.index ? geo.toNonIndexed() : geo.clone();
-      g.applyMatrix4(matriz);
-      for (const nombre in datos) datos[nombre].push(...g.attributes[nombre].array);
-      g.dispose();
-    }
-    const resultado = new THREE.BufferGeometry();
-    for (const nombre in datos) resultado.setAttribute(nombre, new THREE.Float32BufferAttribute(datos[nombre], nombre === 'uv' ? 2 : 3));
-    return R(resultado);
-  };
-  const geoRueda = new THREE.CylinderGeometry(0.36, 0.36, 0.3, 14).rotateZ(Math.PI / 2);
-  const geoRuedas = fusionar([[-0.85, -1.35], [0.85, -1.35], [-0.85, 1.35], [0.85, 1.35]].map(([x, z]) => [geoRueda, new THREE.Matrix4().setPosition(x, 0.36, z)]));
-  geoRueda.dispose();
-  const geoCarroceria = R(new THREE.BoxGeometry(1.8, 0.55, 4.2).translate(0, 0.6, 0));
-  const geoHabitaculo = R(new THREE.BoxGeometry(1.5, 0.5, 1.9).translate(0, 1.12, 0.35));
+  // ─── Monoplazas de la máquina ──────────────────────────────────────────
+  // Construidos mirando a -Z: morro largo, pontones, ruedas al aire y alerones.
+  const geoCuerpoRival = fusionar([
+    [caja(0.34, 0.22, 2.0), 0, 0.32, -1.6],    // morro
+    [caja(0.8, 0.42, 1.9), 0, 0.42, 0.05],     // habitáculo
+    [caja(0.5, 0.34, 1.4), -0.6, 0.33, 0.35],  // pontones
+    [caja(0.5, 0.34, 1.4), 0.6, 0.33, 0.35],
+    [caja(0.55, 0.5, 1.2), 0, 0.55, 1.15],     // tapa del motor
+    [caja(1.7, 0.05, 0.42), 0, 0.12, -2.55],   // alerón delantero
+    [caja(1.0, 0.08, 0.36), 0, 0.98, 2.0],     // alerón trasero
+    [caja(0.04, 0.5, 0.45), -0.5, 0.75, 2.0],  // derivas del alerón
+    [caja(0.04, 0.5, 0.45), 0.5, 0.75, 2.0],
+  ]);
+  const geoRuedasRival = fusionar([
+    [rueda(0.33, 0.3), -0.8, 0.33, -1.6], [rueda(0.33, 0.3), 0.8, 0.33, -1.6],
+    [rueda(0.37, 0.4), -0.82, 0.37, 1.45], [rueda(0.37, 0.4), 0.82, 0.37, 1.45],
+  ]);
+  const geoCasco = R(new THREE.SphereGeometry(0.15, 12, 8).translate(0, 0.78, 0.05));
   const matRueda = R(new THREE.MeshLambertMaterial({ color: 0x1a1a1a }));
-  const matCristal = R(new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.1, metalness: 0.4 }));
-  const rivales = [0x1e88e5, 0xfdd835, 0x43a047].map((color, i) => {
+  const matCasco = R(new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.3 }));
+  const rivales = [0x1e88e5, 0xfdd835, 0x43a047, 0xff6d00, 0x8e24aa].map((color, i) => {
     const coche = new THREE.Group();
     coche.add(
-      new THREE.Mesh(geoCarroceria, R(new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.3 }))),
-      new THREE.Mesh(geoHabitaculo, matCristal),
-      new THREE.Mesh(geoRuedas, matRueda),
+      new THREE.Mesh(geoCuerpoRival, R(new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.3 }))),
+      new THREE.Mesh(geoRuedasRival, matRueda),
+      new THREE.Mesh(geoCasco, matCasco),
     );
     mundo.add(coche);
-    const sombra = ctx.crearSombra({ radio: 1.6, opacidad: 0.5 });
-    sombra.scale.set(2.2, 1, 4.6);
+    const sombra = ctx.crearSombra({ radio: 1.4, opacidad: 0.5 });
+    sombra.scale.set(2.1, 1, 5);
     mundo.add(sombra);
-    return { coche, sombra, s: 0, v: 0, carril: 0, base: 0, maxima: VELOCIDAD_MAX * (0.86 + i * 0.04), fase: i * 2, x: 0, z: 0 };
+    // Cada uno con su nivel: el mejor casi exprime el perfil, el peor va algo más lento
+    return { coche, sombra, s: 0, v: 0, carril: 0, base: 0, habilidad: 1 - i * 0.025, fase: i * 1.7, x: 0, z: 0 };
   });
 
-  // ─── Cabina ────────────────────────────────────────────────────────────
+  // ─── Cabina de Fórmula 1 ───────────────────────────────────────────────
   const cabina = new THREE.Group();
   conjunto.add(cabina);
   const matCarroceria = R(new THREE.MeshLambertMaterial({ color: 0xd32f2f }));
   const matInterior = R(new THREE.MeshLambertMaterial({ color: 0x2b2b2b }));
-  const capo = new THREE.Mesh(R(new THREE.BoxGeometry(1.7, 0.3, 1.9)), matCarroceria);
-  capo.position.set(0, 0.62, -1.65);
-  const salpicadero = new THREE.Mesh(R(new THREE.BoxGeometry(1.6, 0.25, 0.35)), matInterior);
-  salpicadero.position.set(0, 0.82, -0.62);
-  const lados = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.12, 0.45, 2.6)), matCarroceria, 2);
-  [-1, 1].forEach((s, i) => lados.setMatrixAt(i, new THREE.Matrix4().setPosition(s * 0.82, 0.6, -0.2)));
-  cabina.add(capo, salpicadero, lados); // descapotable: sin parabrisas que tape la vista
-  // Volante (inclinado hacia ti)
+  cabina.add(new THREE.Mesh(fusionar([
+    [caja(0.36, 0.22, 2.3), 0, 0.36, -1.75],   // morro
+    [caja(1.8, 0.05, 0.45), 0, 0.12, -3.0],    // alerón delantero
+    [caja(0.05, 0.22, 0.5), -0.9, 0.2, -3.0],  // derivas del alerón
+    [caja(0.05, 0.22, 0.5), 0.9, 0.2, -3.0],
+    [caja(0.12, 0.3, 1.3), -0.42, 0.45, -0.15], // laterales del habitáculo
+    [caja(0.12, 0.3, 1.3), 0.42, 0.45, -0.15],
+    [caja(0.55, 0.34, 1.4), -0.72, 0.3, 0.35],  // pontones
+    [caja(0.55, 0.34, 1.4), 0.72, 0.3, 0.35],
+  ]), matCarroceria));
+  // Ruedas delanteras al aire: giran con la velocidad y con el volante
+  const ruedasDelanteras = [-1, 1].map((s) => {
+    const soporte = new THREE.Group();
+    soporte.position.set(s * 0.82, 0.33, -2.05);
+    const r = new THREE.Mesh(R(rueda(0.33, 0.3)), matRueda);
+    soporte.add(r);
+    cabina.add(soporte);
+    return { soporte, r };
+  });
+  // Brazos de suspensión (de la carrocería a las ruedas)
+  cabina.add(new THREE.Mesh(fusionar([
+    [caja(0.62, 0.03, 0.05), -0.5, 0.36, -2.05], [caja(0.62, 0.03, 0.05), 0.5, 0.36, -2.05],
+  ]), matInterior));
+  // Volante rectangular de F1
   const soporteVolante = new THREE.Group();
-  soporteVolante.position.set(0, 0.92, -0.42);
-  soporteVolante.rotation.x = -0.45;
+  soporteVolante.position.set(0, 0.6, -0.4);
+  soporteVolante.rotation.x = -0.35;
   const volante = new THREE.Group();
-  volante.add(
-    new THREE.Mesh(R(new THREE.TorusGeometry(0.17, 0.018, 8, 32)), matInterior),
-    new THREE.Mesh(R(new THREE.BoxGeometry(0.32, 0.03, 0.02)), matInterior),
-    new THREE.Mesh(R(new THREE.CylinderGeometry(0.04, 0.04, 0.03, 12).rotateX(Math.PI / 2)), matCarroceria),
-  );
+  volante.add(new THREE.Mesh(fusionar([
+    [caja(0.24, 0.12, 0.04), 0, 0, 0],         // cuerpo
+    [caja(0.045, 0.16, 0.05), -0.14, -0.01, 0], // empuñaduras
+    [caja(0.045, 0.16, 0.05), 0.14, -0.01, 0],
+  ]), matInterior));
+  const luces = new THREE.Mesh(R(caja(0.16, 0.02, 0.01)), R(new THREE.MeshBasicMaterial({ color: 0x00e676 })));
+  luces.position.set(0, 0.045, 0.021);
+  volante.add(luces);
   soporteVolante.add(volante);
   cabina.add(soporteVolante);
-  // Pantalla del salpicadero
-  const pantalla = ctx.crearPanel({ ancho: 0.46, alto: 0.15, resolucion: 384 });
-  pantalla.mesh.position.set(0.5, 0.99, -0.62); // a la derecha del volante, para que no la tape
-  pantalla.mesh.rotation.set(-0.5, -0.35, 0, 'YXZ');
+  // Pantalla sobre el morro, mirando al piloto (por encima del volante en la vista)
+  const pantalla = ctx.crearPanel({ ancho: 0.6, alto: 0.2, resolucion: 384 });
+  pantalla.mesh.position.set(0, 0.53, -1.05);
+  pantalla.mesh.rotation.x = -0.95;
   cabina.add(pantalla.mesh);
   // Cartel grande (semáforo y llegada)
   const cartel = ctx.crearPanel({ ancho: 2.4, alto: 0.7 });
-  cartel.mesh.position.set(0, 2.3, -7);
+  cartel.mesh.position.set(0, 2, -7);
   cabina.add(cartel.mesh);
+  // Motor (la shell lo para al cambiar de juego)
+  const motor = ctx.sonidoContinuo('motor');
 
   // ─── Estado ────────────────────────────────────────────────────────────
   let estado = 'salida'; // 'salida' | 'carrera' | 'fin'
@@ -273,9 +330,11 @@ export function iniciar(ctx) {
   let vueltas = 0;
   let mitad = false;
   let enHierba = false;
+  let derrape = 0;             // cuánto te pasas del agarre (0 = nada)
+  let esperaDerrape = 0;
   let enfriamientoChoque = 0;
   let giroVolante = 0;
-  let puesto = 4;
+  let puesto = rivales.length + 1;
   let puestoFinal = 0;
   let alturaOjos = null;
   let mejorTiempo = ctx.leer('mejorTiempo', 0);
@@ -291,11 +350,11 @@ export function iniciar(ctx) {
   const formatoTiempo = (s) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`;
 
   function colocarEnParrilla() {
-    // Tú sales el último, por la derecha
-    const salidaJugador = N - 14;
+    // Parrilla de dos en fondo; tú sales el último, por la derecha
+    const salidaJugador = N - 27;
     const p = puntos[salidaJugador];
-    x = p.x + derechas[salidaJugador].x * 2.2;
-    z = p.z + derechas[salidaJugador].z * 2.2;
+    x = p.x + derechas[salidaJugador].x * 2.5;
+    z = p.z + derechas[salidaJugador].z * 2.5;
     rumbo = rumboDe(tangentes[salidaJugador]);
     v = 0;
     indice = salidaJugador;
@@ -303,7 +362,7 @@ export function iniciar(ctx) {
     mitad = false;
     tiempoCarrera = 0;
     puestoFinal = 0;
-    [[N - 14, -2.2], [N - 7, 2.2], [N - 7, -2.2]].forEach(([s, carril], i) => {
+    [[N - 6, -2.5], [N - 11, 2.5], [N - 16, -2.5], [N - 21, 2.5], [N - 26, -2.5]].forEach(([s, carril], i) => {
       const r = rivales[i];
       r.s = s;
       r.v = 0;
@@ -320,7 +379,7 @@ export function iniciar(ctx) {
   function controles() {
     let direccion = 0;
     let acelerar = false;
-    let frenar = false;
+    let frenar = 0;
     if (ctx.enVR()) {
       const activas = ctx.manos.filter((m) => m.activa);
       const izquierda = activas.find((m) => m.lado === 'left') || ctx.manos[0];
@@ -334,11 +393,12 @@ export function iniciar(ctx) {
       }
       direccion = THREE.MathUtils.clamp(-giroVolante / GIRO_VOLANTE, -1, 1);
       acelerar = derecha.activa && (derecha.gatillo || derecha.apreton);
-      frenar = izquierda.activa && (izquierda.gatillo || izquierda.apreton);
+      frenar = izquierda.activa && (izquierda.gatillo || izquierda.apreton) ? FRENADA : 0;
     } else {
       direccion = THREE.MathUtils.clamp(ctx.raton.ndc.x * 1.4, -1, 1);
       giroVolante = -direccion * GIRO_VOLANTE;
       acelerar = ctx.raton.pulsado;
+      frenar = acelerar ? 0 : FRENADA_RATON;
     }
     volante.rotation.z = giroVolante;
     return { direccion, acelerar, frenar };
@@ -348,24 +408,32 @@ export function iniciar(ctx) {
   function moverJugador(dt, mando) {
     if (estado !== 'carrera') {
       mando.acelerar = false;
-      mando.frenar = estado === 'fin';
+      mando.frenar = estado === 'fin' ? FRENADA_RATON : 0;
     }
-    const maxima = enHierba ? VELOCIDAD_HIERBA : VELOCIDAD_MAX;
-    if (mando.acelerar) v += ACELERACION * (1 - v / (VELOCIDAD_MAX * 1.05)) * dt;
-    else v -= 2 * dt;
-    if (mando.frenar) v -= FRENADA * dt;
-    if (v > maxima) v = Math.max(maxima, v - 14 * dt);
-    v = Math.max(0, v);
+    if (mando.acelerar) v += ACELERACION * (1 - v / (VELOCIDAD_MAX * 1.04)) * dt;
+    else if (!mando.frenar) v -= RETENCION * dt;
+    v -= mando.frenar * dt;
+    if (enHierba && v > VELOCIDAD_HIERBA) v = Math.max(VELOCIDAD_HIERBA, v - 25 * dt);
 
-    const giro = mando.direccion * GIRO_MAX * (1 - 0.45 * (v / VELOCIDAD_MAX));
-    rumbo -= (v / BATALLA) * Math.tan(giro) * dt;
+    // Giro con límite de agarre: si la curva pide más aceleración lateral de la que
+    // aguantan los neumáticos, el coche gira solo hasta ese límite (se abre) y derrapa
+    const giro = mando.direccion * GIRO_MAX * (1 - 0.55 * (v / VELOCIDAD_MAX));
+    let giroPorSegundo = (v / BATALLA) * Math.tan(giro);
+    const lateral = v * Math.abs(giroPorSegundo);
+    derrape = lateral > AGARRE ? (lateral - AGARRE) / AGARRE : 0;
+    if (derrape > 0) {
+      giroPorSegundo = Math.sign(giroPorSegundo) * (AGARRE / Math.max(v, 1));
+      v -= derrape * 6 * dt; // los neumáticos arrastran y frenan
+    }
+    v = THREE.MathUtils.clamp(v, 0, VELOCIDAD_MAX);
+    rumbo -= giroPorSegundo * dt;
     x += -Math.sin(rumbo) * v * dt;
     z += -Math.cos(rumbo) * v * dt;
 
     // Punto del trazado más cercano (buscando cerca del anterior)
     let mejor = indice;
     let mejorD = Infinity;
-    for (let k = -15; k <= 15; k++) {
+    for (let k = -20; k <= 20; k++) {
       const i = (indice + k + N) % N;
       const d = (puntos[i].x - x) ** 2 + (puntos[i].z - z) ** 2;
       if (d < mejorD) {
@@ -381,12 +449,12 @@ export function iniciar(ctx) {
       if (vueltas < VUELTAS && estado === 'carrera') ctx.sonido('punto');
     }
     indice = mejor;
-    const lateral = (x - puntos[indice].x) * derechas[indice].x + (z - puntos[indice].z) * derechas[indice].z;
-    enHierba = Math.abs(lateral) > ANCHO_PISTA / 2 + 0.9;
+    const lateralPista = (x - puntos[indice].x) * derechas[indice].x + (z - puntos[indice].z) * derechas[indice].z;
+    enHierba = Math.abs(lateralPista) > ANCHO_PISTA / 2 + 1;
     // No dejar que te alejes demasiado del circuito
-    const limite = ANCHO_PISTA / 2 + 12;
-    if (Math.abs(lateral) > limite) {
-      const sobra = lateral - Math.sign(lateral) * limite;
+    const limite = ANCHO_PISTA / 2 + 15;
+    if (Math.abs(lateralPista) > limite) {
+      const sobra = lateralPista - Math.sign(lateralPista) * limite;
       x -= derechas[indice].x * sobra;
       z -= derechas[indice].z * sobra;
     }
@@ -396,16 +464,18 @@ export function iniciar(ctx) {
     const miProgreso = progresoJugador();
     for (const r of rivales) {
       const i = Math.floor(r.s) % N;
-      let objetivo = Math.min(r.maxima, limites[(i + 12) % N], limites[(i + 6) % N]);
-      // Si se escapan mucho, aflojan; si se quedan atrás, aprietan
+      let objetivo = perfil[(i + 3) % N] * r.habilidad;
+      // Siempre cerca de ti: si se quedan muy atrás aprietan, si se escapan aflojan
       const diferencia = progresoRival(r) - miProgreso;
-      if (diferencia > 50) objetivo *= 0.9;
-      else if (diferencia < -50) objetivo *= 1.08;
+      if (diferencia < -250) objetivo *= 1.25;
+      else if (diferencia < -80) objetivo *= 1.1;
+      else if (diferencia > 200) objetivo *= 0.85;
+      else if (diferencia > 80) objetivo *= 0.94;
       if (estado === 'salida') objetivo = 0;
-      if (estado === 'fin' && progresoRival(r) >= VUELTAS * N) objetivo = 8;
-      r.v += THREE.MathUtils.clamp(objetivo - r.v, -12 * dt, 6 * dt);
+      if (estado === 'fin' && progresoRival(r) >= VUELTAS * N) objetivo = 10;
+      r.v += THREE.MathUtils.clamp(objetivo - r.v, -FRENADA_MAQUINA * 1.3 * dt, ACELERACION_MAQUINA * dt);
       r.s += (r.v * dt) / TRAMO;
-      r.carril = r.base + Math.sin(t * 0.25 + r.fase) * 1.2;
+      r.carril = r.base + Math.sin(t * 0.3 + r.fase) * 1.5;
 
       const a = Math.floor(r.s) % N;
       const b = (a + 1) % N;
@@ -425,7 +495,7 @@ export function iniciar(ctx) {
         x = r.x + (dx / d) * DISTANCIA_CHOQUE;
         z = r.z + (dz / d) * DISTANCIA_CHOQUE;
         if (enfriamientoChoque <= 0) {
-          v *= 0.7;
+          v *= 0.75;
           enfriamientoChoque = 0.6;
           ctx.sonido('golpe');
           for (const m of ctx.manos) ctx.vibrar(m, 0.8, 120);
@@ -437,16 +507,16 @@ export function iniciar(ctx) {
 
   // ─── Pantallas ─────────────────────────────────────────────────────────
   function actualizarPantallas() {
-    const kmh = Math.round(v * 3.6);
+    const total = rivales.length + 1;
     pantalla.escribir([
-      { texto: `${kmh} km/h`, tam: 1.2 },
-      { texto: `Vuelta ${Math.min(VUELTAS, vueltas + 1)}/${VUELTAS} · ${puesto}º · ${formatoTiempo(tiempoCarrera)}`, tam: 0.8, color: '#ffcc80' },
+      { texto: `${Math.round(v * 3.6)} km/h`, tam: 1.2 },
+      { texto: `Vuelta ${Math.min(VUELTAS, vueltas + 1)}/${VUELTAS} · ${puesto}º de ${total} · ${formatoTiempo(tiempoCarrera)}`, tam: 0.8, color: '#ffcc80' },
     ]);
     if (estado === 'salida') {
       const n = Math.ceil(reloj - 1);
       cartel.escribir([
         { texto: n > 0 ? String(n) : '¡YA!', tam: 1.4, color: n > 0 ? '#ff5252' : '#69f0ae' },
-        { texto: ctx.enVR() ? 'Volante con las dos manos · gatillo derecho acelera, izquierdo frena' : (ctx.tactil ? 'Mantén el dedo para acelerar y muévelo a los lados para girar' : 'Mantén pulsado para acelerar · mueve el ratón para girar'), tam: 0.6 },
+        { texto: ctx.enVR() ? 'Volante con las dos manos · gatillo derecho acelera, izquierdo frena' : (ctx.tactil ? 'Mantén el dedo para acelerar, suéltalo para frenar y muévelo para girar' : 'Mantén pulsado para acelerar, suelta para frenar · mueve el ratón para girar'), tam: 0.6 },
       ]);
       cartel.mesh.visible = true;
     } else if (estado === 'fin') {
@@ -521,9 +591,29 @@ export function iniciar(ctx) {
     matrizCoche.compose(tmp.set(x, 0, z), quat, unidad);
     mundo.matrix.copy(matrizCoche).invert();
     mundo.matrixWorldNeedsUpdate = true;
-    // Un poco de vibración del motor y al ir por la hierba
-    cabina.position.y = Math.sin(t * 40) * 0.002 * (v / VELOCIDAD_MAX) + (enHierba && v > 3 ? Math.sin(t * 25) * 0.01 : 0);
+
+    // Ruedas delanteras: giran con la velocidad y se orientan con el volante
+    for (const rd of ruedasDelanteras) {
+      rd.r.rotation.x -= (v * dt) / 0.33;
+      rd.soporte.rotation.y = -mando.direccion * GIRO_MAX;
+    }
+    // Vibración del motor y de la hierba; al derrapar, chirrido y temblor en las manos
+    cabina.position.y = Math.sin(t * 40) * 0.002 * (v / VELOCIDAD_MAX) + (enHierba && v > 3 ? Math.sin(t * 25) * 0.012 : 0);
+    esperaDerrape -= dt;
+    if (derrape > 0.05 && v > 8 && esperaDerrape <= 0) {
+      esperaDerrape = 0.18;
+      ctx.sonido('derrape');
+      for (const m of ctx.manos) ctx.vibrar(m, Math.min(1, 0.3 + derrape), 60);
+    }
     if (enHierba && v > 5 && ctx.enVR() && Math.sin(t * 25) > 0.95) for (const m of ctx.manos) ctx.vibrar(m, 0.2, 20);
+
+    // Motor con 6 marchas: sube de vueltas y baja al cambiar de marcha
+    const marcha = Math.min(MARCHAS - 1, Math.floor((v / VELOCIDAD_MAX) * MARCHAS));
+    const dentroMarcha = (v / VELOCIDAD_MAX) * MARCHAS - marcha;
+    motor.ajustar(0.3 + dentroMarcha * 0.7 * (v > 0.5 ? 1 : 0), 0.15);
+    // Luces del volante: se encienden al acercarse al cambio de marcha
+    luces.scale.x = Math.max(0.05, dentroMarcha);
+    luces.material.color.setHex(dentroMarcha > 0.85 ? 0xff1744 : 0x00e676);
 
     actualizarPantallas();
   }
@@ -534,6 +624,7 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
+      motor.parar();
       niebla.near = nieblaOriginal.near;
       niebla.far = nieblaOriginal.far;
     },
