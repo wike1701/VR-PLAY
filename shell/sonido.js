@@ -92,3 +92,78 @@ export function sonido(nombre) {
     /* un sonido que falla no debe parar el juego */
   }
 }
+
+// ─── Sonidos continuos ───────────────────────────────────────────────────
+// Para sonidos que duran todo el juego (un motor...). Devuelve un control con
+// ajustar(valor de 0 a 1, volumen) y parar(). Los nodos de audio se crean al
+// primer ajuste con el audio ya activo (el navegador lo exige tras un gesto).
+// La shell para todos los de un juego al cambiar de juego.
+const CONTINUOS = {
+  // Motor: dos osciladores desafinados y un subgrave, con un filtro que se abre
+  // al acelerar y un temblor como el de los pistones.
+  motor() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.Q.value = 3;
+    const temblor = ac.createGain();
+    temblor.gain.value = 0.7;
+    const lfo = ac.createOscillator();
+    const profundidad = ac.createGain();
+    profundidad.gain.value = 0.3;
+    lfo.connect(profundidad).connect(temblor.gain);
+    const oscs = [['sawtooth', 1, 0.5], ['sawtooth', 1.012, 0.35], ['square', 0.5, 0.4]].map(([tipo, factor, nivel]) => {
+      const o = ac.createOscillator();
+      o.type = tipo;
+      const g = ac.createGain();
+      g.gain.value = nivel;
+      o.connect(g).connect(filtro);
+      return { o, factor };
+    });
+    filtro.connect(temblor).connect(salida).connect(maestro);
+    for (const { o } of oscs) o.start();
+    lfo.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        const base = 38 + valor * 120; // ralentí ~38 Hz, a tope ~160 Hz
+        for (const { o, factor } of oscs) o.frequency.setTargetAtTime(base * factor, t, 0.08);
+        lfo.frequency.setTargetAtTime(base / 2, t, 0.08);
+        filtro.frequency.setTargetAtTime(250 + valor * 1400, t, 0.1);
+        salida.gain.setTargetAtTime(volumen, t, 0.1);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        for (const { o } of oscs) o.stop(t + 0.3);
+        lfo.stop(t + 0.3);
+      },
+    };
+  },
+};
+
+export function sonidoContinuo(nombre) {
+  let nodos = null;
+  let parado = false;
+  return {
+    ajustar(valor = 0, volumen = 0.15) {
+      if (parado || !ac || ac.state !== 'running') return;
+      try {
+        if (!nodos) nodos = CONTINUOS[nombre]?.();
+        nodos?.ajustar(Math.min(1, Math.max(0, valor)), volumen);
+      } catch (e) {
+        /* un sonido que falla no debe parar el juego */
+      }
+    },
+    parar() {
+      parado = true;
+      try {
+        nodos?.parar();
+      } catch (e) {
+        /* ya estaba parado */
+      }
+      nodos = null;
+    },
+  };
+}

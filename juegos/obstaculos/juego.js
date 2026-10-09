@@ -14,11 +14,12 @@ const ANCHO_CARRIL = 3.2;
 const LIMITE_X = ANCHO_CARRIL;      // el centro del coche va de un carril exterior al otro
 const VELOCIDAD_INICIAL = 16;
 const VELOCIDAD_MAX = 40;
-const SUBIDA_VELOCIDAD = 0.35;      // m/s más cada segundo
+const SUBIDA_VELOCIDAD = 0.35;      // la velocidad de crucero sube estos m/s cada segundo
+const RECUPERACION = 9;             // m/s² para volver a la velocidad de crucero tras un choque
 const VELOCIDAD_LATERAL = 10;
 const APARICION = -150;             // los obstáculos aparecen a esta distancia
 const LARGO_CARRETERA = 320;
-const IMPULSO_SALTO = 7.5;
+const IMPULSO_SALTO = 7.5;          // salto mínimo; si hace falta, la rampa lanza más alto
 const G = 9.8;
 const INVULNERABLE = 1.5;
 const OJOS = 1.15;
@@ -121,8 +122,59 @@ export function iniciar(ctx) {
   const matRampa = R(new THREE.MeshLambertMaterial({ color: 0xffd600, side: THREE.DoubleSide }));
   const geoMoneda = R(new THREE.CylinderGeometry(0.4, 0.4, 0.08, 20).rotateX(Math.PI / 2).translate(0, 1.1, 0));
   const matMoneda = R(new THREE.MeshStandardMaterial({ color: 0xffc400, roughness: 0.25, metalness: 0.8, emissive: 0x3a2a00 }));
-  const geoCoche = R(new THREE.BoxGeometry(1.8, 1.1, 4.2).translate(0, 0.6, 0));
-  const matCoches = [0x1e88e5, 0x8e24aa, 0x43a047].map((c) => R(new THREE.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.3 })));
+  // Coches rivales: carrocería, habitáculo, lunas, ruedas, parachoques y luces.
+  // Cada parte del mismo material va fusionada en una sola geometría (5 llamadas por coche).
+  // Van en tu mismo sentido, así que se les ve la parte de atrás (+Z): ahí van los pilotos rojos.
+  const fusionar = (piezas) => {
+    const datos = { position: [], normal: [], uv: [] };
+    for (const [geo, x, y, z] of piezas) {
+      const g = geo.index ? geo.toNonIndexed() : geo.clone();
+      g.translate(x, y, z);
+      for (const nombre in datos) datos[nombre].push(...g.attributes[nombre].array);
+      g.dispose();
+      geo.dispose();
+    }
+    const resultado = new THREE.BufferGeometry();
+    for (const nombre in datos) resultado.setAttribute(nombre, new THREE.Float32BufferAttribute(datos[nombre], nombre === 'uv' ? 2 : 3));
+    return R(resultado);
+  };
+  const caja = (x, y, z) => new THREE.BoxGeometry(x, y, z);
+  const geoCarroceria = fusionar([
+    [caja(1.8, 0.5, 4.2), 0, 0.55, 0],          // cuerpo
+    [caja(1.5, 0.48, 2.0), 0, 1.04, 0.3],       // habitáculo, algo retrasado
+    [caja(1.7, 0.08, 1.2), 0, 0.83, -1.45],     // capó, un poco más alto por delante
+  ]);
+  const geoLunas = fusionar([
+    [caja(1.34, 0.36, 0.04), 0, 1.05, 1.31],    // luna trasera
+    [caja(1.34, 0.36, 0.04), 0, 1.05, -0.71],   // parabrisas
+    [caja(0.04, 0.32, 1.7), -0.76, 1.06, 0.3],  // ventanillas
+    [caja(0.04, 0.32, 1.7), 0.76, 1.06, 0.3],
+  ]);
+  const rueda = () => new THREE.CylinderGeometry(0.34, 0.34, 0.26, 16).rotateZ(Math.PI / 2);
+  const geoNegro = fusionar([
+    [rueda(), -0.82, 0.34, -1.35], [rueda(), 0.82, 0.34, -1.35],
+    [rueda(), -0.82, 0.34, 1.35], [rueda(), 0.82, 0.34, 1.35],
+    [caja(1.84, 0.2, 0.14), 0, 0.36, 2.13],     // parachoques
+    [caja(1.84, 0.2, 0.14), 0, 0.36, -2.13],
+  ]);
+  const geoPilotos = fusionar([[caja(0.36, 0.13, 0.04), -0.6, 0.66, 2.11], [caja(0.36, 0.13, 0.04), 0.6, 0.66, 2.11]]);
+  const geoFaros = fusionar([[caja(0.34, 0.12, 0.04), -0.6, 0.64, -2.11], [caja(0.34, 0.12, 0.04), 0.6, 0.64, -2.11]]);
+  const matCoches = [0x1e88e5, 0x8e24aa, 0x43a047, 0xe53935].map((c) => R(new THREE.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.3 })));
+  const matLunas = R(new THREE.MeshStandardMaterial({ color: 0x1c2733, roughness: 0.1, metalness: 0.5 }));
+  const matNegro = R(new THREE.MeshLambertMaterial({ color: 0x1a1a1a }));
+  const matPilotos = R(new THREE.MeshBasicMaterial({ color: 0xff1a1a }));
+  const matFaros = R(new THREE.MeshBasicMaterial({ color: 0xfff8d0 }));
+  function crearCocheRival(material) {
+    const coche = new THREE.Group();
+    coche.add(
+      new THREE.Mesh(geoCarroceria, material),
+      new THREE.Mesh(geoLunas, matLunas),
+      new THREE.Mesh(geoNegro, matNegro),
+      new THREE.Mesh(geoPilotos, matPilotos),
+      new THREE.Mesh(geoFaros, matFaros),
+    );
+    return coche;
+  }
 
   const tipos = {
     cono: { geo: geoCono, mat: matCono, n: 12, ancho: 0.35, largo: 0.7, alto: 0.9 },
@@ -131,12 +183,12 @@ export function iniciar(ctx) {
     muro: { geo: geoMuro, mat: matMuro, n: 3, ancho: anchoCarretera / 2, largo: 0.8, alto: 1.5 },
     rampa: { geo: geoRampa, mat: matRampa, n: 3, ancho: ANCHO_CARRIL / 2 - 0.1, largo: 6, alto: 0 },
     moneda: { geo: geoMoneda, mat: matMoneda, n: 25, ancho: 0.4, largo: 0.4, alto: 2 },
-    coche: { geo: geoCoche, mat: matCoches[0], n: 4, ancho: 0.9, largo: 4.2, alto: 1.1 },
+    coche: { geo: null, mat: null, n: 4, ancho: 0.9, largo: 4.3, alto: 1.3 },
   };
   const obstaculos = [];
   for (const [nombre, t] of Object.entries(tipos)) {
     for (let i = 0; i < t.n; i++) {
-      const malla = new THREE.Mesh(t.geo, nombre === 'coche' ? matCoches[i % matCoches.length] : t.mat);
+      const malla = nombre === 'coche' ? crearCocheRival(matCoches[i % matCoches.length]) : new THREE.Mesh(t.geo, t.mat);
       malla.visible = false;
       mundo.add(malla);
       obstaculos.push({ tipo: nombre, malla, activo: false, x: 0, z: 0, propia: 0, ...t });
@@ -185,6 +237,8 @@ export function iniciar(ctx) {
   const cartel = ctx.crearPanel({ ancho: 2.4, alto: 0.7 });
   cartel.mesh.position.set(0, 2.4, -7);
   cabina.add(cartel.mesh);
+  // Ruido del motor: más agudo cuanto más rápido vas (la shell lo para al cambiar de juego)
+  const motor = ctx.sonidoContinuo('motor');
   const sombraCoche = ctx.crearSombra({ radio: 1.4, opacidad: 0.45 });
   sombraCoche.scale.set(2, 1, 4.2);
   conjunto.add(sombraCoche);
@@ -193,6 +247,7 @@ export function iniciar(ctx) {
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
   let reloj = 3.5;
   let v = 0;
+  let crucero = 0;          // velocidad a la que vas si no chocas (sube con el tiempo)
   let cocheX = 0;
   let altura = 0;
   let velY = 0;
@@ -250,7 +305,7 @@ export function iniciar(ctx) {
       // Rampa y, más adelante, un muro que ocupa toda la carretera
       // (más separados cuanto más rápido vas, para que el salto siempre lo supere)
       activar('rampa', carril(), z);
-      activar('muro', 0, z - THREE.MathUtils.clamp(v * 0.9 - 6, 8, 30));
+      activar('muro', 0, z - THREE.MathUtils.clamp(crucero * 0.9 - 6, 8, 30));
       return 70;
     }
     if (r < 0.4) {
@@ -269,7 +324,7 @@ export function iniciar(ctx) {
       for (let k = 0; k < 3; k++) activar('moneda', libre, z + k * 4);
     } else if (r < 0.8) {
       // Coche más lento en un carril
-      activar('coche', carril(), z, 0.45 * v);
+      activar('coche', carril(), z, 0.45 * crucero);
     } else {
       // Fila de monedas
       const x = carril();
@@ -279,6 +334,24 @@ export function iniciar(ctx) {
   }
 
   // ─── Choques ───────────────────────────────────────────────────────────
+  // Velocidad vertical para que el coche vaya por encima del muro más cercano
+  // desde que el morro llega a él hasta que la cola lo deja atrás.
+  // La altura a los t segundos de un salto que dura T es G·t·(T − t)/2.
+  function impulsoParaSaltar() {
+    let muro = null;
+    for (const o of obstaculos) {
+      if (o.activo && o.tipo === 'muro' && o.z + o.largo / 2 < COCHE_DELANTE && (!muro || o.z > muro.z)) muro = o;
+    }
+    let duracion = (2 * IMPULSO_SALTO) / G;
+    if (muro && v > 1) {
+      const margen = muro.alto + 0.3;
+      const llegaMorro = (COCHE_DELANTE - (muro.z + muro.largo / 2)) / v;
+      const pasaCola = (COCHE_DETRAS - (muro.z - muro.largo / 2)) / v;
+      for (const t of [llegaMorro, pasaCola]) duracion = Math.max(duracion, t + (2 * margen) / (G * t));
+    }
+    return (G * Math.min(duracion, 3)) / 2;
+  }
+
   function comprobar(o) {
     const solapaX = Math.abs(o.x - cocheX) < o.ancho + MEDIO_COCHE;
     const solapaZ = o.z + o.largo / 2 > COCHE_DELANTE && o.z - o.largo / 2 < COCHE_DETRAS;
@@ -292,7 +365,10 @@ export function iniciar(ctx) {
     }
     if (o.tipo === 'rampa') {
       if (altura <= 0.01 && velY <= 0) {
-        velY = IMPULSO_SALTO;
+        // La rampa da un empujón (por si vienes frenado de un choque) y lanza lo
+        // justo para pasar por encima del muro que viene, sea cual sea la velocidad
+        v = Math.max(v, crucero * 0.9);
+        velY = impulsoParaSaltar();
         ctx.sonido('zas');
         avisar('¡Salto!');
       }
@@ -351,6 +427,7 @@ export function iniciar(ctx) {
   function empezar() {
     estado = 'jugando';
     v = VELOCIDAD_INICIAL;
+    crucero = VELOCIDAD_INICIAL;
     distancia = 0;
     monedas = 0;
     vidas = VIDAS;
@@ -382,7 +459,8 @@ export function iniciar(ctx) {
       if (reloj <= 0) empezar();
     } else if (estado === 'jugando') {
       tiempo += dt;
-      v = Math.min(VELOCIDAD_MAX, v + SUBIDA_VELOCIDAD * dt + (v < VELOCIDAD_INICIAL ? 4 * dt : 0));
+      crucero = Math.min(VELOCIDAD_MAX, crucero + SUBIDA_VELOCIDAD * dt);
+      v = Math.min(crucero, v + RECUPERACION * dt); // tras un choque recupera la velocidad enseguida
       distancia += v * dt;
       proximaFila -= v * dt;
       if (proximaFila <= 0) proximaFila = nuevaFila();
@@ -438,6 +516,8 @@ export function iniciar(ctx) {
     // Parpadeo mientras eres invulnerable y un poco de vibración del motor
     cabina.visible = invulnerable <= 0 || Math.sin(t * 30) > -0.6;
     cabina.position.y = Math.sin(t * 40) * 0.002 * (v / VELOCIDAD_MAX);
+    // En el aire las ruedas giran libres y el motor se acelera un poco
+    motor.ajustar(v / VELOCIDAD_MAX + (altura > 0 ? 0.12 : 0), estado === 'fin' && v < 1 ? 0.06 : 0.14);
     actualizarPantallas();
   }
 
@@ -446,6 +526,7 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
+      motor.parar();
       niebla.near = nieblaOriginal.near;
       niebla.far = nieblaOriginal.far;
     },

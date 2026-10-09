@@ -88,6 +88,7 @@ export function iniciar(ctx) {
   // ctx.enVR()         -> true si se está jugando con gafas
   // ctx.adjuntarAMano(mano, objeto), ctx.recurso(geometriaOMaterial)
   // ctx.crearPanel(...), ctx.sonido(nombre), ctx.vibrar(mano, fuerza, ms)
+  // ctx.sonidoContinuo('motor') -> { ajustar(valor 0-1, volumen), parar() } (la shell lo para al salir)
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)

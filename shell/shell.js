@@ -12,7 +12,7 @@ import * as THREE from 'three';
 import { JUEGOS } from '../juegos/catalogo.js';
 import { BotonCambio } from './boton-cambio.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
-import { activarAudio, sonido } from './sonido.js';
+import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
@@ -321,6 +321,7 @@ function montar(indice, modulo) {
   escena.add(raiz);
   const adjuntos = [];
   const recursos = [];
+  const continuos = []; // sonidos continuos (motores...) que hay que parar al salir
   const prefijo = `vrplay:${JUEGOS[indice].id}:`;
 
   // Todo lo que un juego necesita de la shell pasa por aquí.
@@ -341,6 +342,13 @@ function montar(indice, modulo) {
     },
     crearPanel,
     sonido,
+    // Sonido que dura (por ejemplo 'motor'): devuelve { ajustar(valor 0-1, volumen), parar() }.
+    // La shell lo para sola al cambiar de juego.
+    sonidoContinuo(nombre) {
+      const s = sonidoContinuo(nombre);
+      continuos.push(s);
+      return s;
+    },
     vibrar,
     destello: (color, fuerza) => fundido.destello(color, fuerza),
     // Cielo con degradado a partir de un color. opciones: { cenit, horizonte, suelo, dia }
@@ -376,7 +384,7 @@ function montar(indice, modulo) {
   };
 
   const instancia = modulo.iniciar(ctx);
-  actual = { indice, instancia, raiz, adjuntos, recursos };
+  actual = { indice, instancia, raiz, adjuntos, recursos, continuos };
   errorJuego = false;
 }
 
@@ -394,6 +402,7 @@ function desmontar() {
   actual.raiz.removeFromParent();
   liberarObjeto(actual.raiz);
   for (const r of actual.recursos) liberarRecurso(r);
+  for (const s of actual.continuos) s.parar();
   actual = null;
 
   // Volver al estado base de la shell
