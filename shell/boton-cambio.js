@@ -6,9 +6,12 @@ import * as THREE from 'three';
 // Un poco separado del hombro para que la mano que tensa un arco
 // (que llega a la mejilla) no lo toque sin querer.
 const DESPLAZAMIENTO = new THREE.Vector3(0.32, 0.14, 0.3);
-const ESCALA = 1.7;           // tamaño del botón respecto al diseño original
-const RADIO_ZONA = 0.24;      // a esta distancia la mano "toca" el botón
-const RADIO_AVISO = 0.5;      // desde aquí el mando vibra para guiarte hasta el botón
+const ESCALA = 2.2;           // tamaño del botón respecto al diseño original
+const RADIO_ZONA = 0.3;       // a esta distancia la mano "toca" el botón
+const RADIO_AVISO = 0.65;     // desde aquí el mando vibra para guiarte hasta el botón
+const RADIO_GUIA = 0.9;       // con la mano a esta distancia aparece la flecha que señala el botón
+const TIEMPO_AYUDA = 6;       // segundos que se ve la flecha al empezar cada juego
+const DETRAS_GUIA = -0.05;    // la flecha solo sale con la mano a la altura de la cabeza o más atrás
 const DETRAS_AVISO = 0.12;    // la guía solo suena con la mano por detrás de la cabeza (no al jugar)
 const TIEMPO_PULSACION = 0.5; // segundos con la mano dentro para activarlo
 const MARGEN_GIRO = 0.8;      // radianes que puede girar la cabeza sin arrastrar el botón
@@ -16,6 +19,29 @@ const ENFRIAMIENTO = 1.5;     // segundos sin poder volver a activarlo
 const SEGMENTOS = 48;
 
 const EJE_Y = new THREE.Vector3(0, 1, 0);
+const DISTANCIA_GUIA = 0.6;   // la flecha flota a esta distancia delante de los ojos
+const RADIO_FLECHA = 0.17;    // y a esta distancia del centro de la vista
+
+// Material para lo que se dibuja encima de todo (flecha guía)
+function materialEncima(color) {
+  return new THREE.MeshBasicMaterial({
+    color, transparent: true, opacity: 0, depthTest: false, depthWrite: false, toneMapped: false, fog: false,
+  });
+}
+
+// Flecha plana que apunta hacia +X
+function geometriaFlecha() {
+  const f = new THREE.Shape();
+  f.moveTo(0.05, 0);
+  f.lineTo(0.005, 0.035);
+  f.lineTo(0.005, 0.014);
+  f.lineTo(-0.04, 0.014);
+  f.lineTo(-0.04, -0.014);
+  f.lineTo(0.005, -0.014);
+  f.lineTo(0.005, -0.035);
+  f.closePath();
+  return new THREE.ShapeGeometry(f);
+}
 
 function normalizarAngulo(a) {
   while (a > Math.PI) a -= Math.PI * 2;
@@ -27,7 +53,7 @@ function normalizarAngulo(a) {
 // Se activa al dejar la mano dentro medio segundo o al apretar el gatillo tocándolo.
 // Al acercar la mano, el mando vibra cada vez más rápido ("frío, caliente").
 export class BotonCambio {
-  constructor(crearPanel) {
+  constructor(crearPanel, camara) {
     this.grupo = new THREE.Group();
     this.grupo.name = 'boton-cambio';
 
@@ -77,8 +103,45 @@ export class BotonCambio {
       new THREE.MeshBasicMaterial({ color: 0x8f6bff, transparent: true, opacity: 0.06, depthWrite: false }),
     );
 
+    // Halo que late detrás del botón: se ve de reojo al girar la cabeza
+    this.halo = new THREE.Mesh(
+      new THREE.RingGeometry(0.11, 0.2, SEGMENTOS, 1),
+      new THREE.MeshBasicMaterial({
+        color: 0x9d82ff, transparent: true, opacity: 0.5, side: THREE.DoubleSide,
+        depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+      }),
+    );
+    this.halo.position.z = -0.01;
+    this.visual.add(this.halo);
+
     this.grupo.add(this.visual, this.zona);
     this.grupo.visible = false;
+
+    // ─── Flecha guía en la vista ───────────────────────────────────────
+    // Va pegada a la cámara y señala hacia el botón (detrás del hombro derecho).
+    // Se ve unos segundos al empezar cada juego y cuando acercas la mano.
+    this.indicador = new THREE.Group();
+    this.indicador.position.z = -DISTANCIA_GUIA;
+    this.indicador.renderOrder = 998;
+    this.flecha = new THREE.Mesh(geometriaFlecha(), materialEncima(0xb9a8ff));
+    this.flecha.renderOrder = 998;
+    this.guiaTexto = crearPanel({ ancho: 0.17, alto: 0.05, resolucion: 320 });
+    this.guiaTexto.escribir([
+      { texto: 'SIGUIENTE JUEGO', tam: 1, color: '#b9a8ff' },
+      { texto: 'detrás de tu hombro', tam: 0.8 },
+    ]);
+    const matTexto = this.guiaTexto.mesh.material;
+    matTexto.depthTest = false;
+    matTexto.opacity = 0;
+    this.guiaTexto.mesh.renderOrder = 998;
+    this.indicador.add(this.flecha, this.guiaTexto.mesh);
+    this.indicador.visible = false;
+    camara.add(this.indicador);
+    this.camara = camara;
+    this.ayuda = TIEMPO_AYUDA;
+    this.opacidadGuia = 0;
+    this.tiempo = 0;
+    this._local = new THREE.Vector3();
 
     this.yawCuerpo = 0;
     this.progreso = 0;
@@ -93,6 +156,7 @@ export class BotonCambio {
   }
 
   setSiguiente(titulo) {
+    this.ayuda = TIEMPO_AYUDA; // se llama al empezar cada juego: volver a enseñar la flecha
     this.etiqueta.escribir([
       { texto: 'SIGUIENTE JUEGO', tam: 0.8, color: '#b9a8ff' },
       { texto: titulo, tam: 1.2 },
@@ -104,6 +168,13 @@ export class BotonCambio {
     this.colocado = false;
     this.progreso = 0;
     this.debeSalir = false;
+    this.ayuda = TIEMPO_AYUDA;
+  }
+
+  // Oculta la flecha guía (fuera de VR)
+  ocultarGuia() {
+    this.indicador.visible = false;
+    this.opacidadGuia = 0;
   }
 
   /**
@@ -153,7 +224,8 @@ export class BotonCambio {
 
     // Guía por vibración: pulsos cada vez más seguidos al acercarse
     const detras = this._detras.set(0, 0, 1).applyAxisAngle(EJE_Y, this.yawCuerpo);
-    const manoDetras = masCercana && this._relativa.subVectors(masCercana.posicion, cabezaPos).dot(detras) > DETRAS_AVISO;
+    const atras = masCercana ? this._relativa.subVectors(masCercana.posicion, cabezaPos).dot(detras) : -Infinity;
+    const manoDetras = atras > DETRAS_AVISO;
     this.esperaAviso -= dt;
     if (!manoDentro && cerca > 0 && manoDetras && this.enfriamiento === 0 && this.esperaAviso <= 0) {
       resultado.aviso = { mano: masCercana, fuerza: 0.05 + cerca * 0.2 };
@@ -181,7 +253,47 @@ export class BotonCambio {
     this.tapa.position.z = manoDentro ? 0.008 : 0.02;
     this.visual.scale.setScalar(ESCALA * (1 + cerca * 0.15));
     this.zona.material.opacity = 0.06 + cerca * 0.14;
+    this.tiempo += dt;
+    const latido = 0.5 + 0.5 * Math.sin(this.tiempo * 4);
+    this.halo.material.opacity = manoDentro ? 0.9 : 0.3 + latido * 0.35;
+    this.halo.scale.setScalar(1 + latido * 0.12);
+
+    this.actualizarGuia(dt, atras > DETRAS_GUIA ? distancia : Infinity, manoDentro);
 
     return resultado;
+  }
+
+  actualizarGuia(dt, distancia, manoDentro) {
+    this.ayuda = Math.max(0, this.ayuda - dt);
+    const cercaGuia = THREE.MathUtils.clamp(1 - (distancia - RADIO_ZONA) / (RADIO_GUIA - RADIO_ZONA), 0, 1);
+
+    // ¿Dónde está el botón respecto a la vista? Si ya se ve, la flecha sobra.
+    this.camara.updateMatrixWorld();
+    const local = this.camara.worldToLocal(this._local.copy(this.grupo.position));
+    const enVista = local.z < 0 && Math.hypot(local.x, local.y) < -local.z * 0.45;
+
+    const objetivo = !enVista && !manoDentro && (this.ayuda > 0 || cercaGuia > 0) ? 1 : 0;
+    this.opacidadGuia += (objetivo - this.opacidadGuia) * Math.min(1, dt * 6);
+    this.indicador.visible = this.opacidadGuia > 0.02;
+    if (!this.indicador.visible) return;
+
+    // Dirección del botón proyectada en la vista (está detrás: casi siempre a la derecha)
+    let dx = local.x;
+    let dy = local.y;
+    const largo = Math.hypot(dx, dy);
+    if (largo < 0.05) {
+      dx = 1;
+      dy = 0.3;
+    } else {
+      dx /= largo;
+      dy /= largo;
+    }
+    const empuje = Math.sin(this.tiempo * 6) * 0.012; // la flecha "empuja" hacia el botón
+    this.flecha.position.set(dx * (RADIO_FLECHA + empuje), dy * (RADIO_FLECHA + empuje), 0);
+    this.flecha.rotation.z = Math.atan2(dy, dx);
+    this.guiaTexto.mesh.position.set(dx * (RADIO_FLECHA - 0.11), dy * (RADIO_FLECHA - 0.11) - 0.035, 0);
+    const o = this.opacidadGuia * (0.75 + 0.25 * Math.sin(this.tiempo * 6));
+    this.flecha.material.opacity = o;
+    this.guiaTexto.mesh.material.opacity = this.opacidadGuia;
   }
 }

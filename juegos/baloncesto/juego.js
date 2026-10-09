@@ -11,7 +11,7 @@ export async function precargar() {}
 const DURACION = 60;
 const G = 9.8;
 const RADIO_BALON = 0.12;
-const ARO = new THREE.Vector3(0, 3.05, -4.2);   // centro del aro (altura reglamentaria)
+const ARO = new THREE.Vector3(0, 3.05, -3.4);   // centro del aro (altura reglamentaria, algo más cerca que un tiro libre real)
 const RADIO_ARO = 0.23;
 const GROSOR_ARO = 0.012;
 const TABLERO_Z = ARO.z - RADIO_ARO - 0.15;     // cara delantera del tablero
@@ -38,7 +38,7 @@ export function iniciar(ctx) {
   const nieblaOriginal = { near: niebla.near, far: niebla.far };
   niebla.near = 11;
   niebla.far = 30;
-  ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, 2.6, -4.2));
+  ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, 2.6, ARO.z));
 
   // ─── Utilidades de geometría ───────────────────────────────────────────
   // Coloca una geometría en su sitio (rotación y posición "horneadas").
@@ -97,7 +97,7 @@ export function iniciar(ctx) {
   const SALA_FONDO = -9.5;   // pared del fondo (detrás de la canasta)
   const SALA_FRENTE = 4.5;   // pared detrás del jugador
   const SALA_ALTO = 7;
-  const LINEA_FONDO = -5.3;  // línea de fondo pintada
+  const LINEA_FONDO = ARO.z - 1.1;  // línea de fondo pintada
   const LIBRE_Z = -0.15;     // línea de tiro libre
 
   // Parquet: tablas de ~12 cm a lo largo de la pista (hacia la canasta)

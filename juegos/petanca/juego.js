@@ -25,6 +25,7 @@ const ROZAMIENTO = 0.5;       // frenado al rodar por la grava
 const REBOTE_BOLAS = 0.7;     // las bolas de acero rebotan bastante entre sí
 const ANGULO = THREE.MathUtils.degToRad(45);
 const FUERZA_VR = 1.1;
+const FALLO_MAQUINA = 1.6;    // cuánto falla la máquina (1 = como al principio; más alto = más fácil ganarla)
 const ALCANCE_AGARRE = 0.22;
 const ORIGEN = new THREE.Vector3(0.2, 1.0, -0.35);     // desde donde se lanza con ratón y la máquina
 const SOPORTE = new THREE.Vector3(0.25, 0.95, -0.28);  // donde espera tu bola en VR
@@ -373,11 +374,11 @@ export function iniciar(ctx) {
     const J = boliche.malla.position;
     const mejor = masCercanas();
     let caida;
-    const tirar = mejor.jugador && (!mejor.maquina || mejor.jugador.d < mejor.maquina.d) && mejor.jugador.d < 0.25 && Math.random() < 0.4;
+    const tirar = mejor.jugador && (!mejor.maquina || mejor.jugador.d < mejor.maquina.d) && mejor.jugador.d < 0.25 && Math.random() < 0.3;
     if (tirar) {
       // "Tirar": intenta caer encima de tu bola para sacarla
       const b = mejor.jugador.c.malla.position;
-      caida = new THREE.Vector3(b.x + azar(0.15), R_BOLA, b.z + azar(0.15));
+      caida = new THREE.Vector3(b.x + azar(0.15 * FALLO_MAQUINA), R_BOLA, b.z + azar(0.15 * FALLO_MAQUINA));
       decir('¡La máquina tira a tu bola!', '#ffab91');
     } else {
       // "Arrimar": cae antes del boliche lo que calcula que va a rodar
@@ -385,8 +386,8 @@ export function iniciar(ctx) {
       const dir = tmp.set(objetivo.x - ORIGEN.x, 0, objetivo.z - ORIGEN.z).normalize();
       caida = objetivo.clone();
       for (let i = 0; i < 4; i++) caida.copy(objetivo).addScaledVector(dir, -rodadura(caida));
-      caida.x += azar(0.2);
-      caida.z += azar(0.25);
+      caida.x += azar(0.2 * FALLO_MAQUINA);
+      caida.z += azar(0.25 * FALLO_MAQUINA);
     }
     const malla = crearBola('maquina');
     malla.position.copy(ORIGEN);

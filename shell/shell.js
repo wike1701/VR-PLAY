@@ -425,7 +425,7 @@ function siguienteJuego() {
 }
 
 // ─── Botón de cambio detrás del hombro derecho ───────────────────────────
-const boton = new BotonCambio(crearPanel);
+const boton = new BotonCambio(crearPanel, camara);
 escena.add(boton.grupo);
 const cabezaPos = new THREE.Vector3();
 const cabezaDir = new THREE.Vector3();
@@ -582,6 +582,7 @@ renderer.setAnimationLoop(() => {
   guardarRatonAnterior();
 
   boton.grupo.visible = enVR;
+  if (!enVR) boton.ocultarGuia();
   if (enVR) {
     const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa));
     if (r.aviso) vibrar(r.aviso.mano, r.aviso.fuerza, 25); // guía para encontrar el botón

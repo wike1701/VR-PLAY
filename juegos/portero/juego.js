@@ -341,10 +341,29 @@ export function iniciar(ctx) {
     return g;
   }
 
+  // En el mando (grip space de WebXR) -Z apunta hacia el pulgar, el dorso de la mano
+  // derecha mira a +X (el de la izquierda a -X) y +Y va hacia el brazo. El guante está
+  // modelado con la palma hacia -Z y los dedos hacia +Y, así que hay que girarlo:
+  // dedos → -Y, palma → hacia fuera de la palma real, ancho del guante → eje Z.
+  const CENTRO_GUANTE = new THREE.Vector3(0, -0.05, 0); // centro de la palma, hacia los dedos
+  function orientarGuante(objeto, lado) {
+    const giro = new THREE.Matrix4().makeBasis(
+      new THREE.Vector3(0, 0, lado),
+      new THREE.Vector3(0, -1, 0),
+      new THREE.Vector3(lado, 0, 0),
+    );
+    objeto.quaternion.setFromRotationMatrix(giro);
+    // El centro del guante modelado está en (0, 0.03, -0.06): llevarlo a CENTRO_GUANTE
+    objeto.position.copy(CENTRO_GUANTE).sub(new THREE.Vector3(0, 0.03, -0.06).applyMatrix4(giro));
+  }
+  const ladoDe = (mano, i) => (mano.lado ? (mano.lado === 'left' ? -1 : 1) : (i === 0 ? -1 : 1));
+
   const guantesVR = ctx.manos.map((mano, i) => {
-    // Si aún no se sabe qué mando es cuál, el primero es el izquierdo
-    const lado = mano.lado ? (mano.lado === 'left' ? -1 : 1) : (i === 0 ? -1 : 1);
-    return { mano, objeto: ctx.adjuntarAMano(mano, crearGuante(lado)), pos: new THREE.Vector3() };
+    // Si aún no se sabe qué mando es cuál, el primero es el izquierdo (se corrige al conectarse)
+    const lado = ladoDe(mano, i);
+    const objeto = ctx.adjuntarAMano(mano, crearGuante(lado));
+    orientarGuante(objeto, lado);
+    return { mano, indice: i, lado, objeto, pos: new THREE.Vector3() };
   });
 
   // Guantes del modo escritorio (siguen al ratón)
@@ -476,7 +495,16 @@ export function iniciar(ctx) {
       torso1.set(cabezaJugador.x, cabezaJugador.y - 0.28, cabezaJugador.z + 0.03);
       torso2.set(cabezaJugador.x, Math.max(0.35, cabezaJugador.y - 0.85), cabezaJugador.z + 0.03);
       segmentoTorso.set(torso2, torso1);
-      for (const g of guantesVR) g.mano.grip.localToWorld(g.pos.set(0, 0.03, -0.06));
+      for (const g of guantesVR) {
+        const lado = ladoDe(g.mano, g.indice);
+        if (lado !== g.lado) {
+          // El mando ha dicho de qué mano es: rehacer el guante de ese lado (pasa una sola vez)
+          g.lado = lado;
+          g.objeto.children[0].geometry = geoGuante[lado];
+          orientarGuante(g.objeto, lado);
+        }
+        g.mano.grip.localToWorld(g.pos.copy(CENTRO_GUANTE));
+      }
     } else {
       parRaton.visible = ctx.raton.dentro;
       if (ctx.raton.rayo.ray.intersectPlane(planoRaton, tmp)) {

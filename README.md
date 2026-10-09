@@ -34,7 +34,7 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - `play.html` crea el renderizador y la sesión VR **una sola vez**.
 - Cada juego es un módulo que la shell monta y desmonta en la misma escena. Al cambiar, la sesión VR sigue abierta.
 - Mientras juegas, la shell descarga en segundo plano el siguiente juego de la lista. Así el cambio es casi instantáneo.
-- En VR, el botón flota detrás de tu hombro derecho. Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
+- En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego (y al llevar la mano hacia la cabeza) aparece en la vista una flecha que señala dónde está. Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
 
 ## Probarlo en tu ordenador
