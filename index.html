@@ -76,6 +76,17 @@
     font-size: 0.95rem;
   }
   .buscar::placeholder { color: var(--muted); }
+  .enlace-foro {
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .enlace-foro:hover { border-color: var(--accent); }
 
   .intro {
     display: grid;
@@ -196,7 +207,8 @@
   }
   @media (max-width: 520px) {
     .cabecera { flex-wrap: wrap; }
-    .buscar { max-width: none; width: 100%; margin-left: 0; }
+    .buscar { max-width: none; flex-basis: 100%; margin-left: 0; order: 3; }
+    .enlace-foro { margin-left: auto; }
     .esquema { grid-template-columns: 84px minmax(0, 1fr); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -210,6 +222,7 @@
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
     <input class="buscar" id="buscar" type="search" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
+    <a class="enlace-foro" href="foro.html">💡 Sugerencias</a>
   </div>
 </header>
 
@@ -245,6 +258,7 @@
 
 <footer class="contenedor">
   <nav>
+    <a href="foro.html">Sugerir un juego</a>
     <a href="#">Privacidad</a>
     <a href="#">Cookies</a>
     <a href="#">Contacto</a>

@@ -6,6 +6,11 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 
 ```
 index.html              Catálogo con la cuadrícula de juegos
+foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
+functions/api/          API del foro (Cloudflare Pages Functions)
+bd/esquema.sql          Tablas de la base de datos del foro (Cloudflare D1)
+herramientas/foro.mjs   Leer y moderar el foro desde la terminal
+CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
 iconos/                 Iconos PNG de la app (Android e iPhone)
@@ -135,6 +140,52 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
+
+## Foro de sugerencias
+
+`foro.html` es un foro donde cualquiera, sin cuenta, puede sugerir juegos, darles ♥ y comentar. Las sugerencias se guardan en una base de datos **Cloudflare D1** a través de las funciones de `functions/api/`, que Cloudflare Pages publica automáticamente junto a la web.
+
+- Cada sugerencia es un hilo con un **estado**: nueva, en estudio, en desarrollo, hecha, ya existe o descartada.
+- Cuando se hace un juego, la respuesta oficial de VR Play queda **anclada** arriba del hilo, con un botón «Jugar». El hilo **sigue abierto** para que la gente opine sobre el juego. Si hay otra respuesta oficial más tarde (por ejemplo, «Actualizado: …»), pasa a ser la anclada y la anterior queda en el historial.
+- Contra el spam: límites por hora y por IP (solo se guarda un hash de la IP), nombres reservados (nadie puede firmar como «VR Play») y, si se configura, el captcha invisible de Cloudflare (Turnstile).
+- La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs`.
+
+### Ponerlo en marcha (una vez)
+
+En el panel de Cloudflare:
+
+1. **Crear la base de datos.** Storage & Databases → D1 → *Create database*, con el nombre `vrplay-foro`.
+2. **Crear las tablas.** Abre la base de datos, pestaña *Console*. Pega el contenido de `bd/esquema.sql` y ejecútalo.
+3. **Conectarla a la web.** Workers & Pages → el proyecto de VR Play → Settings → *Bindings* → Add → *D1 database*. Nombre de la variable: `DB`. Base de datos: `vrplay-foro`.
+4. **Clave de administrador.** Settings → *Variables and Secrets* → Add:
+   - `ADMIN_TOKEN`, tipo *Secret*, con una clave larga y aleatoria de 32 caracteres o más. Guárdala: es la que da permiso para moderar.
+   - `SAL`, tipo *Secret*, con otro texto aleatorio. Sirve para las huellas de IP.
+5. **Captcha (opcional, recomendado si llega spam).** En Turnstile → *Add widget*, con el dominio de la web. Añade `TURNSTILE_SITEKEY` (tipo *Text*) y `TURNSTILE_SECRET` (tipo *Secret*).
+6. **Volver a publicar.** Deployments → en el último despliegue, *Retry deployment*. Así se aplican las variables.
+
+En tu ordenador, para que Claude Code pueda moderar:
+
+- Pon la dirección de la web en `herramientas/foro.json`, por ejemplo `{ "url": "https://vr-play.pages.dev" }`.
+- Guarda la clave como variable de entorno de tu usuario. En PowerShell: `[Environment]::SetEnvironmentVariable('FORO_TOKEN', 'la-clave', 'User')`. Después reinicia VS Code. **La clave nunca va en el repositorio.**
+
+### Uso desde la terminal
+
+```
+node herramientas/foro.mjs listar                       # por votos; --orden recientes|actividad, --estado nueva
+node herramientas/foro.mjs ver 12                       # la sugerencia y todos sus comentarios
+node herramientas/foro.mjs estado 12 hecha --juego honda
+node herramientas/foro.mjs responder 12 "¡Ya está! …"   # respuesta oficial anclada
+node herramientas/foro.mjs ocultar 12                   # o mostrar, ocultar-comentario, mostrar-comentario
+```
+
+### Probar el foro en local
+
+`python -m http.server` solo sirve archivos, así que el foro dirá que no está disponible. Para probarlo con su API hace falta `wrangler` (las herramientas de Cloudflare). Crea un `wrangler.toml` de prueba con la base de datos `DB` y luego ejecuta lo de abajo. Ese archivo está en `.gitignore` y no debe subirse: si Cloudflare Pages lo encuentra en el repositorio, lo usa en lugar de la configuración del panel.
+
+```
+npx wrangler d1 execute <nombre> --local --file bd/esquema.sql
+npx wrangler pages dev . --port 8788
+```
 
 ## Anuncios
 
