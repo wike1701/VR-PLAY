@@ -11,13 +11,13 @@ export async function precargar() {}
 const DURACION = 60;
 const G = 9.8;
 const RADIO_BALON = 0.12;
-const ARO = new THREE.Vector3(0, 3.05, -3.4);   // centro del aro (altura reglamentaria, algo más cerca que un tiro libre real)
+const ARO = new THREE.Vector3(0, 2.75, -3.4);   // centro del aro (más bajo y más cerca que en la realidad: 3,05 m a 4,2 m)
 const RADIO_ARO = 0.23;
 const GROSOR_ARO = 0.012;
 const TABLERO_Z = ARO.z - RADIO_ARO - 0.15;     // cara delantera del tablero
 const TABLERO_ANCHO = 1.8;
-const TABLERO_ABAJO = 2.9;
-const TABLERO_ARRIBA = 3.95;
+const TABLERO_ABAJO = ARO.y - 0.15;
+const TABLERO_ARRIBA = ARO.y + 0.9;
 const ALCANCE_AGARRE = 0.22;
 const FUERZA_VR = 1.1;        // los lanzamientos en VR suelen quedarse cortos
 const AYUDA = 0.35;           // cuánto se corrige un buen lanzamiento en VR hacia la canasta (0 = nada)
@@ -38,7 +38,7 @@ export function iniciar(ctx) {
   const nieblaOriginal = { near: niebla.near, far: niebla.far };
   niebla.near = 11;
   niebla.far = 30;
-  ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, 2.6, ARO.z));
+  ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, ARO.y - 0.45, ARO.z));
 
   // ─── Utilidades de geometría ───────────────────────────────────────────
   // Coloca una geometría en su sitio (rotación y posición "horneadas").
@@ -242,7 +242,7 @@ export function iniciar(ctx) {
     g.strokeRect(g.lineWidth / 2, g.lineWidth / 2, tam - g.lineWidth, tam - g.lineWidth);
     // Cuadro de tiro encima del aro (mismas medidas que las antiguas tiras)
     g.lineWidth = (0.04 / alto) * tam;
-    g.strokeRect(px(-0.275), py(3.48), px(0.275) - px(-0.275), py(3.05) - py(3.48));
+    g.strokeRect(px(-0.275), py(ARO.y + 0.43), px(0.275) - px(-0.275), py(ARO.y) - py(ARO.y + 0.43));
   }, { tam: 256 }));
   texTablero.wrapS = texTablero.wrapT = THREE.ClampToEdgeWrapping;
   const tablero = new THREE.Mesh(
@@ -347,7 +347,7 @@ export function iniciar(ctx) {
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.6, alto: 0.44 });
-  marcador.mesh.position.set(0, 4.45, TABLERO_Z);
+  marcador.mesh.position.set(0, ARO.y + 1.4, TABLERO_Z);
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────

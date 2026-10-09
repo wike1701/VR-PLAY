@@ -120,6 +120,61 @@ export function iniciar(ctx) {
     return { salida, carga, material, cargando: false, t: 0, apuntaTorso: false };
   });
 
+  // ─── Aviso en el borde de la pantalla ──────────────────────────────────
+  // Sin gafas (sobre todo en el móvil en vertical) las torres de los lados quedan
+  // fuera de la vista: una flecha roja en el borde avisa de que una de ellas va a disparar.
+  const geoAvisoBorde = R(new THREE.CircleGeometry(0.03, 3)); // triángulo que apunta hacia +X
+  const matAvisoBorde = R(new THREE.MeshBasicMaterial({
+    color: 0xff1744, transparent: true, depthTest: false, depthWrite: false, toneMapped: false, fog: false,
+  }));
+  const avisosBorde = [-1, 1].map((lado) => {
+    const m = new THREE.Mesh(geoAvisoBorde, matAvisoBorde);
+    m.renderOrder = 990;
+    m.visible = false;
+    m.userData.lado = lado;
+    raiz.add(m);
+    return m;
+  });
+  const enPantalla = new THREE.Vector3();
+  const delanteCamara = new THREE.Vector3();
+  const derechaCamara = new THREE.Vector3();
+  const giroAviso = new THREE.Quaternion();
+  const EJE_Z = new THREE.Vector3(0, 0, 1);
+
+  function actualizarAvisosBorde(t) {
+    let izquierda = 0;
+    let derecha = 0;
+    if (!ctx.enVR()) {
+      for (const torre of torres) {
+        if (!torre.cargando) continue;
+        enPantalla.copy(torre.salida).setY(1.5).project(ctx.camara);
+        if (Math.abs(enPantalla.x) < 0.95 && enPantalla.z < 1) continue; // ya se ve
+        const f = torre.t / TIEMPO_CARGA;
+        if (enPantalla.x < 0) izquierda = Math.max(izquierda, f);
+        else derecha = Math.max(derecha, f);
+      }
+    }
+    const camara = ctx.camara;
+    const distancia = 0.5;
+    const medioAncho = distancia * Math.tan(THREE.MathUtils.degToRad(camara.fov / 2)) * camara.aspect;
+    camara.getWorldDirection(delanteCamara);
+    derechaCamara.setFromMatrixColumn(camara.matrixWorld, 0);
+    for (const aviso of avisosBorde) {
+      const lado = aviso.userData.lado;
+      const fuerza = lado < 0 ? izquierda : derecha;
+      aviso.visible = fuerza > 0;
+      if (!aviso.visible) continue;
+      const empuje = Math.sin(t * 18) * 0.008;
+      aviso.position.copy(camara.position)
+        .addScaledVector(delanteCamara, distancia)
+        .addScaledVector(derechaCamara, lado * (medioAncho - 0.035 + empuje));
+      // Mirando a la cámara y apuntando hacia fuera de la pantalla
+      aviso.quaternion.copy(camara.quaternion).multiply(giroAviso.setFromAxisAngle(EJE_Z, lado < 0 ? Math.PI : 0));
+      aviso.scale.setScalar(1 + fuerza * 0.8);
+    }
+    matAvisoBorde.opacity = 0.6 + 0.4 * Math.abs(Math.sin(t * 15));
+  }
+
   function apagarTorre(torre) {
     torre.cargando = false;
     torre.carga.visible = false;
@@ -412,6 +467,7 @@ export function iniciar(ctx) {
     }
 
     actualizarFlechas(dt);
+    actualizarAvisosBorde(t);
 
     // La zona parpadea mientras eres invulnerable
     zona.visible = invulnerable <= 0 || Math.sin(t * 25) > 0;

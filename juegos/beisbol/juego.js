@@ -413,7 +413,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'BATEA BOLAS', tam: 1.3, color: '#ffd740' },
-        { texto: ctx.enVR() ? 'Ponte de lado como un diestro · bate con las dos manos, la izquierda abajo' : 'Elige la altura con el ratón y haz clic para batear', tam: 0.7 },
+        { texto: ctx.enVR() ? 'Ponte de lado como un diestro · bate con las dos manos, la izquierda abajo' : (ctx.tactil ? 'Toca a la altura de la bola para batear' : 'Elige la altura con el ratón y haz clic para batear'), tam: 0.7 },
         { texto: `${LANZAMIENTOS} lanzamientos · Récord: ${record} puntos`, tam: 0.7, color: '#ffe57f' },
       ]);
     } else if (estado === 'fin') {

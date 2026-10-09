@@ -36,6 +36,7 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - Mientras juegas, la shell descarga en segundo plano el siguiente juego de la lista. Así el cambio es casi instantáneo.
 - En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego (y al llevar la mano hacia la cabeza) aparece en la vista una flecha que señala dónde está. Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
+- En el móvil se juega con el dedo, también en vertical: la shell abre el campo de visión para que quepa lo importante a lo ancho, y cada juego del catálogo tiene su texto `controlesTactil`. En los juegos, `ctx.tactil` indica si la pantalla es táctil (para decir «toca» en vez de «haz clic»).
 
 ## Probarlo en tu ordenador
 
@@ -94,6 +95,7 @@ export function iniciar(ctx) {
   descripcion: '…',
   controlesVR: '…',
   controlesEscritorio: '…',
+  controlesTactil: '…',
   miniatura: 'juegos/patos/miniatura.svg',
   modulo: 'juegos/patos/juego.js',
 },

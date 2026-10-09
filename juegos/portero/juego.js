@@ -413,7 +413,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'PARA PENALTIS', tam: 1.3, color: '#b9f6ca' },
-        { texto: ctx.enVR() ? 'Para el balón con los guantes o con el cuerpo' : 'Mueve los guantes con el ratón', tam: 0.7 },
+        { texto: ctx.enVR() ? 'Para el balón con los guantes o con el cuerpo' : (ctx.tactil ? 'Mueve los guantes con el dedo' : 'Mueve los guantes con el ratón'), tam: 0.7 },
         { texto: `${PENALTIS} penaltis por tanda · Récord: ${record} paradas`, tam: 0.7, color: '#b9f6ca' },
       ]);
     } else if (estado === 'fin') {

@@ -20,6 +20,13 @@ import {
 
 const COLOR_FONDO = 0x141826;
 const FOV_ESCRITORIO = 70;
+// Pantalla vertical (móvil): se abre el campo de visión vertical hasta FOV_MAX_VERTICAL
+// para acercarse a este campo horizontal, y lo que falte se compensa alejando la cámara.
+const FOV_HORIZONTAL_MIN = 80;
+const FOV_MAX_VERTICAL = 100;
+const RETROCESO_MAX = 0;    // alejar la cámara (proporción de la distancia al objetivo); 0 = solo abrir el campo de visión
+// Pantalla táctil sin ratón: cambia los textos de ayuda ("toca" en vez de "haz clic")
+const TACTIL = window.matchMedia('(pointer: coarse)').matches;
 const VISTA_POR_DEFECTO = {
   posicion: new THREE.Vector3(0, 1.6, 0.4),
   objetivo: new THREE.Vector3(0, 1.3, -2),
@@ -81,11 +88,35 @@ const vista = {
   posicion: VISTA_POR_DEFECTO.posicion.clone(),
   objetivo: VISTA_POR_DEFECTO.objetivo.clone(),
 };
+const direccionVista = new THREE.Vector3();
+let retroceso = 0; // proporción de la distancia al objetivo que se aleja la cámara en vertical
+
+function ajustarCampoVision() {
+  const aspecto = window.innerWidth / window.innerHeight;
+  const tanH = Math.tan(THREE.MathUtils.degToRad(FOV_HORIZONTAL_MIN / 2));
+  let fov = FOV_ESCRITORIO;
+  retroceso = 0;
+  if (aspecto < 1) {
+    // Campo vertical necesario para ver FOV_HORIZONTAL_MIN de ancho, con un tope
+    const necesario = THREE.MathUtils.radToDeg(2 * Math.atan(tanH / aspecto));
+    fov = THREE.MathUtils.clamp(necesario, FOV_ESCRITORIO, FOV_MAX_VERTICAL);
+    const tanReal = Math.tan(THREE.MathUtils.degToRad(fov / 2)) * aspecto;
+    retroceso = Math.min(RETROCESO_MAX, tanH / tanReal - 1);
+  }
+  camara.fov = fov;
+  camara.zoom = 1;
+  camara.aspect = aspecto;
+  camara.updateProjectionMatrix();
+}
+
 function aplicarVista() {
   if (renderer.xr.isPresenting) return;
-  camara.position.copy(vista.posicion);
+  // En vertical la cámara se aleja hacia atrás para que quepa lo importante a lo ancho
+  direccionVista.subVectors(vista.objetivo, vista.posicion);
+  camara.position.copy(vista.posicion).addScaledVector(direccionVista, -retroceso);
   camara.lookAt(vista.objetivo);
 }
+ajustarCampoVision();
 aplicarVista();
 
 // ─── Fundido a negro (y destellos de color) ──────────────────────────────
@@ -212,13 +243,16 @@ function posicionRaton(e) {
 lienzo.addEventListener('pointermove', posicionRaton);
 lienzo.addEventListener('pointerdown', (e) => {
   activarAudio();
+  // Con el dedo no hay movimiento entre un toque y el siguiente: no contar el salto
+  if (e.pointerType !== 'mouse') ultimoX = ultimoY = null;
   posicionRaton(e);
   clicPendiente = true;
   raton.pulsado = true;
 });
 window.addEventListener('pointerup', () => { raton.pulsado = false; });
-lienzo.addEventListener('pointerleave', () => {
-  raton.dentro = false;
+lienzo.addEventListener('pointerleave', (e) => {
+  // Al levantar el dedo el puntero "sale", pero el bate, los guantes... deben seguir visibles
+  if (e.pointerType === 'mouse') raton.dentro = false;
   ultimoX = ultimoY = null;
 });
 
@@ -292,6 +326,7 @@ function montar(indice, modulo) {
   const ctx = {
     raiz, escena, camara, renderer, manos, raton,
     enVR: () => renderer.xr.isPresenting,
+    tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
     // Para objetos que van en la mano (espadas, martillos...). Se retiran al cambiar de juego.
     adjuntarAMano(mano, objeto) {
       mano.grip.add(objeto);
@@ -475,7 +510,9 @@ function actualizarInterfaz() {
   const siguiente = JUEGOS[siguienteIndice()];
   document.title = `${juego.titulo} · VR Play`;
   $titulo.textContent = juego.titulo;
-  $controles.textContent = `Con ratón: ${juego.controlesEscritorio}  ·  En VR: ${juego.controlesVR}`;
+  $controles.textContent = TACTIL
+    ? juego.controlesTactil || juego.controlesEscritorio
+    : `Con ratón: ${juego.controlesEscritorio}  ·  En VR: ${juego.controlesVR}`;
   $btnSiguiente.title = `Pasar a ${siguiente.titulo}`;
   $estado.textContent = `Siguiente: ${siguiente.titulo} (precargando…)`;
 }
@@ -500,6 +537,7 @@ async function comprobarVR() {
     disponible = false;
   }
   $btnVR.disabled = !disponible;
+  document.body.classList.toggle('sin-vr', !disponible); // en el móvil el botón se oculta
   $btnVR.textContent = disponible ? 'Entrar en VR' : 'VR no disponible';
   if (!disponible) {
     $btnVR.title = window.isSecureContext
@@ -540,16 +578,14 @@ function alEntrarVR() {
 function alSalirVR() {
   document.body.classList.remove('en-vr');
   // Al salir de VR la cámara conserva el campo de visión de las gafas: lo restauramos.
-  camara.fov = FOV_ESCRITORIO;
-  camara.zoom = 1;
   alRedimensionar();
   aplicarVista();
 }
 
 function alRedimensionar() {
   if (renderer.xr.isPresenting) return;
-  camara.aspect = window.innerWidth / window.innerHeight;
-  camara.updateProjectionMatrix();
+  ajustarCampoVision();
+  aplicarVista();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', alRedimensionar);

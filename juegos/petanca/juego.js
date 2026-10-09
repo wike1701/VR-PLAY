@@ -201,9 +201,18 @@ export function iniciar(ctx) {
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.7, alto: 0.6 });
-  marcador.mesh.position.set(-2.5, 1.5, -4);
-  marcador.mesh.lookAt(0, 1.5, 0);
   raiz.add(marcador.mesh);
+  // A un lado de la pista; en una pantalla vertical (móvil) no cabría: allí va centrado encima
+  let marcadorVertical = null;
+  function colocarMarcador() {
+    const vertical = !ctx.enVR() && window.innerWidth < window.innerHeight;
+    if (vertical === marcadorVertical) return;
+    marcadorVertical = vertical;
+    if (vertical) marcador.mesh.position.set(0, 2.1, -5);
+    else marcador.mesh.position.set(-2.5, 1.5, -4);
+    marcador.mesh.lookAt(0, vertical ? 1.75 : 1.5, 0);
+  }
+  colocarMarcador();
 
   // ─── Estado ────────────────────────────────────────────────────────────
   // 'intro' | 'jugador' | 'maquina' | 'rodando' | 'finMano' | 'finPartida'
@@ -232,7 +241,7 @@ export function iniciar(ctx) {
       lineas[0] = { texto: 'PETANCA', tam: 1.3, color: '#ffcc80' };
       lineas.push({ texto: `Acerca tus bolas al boliche · gana quien llegue a ${PUNTOS_VICTORIA}`, tam: 0.7 });
     } else if (estado === 'jugador') {
-      lineas.push({ texto: linea2 || (ctx.enVR() ? 'Te toca: coge la bola y lánzala' : 'Te toca: haz clic donde quieres que caiga'), tam: 0.75, color: color2 });
+      lineas.push({ texto: linea2 || (ctx.enVR() ? 'Te toca: coge la bola y lánzala' : (ctx.tactil ? 'Te toca: toca donde quieres que caiga' : 'Te toca: haz clic donde quieres que caiga')), tam: 0.75, color: color2 });
     } else {
       lineas.push({ texto: linea2, tam: 0.75, color: color2 });
     }
@@ -552,6 +561,7 @@ export function iniciar(ctx) {
   }
 
   function actualizar(dt) {
+    colocarMarcador();
     reloj -= dt;
     const vr = ctx.enVR();
 
