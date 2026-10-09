@@ -33,83 +33,294 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
 
   ctx.fondo(0x1f1a2e);
+  // Pabellón cerrado: alejamos la niebla para que se vean las paredes y las gradas
+  const niebla = ctx.escena.fog;
+  const nieblaOriginal = { near: niebla.near, far: niebla.far };
+  niebla.near = 11;
+  niebla.far = 30;
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, 2.6, -4.2));
 
-  // ─── Pista ─────────────────────────────────────────────────────────────
-  const parquet = new THREE.Mesh(R(new THREE.PlaneGeometry(9, 9)), R(new THREE.MeshLambertMaterial({ color: 0xc8935a })));
-  parquet.rotation.x = -Math.PI / 2;
-  parquet.position.set(0, 0.003, -3);
-  raiz.add(parquet);
-  const zona = new THREE.Mesh(R(new THREE.PlaneGeometry(3.6, 4.6)), R(new THREE.MeshLambertMaterial({ color: 0xa4462e })));
-  zona.rotation.x = -Math.PI / 2;
-  zona.position.set(0, 0.005, ARO.z + 0.6 + 1.6);
-  raiz.add(zona);
-  const linea = new THREE.Mesh(R(new THREE.PlaneGeometry(3.6, 0.05)), R(new THREE.MeshBasicMaterial({ color: 0xffffff })));
-  linea.rotation.x = -Math.PI / 2;
-  linea.position.set(0, 0.007, -0.15);
-  raiz.add(linea);
+  // ─── Utilidades de geometría ───────────────────────────────────────────
+  // Coloca una geometría en su sitio (rotación y posición "horneadas").
+  const matrizTmp = new THREE.Matrix4();
+  const eulerTmp = new THREE.Euler();
+  function colocar(geo, x, y, z, rx = 0, ry = 0, rz = 0) {
+    matrizTmp.makeRotationFromEuler(eulerTmp.set(rx, ry, rz)).setPosition(x, y, z);
+    return geo.applyMatrix4(matrizTmp);
+  }
+  // UV a partir de la posición en el mundo (1 unidad de UV = "metros" metros), para
+  // que la textura tenga la misma escala en todas las piezas.
+  function uvMundo(geo, ejeU, ejeV, metros = 1) {
+    const p = geo.attributes.position;
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, ejeU(p, i) / metros, ejeV(p, i) / metros);
+    return geo;
+  }
+  const menosZ = (p, i) => -p.getZ(i);
+  const masX = (p, i) => p.getX(i);
+  const masY = (p, i) => p.getY(i);
+  // Fusiona varias geometrías (position/normal/uv) en una: una sola llamada de dibujo.
+  function fusionar(geos) {
+    let nv = 0;
+    let ni = 0;
+    for (const g of geos) {
+      nv += g.attributes.position.count;
+      ni += g.index ? g.index.count : g.attributes.position.count;
+    }
+    const pos = new Float32Array(nv * 3);
+    const nor = new Float32Array(nv * 3);
+    const uv = new Float32Array(nv * 2);
+    const indices = nv > 65535 ? new Uint32Array(ni) : new Uint16Array(ni);
+    let ov = 0;
+    let oi = 0;
+    for (const g of geos) {
+      const n = g.attributes.position.count;
+      pos.set(g.attributes.position.array, ov * 3);
+      nor.set(g.attributes.normal.array, ov * 3);
+      uv.set(g.attributes.uv.array, ov * 2);
+      if (g.index) for (let i = 0; i < g.index.count; i++) indices[oi++] = g.index.array[i] + ov;
+      else for (let i = 0; i < n; i++) indices[oi++] = ov + i;
+      ov += n;
+      g.dispose();
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(new THREE.BufferAttribute(indices, 1));
+    return R(geo);
+  }
+
+  // ─── Pabellón ──────────────────────────────────────────────────────────
+  ctx.sueloBase(false);
+  const SALA_X = 9;          // paredes laterales en ±9 m
+  const SALA_FONDO = -9.5;   // pared del fondo (detrás de la canasta)
+  const SALA_FRENTE = 4.5;   // pared detrás del jugador
+  const SALA_ALTO = 7;
+  const LINEA_FONDO = -5.3;  // línea de fondo pintada
+  const LIBRE_Z = -0.15;     // línea de tiro libre
+
+  // Parquet: tablas de ~12 cm a lo largo de la pista (hacia la canasta)
+  const texParquet = R(ctx.texturas.tablas(0xc8935a, { tablas: 8, tam: 512, semilla: 7 }));
+  const geoParquet = colocar(new THREE.PlaneGeometry(SALA_X * 2, SALA_FRENTE - SALA_FONDO), 0, 0.003, (SALA_FRENTE + SALA_FONDO) / 2, -Math.PI / 2);
+  raiz.add(new THREE.Mesh(uvMundo(R(geoParquet), menosZ, masX), R(new THREE.MeshLambertMaterial({ map: texParquet }))));
+  // Zona pintada sobre la misma madera (se siguen viendo las tablas)
+  const geoZona = colocar(new THREE.PlaneGeometry(3.6, LIBRE_Z - LINEA_FONDO), 0, 0.005, (LINEA_FONDO + LIBRE_Z) / 2, -Math.PI / 2);
+  raiz.add(new THREE.Mesh(uvMundo(R(geoZona), menosZ, masX), R(new THREE.MeshLambertMaterial({ map: texParquet, color: 0xd8707a }))));
+
+  // Líneas de la pista, todas en una malla
+  const GROSOR_LINEA = 0.05;
+  const linea = (ancho, largo, x, z) => colocar(new THREE.PlaneGeometry(ancho, largo), x, 0.007, z, -Math.PI / 2);
+  const anguloTriple = Math.acos(6.6 / 6.75);
+  const zTriple = ARO.z + 6.75 * Math.sin(anguloTriple);
+  const lineas = new THREE.Mesh(
+    fusionar([
+      linea(3.6, GROSOR_LINEA, 0, LIBRE_Z),                                             // tiro libre
+      linea(GROSOR_LINEA, LIBRE_Z - LINEA_FONDO, -1.8, (LINEA_FONDO + LIBRE_Z) / 2),   // lados de la zona
+      linea(GROSOR_LINEA, LIBRE_Z - LINEA_FONDO, 1.8, (LINEA_FONDO + LIBRE_Z) / 2),
+      linea(SALA_X * 2, GROSOR_LINEA, 0, LINEA_FONDO),                                 // fondo
+      linea(GROSOR_LINEA, zTriple - LINEA_FONDO, -6.6, (zTriple + LINEA_FONDO) / 2),   // triple
+      linea(GROSOR_LINEA, zTriple - LINEA_FONDO, 6.6, (zTriple + LINEA_FONDO) / 2),
+      colocar(new THREE.RingGeometry(1.8 - GROSOR_LINEA / 2, 1.8 + GROSOR_LINEA / 2, 40, 1, Math.PI, Math.PI), 0, 0.007, LIBRE_Z, -Math.PI / 2),
+      colocar(new THREE.RingGeometry(6.75 - GROSOR_LINEA / 2, 6.75 + GROSOR_LINEA / 2, 72, 1, Math.PI + anguloTriple, Math.PI - 2 * anguloTriple), ARO.x, 0.007, ARO.z, -Math.PI / 2),
+    ]),
+    R(new THREE.MeshBasicMaterial({ color: 0xf2f2f2 })),
+  );
+  raiz.add(lineas);
+
+  // Paredes: bloque pintado con un zócalo de color (una sola malla)
+  const texPared = R(ctx.texturaCanvas((g, tam, azar) => {
+    const filas = 32;
+    const columnas = 8;
+    const fila = tam / filas;
+    const col = tam / columnas;
+    g.fillStyle = '#3a3646';
+    g.fillRect(0, 0, tam, tam);
+    for (let f = 0; f < filas; f++) {
+      const desfase = f % 2 ? col / 2 : 0;
+      for (let k = -1; k <= columnas; k++) {
+        const v = 108 + azar() * 16;
+        g.fillStyle = `rgb(${v + 4},${v},${v + 16})`;
+        g.fillRect(k * col + desfase + 1, f * fila + 1, col - 2, fila - 1.5);
+      }
+    }
+    // Zócalo de 1,2 m (abajo del canvas = suelo) con una franja naranja
+    const zocalo = tam * (1.2 / SALA_ALTO);
+    g.fillStyle = '#2a4aa8';
+    g.fillRect(0, tam - zocalo, tam, zocalo);
+    g.fillStyle = '#ff7a2a';
+    g.fillRect(0, tam - zocalo - 4, tam, 4);
+  }, { tam: 256, semilla: 3 }));
+  const largoSala = SALA_FRENTE - SALA_FONDO;
+  const centroZ = (SALA_FRENTE + SALA_FONDO) / 2;
+  const alturaPared = (p, i) => p.getY(i) * (3 / SALA_ALTO); // la V cubre toda la altura
+  const paredes = new THREE.Mesh(
+    fusionar([
+      uvMundo(colocar(new THREE.PlaneGeometry(SALA_X * 2, SALA_ALTO), 0, SALA_ALTO / 2, SALA_FONDO), masX, alturaPared, 3),
+      uvMundo(colocar(new THREE.PlaneGeometry(SALA_X * 2, SALA_ALTO), 0, SALA_ALTO / 2, SALA_FRENTE, 0, Math.PI), masX, alturaPared, 3),
+      uvMundo(colocar(new THREE.PlaneGeometry(largoSala, SALA_ALTO), -SALA_X, SALA_ALTO / 2, centroZ, 0, Math.PI / 2), menosZ, alturaPared, 3),
+      uvMundo(colocar(new THREE.PlaneGeometry(largoSala, SALA_ALTO), SALA_X, SALA_ALTO / 2, centroZ, 0, -Math.PI / 2), menosZ, alturaPared, 3),
+    ]),
+    R(new THREE.MeshLambertMaterial({ map: texPared })),
+  );
+  raiz.add(paredes);
+
+  // Gradas (cuatro asientos cada 2 m): arriba de la textura, el piso con los asientos
+  // vistos desde arriba; abajo, la contrahuella con los respaldos que se ven desde la pista.
+  const texGradas = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#6e6a76';
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 700; i++) {
+      g.fillStyle = `rgba(0,0,0,${azar() * 0.18})`;
+      g.fillRect(azar() * tam, azar() * tam, 2, 2);
+    }
+    const asiento = tam / 4;
+    for (let k = 0; k < 4; k++) {
+      const x = k * asiento + asiento * 0.1;
+      const ancho = asiento * 0.8;
+      const tono = 0.85 + azar() * 0.2;
+      const claro = `rgb(${Math.round(55 * tono)},${Math.round(120 * tono)},${Math.round(240 * tono)})`;
+      const oscuro = `rgb(${Math.round(30 * tono)},${Math.round(75 * tono)},${Math.round(170 * tono)})`;
+      g.fillStyle = claro;
+      g.fillRect(x, tam * 0.08, ancho, tam * 0.32);              // asiento
+      g.fillStyle = oscuro;
+      g.fillRect(x, tam * 0.36, ancho, tam * 0.06);              // borde del asiento
+      g.fillRect(x, tam * 0.08, ancho, tam * 0.07);              // respaldo
+      g.fillStyle = claro;
+      g.fillRect(x, tam * 0.52, ancho, tam * 0.26);              // respaldo visto de frente
+      g.fillStyle = oscuro;
+      g.fillRect(x, tam * 0.74, ancho, tam * 0.04);
+    }
+    g.fillStyle = 'rgba(0,0,0,0.35)';
+    g.fillRect(0, tam / 2 - 2, tam, 2);
+  }, { tam: 256, semilla: 5 }));
+  // Filas de gradas en un marco local (a lo largo de X, subiendo hacia -Z), luego giradas
+  function filasGradas(largo, filas, fondoFila, altoFila, rotY, x, z) {
+    const piezas = [];
+    for (let i = 0; i < filas; i++) {
+      const piso = new THREE.PlaneGeometry(largo, fondoFila);
+      const contra = new THREE.PlaneGeometry(largo, altoFila);
+      for (const [geo, v0] of [[piso, 0.5], [contra, 0]]) {
+        const uv = geo.attributes.uv;
+        for (let k = 0; k < uv.count; k++) uv.setXY(k, (uv.getX(k) * largo) / 2, v0 + uv.getY(k) * 0.5);
+      }
+      colocar(piso, 0, (i + 1) * altoFila, -(i + 0.5) * fondoFila, -Math.PI / 2);
+      colocar(contra, 0, (i + 0.5) * altoFila, -i * fondoFila);
+      piezas.push(colocar(piso, x, 0, z, 0, rotY), colocar(contra, x, 0, z, 0, rotY));
+    }
+    return piezas;
+  }
+  const INICIO_GRADAS = -7.0;
+  const gradas = new THREE.Mesh(
+    fusionar([
+      ...filasGradas(SALA_X * 2, 5, 0.5, 0.45, 0, 0, INICIO_GRADAS),
+      ...filasGradas(SALA_FRENTE - INICIO_GRADAS, 3, 0.45, 0.4, -Math.PI / 2, 7.65, (INICIO_GRADAS + SALA_FRENTE) / 2),
+      ...filasGradas(SALA_FRENTE - INICIO_GRADAS, 3, 0.45, 0.4, Math.PI / 2, -7.65, (INICIO_GRADAS + SALA_FRENTE) / 2),
+    ]),
+    R(new THREE.MeshLambertMaterial({ map: texGradas })),
+  );
+  raiz.add(gradas);
+
+  // Focos del techo (sin luces reales: solo paneles que brillan)
+  const focos = [];
+  for (const x of [-4.5, 0, 4.5]) {
+    for (const z of [-6, -1.5, 3]) focos.push(colocar(new THREE.PlaneGeometry(1.4, 0.5), x, SALA_ALTO - 0.2, z, Math.PI / 2));
+  }
+  raiz.add(new THREE.Mesh(fusionar(focos), R(new THREE.MeshBasicMaterial({ color: 0xfff1d0 }))));
 
   // ─── Canasta ───────────────────────────────────────────────────────────
-  const matBlanco = R(new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
-  const matNaranja = R(new THREE.MeshLambertMaterial({ color: 0xff5722, emissive: 0x3a1000 }));
   const matGris = R(new THREE.MeshLambertMaterial({ color: 0x546e7a }));
-  const tablero = new THREE.Mesh(R(new THREE.BoxGeometry(TABLERO_ANCHO, TABLERO_ARRIBA - TABLERO_ABAJO, 0.04)), matBlanco);
+  // Tablero blanco con el borde y el cuadro pintados en la textura (antes eran 4 mallas)
+  const texTablero = R(ctx.texturaCanvas((g, tam) => {
+    const alto = TABLERO_ARRIBA - TABLERO_ABAJO;
+    const px = (x) => ((x + TABLERO_ANCHO / 2) / TABLERO_ANCHO) * tam;
+    const py = (y) => (1 - (y - TABLERO_ABAJO) / alto) * tam;
+    g.fillStyle = '#f4f4f2';
+    g.fillRect(0, 0, tam, tam);
+    g.strokeStyle = '#d23c18';
+    g.lineWidth = tam * 0.03;
+    g.strokeRect(g.lineWidth / 2, g.lineWidth / 2, tam - g.lineWidth, tam - g.lineWidth);
+    // Cuadro de tiro encima del aro (mismas medidas que las antiguas tiras)
+    g.lineWidth = (0.04 / alto) * tam;
+    g.strokeRect(px(-0.275), py(3.48), px(0.275) - px(-0.275), py(3.05) - py(3.48));
+  }, { tam: 256 }));
+  texTablero.wrapS = texTablero.wrapT = THREE.ClampToEdgeWrapping;
+  const tablero = new THREE.Mesh(
+    R(new THREE.BoxGeometry(TABLERO_ANCHO, TABLERO_ARRIBA - TABLERO_ABAJO, 0.04)),
+    R(new THREE.MeshLambertMaterial({ map: texTablero })),
+  );
   tablero.position.set(0, (TABLERO_ABAJO + TABLERO_ARRIBA) / 2, TABLERO_Z - 0.02);
   raiz.add(tablero);
-  // Cuadro pintado encima del aro
-  const geoTira = R(new THREE.PlaneGeometry(0.59, 0.04));
-  const geoTiraV = R(new THREE.PlaneGeometry(0.04, 0.45));
-  for (const [geo, x, y] of [[geoTira, 0, 3.05], [geoTira, 0, 3.48], [geoTiraV, -0.275, 3.265], [geoTiraV, 0.275, 3.265]]) {
-    const tira = new THREE.Mesh(geo, matNaranja);
-    tira.position.set(x, y, TABLERO_Z + 0.001);
-    raiz.add(tira);
-  }
-  const aro = new THREE.Mesh(R(new THREE.TorusGeometry(RADIO_ARO, GROSOR_ARO, 8, 32)), matNaranja);
-  aro.rotation.x = Math.PI / 2;
-  aro.position.copy(ARO);
+  // Aro metálico con su soporte (una malla)
+  const aro = new THREE.Mesh(
+    fusionar([
+      colocar(new THREE.TorusGeometry(RADIO_ARO, GROSOR_ARO, 10, 48), ARO.x, ARO.y, ARO.z, Math.PI / 2),
+      colocar(new THREE.BoxGeometry(0.06, 0.03, 0.15), 0, ARO.y, TABLERO_Z + 0.075),
+    ]),
+    R(new THREE.MeshStandardMaterial({ color: 0xff4a12, emissive: 0x2a0800, metalness: 0.55, roughness: 0.3 })),
+  );
   raiz.add(aro);
-  const soporteAro = new THREE.Mesh(R(new THREE.BoxGeometry(0.06, 0.03, 0.15)), matNaranja);
-  soporteAro.position.set(0, ARO.y, TABLERO_Z + 0.075);
-  raiz.add(soporteAro);
   const red = new THREE.Mesh(
     R(new THREE.CylinderGeometry(RADIO_ARO, 0.15, 0.4, 16, 3, true)),
     R(new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.8 })),
   );
   red.position.set(ARO.x, ARO.y - 0.2, ARO.z);
   raiz.add(red);
-  const poste = new THREE.Mesh(R(new THREE.CylinderGeometry(0.08, 0.1, TABLERO_ABAJO + 0.4, 12)), matGris);
-  poste.position.set(0, (TABLERO_ABAJO + 0.4) / 2, TABLERO_Z - 0.9);
-  const brazo = new THREE.Mesh(R(new THREE.BoxGeometry(0.1, 0.1, 0.9)), matGris);
-  brazo.position.set(0, TABLERO_ABAJO + 0.3, TABLERO_Z - 0.45);
-  raiz.add(poste, brazo);
 
   // ─── Balones ───────────────────────────────────────────────────────────
-  const geoBalon = R(new THREE.SphereGeometry(RADIO_BALON, 20, 14));
-  const matBalon = R(new THREE.MeshLambertMaterial({ color: 0xe8681c }));
-  const geoCostura = R(new THREE.TorusGeometry(RADIO_BALON * 1.005, 0.004, 4, 32));
-  const matCostura = R(new THREE.MeshBasicMaterial({ color: 0x2b1a10 }));
-  const geoSoporte = R(new THREE.CylinderGeometry(0.06, 0.08, 0.06, 16));
+  const geoBalon = R(new THREE.SphereGeometry(RADIO_BALON, 32, 20));
+  // Cuero con granito y las tres costuras pintadas (antes eran tres toros por balón)
+  const texBalon = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#e8681c';
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 9000; i++) {
+      g.fillStyle = azar() < 0.55 ? `rgba(80,20,0,${azar() * 0.22})` : `rgba(255,200,150,${azar() * 0.14})`;
+      g.fillRect(azar() * tam, azar() * tam, 1.5, 1.5);
+    }
+    g.fillStyle = '#2b1a10';
+    const anchoU = tam * 0.011;   // la textura cubre 360° en U y 180° en V
+    const anchoV = tam * 0.022;
+    g.fillRect(0, tam / 2 - anchoV / 2, tam, anchoV);
+    for (const u of [0, 0.25, 0.5, 0.75, 1]) g.fillRect(u * tam - anchoU / 2, 0, anchoU, tam);
+  }, { tam: 512, semilla: 11 }));
+  const matBalon = R(new THREE.MeshStandardMaterial({ map: texBalon, roughness: 0.72, metalness: 0 }));
 
   function crearBalon() {
-    const balon = new THREE.Mesh(geoBalon, matBalon);
-    for (const [rx, ry] of [[0, 0], [Math.PI / 2, 0], [0, Math.PI / 2]]) {
-      const c = new THREE.Mesh(geoCostura, matCostura);
-      c.rotation.set(rx, ry, 0);
-      balon.add(c);
-    }
-    return balon;
+    return new THREE.Mesh(geoBalon, matBalon);
   }
 
   const puestos = [
     ...PUESTOS_VR.map((pos) => ({ pos, vr: true })),
     { pos: PUESTO_RATON, vr: false },
   ].map((p) => ({ ...p, balon: null, recarga: 0 }));
+
+  // Poste, brazo, base y los soportes de balones VR: una sola malla gris
+  const piezasGris = [
+    colocar(new THREE.CylinderGeometry(0.08, 0.1, TABLERO_ABAJO + 0.4, 12), 0, (TABLERO_ABAJO + 0.4) / 2, TABLERO_Z - 0.9),
+    colocar(new THREE.BoxGeometry(0.1, 0.1, 0.9), 0, TABLERO_ABAJO + 0.3, TABLERO_Z - 0.45),
+    colocar(new THREE.BoxGeometry(0.7, 0.22, 1.0), 0, 0.11, TABLERO_Z - 1.0),
+  ];
   for (const p of puestos) {
     if (!p.vr) continue;
-    const soporte = new THREE.Mesh(geoSoporte, matGris);
-    soporte.position.copy(p.pos).y -= RADIO_BALON + 0.03;
-    raiz.add(soporte);
+    const y = p.pos.y - RADIO_BALON - 0.03;
+    piezasGris.push(
+      colocar(new THREE.CylinderGeometry(0.06, 0.08, 0.06, 16), p.pos.x, y, p.pos.z),
+      colocar(new THREE.CylinderGeometry(0.012, 0.012, y - 0.03, 6), p.pos.x, (y - 0.03) / 2, p.pos.z),
+      colocar(new THREE.CylinderGeometry(0.1, 0.1, 0.015, 16), p.pos.x, 0.0075, p.pos.z),
+    );
   }
+  raiz.add(new THREE.Mesh(fusionar(piezasGris), matGris));
+  const sombraPoste = ctx.crearSombra({ radio: 0.75, opacidad: 0.5 });
+  ctx.colocarSombra(sombraPoste, new THREE.Vector3(0, 0, TABLERO_Z - 0.95), 0);
+  raiz.add(sombraPoste);
+
+  // Sombras de mancha de los balones (se reparten entre los balones cada fotograma)
+  const sombrasBalon = Array.from({ length: 6 }, () => {
+    const s = ctx.crearSombra({ radio: 0.14, opacidad: 0.55 });
+    s.visible = false;
+    raiz.add(s);
+    return s;
+  });
 
   // Manos visibles en VR
   const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
@@ -474,7 +685,21 @@ export function iniciar(ctx) {
     meneoRed = Math.max(0, meneoRed - dt * 2.5);
     red.scale.set(1 - meneoRed * 0.15, 1 + Math.sin(t * 30) * meneoRed * 0.15, 1 - meneoRed * 0.15);
 
+    colocarSombras();
     actualizarMarcador();
+  }
+
+  // ─── Sombras de los balones ────────────────────────────────────────────
+  let sombrasUsadas = 0;
+  function sombraDe(malla) {
+    if (sombrasUsadas < sombrasBalon.length) ctx.colocarSombra(sombrasBalon[sombrasUsadas++], malla.position, 0);
+  }
+  function colocarSombras() {
+    sombrasUsadas = 0;
+    for (const p of puestos) if (p.balon) sombraDe(p.balon);
+    for (const m of manos) if (m.balon) sombraDe(m.balon);
+    for (const b of enVuelo) sombraDe(b.malla);
+    for (let i = sombrasUsadas; i < sombrasBalon.length; i++) sombrasBalon[i].visible = false;
   }
 
   actualizarMarcador();
@@ -482,6 +707,8 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
+      niebla.near = nieblaOriginal.near;
+      niebla.far = nieblaOriginal.far;
       enVuelo.length = 0;
     },
   };

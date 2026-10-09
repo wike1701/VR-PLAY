@@ -24,6 +24,47 @@ export function iniciar(ctx) {
 
   ctx.fondo(0x1d1626);
 
+  // ─── Utilidades de geometría ───────────────────────────────────────────
+  // Junta varias geometrías ya colocadas en una sola (una llamada de dibujo).
+  function fusionar(geos, atributos = ['position', 'normal', 'uv']) {
+    const partes = geos.map((g) => (g.index ? g.toNonIndexed() : g));
+    const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
+    const res = new THREE.BufferGeometry();
+    for (const nombre of atributos) {
+      const tam = partes[0].attributes[nombre].itemSize;
+      const datos = new Float32Array(total * tam);
+      let o = 0;
+      for (const g of partes) {
+        datos.set(g.attributes[nombre].array, o);
+        o += g.attributes[nombre].array.length;
+      }
+      res.setAttribute(nombre, new THREE.BufferAttribute(datos, tam));
+    }
+    for (const g of [...geos, ...partes]) g.dispose();
+    return res;
+  }
+  function escalarUV(geo, su, sv) {
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv);
+    return geo;
+  }
+  function colorear(geo, hex) {
+    const g = geo.index ? geo.toNonIndexed() : geo;
+    const c = new THREE.Color(hex);
+    const datos = new Float32Array(g.attributes.position.count * 3);
+    for (let i = 0; i < datos.length; i += 3) c.toArray(datos, i);
+    g.setAttribute('color', new THREE.BufferAttribute(datos, 3));
+    return g;
+  }
+
+  // ─── Suelo ─────────────────────────────────────────────────────────────
+  ctx.sueloBase(false);
+  const suelo = new THREE.Mesh(
+    R(new THREE.CircleGeometry(20, 48).rotateX(-Math.PI / 2)),
+    R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.cesped(0x4f6b3c, { tam: 512, repetir: [20, 20], semilla: 21 })) })),
+  );
+  raiz.add(suelo);
+
   // ─── Zona del jugador ──────────────────────────────────────────────────
   const zona = new THREE.Mesh(R(new THREE.RingGeometry(0.75, 0.82, 48)), R(new THREE.MeshBasicMaterial({ color: 0xffb74d })));
   zona.rotation.x = -Math.PI / 2;
@@ -31,58 +72,93 @@ export function iniciar(ctx) {
   raiz.add(zona);
 
   // ─── Torres ────────────────────────────────────────────────────────────
-  const geoTorre = R(new THREE.CylinderGeometry(0.45, 0.6, 2.4, 10));
-  const geoAlmena = R(new THREE.BoxGeometry(0.22, 0.25, 0.22));
-  const matTorre = R(new THREE.MeshLambertMaterial({ color: 0x5d4e6d }));
-  const geoCarga = R(new THREE.SphereGeometry(0.14, 16, 12));
-  const matCarga = R(new THREE.MeshBasicMaterial({ color: 0xff5252, transparent: true, opacity: 0.85 }));
+  // Cada torre (fuste, cornisa y almenas) es una sola malla de piedra.
+  const texPiedra = R(ctx.texturas.ladrillos(0x8a8190, 0x4a4450, { filas: 8, columnas: 4, semilla: 22 }));
+  const piezasTorre = [
+    escalarUV(new THREE.CylinderGeometry(0.45, 0.6, 2.4, 16, 1, true).translate(0, 1.2, 0), 3, 2.5),
+    escalarUV(new THREE.CylinderGeometry(0.56, 0.5, 0.18, 16).translate(0, 2.4, 0), 3, 0.2),
+  ];
+  for (let i = 0; i < 6; i++) {
+    const b = (i / 6) * Math.PI * 2;
+    piezasTorre.push(escalarUV(new THREE.BoxGeometry(0.22, 0.25, 0.22).translate(Math.cos(b) * 0.4, 2.6, Math.sin(b) * 0.4), 1, 0.25));
+  }
+  const geoTorre = R(fusionar(piezasTorre));
 
-  const torres = ANGULOS_TORRES.map((grados) => {
+  // El aviso: una bola roja intensa con un halo que se ve desde lejos
+  const geoCarga = R(new THREE.SphereGeometry(0.14, 16, 12));
+  const matCarga = R(new THREE.MeshBasicMaterial({ color: 0xff1a1a, toneMapped: false }));
+  const texHalo = R(ctx.texturaCanvas((g, tam) => {
+    const grad = g.createRadialGradient(tam / 2, tam / 2, 0, tam / 2, tam / 2, tam / 2);
+    grad.addColorStop(0, 'rgba(255,90,70,1)');
+    grad.addColorStop(0.25, 'rgba(255,30,20,0.6)');
+    grad.addColorStop(1, 'rgba(255,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, tam, tam);
+  }, { tam: 64 }));
+  const matHalo = R(new THREE.SpriteMaterial({
+    map: texHalo, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false,
+  }));
+
+  const torres = ANGULOS_TORRES.map((grados, i) => {
     const a = THREE.MathUtils.degToRad(grados);
     const x = Math.sin(a) * DISTANCIA_TORRES;
     const z = -Math.cos(a) * DISTANCIA_TORRES;
-    const torre = new THREE.Mesh(geoTorre, matTorre);
-    torre.position.set(x, 1.2, z);
+    // Material propio por torre para poder encenderla en rojo cuando va a disparar
+    const material = R(new THREE.MeshLambertMaterial({ map: texPiedra, emissive: 0x000000 }));
+    const torre = new THREE.Mesh(geoTorre, material);
+    torre.position.set(x, 0, z);
+    torre.rotation.y = i * 0.7;
     raiz.add(torre);
-    for (let i = 0; i < 6; i++) {
-      const almena = new THREE.Mesh(geoAlmena, matTorre);
-      const b = (i / 6) * Math.PI * 2;
-      almena.position.set(x + Math.cos(b) * 0.4, 2.5, z + Math.sin(b) * 0.4);
-      raiz.add(almena);
-    }
     // La flecha sale de un punto delante de la torre, hacia el jugador
     const salida = new THREE.Vector3(x, 0, z).multiplyScalar((DISTANCIA_TORRES - 0.8) / DISTANCIA_TORRES);
     const carga = new THREE.Mesh(geoCarga, matCarga);
+    const halo = new THREE.Sprite(matHalo);
+    halo.scale.setScalar(1.3);
+    carga.add(halo);
     carga.visible = false;
     raiz.add(carga);
-    return { salida, carga, cargando: false, t: 0, apuntaTorso: false };
+    return { salida, carga, material, cargando: false, t: 0, apuntaTorso: false };
   });
 
+  function apagarTorre(torre) {
+    torre.cargando = false;
+    torre.carga.visible = false;
+    torre.material.emissive.setRGB(0, 0, 0);
+  }
+
+  // Muralla baja al fondo, detrás de las torres
+  const muralla = new THREE.Mesh(
+    R(escalarUV(new THREE.CylinderGeometry(14, 14, 2.2, 40, 1, true, Math.PI * 0.5, Math.PI).translate(0, 1.1, 0), 36, 2.3)),
+    R(new THREE.MeshLambertMaterial({ map: texPiedra, side: THREE.BackSide, color: 0xb0a8b8 })),
+  );
+  raiz.add(muralla);
+
   // ─── Flechas ───────────────────────────────────────────────────────────
-  // Se construyen apuntando a +Z para poder orientarlas con lookAt.
-  const geoAsta = R(new THREE.CylinderGeometry(0.012, 0.012, LARGO_FLECHA, 6));
-  geoAsta.rotateX(Math.PI / 2);
-  const geoPunta = R(new THREE.ConeGeometry(0.035, 0.12, 8));
-  geoPunta.rotateX(Math.PI / 2);
-  const geoPluma = R(new THREE.PlaneGeometry(0.14, 0.07));
-  geoPluma.rotateY(Math.PI / 2);
-  const matAsta = R(new THREE.MeshLambertMaterial({ color: 0xd7b98e }));
-  const matPunta = R(new THREE.MeshLambertMaterial({ color: 0xb0bec5, emissive: 0x263238 }));
-  const matPluma = R(new THREE.MeshBasicMaterial({ color: 0xff7043, side: THREE.DoubleSide }));
+  // Se construyen apuntando a +Z para poder orientarlas con lookAt. Asta, punta
+  // y plumas van en una sola malla con colores por vértice (una llamada por flecha).
+  const geoFlecha = R(fusionar([
+    colorear(new THREE.CylinderGeometry(0.012, 0.012, LARGO_FLECHA, 6).rotateX(Math.PI / 2), 0xd7b98e),
+    colorear(new THREE.ConeGeometry(0.035, 0.12, 8).rotateX(Math.PI / 2).translate(0, 0, LARGO_FLECHA / 2 + 0.05), 0xc9d3da),
+    ...[0, Math.PI / 2].map((giro) => colorear(
+      new THREE.PlaneGeometry(0.14, 0.07).rotateY(Math.PI / 2).rotateZ(giro).translate(0, 0, -LARGO_FLECHA / 2 + 0.06),
+      0xff5a2c,
+    )),
+  ], ['position', 'normal', 'color']));
+  const matFlecha = R(new THREE.MeshStandardMaterial({
+    vertexColors: true, side: THREE.DoubleSide, roughness: 0.55, metalness: 0.25,
+  }));
 
   function crearFlecha() {
-    const g = new THREE.Group();
-    const asta = new THREE.Mesh(geoAsta, matAsta);
-    const punta = new THREE.Mesh(geoPunta, matPunta);
-    punta.position.z = LARGO_FLECHA / 2 + 0.05;
-    g.add(asta, punta);
-    for (const giro of [0, Math.PI / 2]) {
-      const pluma = new THREE.Mesh(geoPluma, matPluma);
-      pluma.rotation.z = giro;
-      pluma.position.z = -LARGO_FLECHA / 2 + 0.06;
-      g.add(pluma);
-    }
-    return g;
+    return new THREE.Mesh(geoFlecha, matFlecha);
+  }
+
+  // Sombras de mancha para las flechas en vuelo (ayudan a calcular por dónde vienen)
+  const sombrasLibres = [];
+  for (let i = 0; i < 8; i++) {
+    const s = ctx.crearSombra({ radio: 0.1, opacidad: 0.55 });
+    s.visible = false;
+    raiz.add(s);
+    sombrasLibres.push(s);
   }
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -174,8 +250,7 @@ export function iniciar(ctx) {
   }
 
   function disparar(torre, progreso) {
-    torre.cargando = false;
-    torre.carga.visible = false;
+    apagarTorre(torre);
     // Apunta a donde está el jugador ahora, con un poco de error
     const objetivo = tmp.copy(cabeza);
     if (torre.apuntaTorso) objetivo.y -= 0.45;
@@ -193,6 +268,7 @@ export function iniciar(ctx) {
     raiz.add(malla);
     flechas.push({
       malla,
+      sombra: sombrasLibres.pop() || null,
       vel: dir.clone().multiplyScalar(velocidad),
       punta: torre.salida.clone().addScaledVector(dir, LARGO_FLECHA / 2 + 0.1),
       anterior: new THREE.Vector3(),
@@ -214,16 +290,14 @@ export function iniciar(ctx) {
     for (const mano of ctx.manos) ctx.vibrar(mano, 1, 200);
     flecha.clavada = 1.5;
     flecha.malla.visible = false;
+    if (flecha.sombra) flecha.sombra.visible = false;
     if (vidas <= 0) terminar();
   }
 
   function terminar() {
     estado = 'fin';
     reloj = 5;
-    for (const t of torres) {
-      t.cargando = false;
-      t.carga.visible = false;
-    }
+    for (const t of torres) apagarTorre(t);
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -255,6 +329,11 @@ export function iniciar(ctx) {
       f.punta.addScaledVector(f.vel, dt);
       f.malla.position.addScaledVector(f.vel, dt);
       f.malla.lookAt(tmp.copy(f.malla.position).add(f.vel));
+      if (f.sombra) {
+        ctx.colocarSombra(f.sombra, f.malla.position, 0);
+        f.sombra.scale.z *= 3.5; // alargada y girada como la flecha
+        f.sombra.rotation.y = Math.atan2(f.vel.x, f.vel.z);
+      }
 
       // Recorremos el tramo del fotograma en pasos cortos para no atravesar al jugador
       if (estado === 'jugando' && !f.pasada) {
@@ -291,6 +370,11 @@ export function iniciar(ctx) {
   }
 
   function quitar(i) {
+    const { sombra } = flechas[i];
+    if (sombra) {
+      sombra.visible = false;
+      sombrasLibres.push(sombra);
+    }
     raiz.remove(flechas[i].malla);
     flechas.splice(i, 1);
   }
@@ -317,7 +401,10 @@ export function iniciar(ctx) {
         if (!torre.cargando) continue;
         torre.t += dt;
         const f = torre.t / TIEMPO_CARGA;
-        torre.carga.scale.setScalar(0.3 + f * 0.9 + Math.sin(t * 30) * 0.08);
+        const pulso = Math.sin(t * 30);
+        torre.carga.scale.setScalar(0.4 + f * 1.0 + pulso * 0.1);
+        // La torre entera se enciende en rojo, cada vez más fuerte
+        torre.material.emissive.setRGB((0.25 + f * 0.75) * (0.8 + pulso * 0.2), 0.02, 0.01);
         if (f >= 1) disparar(torre, progreso);
       }
     } else if (estado === 'fin' && reloj <= 0) {

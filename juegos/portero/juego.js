@@ -34,60 +34,250 @@ export function iniciar(ctx) {
   const vistaPos = new THREE.Vector3(0, 1.25, 1.1);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 0.9, -11));
 
+  // ─── Utilidades de geometría ───────────────────────────────────────────
+  // Coloca una geometría en su sitio (rotación y posición "horneadas").
+  const matrizTmp = new THREE.Matrix4();
+  const eulerTmp = new THREE.Euler();
+  function colocar(geo, x, y, z, rx = 0, ry = 0, rz = 0) {
+    matrizTmp.makeRotationFromEuler(eulerTmp.set(rx, ry, rz)).setPosition(x, y, z);
+    return geo.applyMatrix4(matrizTmp);
+  }
+  // Multiplica las UV de una geometría (para repetir la textura según su tamaño).
+  function escalarUV(geo, su, sv, dv = 0) {
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, dv + uv.getY(i) * sv);
+    return geo;
+  }
+  // Fusiona varias geometrías (position/normal/uv) en una: una sola llamada de dibujo.
+  function fusionar(geos) {
+    let nv = 0;
+    let ni = 0;
+    for (const g of geos) {
+      nv += g.attributes.position.count;
+      ni += g.index ? g.index.count : g.attributes.position.count;
+    }
+    const pos = new Float32Array(nv * 3);
+    const nor = new Float32Array(nv * 3);
+    const uv = new Float32Array(nv * 2);
+    const indices = nv > 65535 ? new Uint32Array(ni) : new Uint16Array(ni);
+    let ov = 0;
+    let oi = 0;
+    for (const g of geos) {
+      const n = g.attributes.position.count;
+      pos.set(g.attributes.position.array, ov * 3);
+      nor.set(g.attributes.normal.array, ov * 3);
+      uv.set(g.attributes.uv.array, ov * 2);
+      if (g.index) for (let i = 0; i < g.index.count; i++) indices[oi++] = g.index.array[i] + ov;
+      else for (let i = 0; i < n; i++) indices[oi++] = ov + i;
+      ov += n;
+      g.dispose();
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(new THREE.BufferAttribute(indices, 1));
+    return R(geo);
+  }
+
   // ─── Campo y portería ──────────────────────────────────────────────────
-  const cesped = new THREE.Mesh(R(new THREE.PlaneGeometry(30, 30)), R(new THREE.MeshLambertMaterial({ color: 0x4caf50 })));
+  ctx.sueloBase(false);
+  // Césped con franjas de corte paralelas a la línea de gol (cada franja, 2,5 m)
+  const FRANJA = 2.5;
+  const texCesped = R(ctx.texturas.cesped(0x4ca84a, { tam: 512, semilla: 4 }));
+  {
+    const g = texCesped.image.getContext('2d');
+    const tam = texCesped.image.width;
+    g.fillStyle = 'rgba(255,255,225,0.09)';
+    g.fillRect(0, 0, tam, tam / 2);
+    g.fillStyle = 'rgba(0,40,0,0.10)';
+    g.fillRect(0, tam / 2, tam, tam / 2);
+    texCesped.needsUpdate = true;
+  }
+  const CAMPO_ANCHO = 60;
+  const CAMPO_LARGO = 44;
+  const geoCesped = escalarUV(new THREE.PlaneGeometry(CAMPO_ANCHO, CAMPO_LARGO), CAMPO_ANCHO / (FRANJA * 2), CAMPO_LARGO / (FRANJA * 2));
+  const cesped = new THREE.Mesh(R(geoCesped), R(new THREE.MeshLambertMaterial({ map: texCesped })));
   cesped.rotation.x = -Math.PI / 2;
-  cesped.position.set(0, 0.003, -9);
+  // Colocado para que el borde de una franja caiga justo en la línea de gol
+  cesped.position.set(0, 0.003, LINEA_GOL - CAMPO_LARGO / 2 + 10);
   raiz.add(cesped);
-  const matCal = R(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+
+  // Líneas de cal y punto de penalti: una sola malla
+  const matCal = R(new THREE.MeshBasicMaterial({ color: 0xf4f4f4 }));
   const lineas = [
     [ANCHO + 6, 0.08, 0, LINEA_GOL],      // línea de gol
     [ANCHO + 6, 0.08, 0, -5.5],           // área
     [0.08, 6, -(ANCHO / 2 + 3), -2.5],
     [0.08, 6, ANCHO / 2 + 3, -2.5],
-  ];
-  for (const [ancho, largo, x, z] of lineas) {
-    const l = new THREE.Mesh(R(new THREE.PlaneGeometry(ancho, largo)), matCal);
-    l.rotation.x = -Math.PI / 2;
-    l.position.set(x, 0.006, z);
-    raiz.add(l);
-  }
-  const punto = new THREE.Mesh(R(new THREE.CircleGeometry(0.12, 16)), matCal);
-  punto.rotation.x = -Math.PI / 2;
-  punto.position.set(PUNTO_PENALTI.x, 0.006, PUNTO_PENALTI.z);
-  raiz.add(punto);
+  ].map(([ancho, largo, x, z]) => colocar(new THREE.PlaneGeometry(ancho, largo), x, 0.006, z, -Math.PI / 2));
+  lineas.push(colocar(new THREE.CircleGeometry(0.12, 16), PUNTO_PENALTI.x, 0.006, PUNTO_PENALTI.z, -Math.PI / 2));
+  raiz.add(new THREE.Mesh(fusionar(lineas), matCal));
 
-  const matPoste = R(new THREE.MeshLambertMaterial({ color: 0xffffff }));
-  const geoPoste = R(new THREE.CylinderGeometry(0.05, 0.05, ALTO, 12));
-  for (const x of [-ANCHO / 2, ANCHO / 2]) {
-    const poste = new THREE.Mesh(geoPoste, matPoste);
-    poste.position.set(x, ALTO / 2, LINEA_GOL);
-    raiz.add(poste);
+  // Postes y larguero (una malla)
+  const porteria = new THREE.Mesh(
+    fusionar([
+      colocar(new THREE.CylinderGeometry(0.05, 0.05, ALTO, 16), -ANCHO / 2, ALTO / 2, LINEA_GOL),
+      colocar(new THREE.CylinderGeometry(0.05, 0.05, ALTO, 16), ANCHO / 2, ALTO / 2, LINEA_GOL),
+      colocar(new THREE.CylinderGeometry(0.05, 0.05, ANCHO + 0.1, 16), 0, ALTO, LINEA_GOL, 0, 0, Math.PI / 2),
+      // Barras traseras que sujetan la red, a ras de suelo
+      colocar(new THREE.CylinderGeometry(0.02, 0.02, ANCHO, 6), 0, 0.02, LINEA_GOL + FONDO_RED, 0, 0, Math.PI / 2),
+      colocar(new THREE.CylinderGeometry(0.02, 0.02, FONDO_RED, 6), -ANCHO / 2, 0.02, LINEA_GOL + FONDO_RED / 2, Math.PI / 2),
+      colocar(new THREE.CylinderGeometry(0.02, 0.02, FONDO_RED, 6), ANCHO / 2, 0.02, LINEA_GOL + FONDO_RED / 2, Math.PI / 2),
+    ]),
+    R(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.1 })),
+  );
+  raiz.add(porteria);
+  const sombraPorteria = ctx.crearSombra({ radio: 1, opacidad: 0.25 });
+  sombraPorteria.scale.set(ANCHO + 0.6, 1, FONDO_RED + 0.6);
+  sombraPorteria.position.set(0, 0.007, LINEA_GOL + FONDO_RED / 2);
+  raiz.add(sombraPorteria);
+  // Red: las cuatro caras en una sola malla de alambre
+  const matRed = R(new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.4 }));
+  const red = new THREE.Mesh(
+    fusionar([
+      colocar(new THREE.PlaneGeometry(ANCHO, ALTO, 16, 10), 0, ALTO / 2, LINEA_GOL + FONDO_RED),
+      colocar(new THREE.PlaneGeometry(ANCHO, FONDO_RED, 16, 8), 0, ALTO, LINEA_GOL + FONDO_RED / 2, Math.PI / 2),
+      colocar(new THREE.PlaneGeometry(FONDO_RED, ALTO, 8, 10), -ANCHO / 2, ALTO / 2, LINEA_GOL + FONDO_RED / 2, 0, Math.PI / 2),
+      colocar(new THREE.PlaneGeometry(FONDO_RED, ALTO, 8, 10), ANCHO / 2, ALTO / 2, LINEA_GOL + FONDO_RED / 2, 0, Math.PI / 2),
+    ]),
+    matRed,
+  );
+  raiz.add(red);
+
+  // ─── Estadio: vallas publicitarias y grada ─────────────────────────────
+  // Vallas: cada repetición de la textura son 4 m con dos anuncios.
+  const VALLA_ALTO = 0.9;
+  const texVallas = R(ctx.texturaCanvas((g, tam) => {
+    const altoVirtual = tam * (VALLA_ALTO / 4);
+    g.save();
+    g.scale(1, tam / altoVirtual); // dibujamos en proporción real 4 m × 0,9 m
+    const anuncios = [
+      ['#5b2bd6', '#ffffff', 'VR PLAY'],
+      ['#f5f5f5', '#d32f2f', '¡PARA ESTE!'],
+    ];
+    anuncios.forEach(([fondo, color, texto], i) => {
+      const x = (i * tam) / 2;
+      g.fillStyle = fondo;
+      g.fillRect(x, 0, tam / 2, altoVirtual);
+      g.fillStyle = color;
+      g.font = `900 ${Math.round(altoVirtual * 0.5)}px system-ui, sans-serif`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(texto, x + tam / 4, altoVirtual * 0.54, tam * 0.44);
+      g.fillStyle = 'rgba(0,0,0,0.5)';
+      g.fillRect(x, 0, 2, altoVirtual);
+    });
+    g.restore();
+  }, { tam: 512 }));
+  const valla = (largo, x, z, ry) =>
+    colocar(escalarUV(new THREE.PlaneGeometry(largo, VALLA_ALTO), largo / 4, 1), x, VALLA_ALTO / 2, z, 0, ry);
+  const FONDO_ESTADIO = -20;
+  const vallas = new THREE.Mesh(
+    fusionar([
+      valla(40, 0, FONDO_ESTADIO, 0),                   // fondo, detrás del lanzador
+      valla(20, -16, -10, Math.PI / 2),                 // laterales
+      valla(20, 16, -10, -Math.PI / 2),
+      valla(16, 0, LINEA_GOL + FONDO_RED + 2, Math.PI), // detrás de la portería
+    ]),
+    R(new THREE.MeshBasicMaterial({ map: texVallas })),
+  );
+  raiz.add(vallas);
+
+  // Grada con público: arriba de la textura, gente vista desde arriba; abajo, de frente.
+  const texGrada = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#626a78';
+    g.fillRect(0, 0, tam, tam);
+    const colores = ['#d32f2f', '#f5f5f5', '#1e88e5', '#fdd835', '#43a047', '#212121', '#ff7043', '#8e24aa'];
+    const personas = 12;
+    const ancho = tam / personas;
+    for (const [y0, alto] of [[0, tam / 2], [tam / 2, tam / 2]]) {
+      for (let k = 0; k < personas; k++) {
+        if (azar() < 0.12) continue; // algún asiento vacío
+        const x = k * ancho + (azar() - 0.5) * ancho * 0.2;
+        const piel = ['#f1c27d', '#e0ac69', '#c68642', '#8d5524'][Math.floor(azar() * 4)];
+        g.fillStyle = colores[Math.floor(azar() * colores.length)];
+        g.fillRect(x + ancho * 0.12, y0 + alto * 0.42, ancho * 0.76, alto * 0.58);   // cuerpo
+        g.fillStyle = piel;
+        g.beginPath();
+        g.arc(x + ancho / 2, y0 + alto * 0.3, ancho * 0.26, 0, Math.PI * 2);         // cabeza
+        g.fill();
+      }
+    }
+  }, { tam: 256, semilla: 9 }));
+  function filasGrada(largo, filas, fondoFila, altoFila, z) {
+    const piezas = [];
+    for (let i = 0; i < filas; i++) {
+      const piso = escalarUV(new THREE.PlaneGeometry(largo, fondoFila), largo / 4, 0.5, 0.5);
+      const contra = escalarUV(new THREE.PlaneGeometry(largo, altoFila), largo / 4, 0.5, 0);
+      piezas.push(
+        colocar(piso, 0, (i + 1) * altoFila, z - (i + 0.5) * fondoFila, -Math.PI / 2),
+        colocar(contra, 0, (i + 0.5) * altoFila, z - i * fondoFila),
+      );
+    }
+    return piezas;
   }
-  const larguero = new THREE.Mesh(R(new THREE.CylinderGeometry(0.05, 0.05, ANCHO + 0.1, 12)), matPoste);
-  larguero.rotation.z = Math.PI / 2;
-  larguero.position.set(0, ALTO, LINEA_GOL);
-  raiz.add(larguero);
-  const matRed = R(new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.35 }));
-  const redFondo = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO, ALTO, 16, 10)), matRed);
-  redFondo.position.set(0, ALTO / 2, LINEA_GOL + FONDO_RED);
-  const redTecho = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO, FONDO_RED, 16, 8)), matRed);
-  redTecho.rotation.x = Math.PI / 2;
-  redTecho.position.set(0, ALTO, LINEA_GOL + FONDO_RED / 2);
-  raiz.add(redFondo, redTecho);
-  for (const x of [-ANCHO / 2, ANCHO / 2]) {
-    const lado = new THREE.Mesh(R(new THREE.PlaneGeometry(FONDO_RED, ALTO, 8, 10)), matRed);
-    lado.rotation.y = Math.PI / 2;
-    lado.position.set(x, ALTO / 2, LINEA_GOL + FONDO_RED / 2);
-    raiz.add(lado);
-  }
+  const grada = new THREE.Mesh(fusionar(filasGrada(50, 9, 0.8, 0.55, FONDO_ESTADIO - 1.5)), R(new THREE.MeshLambertMaterial({ map: texGrada })));
+  raiz.add(grada);
 
   // ─── Balón ─────────────────────────────────────────────────────────────
-  const balon = new THREE.Mesh(R(new THREE.IcosahedronGeometry(RADIO_BALON, 1)), R(new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true })));
-  const geoParche = R(new THREE.IcosahedronGeometry(RADIO_BALON * 1.01, 0));
-  const parches = new THREE.Mesh(geoParche, R(new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true })));
-  balon.add(parches);
+  // Balón clásico de pentágonos y hexágonos pintado en la textura: cada píxel toma el
+  // color del centro de cara más cercano de un icosaedro truncado.
+  const centrosBalon = [];
+  {
+    const ico = new THREE.IcosahedronGeometry(1, 0);
+    const p = ico.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(p, i).normalize();
+      if (!centrosBalon.some((c) => c.pentagono && c.v.distanceTo(v) < 1e-3)) centrosBalon.push({ v, pentagono: true });
+    }
+    for (let i = 0; i < p.count; i += 3) {
+      const v = new THREE.Vector3().fromBufferAttribute(p, i)
+        .add(new THREE.Vector3().fromBufferAttribute(p, i + 1))
+        .add(new THREE.Vector3().fromBufferAttribute(p, i + 2))
+        .normalize();
+      centrosBalon.push({ v, pentagono: false });
+    }
+    ico.dispose();
+  }
+  const texBalon = R(ctx.texturaCanvas((g, tam) => {
+    const imagen = g.createImageData(tam, tam);
+    const d = imagen.data;
+    const PESO_PENTAGONO = 0.075; // los pentágonos son algo más pequeños que los hexágonos
+    for (let py = 0; py < tam; py++) {
+      const theta = ((py + 0.5) / tam) * Math.PI;
+      const st = Math.sin(theta);
+      const y = Math.cos(theta);
+      for (let px = 0; px < tam; px++) {
+        const phi = ((px + 0.5) / tam) * Math.PI * 2;
+        const x = -Math.cos(phi) * st;
+        const z = Math.sin(phi) * st;
+        let mejor = 9;
+        let segundo = 9;
+        let pent = false;
+        for (const c of centrosBalon) {
+          const a = Math.acos(Math.min(1, c.v.x * x + c.v.y * y + c.v.z * z)) + (c.pentagono ? PESO_PENTAGONO : 0);
+          if (a < mejor) {
+            segundo = mejor;
+            mejor = a;
+            pent = c.pentagono;
+          } else if (a < segundo) {
+            segundo = a;
+          }
+        }
+        const k = (py * tam + px) * 4;
+        const costura = segundo - mejor < 0.035;
+        const valor = costura ? 120 : pent ? 28 : 246;
+        d[k] = d[k + 1] = d[k + 2] = valor;
+        d[k + 3] = 255;
+      }
+    }
+    g.putImageData(imagen, 0, 0);
+  }, { tam: 512 }));
+  const balon = new THREE.Mesh(R(new THREE.SphereGeometry(RADIO_BALON, 28, 18)), R(new THREE.MeshStandardMaterial({ map: texBalon, roughness: 0.45 })));
   raiz.add(balon);
+  const sombraBalon = ctx.crearSombra({ radio: 0.13, opacidad: 0.55 });
+  raiz.add(sombraBalon);
 
   // ─── Lanzador ──────────────────────────────────────────────────────────
   // Construido mirando a +Z (hacia el portero)
@@ -97,10 +287,24 @@ export function iniciar(ctx) {
   const matPiel = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
   const geoPierna = R(new THREE.BoxGeometry(0.13, 0.85, 0.13));
   geoPierna.translate(0, -0.425, 0);
-  const torso = new THREE.Mesh(R(new THREE.BoxGeometry(0.42, 0.6, 0.24)), matCamiseta);
-  torso.position.y = 1.2;
-  const cabeza = new THREE.Mesh(R(new THREE.SphereGeometry(0.12, 12, 10)), matPiel);
-  cabeza.position.y = 1.65;
+  // Camiseta con mangas cortas, y cabeza con brazos (una malla por material)
+  const torso = new THREE.Mesh(
+    fusionar([
+      colocar(new THREE.BoxGeometry(0.42, 0.6, 0.24), 0, 1.2, 0),
+      colocar(new THREE.BoxGeometry(0.12, 0.18, 0.13), -0.27, 1.4, 0, 0, 0, -0.12),
+      colocar(new THREE.BoxGeometry(0.12, 0.18, 0.13), 0.27, 1.4, 0, 0, 0, 0.12),
+    ]),
+    matCamiseta,
+  );
+  const cabeza = new THREE.Mesh(
+    fusionar([
+      colocar(new THREE.SphereGeometry(0.12, 16, 12), 0, 1.65, 0),
+      colocar(new THREE.CylinderGeometry(0.05, 0.05, 0.08, 8), 0, 1.52, 0),           // cuello
+      colocar(new THREE.BoxGeometry(0.08, 0.42, 0.08), -0.29, 1.12, 0, 0, 0, -0.12),  // brazos
+      colocar(new THREE.BoxGeometry(0.08, 0.42, 0.08), 0.29, 1.12, 0, 0, 0, 0.12),
+    ]),
+    matPiel,
+  );
   lanzador.add(torso, cabeza);
   const piernas = [-1, 1].map((lado) => {
     const pierna = new THREE.Mesh(geoPierna, matPantalon);
@@ -109,27 +313,31 @@ export function iniciar(ctx) {
     return pierna;
   });
   raiz.add(lanzador);
+  const sombraLanzador = ctx.crearSombra({ radio: 0.4, opacidad: 0.45 });
+  raiz.add(sombraLanzador);
   const SALIDA_LANZADOR = new THREE.Vector3(-1.3, 0, -13.4);
   const LLEGADA_LANZADOR = new THREE.Vector3(-0.32, 0, -11.45);
 
   // ─── Guantes ───────────────────────────────────────────────────────────
-  const geoPalma = R(new THREE.BoxGeometry(0.13, 0.16, 0.05));
-  const geoPulgar = R(new THREE.BoxGeometry(0.04, 0.08, 0.04));
-  const matGuante = R(new THREE.MeshLambertMaterial({ color: 0x76ff03 }));
+  // Palma y pulgar fusionados (una geometría para cada mano)
+  const geoGuante = {};
+  for (const lado of [-1, 1]) {
+    geoGuante[lado] = fusionar([
+      colocar(new THREE.BoxGeometry(0.13, 0.16, 0.05), 0, 0.03, -0.06),
+      colocar(new THREE.BoxGeometry(0.04, 0.08, 0.04), -lado * 0.08, 0, -0.06, 0, 0, lado * 0.5),
+    ]);
+  }
+  const matGuante = R(new THREE.MeshStandardMaterial({ color: 0x76ff03, roughness: 0.7 }));
   const matPuno = R(new THREE.MeshLambertMaterial({ color: 0x212121 }));
-  const geoPuno = R(new THREE.CylinderGeometry(0.045, 0.045, 0.06, 10));
+  const geoPuno = R(new THREE.CylinderGeometry(0.045, 0.045, 0.06, 12));
 
   function crearGuante(lado) {
     const g = new THREE.Group();
     // Palma mirando hacia delante (-Z), dedos hacia arriba
-    const palma = new THREE.Mesh(geoPalma, matGuante);
-    palma.position.set(0, 0.03, -0.06);
-    const pulgar = new THREE.Mesh(geoPulgar, matGuante);
-    pulgar.position.set(-lado * 0.08, 0.0, -0.06);
-    pulgar.rotation.z = lado * 0.5;
+    const mano = new THREE.Mesh(geoGuante[lado], matGuante);
     const puno = new THREE.Mesh(geoPuno, matPuno);
     puno.position.set(0, -0.07, -0.06);
-    g.add(palma, pulgar, puno);
+    g.add(mano, puno);
     return g;
   }
 
@@ -415,6 +623,10 @@ export function iniciar(ctx) {
 
     if (estado === 'vuelo' || estado === 'resultado') moverBalon(dt);
     if (estado === 'resultado' && piernas[1].rotation.x < 0) piernas[1].rotation.x = Math.min(0, piernas[1].rotation.x + dt * 3);
+
+    // Sombras de mancha del balón y del lanzador
+    ctx.colocarSombra(sombraBalon, balon.position, 0);
+    ctx.colocarSombra(sombraLanzador, lanzador.position, 0);
 
     actualizarMarcador();
   }

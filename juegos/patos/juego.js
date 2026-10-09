@@ -25,26 +25,161 @@ export function iniciar(ctx) {
   // Los patos vuelan lejos: alejamos la niebla mientras dura este juego
   const niebla = ctx.escena.fog;
   const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 22;
-  niebla.far = 50;
+  niebla.near = 30;
+  niebla.far = 70;
 
   const vistaPos = new THREE.Vector3(0, 1.6, 0.4);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 3, -12));
 
   // ─── Estanque y juncos ─────────────────────────────────────────────────
-  const agua = new THREE.Mesh(R(new THREE.PlaneGeometry(60, 34)), R(new THREE.MeshLambertMaterial({ color: 0x3a7ca5 })));
-  agua.rotation.x = -Math.PI / 2;
-  agua.position.set(0, 0.004, -21);
-  raiz.add(agua);
-  const geoJunco = R(new THREE.CylinderGeometry(0.02, 0.03, 1, 5));
+  ctx.sueloBase(false); // la orilla de césped sustituye al suelo de la shell
+  const Y_AGUA = 0.012;
+  const escalarUV = (geo, u, v = u) => {
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * u, uv.getY(i) * v);
+    return geo;
+  };
+  const plano = (geo, mat, x, y, z) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.rotation.x = -Math.PI / 2;
+    m.position.set(x, y, z);
+    raiz.add(m);
+    return m;
+  };
+
+  // Prado alrededor del estanque (una sola malla grande con césped en mosaico de 3 m)
+  const texPrado = R(ctx.texturas.cesped(0x5d9e45, { semilla: 4 }));
+  plano(escalarUV(R(new THREE.PlaneGeometry(200, 200)), 200 / 3), R(new THREE.MeshLambertMaterial({ map: texPrado })), 0, 0, -30);
+  // Orilla de barro, un poco mayor que el agua
+  const texBarro = R(ctx.texturas.grano(0x5a5236, { cantidad: 1500, contraste: 0.16, semilla: 9 }));
+  plano(escalarUV(R(new THREE.PlaneGeometry(61, 35)), 61 / 2, 35 / 2), R(new THREE.MeshLambertMaterial({ map: texBarro })), 0, 0.006, -21);
+
+  // Agua: MeshStandard poco rugoso (refleja el cielo del mapa de entorno) con un
+  // mapa de normales procedural de ondas que se desplaza poco a poco.
+  const texOndas = R(ctx.texturaCanvas((g, tam) => {
+    const datos = g.createImageData(tam, tam);
+    // [frecuencia x, frecuencia y, amplitud, fase]: muchas direcciones para que no se note el mosaico
+    const ondas = [[2, 1, 0.45, 0], [-1, 3, 0.4, 1.3], [4, -3, 0.22, 2.1], [-5, 2, 0.2, 0.4], [3, 6, 0.14, 3.3],
+      [7, 1, 0.1, 5.1], [-6, -5, 0.08, 2.7], [1, -9, 0.07, 4.2], [11, 6, 0.05, 1.7], [-9, 10, 0.04, 0.9]];
+    const k = (Math.PI * 2) / tam;
+    for (let y = 0; y < tam; y++) {
+      for (let x = 0; x < tam; x++) {
+        // Derivadas de la altura (suma de senos con frecuencias enteras: mosaico perfecto)
+        let dx = 0;
+        let dy = 0;
+        for (const [fx, fy, amp, fase] of ondas) {
+          const c = Math.cos((fx * x + fy * y) * k + fase) * amp;
+          dx += c * fx;
+          dy += c * fy;
+        }
+        const nx = -dx * 0.09;
+        const ny = -dy * 0.09;
+        const l = Math.hypot(nx, ny, 1);
+        const i = (y * tam + x) * 4;
+        datos.data[i] = (nx / l * 0.5 + 0.5) * 255;
+        datos.data[i + 1] = (ny / l * 0.5 + 0.5) * 255;
+        datos.data[i + 2] = (1 / l * 0.5 + 0.5) * 255;
+        datos.data[i + 3] = 255;
+      }
+    }
+    g.putImageData(datos, 0, 0);
+  }, { tam: 256, repetir: [60 / 7, 34 / 7], color: false }));
+  const matAgua = R(new THREE.MeshStandardMaterial({
+    color: 0x2a6f93, roughness: 0.12, metalness: 0.15,
+    normalMap: texOndas, normalScale: new THREE.Vector2(0.3, 0.3),
+  }));
+  plano(R(new THREE.PlaneGeometry(60, 34)), matAgua, 0, Y_AGUA, -21);
+
+  // Tarima de madera bajo el jugador
+  const texTarima = R(ctx.texturas.tablas(0xa7794a, { tablas: 8, semilla: 2 }));
+  texTarima.repeat.set(2.6 / 1.2, 2.4 / 1.2); // tablas de 15 cm
+  const tarima = new THREE.Mesh(R(new THREE.BoxGeometry(2.6, 0.1, 2.4)), R(new THREE.MeshLambertMaterial({ map: texTarima })));
+  tarima.position.set(0, -0.03, 0.2);
+  raiz.add(tarima);
+
+  // Juncos con espiga (InstancedMesh: dos llamadas para todos)
+  const geoJunco = R(new THREE.CylinderGeometry(0.014, 0.028, 1, 5));
   geoJunco.translate(0, 0.5, 0);
-  const matJunco = R(new THREE.MeshLambertMaterial({ color: 0x558b2f }));
-  for (let i = 0; i < 70; i++) {
-    const junco = new THREE.Mesh(geoJunco, matJunco);
-    junco.position.set((Math.random() - 0.5) * 30, 0, -4 - Math.random() * 1.2);
-    junco.scale.y = 0.6 + Math.random() * 0.9;
-    junco.rotation.z = (Math.random() - 0.5) * 0.3;
-    raiz.add(junco);
+  const geoEspiga = R(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 6));
+  geoEspiga.translate(0, 0.86, 0);
+  const matJunco = R(new THREE.MeshLambertMaterial({ color: 0xffffff }));
+  const matEspiga = R(new THREE.MeshLambertMaterial({ color: 0x5d4037 }));
+  const JUNCOS = 150;
+  const juncos = new THREE.InstancedMesh(geoJunco, matJunco, JUNCOS);
+  const espigas = new THREE.InstancedMesh(geoEspiga, matEspiga, Math.ceil(JUNCOS / 3));
+  const ficticio = new THREE.Object3D();
+  const colorJunco = new THREE.Color();
+  for (let i = 0; i < JUNCOS; i++) {
+    if (i < 80) {
+      // Orilla cercana, como antes
+      ficticio.position.set((Math.random() - 0.5) * 30, 0, -4 - Math.random() * 1.2);
+    } else {
+      // Matas en las orillas laterales y del fondo
+      const mata = Math.floor((i - 80) / 10);
+      const cx = [-27, 27, -18, 12, 24, -6, -29][mata];
+      const cz = [-12, -20, -37, -37.5, -36, -37, -30][mata];
+      ficticio.position.set(cx + (Math.random() - 0.5) * 3, 0, cz + (Math.random() - 0.5) * 2);
+    }
+    ficticio.scale.set(1, 0.6 + Math.random() * 0.9, 1);
+    ficticio.rotation.set((Math.random() - 0.5) * 0.25, Math.random() * 6, (Math.random() - 0.5) * 0.3);
+    ficticio.updateMatrix();
+    juncos.setMatrixAt(i, ficticio.matrix);
+    // Espiga solo en uno de cada tres juncos
+    if (i % 3 === 0) espigas.setMatrixAt(i / 3, ficticio.matrix);
+    juncos.setColorAt(i, colorJunco.setHSL(0.22 + Math.random() * 0.06, 0.5, 0.17 + Math.random() * 0.09));
+  }
+  raiz.add(juncos, espigas);
+
+  // Nenúfares sobre el agua (una llamada)
+  const geoNenufar = R(new THREE.CircleGeometry(0.32, 12, 0.35, Math.PI * 2 - 0.35).rotateX(-Math.PI / 2));
+  const NENUFARES = 36;
+  const nenufares = new THREE.InstancedMesh(geoNenufar, R(new THREE.MeshLambertMaterial({ color: 0xffffff })), NENUFARES);
+  for (let i = 0; i < NENUFARES; i++) {
+    // En grupitos cerca de las orillas
+    const grupo = i % 6;
+    const cx = [-12, 9, -22, 20, -3, 15][grupo];
+    const cz = [-7, -6.5, -16, -13, -28, -26][grupo];
+    ficticio.position.set(cx + (Math.random() - 0.5) * 4, Y_AGUA + 0.006, cz + (Math.random() - 0.5) * 2.5);
+    ficticio.rotation.set(0, Math.random() * 6.3, 0);
+    ficticio.scale.setScalar(0.6 + Math.random() * 0.7);
+    ficticio.updateMatrix();
+    nenufares.setMatrixAt(i, ficticio.matrix);
+    nenufares.setColorAt(i, colorJunco.setHSL(0.27 + Math.random() * 0.05, 0.55, 0.2 + Math.random() * 0.07));
+  }
+  raiz.add(nenufares);
+
+  // Árboles alrededor del estanque: copas y troncos instanciados (dos llamadas)
+  const geoCopa = R(new THREE.IcosahedronGeometry(1.8, 1));
+  geoCopa.scale(1, 1.25, 1);
+  geoCopa.translate(0, 4.2, 0);
+  const geoTronco = R(new THREE.CylinderGeometry(0.18, 0.28, 3, 6));
+  geoTronco.translate(0, 1.5, 0);
+  const ARBOLES = 44;
+  const copas = new THREE.InstancedMesh(geoCopa, R(new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true })), ARBOLES);
+  const troncos = new THREE.InstancedMesh(geoTronco, R(new THREE.MeshLambertMaterial({ color: 0x5d4037 })), ARBOLES);
+  for (let i = 0; i < ARBOLES; i++) {
+    if (i < 24) {
+      ficticio.position.set(-46 + (i / 23) * 92 + (Math.random() - 0.5) * 3, 0, -42 - Math.random() * 6);
+    } else {
+      const lado = i % 2 ? 1 : -1;
+      ficticio.position.set(lado * (34 + Math.random() * 6), 0, -6 - ((i - 24) / 20) * 34 - Math.random() * 2);
+    }
+    ficticio.rotation.set(0, Math.random() * 6.3, 0);
+    ficticio.scale.setScalar(0.8 + Math.random() * 0.6);
+    ficticio.updateMatrix();
+    copas.setMatrixAt(i, ficticio.matrix);
+    troncos.setMatrixAt(i, ficticio.matrix);
+    copas.setColorAt(i, colorJunco.setHSL(0.25 + Math.random() * 0.08, 0.45, 0.24 + Math.random() * 0.1));
+  }
+  raiz.add(copas, troncos);
+
+  // Sombras de los patos sobre el agua: se reservan al empezar y se reutilizan
+  const sombrasLibres = [];
+  for (let i = 0; i < 10; i++) {
+    const sombra = ctx.crearSombra({ radio: 0.4, opacidad: 0.7 });
+    sombra.visible = false;
+    raiz.add(sombra);
+    sombrasLibres.push(sombra);
   }
 
   // ─── Patos ─────────────────────────────────────────────────────────────
@@ -60,7 +195,8 @@ export function iniciar(ctx) {
   const geoPluma = R(new THREE.PlaneGeometry(0.06, 0.03));
 
   const matPato = R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 }));
-  const matDorado = R(new THREE.MeshLambertMaterial({ color: 0xffc400, emissive: 0x553300 }));
+  // El pato dorado es metálico de verdad (MeshStandard: brilla con el cielo)
+  const matDorado = R(new THREE.MeshStandardMaterial({ color: 0xffc400, emissive: 0x3a2400, metalness: 0.75, roughness: 0.3 }));
   const matCuello = R(new THREE.MeshLambertMaterial({ color: 0x2e7d32 }));
   const matPico = R(new THREE.MeshLambertMaterial({ color: 0xffa000 }));
   const matOjo = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
@@ -100,10 +236,13 @@ export function iniciar(ctx) {
     new THREE.Vector3(0, 0.28, -0.02),
     new THREE.Vector3(0, 0.5, CUERDA_Z),
   ]);
-  const geoArco = R(new THREE.TubeGeometry(curvaArco, 24, 0.016, 6));
-  const geoPuno = R(new THREE.CylinderGeometry(0.025, 0.025, 0.14, 8));
-  const matArco = R(new THREE.MeshLambertMaterial({ color: 0x795548 }));
-  const matPuno = R(new THREE.MeshLambertMaterial({ color: 0x3e2723 }));
+  const geoArco = R(new THREE.TubeGeometry(curvaArco, 48, 0.016, 8));
+  const geoPuno = R(new THREE.CylinderGeometry(0.025, 0.025, 0.14, 14));
+  // Madera barnizada con la veta a lo largo de las palas y puño de cuero
+  const texArco = R(ctx.texturas.madera(0x8a5a32, { semilla: 6 }));
+  texArco.repeat.set(3, 1);
+  const matArco = R(new THREE.MeshStandardMaterial({ map: texArco, roughness: 0.4, metalness: 0 }));
+  const matPuno = R(new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.85, metalness: 0 }));
   const matCuerda = R(new THREE.LineBasicMaterial({ color: 0xf5f5f5 }));
 
   const geoAsta = R(new THREE.CylinderGeometry(0.01, 0.01, LARGO_FLECHA, 6));
@@ -113,7 +252,7 @@ export function iniciar(ctx) {
   const geoTimon = R(new THREE.PlaneGeometry(0.12, 0.05));
   geoTimon.rotateY(Math.PI / 2);
   const matAsta = R(new THREE.MeshLambertMaterial({ color: 0xd7b98e }));
-  const matPunta = R(new THREE.MeshLambertMaterial({ color: 0xb0bec5, emissive: 0x263238 }));
+  const matPunta = R(new THREE.MeshStandardMaterial({ color: 0xb0bec5, metalness: 0.85, roughness: 0.3 }));
   const matTimon = R(new THREE.MeshBasicMaterial({ color: 0xe53935, side: THREE.DoubleSide }));
 
   // Flecha construida apuntando a +Z, centrada en su mitad
@@ -241,7 +380,8 @@ export function iniciar(ctx) {
     const rapidez = (2.2 + progreso * 2.5 + Math.random() * 1.2) * (dorado ? 1.6 : 1);
     const vel = new THREE.Vector3(sentido * rapidez, 0, (Math.random() - 0.5) * 0.8);
     raiz.add(grupo);
-    patos.push({ grupo, alas, vel, dorado, cayendo: false, fase: Math.random() * 10, altura: grupo.position.y });
+    const sombra = sombrasLibres.pop() || null;
+    patos.push({ grupo, alas, vel, dorado, cayendo: false, fase: Math.random() * 10, altura: grupo.position.y, sombra });
     if (Math.random() < 0.5) ctx.sonido('cuac');
   }
 
@@ -271,6 +411,7 @@ export function iniciar(ctx) {
     for (let i = patos.length - 1; i >= 0; i--) {
       const p = patos[i];
       const g = p.grupo;
+      if (p.sombra) ctx.colocarSombra(p.sombra, g.position, Y_AGUA);
       if (p.cayendo) {
         p.vel.y -= 9.8 * dt;
         g.position.addScaledVector(p.vel, dt);
@@ -290,6 +431,11 @@ export function iniciar(ctx) {
   }
 
   function quitarPato(i) {
+    const sombra = patos[i].sombra;
+    if (sombra) {
+      sombra.visible = false;
+      sombrasLibres.push(sombra);
+    }
     raiz.remove(patos[i].grupo);
     patos.splice(i, 1);
   }
@@ -457,6 +603,7 @@ export function iniciar(ctx) {
 
   function actualizar(dt, t) {
     reloj -= dt;
+    texOndas.offset.set(t * 0.012, t * 0.007);
     tiempoMensaje -= dt;
 
     if (estado === 'intro' && reloj <= 0) {

@@ -19,39 +19,186 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x15241b);
+  // Atardecer de verbena: cielo morado y anaranjado en el horizonte
+  ctx.fondo(0x15241b, { cenit: 0x101a3a, horizonte: 0x6b4a6a, suelo: 0x1c2a1c });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.5, 0.45), new THREE.Vector3(0, 0.85, -0.7));
 
+  // ─── Jardín ────────────────────────────────────────────────────────────
+  ctx.sueloBase(false);
+  const suelo = new THREE.Mesh(
+    R(new THREE.PlaneGeometry(40, 40)),
+    R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.cesped(0x3f7a35, { tam: 512, repetir: [16, 16], semilla: 11 })) })),
+  );
+  suelo.rotation.x = -Math.PI / 2;
+  raiz.add(suelo);
+
+  // ─── Caseta de feria ───────────────────────────────────────────────────
+  // Pared del fondo con rayas verticales rojas y crema
+  const texRayas = R(ctx.texturaCanvas((g, tam, azar) => {
+    const franjas = 8;
+    for (let i = 0; i < franjas; i++) {
+      g.fillStyle = i % 2 ? '#eadcbc' : '#a8323a';
+      g.fillRect((i * tam) / franjas, 0, tam / franjas, tam);
+    }
+    for (let i = 0; i < 1400; i++) {
+      g.fillStyle = `rgba(0,0,0,${azar() * 0.05})`;
+      g.fillRect(azar() * tam, azar() * tam, 2, 2);
+    }
+  }, { repetir: [2, 1], semilla: 4 }));
+  const matRayas = R(new THREE.MeshLambertMaterial({ map: texRayas }));
+  const pared = new THREE.Mesh(R(new THREE.PlaneGeometry(3, 2.6)), matRayas);
+  pared.position.set(0, 1.3, -1.7);
+  raiz.add(pared);
+  // Zócalo de madera en la parte baja de la pared
+  const zocalo = new THREE.Mesh(
+    R(new THREE.PlaneGeometry(3, 0.9)),
+    R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.tablas(0x6d4630, { tablas: 6, repetir: [2, 1], semilla: 13 })) })),
+  );
+  zocalo.position.set(0, 0.45, -1.69);
+  raiz.add(zocalo);
+  // Laterales de lona, solo en el fondo para no encajonar al jugador
+  const geoLateral = R(new THREE.PlaneGeometry(0.9, 2.6));
+  const uvLateral = geoLateral.attributes.uv;
+  for (let i = 0; i < uvLateral.count; i++) uvLateral.setX(i, uvLateral.getX(i) * 0.3); // mismas rayas que la pared
+  for (const lado of [-1, 1]) {
+    const lateral = new THREE.Mesh(geoLateral, matRayas);
+    lateral.position.set(lado * 1.5, 1.3, -1.25);
+    lateral.rotation.y = -lado * Math.PI / 2;
+    raiz.add(lateral);
+  }
+  // Toldo con flecos: un plano inclinado sobre la caseta
+  const texToldo = R(ctx.texturaCanvas((g, tam) => {
+    const franjas = 10;
+    for (let i = 0; i < franjas; i++) {
+      g.fillStyle = i % 2 ? '#fff4dc' : '#d93a2b';
+      g.fillRect((i * tam) / franjas, 0, tam / franjas, tam);
+    }
+    g.fillStyle = 'rgba(0,0,0,0.12)';
+    g.fillRect(0, tam * 0.94, tam, tam * 0.06);
+  }, { semilla: 2 }));
+  const toldo = new THREE.Mesh(R(new THREE.PlaneGeometry(3.1, 1.75)), R(new THREE.MeshLambertMaterial({ map: texToldo, side: THREE.DoubleSide })));
+  toldo.position.set(0, 2.45, -0.85);
+  toldo.rotation.x = -Math.PI / 2 + 0.32;
+  raiz.add(toldo);
+  // Postes de madera pintada
+  const matPoste = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0xe0b04a, { tam: 128, repetir: [1, 3], semilla: 8 })) }));
+  const geoPoste = R(new THREE.CylinderGeometry(0.045, 0.05, 2.2, 10));
+  for (const lado of [-1, 1]) {
+    const poste = new THREE.Mesh(geoPoste, matPoste);
+    poste.position.set(lado * 1.45, 1.1, -0.02);
+    raiz.add(poste);
+  }
+  // Guirnalda de bombillas bajo el toldo (una sola llamada de dibujo)
+  const bombillas = new THREE.InstancedMesh(
+    R(new THREE.SphereGeometry(0.025, 8, 6)),
+    R(new THREE.MeshBasicMaterial({ color: 0xffe2a0 })),
+    15,
+  );
+  const matriz = new THREE.Matrix4();
+  for (let i = 0; i < 15; i++) {
+    const f = i / 14;
+    matriz.makeTranslation(-1.4 + f * 2.8, 2.08 - Math.sin(f * Math.PI) * 0.12, -0.08);
+    bombillas.setMatrixAt(i, matriz);
+  }
+  raiz.add(bombillas);
+  // Cable de la guirnalda
+  const cable = new THREE.Mesh(
+    R(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-1.45, 2.12, -0.08), new THREE.Vector3(0, 1.84, -0.08), new THREE.Vector3(1.45, 2.12, -0.08),
+    ), 20, 0.004, 4)),
+    R(new THREE.MeshBasicMaterial({ color: 0x2a2a2a })),
+  );
+  raiz.add(cable);
+  // Setos alrededor del jardín (instanciados)
+  const setos = new THREE.InstancedMesh(
+    R(new THREE.IcosahedronGeometry(0.6, 1)),
+    R(new THREE.MeshLambertMaterial({ color: 0x2e5e2a })),
+    16,
+  );
+  const escala = new THREE.Vector3();
+  const giro = new THREE.Quaternion();
+  const pos = new THREE.Vector3();
+  for (let i = 0; i < 16; i++) {
+    const angulo = (i / 16) * Math.PI * 2;
+    const radio = 4.2 + (i % 3) * 0.4;
+    pos.set(Math.cos(angulo) * radio, 0.35, Math.sin(angulo) * radio - 0.8);
+    escala.set(1.3 + (i % 2) * 0.4, 0.9 + (i % 3) * 0.2, 1.1);
+    giro.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, -angulo);
+    setos.setMatrixAt(i, matriz.compose(pos, giro, escala));
+  }
+  raiz.add(setos);
+
   // ─── Mesa y agujeros ───────────────────────────────────────────────────
-  const mesa = new THREE.Mesh(R(new THREE.BoxGeometry(0.95, ALTURA_MESA, 0.75)), R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 })));
+  // Mesa de tablas pintadas de rojo
+  const matMesa = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.tablas(0xb8432f, { tablas: 6, semilla: 6 })) }));
+  const mesa = new THREE.Mesh(R(new THREE.BoxGeometry(0.95, ALTURA_MESA, 0.75)), matMesa);
   mesa.position.set(0, ALTURA_MESA / 2, -0.58);
-  const cesped = new THREE.Mesh(R(new THREE.BoxGeometry(0.97, 0.02, 0.77)), R(new THREE.MeshLambertMaterial({ color: 0x66bb6a })));
+  // Césped de la mesa con los agujeros pintados en la textura (ahorra una malla por agujero)
+  const texMesa = R(ctx.texturaCanvas((g, tam) => {
+    // Césped de grano fino: el mosaico de la shell repetido 2×2
+    const base = ctx.texturas.cesped(0x66bb6a, { tam: tam / 2, semilla: 3 });
+    for (const [x, y] of [[0, 0], [1, 0], [0, 1], [1, 1]]) g.drawImage(base.image, (x * tam) / 2, (y * tam) / 2);
+    base.dispose();
+    // Coordenadas en metros: el centro de la mesa en el centro del canvas, el fondo arriba
+    g.setTransform(tam / 0.97, 0, 0, tam / 0.77, tam / 2, tam / 2);
+    for (const z of [-0.24, 0, 0.24]) {
+      for (const x of [-0.27, 0, 0.27]) {
+        // Montículo de tierra alrededor
+        const tierra = g.createRadialGradient(x, z, 0.07, x, z, 0.1);
+        tierra.addColorStop(0, 'rgba(92,62,38,1)');
+        tierra.addColorStop(0.5, 'rgba(110,78,48,0.85)');
+        tierra.addColorStop(1, 'rgba(110,78,48,0)');
+        g.fillStyle = tierra;
+        g.beginPath();
+        g.arc(x, z, 0.1, 0, Math.PI * 2);
+        g.fill();
+        // Agujero oscuro, más negro en el centro
+        const hueco = g.createRadialGradient(x, z - 0.01, 0, x, z, 0.075);
+        hueco.addColorStop(0, '#050302');
+        hueco.addColorStop(0.75, '#1b120e');
+        hueco.addColorStop(1, '#3a2618');
+        g.fillStyle = hueco;
+        g.beginPath();
+        g.arc(x, z, 0.075, 0, Math.PI * 2);
+        g.fill();
+      }
+    }
+  }, { tam: 512 }));
+  const cesped = new THREE.Mesh(R(new THREE.BoxGeometry(0.97, 0.02, 0.77)), R(new THREE.MeshLambertMaterial({ map: texMesa })));
   cesped.position.set(0, ALTURA_MESA + 0.01, -0.58);
   raiz.add(mesa, cesped);
-
-  const geoAgujero = R(new THREE.CircleGeometry(0.075, 24));
-  const matAgujero = R(new THREE.MeshBasicMaterial({ color: 0x1b120e }));
+  // Marco amarillo alrededor del césped
+  const matMarco = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0xf2b632, { tam: 128, repetir: [2, 1], semilla: 12 })) }));
+  for (const [ancho, fondo, x, z] of [[1.03, 0.03, 0, -0.58 - 0.4], [1.03, 0.03, 0, -0.58 + 0.4], [0.03, 0.77, -0.5, -0.58], [0.03, 0.77, 0.5, -0.58]]) {
+    const liston = new THREE.Mesh(R(new THREE.BoxGeometry(ancho, 0.05, fondo)), matMarco);
+    liston.position.set(x, SUPERFICIE - 0.005, z);
+    raiz.add(liston);
+  }
+  // Sombra de la mesa sobre el césped
+  const sombraMesa = ctx.crearSombra({ radio: 0.75, opacidad: 0.5 });
+  sombraMesa.scale.set(1.6, 1, 1.35);
+  sombraMesa.position.set(0, 0.004, -0.58);
+  raiz.add(sombraMesa);
 
   // ─── Topos ─────────────────────────────────────────────────────────────
-  const geoCuerpo = R(new THREE.CylinderGeometry(0.055, 0.06, 0.14, 14));
-  const geoCabeza = R(new THREE.SphereGeometry(0.062, 16, 12));
-  const geoOjo = R(new THREE.SphereGeometry(0.009, 6, 4));
-  const geoNariz = R(new THREE.SphereGeometry(0.015, 8, 6));
-  const matTopo = R(new THREE.MeshLambertMaterial({ color: 0x795548 }));
-  const matDorado = R(new THREE.MeshLambertMaterial({ color: 0xffc400, emissive: 0x553300 }));
-  const matOjo = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
+  const geoCuerpo = R(new THREE.CylinderGeometry(0.055, 0.06, 0.14, 18));
+  const geoCabeza = R(new THREE.SphereGeometry(0.062, 20, 14));
+  const geoOjo = R(new THREE.SphereGeometry(0.009, 8, 6));
+  const geoNariz = R(new THREE.SphereGeometry(0.015, 10, 8));
+  const geoDientes = R(new THREE.BoxGeometry(0.022, 0.014, 0.006));
+  // Pelaje con un moteado suave
+  const matTopo = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.grano(0x8a5d45, { tam: 128, repetir: [2, 1], semilla: 21, contraste: 0.14, cantidad: 900 })) }));
+  // El dorado es metálico de verdad: refleja el cielo
+  const matDorado = R(new THREE.MeshStandardMaterial({ color: 0xffc400, emissive: 0x3a2200, metalness: 0.85, roughness: 0.3 }));
+  const matOjo = R(new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.15 }));
   const matNariz = R(new THREE.MeshLambertMaterial({ color: 0xf48fb1 }));
+  const matDientes = R(new THREE.MeshLambertMaterial({ color: 0xfffbea }));
   const geoEstrella = R(new THREE.OctahedronGeometry(0.018));
   const matEstrella = R(new THREE.MeshBasicMaterial({ color: 0xffeb3b }));
 
   const topos = [];
   for (const z of [-0.34, -0.58, -0.82]) {
     for (const x of [-0.27, 0, 0.27]) {
-      const agujero = new THREE.Mesh(geoAgujero, matAgujero);
-      agujero.rotation.x = -Math.PI / 2;
-      agujero.position.set(x, SUPERFICIE + 0.001, z);
-      raiz.add(agujero);
-
       const grupo = new THREE.Group();
       const cuerpo = new THREE.Mesh(geoCuerpo, matTopo);
       cuerpo.position.y = 0.07;
@@ -59,16 +206,26 @@ export function iniciar(ctx) {
       cabeza.position.y = ALTURA_CABEZA;
       const nariz = new THREE.Mesh(geoNariz, matNariz);
       nariz.position.set(0, ALTURA_CABEZA, 0.06);
-      grupo.add(cuerpo, cabeza, nariz);
+      const dientes = new THREE.Mesh(geoDientes, matDientes);
+      dientes.position.set(0, ALTURA_CABEZA - 0.026, 0.055);
+      grupo.add(cuerpo, cabeza, nariz, dientes);
       for (const lado of [-1, 1]) {
         const ojo = new THREE.Mesh(geoOjo, matOjo);
         ojo.position.set(lado * 0.024, ALTURA_CABEZA + 0.022, 0.052);
         grupo.add(ojo);
       }
       grupo.position.set(x, Y_ESCONDIDO, z);
+      grupo.visible = false; // escondido dentro de la mesa: no hace falta dibujarlo
       raiz.add(grupo);
 
-      const topo = { grupo, cuerpo, cabeza, estado: 'abajo', t: 0, tiempoArriba: 0, dorado: false };
+      // Sombra de mancha en el borde del agujero cuando asoma
+      // (algo desplazada hacia el lado contrario a la luz para que asome fuera del agujero)
+      const sombra = ctx.crearSombra({ radio: 0.095, opacidad: 0.6 });
+      sombra.position.set(x - 0.025, SUPERFICIE + 0.003, z - 0.02);
+      sombra.visible = false;
+      raiz.add(sombra);
+
+      const topo = { grupo, cuerpo, cabeza, sombra, estado: 'abajo', t: 0, tiempoArriba: 0, dorado: false };
       cuerpo.userData.topo = topo;
       cabeza.userData.topo = topo;
       topos.push(topo);
@@ -77,14 +234,32 @@ export function iniciar(ctx) {
   const mallasGolpeables = topos.flatMap((t) => [t.cuerpo, t.cabeza]);
 
   // ─── Martillos ─────────────────────────────────────────────────────────
+  // Mango de madera barnizada, empuñadura de goma y cabeza de plástico rojo brillante
+  // con topes amarillos. Geometrías y materiales compartidos por los tres martillos.
+  const geoMango = R(new THREE.CylinderGeometry(0.015, 0.018, 0.34, 14));
+  const geoPuno = R(new THREE.CylinderGeometry(0.02, 0.02, 0.11, 14));
+  const geoCabezaMartillo = R(new THREE.CylinderGeometry(0.05, 0.05, 0.13, 24));
+  const geoTope = R(new THREE.CylinderGeometry(0.053, 0.053, 0.02, 24));
+  const matMango = R(new THREE.MeshStandardMaterial({ map: R(ctx.texturas.madera(0xd9b98a, { tam: 128, repetir: [1, 1], semilla: 14 })), roughness: 0.45 }));
+  const matPuno = R(new THREE.MeshStandardMaterial({ color: 0x263238, roughness: 0.85 }));
+  const matCabezaMartillo = R(new THREE.MeshStandardMaterial({ color: 0xe53935, roughness: 0.28 }));
+  const matTope = R(new THREE.MeshStandardMaterial({ color: 0xffca28, roughness: 0.35 }));
   function crearMartillo() {
     const martillo = new THREE.Group();
-    const mango = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.018, 0.34, 10), new THREE.MeshLambertMaterial({ color: 0xbcaaa4 }));
+    const mango = new THREE.Mesh(geoMango, matMango);
     mango.rotation.x = Math.PI / 2;
     mango.position.z = (0.04 + CABEZA_MARTILLO) / 2;
-    const cabeza = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.13, 16), new THREE.MeshLambertMaterial({ color: 0xe53935 }));
+    const puno = new THREE.Mesh(geoPuno, matPuno);
+    puno.rotation.x = Math.PI / 2;
+    puno.position.z = -0.005;
+    const cabeza = new THREE.Mesh(geoCabezaMartillo, matCabezaMartillo);
     cabeza.position.z = CABEZA_MARTILLO; // el eje del cilindro (Y) queda perpendicular al mango
-    martillo.add(mango, cabeza);
+    martillo.add(mango, puno, cabeza);
+    for (const lado of [-1, 1]) {
+      const tope = new THREE.Mesh(geoTope, matTope);
+      tope.position.y = lado * 0.065;
+      cabeza.add(tope);
+    }
     return martillo;
   }
 
@@ -200,6 +375,11 @@ export function iniciar(ctx) {
       default:
         g.position.y = Y_ESCONDIDO;
     }
+    // Solo se dibuja cuando asoma; la sombra se intensifica a medida que sale
+    const fuera = (g.position.y - Y_ESCONDIDO) / (Y_ARRIBA - Y_ESCONDIDO);
+    g.visible = topo.estado !== 'abajo';
+    topo.sombra.visible = g.visible && fuera > 0.05;
+    topo.sombra.material.opacity = 0.6 * fuera;
   }
 
   // ─── Golpes con los mandos VR ──────────────────────────────────────────

@@ -50,6 +50,7 @@ export function iniciar(ctx) {
   ctx.vistaEscritorio(new THREE.Vector3(-0.35, 1.5, 2.3), new THREE.Vector3(0.3, 1.1, -DISTANCIA_LANZADOR));
 
   // ─── Campo ─────────────────────────────────────────────────────────────
+  ctx.sueloBase(false); // el campo ya cubre todo el suelo
   const plano = (geo, mat, x, y, z, giro = 0) => {
     const m = new THREE.Mesh(geo, mat);
     m.rotation.set(-Math.PI / 2, 0, giro);
@@ -57,83 +58,194 @@ export function iniciar(ctx) {
     raiz.add(m);
     return m;
   };
-  const matCesped = R(new THREE.MeshLambertMaterial({ color: 0x4caf50 }));
-  const matTierra = R(new THREE.MeshLambertMaterial({ color: 0xc68a4e }));
+  // Las texturas se repiten por metros: cada geometría escala sus UV a su tamaño real
+  const escalarUV = (geo, u, v = u) => {
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * u, uv.getY(i) * v);
+    return geo;
+  };
+  // Fusiona geometrías estáticas (cada una con su matriz) en una sola: una llamada de dibujo
+  const fusionar = (piezas) => {
+    const datos = { position: [], normal: [], uv: [] };
+    for (const [geo, matriz] of piezas) {
+      const g = geo.index ? geo.toNonIndexed() : geo.clone();
+      g.applyMatrix4(matriz);
+      for (const nombre in datos) datos[nombre].push(...g.attributes[nombre].array);
+      g.dispose();
+    }
+    const resultado = new THREE.BufferGeometry();
+    resultado.setAttribute('position', new THREE.Float32BufferAttribute(datos.position, 3));
+    resultado.setAttribute('normal', new THREE.Float32BufferAttribute(datos.normal, 3));
+    resultado.setAttribute('uv', new THREE.Float32BufferAttribute(datos.uv, 2));
+    return R(resultado);
+  };
+  const matriz = (x, y, z, giroY = 0) => new THREE.Matrix4().makeRotationY(giroY).setPosition(x, y, z);
+
+  // Césped con las franjas en damero del cortacésped (casillas de 4 m) y briznas finas
+  const METROS_CESPED = 8;
+  const texCesped = R(ctx.texturaCanvas((g, tam, azar) => {
+    const mitad = tam / 2;
+    for (let i = 0; i < 2; i++) {
+      for (let k = 0; k < 2; k++) {
+        g.fillStyle = (i + k) % 2 ? '#3f9e44' : '#56b852';
+        g.fillRect(i * mitad, k * mitad, mitad, mitad);
+      }
+    }
+    for (let i = 0; i < tam * 30; i++) {
+      const x = azar() * tam;
+      const y = azar() * tam;
+      g.strokeStyle = azar() < 0.5 ? `rgba(255,255,200,${azar() * 0.13})` : `rgba(0,30,0,${azar() * 0.18})`;
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x + (azar() - 0.5) * 2, y - 1 - azar() * 3);
+      g.stroke();
+    }
+  }, { tam: 512, semilla: 7 }));
+  const texTierra = R(ctx.texturas.grano(0xc68a4e, { cantidad: 2200, tamMin: 0.5, tamMax: 1.8, contraste: 0.15, semilla: 3 }));
+  const METROS_TIERRA = 2.5;
+  const matCesped = R(new THREE.MeshLambertMaterial({ map: texCesped }));
+  const matTierra = R(new THREE.MeshLambertMaterial({ map: texTierra }));
   const matCal = R(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-  plano(R(new THREE.PlaneGeometry(300, 300)), matCesped, 0, 0.003, -60);
+  // Damero alineado con las líneas de falta (girado 45°)
+  plano(escalarUV(R(new THREE.PlaneGeometry(300, 300)), 300 / METROS_CESPED), matCesped, 0, 0, -60, Math.PI / 4);
 
   // Diamante: la base de casa está en el origen
   const centroDiamante = LADO_DIAMANTE / Math.SQRT2;
-  plano(R(new THREE.PlaneGeometry(LADO_DIAMANTE + 5, LADO_DIAMANTE + 5)), matTierra, 0, 0.005, -centroDiamante, Math.PI / 4);
-  plano(R(new THREE.PlaneGeometry(LADO_DIAMANTE - 3, LADO_DIAMANTE - 3)), R(new THREE.MeshLambertMaterial({ color: 0x43a047 })), 0, 0.007, -centroDiamante, Math.PI / 4);
-  plano(R(new THREE.CircleGeometry(3, 24)), matTierra, 0, 0.008, 0);
+  plano(escalarUV(R(new THREE.PlaneGeometry(LADO_DIAMANTE + 5, LADO_DIAMANTE + 5)), (LADO_DIAMANTE + 5) / METROS_TIERRA), matTierra, 0, 0.006, -centroDiamante, Math.PI / 4);
+  plano(escalarUV(R(new THREE.PlaneGeometry(LADO_DIAMANTE - 3, LADO_DIAMANTE - 3)), (LADO_DIAMANTE - 3) / METROS_CESPED), matCesped, 0, 0.011, -centroDiamante, Math.PI / 4);
+  plano(escalarUV(R(new THREE.CircleGeometry(3, 32)), 6 / METROS_TIERRA), matTierra, 0, 0.016, 0);
+  // Pista de aviso: franja de tierra delante de la valla
+  const ARCO = THREE.MathUtils.degToRad(54);
+  plano(escalarUV(R(new THREE.RingGeometry(RADIO_VALLA - 4, RADIO_VALLA, 72, 1, Math.PI / 2 - ARCO, 2 * ARCO)), 2 * RADIO_VALLA / METROS_TIERRA), matTierra, 0, 0.006, 0);
+
+  // Las tres bases (fijas) en una sola malla
   const geoBase = R(new THREE.BoxGeometry(0.4, 0.06, 0.4));
-  for (const [x, z] of [[centroDiamante, -centroDiamante], [0, -2 * centroDiamante], [-centroDiamante, -centroDiamante]]) {
-    const base = new THREE.Mesh(geoBase, matCal);
-    base.position.set(x, 0.03, z);
-    base.rotation.y = Math.PI / 4;
-    raiz.add(base);
-  }
+  raiz.add(new THREE.Mesh(fusionar(
+    [[centroDiamante, -centroDiamante], [0, -2 * centroDiamante], [-centroDiamante, -centroDiamante]]
+      .map(([x, z]) => [geoBase, matriz(x, 0.03, z, Math.PI / 4)]),
+  ), matCal));
   const casa = new THREE.Mesh(R(new THREE.BoxGeometry(0.43, 0.02, 0.43)), matCal);
-  casa.position.y = 0.012;
+  casa.position.y = 0.018;
   raiz.add(casa);
   // Caja del bateador: dónde ponerse
   const caja = new THREE.LineLoop(R(new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.45, 0.012, -0.9), new THREE.Vector3(0.45, 0.012, -0.9),
-    new THREE.Vector3(0.45, 0.012, 0.9), new THREE.Vector3(-0.45, 0.012, 0.9),
+    new THREE.Vector3(-0.45, 0.02, -0.9), new THREE.Vector3(0.45, 0.02, -0.9),
+    new THREE.Vector3(0.45, 0.02, 0.9), new THREE.Vector3(-0.45, 0.02, 0.9),
   ])), R(new THREE.LineBasicMaterial({ color: 0xffffff })));
   raiz.add(caja);
 
-  // Líneas de falta, de casa a la valla
-  const geoLinea = R(new THREE.PlaneGeometry(0.1, RADIO_VALLA));
-  for (const s of [-1, 1]) {
-    const angulo = THREE.MathUtils.degToRad(ANGULO_BUENO);
-    plano(geoLinea, matCal, s * Math.sin(angulo) * RADIO_VALLA / 2, 0.01, -Math.cos(angulo) * RADIO_VALLA / 2, -s * angulo);
-  }
+  // Líneas de falta, de casa a la valla (las dos en una malla)
+  const geoLinea = R(new THREE.PlaneGeometry(0.1, RADIO_VALLA).rotateX(-Math.PI / 2));
+  const angulo45 = THREE.MathUtils.degToRad(ANGULO_BUENO);
+  raiz.add(new THREE.Mesh(fusionar([-1, 1].map((s) => [
+    geoLinea,
+    matriz(s * Math.sin(angulo45) * RADIO_VALLA / 2, 0.02, -Math.cos(angulo45) * RADIO_VALLA / 2, -s * angulo45),
+  ])), matCal));
 
   // Montículo
-  const monticulo = new THREE.Mesh(R(new THREE.CylinderGeometry(2.4, 2.8, 0.25, 24)), matTierra);
+  const monticulo = new THREE.Mesh(escalarUV(R(new THREE.CylinderGeometry(2.4, 2.8, 0.25, 32)), 5.6 / METROS_TIERRA), matTierra);
   monticulo.position.set(0, 0.125, -DISTANCIA_LANZADOR);
   raiz.add(monticulo);
+  const goma = new THREE.Mesh(R(new THREE.BoxGeometry(0.6, 0.02, 0.15)), matCal);
+  goma.position.set(0, 0.255, -DISTANCIA_LANZADOR + 0.3);
+  raiz.add(goma);
 
-  // Valla, gradas y postes de falta
-  const matValla = R(new THREE.MeshLambertMaterial({ color: 0x1b5e20 }));
+  // ─── Estadio ───────────────────────────────────────────────────────────
+  // Antes eran 135 cajas sueltas; ahora la valla y cada grada son un solo arco
+  // de cilindro visto por dentro (unas pocas llamadas de dibujo en total).
+  // CylinderGeometry pone theta = 0 en +Z: el arco centrado en π mira hacia el bateador.
+  const arcoCilindro = (radio, alto, segmentos = 72) =>
+    R(new THREE.CylinderGeometry(radio, radio, alto, segmentos, 1, true, Math.PI - ARCO, 2 * ARCO));
+
+  // Valla acolchada: paneles verdes con juntas
+  const texValla = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#1f6a2a';
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 400; i++) {
+      g.fillStyle = `rgba(0,0,0,${azar() * 0.08})`;
+      g.fillRect(azar() * tam, azar() * tam, 2, 2);
+    }
+    g.fillStyle = 'rgba(0,0,0,0.35)';
+    g.fillRect(0, 0, 3, tam);
+    g.fillRect(tam / 2, 0, 3, tam);
+    g.fillStyle = 'rgba(255,255,255,0.08)';
+    g.fillRect(4, 0, 2, tam);
+    g.fillRect(tam / 2 + 4, 0, 2, tam);
+  }, { tam: 128, repetir: [Math.round((2 * ARCO * RADIO_VALLA) / 4), 1] }));
+  const valla = new THREE.Mesh(arcoCilindro(RADIO_VALLA, ALTO_VALLA), R(new THREE.MeshLambertMaterial({ map: texValla, side: THREE.BackSide })));
+  valla.position.y = ALTO_VALLA / 2;
+  raiz.add(valla);
   const matBorde = R(new THREE.MeshLambertMaterial({ color: 0xffd600 }));
-  const matGradas = [0x37474f, 0x455a64, 0x546e7a].map((c) => R(new THREE.MeshLambertMaterial({ color: c })));
-  const PASO = 4;
-  const ancho = (radio) => 2 * radio * Math.sin(THREE.MathUtils.degToRad(PASO / 2)) + 0.15;
-  const geoValla = R(new THREE.BoxGeometry(ancho(RADIO_VALLA), ALTO_VALLA, 0.3));
-  const geoBorde = R(new THREE.BoxGeometry(ancho(RADIO_VALLA), 0.12, 0.34));
-  const gradas = [1, 2, 3].map((fila) => ({
-    radio: RADIO_VALLA + fila * 4,
-    alto: fila * 3,
-    geo: R(new THREE.BoxGeometry(ancho(RADIO_VALLA + fila * 4), fila * 3, 4)),
-    mat: matGradas[fila - 1],
-  }));
-  for (let grados = -52; grados <= 52; grados += PASO) {
-    const a = THREE.MathUtils.degToRad(grados);
-    const colocar = (malla, radio, y) => {
-      malla.position.set(radio * Math.sin(a), y, -radio * Math.cos(a));
-      malla.rotation.y = -a;
-      raiz.add(malla);
-    };
-    colocar(new THREE.Mesh(geoValla, matValla), RADIO_VALLA, ALTO_VALLA / 2);
-    colocar(new THREE.Mesh(geoBorde, matBorde), RADIO_VALLA, ALTO_VALLA);
-    for (const g of gradas) colocar(new THREE.Mesh(g.geo, g.mat), g.radio, g.alto / 2);
-  }
+  const borde = new THREE.Mesh(arcoCilindro(RADIO_VALLA - 0.03, 0.14), R(new THREE.MeshLambertMaterial({ color: 0xffd600, side: THREE.BackSide })));
+  borde.position.y = ALTO_VALLA - 0.05;
+  raiz.add(borde);
+
+  // Gradas con público: filas de asientos con gente de colores (una textura para las tres)
+  const texPublico = R(ctx.texturaCanvas((g, tam, azar) => {
+    const filas = 4;
+    const alto = tam / filas;
+    const porFila = 16;
+    const ancho = tam / porFila;
+    const camisetas = ['#e53935', '#1e88e5', '#fdd835', '#ffffff', '#43a047', '#fb8c00', '#8e24aa', '#263238', '#d81b60', '#90caf9'];
+    const pieles = ['#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#ffdbac'];
+    g.fillStyle = '#2b3a42';
+    g.fillRect(0, 0, tam, tam);
+    for (let f = 0; f < filas; f++) {
+      const y0 = f * alto;
+      // Escalón de hormigón y respaldo de los asientos
+      g.fillStyle = '#4f5f68';
+      g.fillRect(0, y0 + alto * 0.86, tam, alto * 0.14);
+      g.fillStyle = '#1565c0';
+      g.fillRect(0, y0 + alto * 0.55, tam, alto * 0.3);
+      for (let k = 0; k < porFila; k++) {
+        if (azar() < 0.18) continue; // asiento vacío
+        const x = k * ancho + ancho / 2 + (azar() - 0.5) * ancho * 0.25;
+        g.fillStyle = camisetas[Math.floor(azar() * camisetas.length)];
+        g.fillRect(x - ancho * 0.32, y0 + alto * 0.42, ancho * 0.64, alto * 0.42);
+        g.fillStyle = pieles[Math.floor(azar() * pieles.length)];
+        g.beginPath();
+        g.arc(x, y0 + alto * 0.3, ancho * 0.2, 0, Math.PI * 2);
+        g.fill();
+        if (azar() < 0.25) { // gorra
+          g.fillStyle = camisetas[Math.floor(azar() * camisetas.length)];
+          g.fillRect(x - ancho * 0.2, y0 + alto * 0.13, ancho * 0.4, alto * 0.1);
+        }
+      }
+    }
+  }, { tam: 256, semilla: 11 }));
+  const matGradas = R(new THREE.MeshLambertMaterial({ map: texPublico, side: THREE.BackSide }));
+  // Cada grada: frente de 3 m de alto (4 filas de público por cada 4 m de arco)
+  raiz.add(new THREE.Mesh(fusionar([1, 2, 3].map((fila) => {
+    const radio = RADIO_VALLA - 2 + fila * 4;
+    const geo = escalarUV(arcoCilindro(radio, 3), Math.round((2 * ARCO * radio) / 4), 1);
+    return [geo, matriz(0, (fila - 0.5) * 3, 0)];
+  })), matGradas));
+  // Barandilla amarilla sobre el frente de cada grada
+  raiz.add(new THREE.Mesh(fusionar([1, 2, 3].map((fila) => [
+    arcoCilindro(RADIO_VALLA - 2.02 + fila * 4, 0.1), matriz(0, fila * 3 + 0.05, 0),
+  ])), borde.material));
+
+  // Postes de falta
   const geoPoste = R(new THREE.CylinderGeometry(0.15, 0.15, 12, 10));
-  for (const s of [-1, 1]) {
-    const a = THREE.MathUtils.degToRad(ANGULO_BUENO);
-    const poste = new THREE.Mesh(geoPoste, matBorde);
-    poste.position.set(s * Math.sin(a) * RADIO_VALLA, 6, -Math.cos(a) * RADIO_VALLA);
-    raiz.add(poste);
-  }
+  raiz.add(new THREE.Mesh(fusionar([-1, 1].map((s) => [
+    geoPoste, matriz(s * Math.sin(angulo45) * RADIO_VALLA, 6, -Math.cos(angulo45) * RADIO_VALLA),
+  ])), matBorde));
+
+  // Torres de focos detrás de las gradas (postes y focos fusionados: dos llamadas)
+  const geoTorre = R(new THREE.CylinderGeometry(0.35, 0.5, 26, 8));
+  const geoFocos = R(new THREE.BoxGeometry(5, 2.6, 0.5));
+  const torres = [-62, -24, 24, 62].map((grados) => {
+    const a = THREE.MathUtils.degToRad(grados);
+    return { a, x: 72 * Math.sin(a), z: -72 * Math.cos(a) };
+  });
+  raiz.add(new THREE.Mesh(fusionar(torres.map((t) => [geoTorre, matriz(t.x, 13, t.z)])), R(new THREE.MeshLambertMaterial({ color: 0x78909c }))));
+  raiz.add(new THREE.Mesh(fusionar(torres.map((t) => [geoFocos, matriz(t.x, 26.5, t.z, -t.a)])), R(new THREE.MeshBasicMaterial({ color: 0xfffde7 }))));
 
   // Red detrás del bateador
   const red = new THREE.Mesh(R(new THREE.PlaneGeometry(14, 6, 28, 12)), R(new THREE.MeshBasicMaterial({ color: 0x263238, wireframe: true, transparent: true, opacity: 0.5 })));
   red.position.set(0, 3, RED_TRASERA + 0.05);
   raiz.add(red);
-
   // Zona de strike (por donde pasa la bola)
   const geoZona = R(new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(-0.225, 0.6, 0), new THREE.Vector3(0.225, 0.6, 0),
@@ -143,11 +255,16 @@ export function iniciar(ctx) {
   raiz.add(zona);
 
   // ─── Bola, estela y marca de caída ─────────────────────────────────────
-  const bola = new THREE.Mesh(R(new THREE.SphereGeometry(RADIO_BOLA, 14, 10)), R(new THREE.MeshBasicMaterial({ color: 0xfafafa })));
-  const costura = new THREE.Mesh(R(new THREE.TorusGeometry(RADIO_BOLA * 0.75, 0.004, 4, 16)), R(new THREE.MeshBasicMaterial({ color: 0xd32f2f })));
+  // Bola de cuero (MeshStandard: recoge los brillos del cielo) con su costura roja
+  const bola = new THREE.Mesh(R(new THREE.SphereGeometry(RADIO_BOLA, 20, 14)), R(new THREE.MeshStandardMaterial({ color: 0xfaf7ef, roughness: 0.55, metalness: 0 })));
+  const costura = new THREE.Mesh(R(new THREE.TorusGeometry(RADIO_BOLA * 0.75, 0.004, 4, 20)), R(new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.7 })));
   costura.rotation.x = 0.6;
   bola.add(costura);
   raiz.add(bola);
+  // Sombra de mancha bajo la bola (crece con ella cuando se aleja)
+  const RADIO_SOMBRA_BOLA = 0.07;
+  const sombraBola = ctx.crearSombra({ radio: RADIO_SOMBRA_BOLA, opacidad: 0.55 });
+  raiz.add(sombraBola);
 
   const MAX_ESTELA = 40;
   const geoEstela = R(new THREE.BufferGeometry());
@@ -196,6 +313,9 @@ export function iniciar(ctx) {
   lanzador.add(brazoQuieto, brazo);
   lanzador.position.set(0, 0.25, -DISTANCIA_LANZADOR);
   raiz.add(lanzador);
+  const sombraLanzador = ctx.crearSombra({ radio: 0.42, opacidad: 0.5 });
+  ctx.colocarSombra(sombraLanzador, lanzador.position, 0.25);
+  raiz.add(sombraLanzador);
 
   // Ángulo del brazo durante el lanzamiento (0 = colgando; π = hacia arriba)
   const SUELTA = 0.75; // segundos desde que empieza el gesto hasta que suelta la bola
@@ -208,16 +328,21 @@ export function iniciar(ctx) {
 
   // ─── Bates ─────────────────────────────────────────────────────────────
   // Puño en el origen y el bate hacia delante (-Z), como las espadas de Corta Fruta
-  const geoBate = R(new THREE.CylinderGeometry(0.033, 0.014, 0.84, 14));
+  const geoBate = R(new THREE.CylinderGeometry(0.033, 0.014, 0.84, 20, 4));
   geoBate.rotateX(-Math.PI / 2);
   geoBate.translate(0, 0, -0.35);
-  const geoPomo = R(new THREE.CylinderGeometry(0.022, 0.022, 0.02, 12));
+  const geoPomo = R(new THREE.CylinderGeometry(0.022, 0.022, 0.02, 16));
   geoPomo.rotateX(-Math.PI / 2);
   geoPomo.translate(0, 0, 0.075);
-  const geoCinta = R(new THREE.CylinderGeometry(0.017, 0.016, 0.16, 12));
+  const geoCinta = R(new THREE.CylinderGeometry(0.017, 0.016, 0.16, 16));
   geoCinta.rotateX(-Math.PI / 2);
-  const matMadera = R(new THREE.MeshLambertMaterial({ color: 0xd2a565 }));
-  const matCinta = R(new THREE.MeshLambertMaterial({ color: 0x212121 }));
+  // Madera de fresno barnizada: la veta va a lo largo del bate (textura girada 90°)
+  const texBate = R(ctx.texturas.madera(0xa8743c, { semilla: 5 }));
+  texBate.center.set(0.5, 0.5);
+  texBate.rotation = Math.PI / 2;
+  texBate.repeat.set(1, 2);
+  const matMadera = R(new THREE.MeshStandardMaterial({ map: texBate, roughness: 0.45, metalness: 0 }));
+  const matCinta = R(new THREE.MeshStandardMaterial({ color: 0x1c1c1c, roughness: 0.9, metalness: 0 }));
 
   function crearBate() {
     const g = new THREE.Group();
@@ -640,6 +765,10 @@ export function iniciar(ctx) {
 
     bate.inicioAnterior.copy(bate.inicio);
     bate.puntaAnterior.copy(bate.punta);
+    // Sombra de la bola: sobre el montículo va más alta
+    const enMonticulo = Math.hypot(bola.position.x, bola.position.z + DISTANCIA_LANZADOR) < 2.4;
+    sombraBola.userData.radio = RADIO_SOMBRA_BOLA * bola.scale.x;
+    ctx.colocarSombra(sombraBola, bola.position, enMonticulo ? 0.25 : 0.02);
     actualizarMarcador();
   }
 

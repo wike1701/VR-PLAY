@@ -13,6 +13,10 @@ import { JUEGOS } from '../juegos/catalogo.js';
 import { BotonCambio } from './boton-cambio.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido } from './sonido.js';
+import {
+  crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
+  texturas, texturaCanvas, crearSombra, colocarSombra,
+} from './graficos.js';
 
 const COLOR_FONDO = 0x141826;
 const FOV_ESCRITORIO = 70;
@@ -28,19 +32,40 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
 renderer.xr.setReferenceSpaceType('local-floor');
 renderer.xr.setFoveation(1);
+// Tone mapping: luces y brillos más naturales, sin colores "quemados". Coste nulo
+// (se hace en el mismo sombreador de cada material, sin pasadas extra).
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 document.getElementById('escena').appendChild(renderer.domElement);
+configurarTexturas(renderer);
 
 const escena = new THREE.Scene();
-escena.background = new THREE.Color(COLOR_FONDO);
 escena.fog = new THREE.Fog(COLOR_FONDO, 7, 16);
+
+// Cielo con degradado y mapa de entorno a juego (para los reflejos)
+const cielo = crearCielo();
+escena.add(cielo.mesh);
+const entorno = crearGeneradorEntorno(renderer);
 
 const camara = new THREE.PerspectiveCamera(FOV_ESCRITORIO, window.innerWidth / window.innerHeight, 0.05, 100);
 escena.add(camara);
 
-escena.add(new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.6));
-const sol = new THREE.DirectionalLight(0xffffff, 1.8);
+const hemisferio = new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.6);
+escena.add(hemisferio);
+const sol = new THREE.DirectionalLight(0xfff4e5, 1.8);
 sol.position.set(2, 5, 2);
 escena.add(sol);
+
+// Cambia el cielo, la niebla y el color de las luces para que todo case.
+function aplicarFondo(color, opciones = {}) {
+  const colores = { ...coloresCielo(color), ...opciones };
+  cielo.aplicar(colores);
+  escena.fog.color.set(colores.horizonte);
+  hemisferio.color.set(colores.dia ? 0xe6f0ff : 0xc8ccff).lerp(new THREE.Color(colores.cenit), 0.25);
+  hemisferio.groundColor.set(colores.suelo).multiplyScalar(colores.dia ? 1 : 1.6);
+  escena.environment = entorno.generar(colores);
+}
+aplicarFondo(COLOR_FONDO);
 
 const suelo = new THREE.Mesh(
   new THREE.CircleGeometry(8, 48),
@@ -282,10 +307,20 @@ function montar(indice, modulo) {
     sonido,
     vibrar,
     destello: (color, fuerza) => fundido.destello(color, fuerza),
-    fondo(color) {
-      escena.background.setHex(color);
-      escena.fog.color.setHex(color);
+    // Cielo con degradado a partir de un color. opciones: { cenit, horizonte, suelo, dia }
+    fondo(color, opciones) {
+      aplicarFondo(color, opciones);
     },
+    // Kit gráfico: texturas procedurales y sombras de mancha (ver shell/graficos.js).
+    // Las texturas que crea un juego hay que registrarlas con ctx.recurso().
+    texturas,
+    texturaCanvas,
+    // Oculta el suelo y la rejilla de la shell cuando el juego trae su propio suelo.
+    sueloBase(visible) {
+      suelo.visible = rejilla.visible = visible;
+    },
+    crearSombra,
+    colocarSombra,
     vistaEscritorio(posicion, objetivo) {
       vista.posicion.copy(posicion);
       vista.objetivo.copy(objetivo);
@@ -326,8 +361,8 @@ function desmontar() {
   actual = null;
 
   // Volver al estado base de la shell
-  escena.background.setHex(COLOR_FONDO);
-  escena.fog.color.setHex(COLOR_FONDO);
+  aplicarFondo(COLOR_FONDO);
+  suelo.visible = rejilla.visible = true;
   vista.posicion.copy(VISTA_POR_DEFECTO.posicion);
   vista.objetivo.copy(VISTA_POR_DEFECTO.objetivo);
 }
@@ -570,6 +605,7 @@ window.vrPlay = {
   siguienteJuego,
   cambiarA,
   memoria: () => ({ ...renderer.info.memory }),
+  dibujado: () => ({ ...renderer.info.render }), // llamadas y triángulos del último fotograma
   get juego() { return JUEGOS[indiceActual].id; },
   get cambiando() { return cambiando; },
 };

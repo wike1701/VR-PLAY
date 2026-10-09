@@ -1,25 +1,27 @@
 import * as THREE from 'three';
 
 // Libera de la memoria de la GPU todo lo que cuelga de un objeto:
-// geometrías, materiales y texturas.
+// geometrías, materiales y texturas. Se salta lo que la shell comparte entre
+// juegos (userData.compartido), como la textura de las sombras.
 export function liberarObjeto(raiz) {
   raiz.traverse((obj) => liberarRecurso(obj));
 }
 
 export function liberarRecurso(obj) {
-  if (!obj) return;
+  if (!obj || obj.userData?.compartido) return;
   if (obj.isBufferGeometry || obj.isTexture) {
     obj.dispose();
     return;
   }
   if (obj.isMaterial) {
     for (const valor of Object.values(obj)) {
-      if (valor && valor.isTexture) valor.dispose();
+      if (valor && valor.isTexture && !valor.userData.compartido) valor.dispose();
     }
     obj.dispose();
     return;
   }
-  if (obj.geometry) obj.geometry.dispose();
+  if (obj.isInstancedMesh) obj.dispose(); // libera los atributos de las instancias
+  if (obj.geometry) liberarRecurso(obj.geometry);
   if (obj.material) {
     const materiales = Array.isArray(obj.material) ? obj.material : [obj.material];
     for (const m of materiales) liberarRecurso(m);
@@ -42,7 +44,8 @@ export function crearPanel({
 
   const textura = new THREE.CanvasTexture(canvas);
   textura.colorSpace = THREE.SRGBColorSpace;
-  const material = new THREE.MeshBasicMaterial({ map: textura, transparent: true, depthWrite: false });
+  // Sin tone mapping: el texto conserva sus colores exactos y se lee mejor
+  const material = new THREE.MeshBasicMaterial({ map: textura, transparent: true, depthWrite: false, toneMapped: false });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(ancho, alto), material);
 
   let anterior = '';

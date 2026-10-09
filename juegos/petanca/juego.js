@@ -40,31 +40,38 @@ export function iniciar(ctx) {
   niebla.far = 40;
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.75, 0.9), new THREE.Vector3(0, 0, -7));
 
+  // ─── Suelo: césped alrededor de la pista ───────────────────────────────
+  ctx.sueloBase(false);
+  const texCesped = R(ctx.texturas.cesped(0x5d9a45, { tam: 512, repetir: [26, 26], semilla: 7 }));
+  const cesped = new THREE.Mesh(R(new THREE.PlaneGeometry(72, 72)), R(new THREE.MeshLambertMaterial({ map: texCesped })));
+  cesped.rotation.x = -Math.PI / 2;
+  cesped.position.z = -6;
+  raiz.add(cesped);
+
   // ─── Pista ─────────────────────────────────────────────────────────────
   const largo = Z_DELANTE - Z_FONDO;
-  const grava = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO, largo)), R(new THREE.MeshLambertMaterial({ color: 0xcdb38b })));
+  // Grava en textura (antes eran cientos de piedrecitas sueltas): cada mosaico mide 1 m
+  const texGrava = R(ctx.texturas.grano(0xcdb38b, {
+    tam: 512, repetir: [ANCHO, largo], semilla: 3, cantidad: 14000, tamMin: 1, tamMax: 3.2, contraste: 0.26,
+  }));
+  const grava = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO, largo)), R(new THREE.MeshLambertMaterial({
+    map: texGrava, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
+  })));
   grava.rotation.x = -Math.PI / 2;
   grava.position.set(0, 0.004, (Z_DELANTE + Z_FONDO) / 2);
   raiz.add(grava);
-  // Piedrecitas para que se note la grava
-  const geoPiedra = R(new THREE.CircleGeometry(0.02, 5));
-  const matPiedra = R(new THREE.MeshBasicMaterial({ color: 0xa88f68 }));
-  for (let i = 0; i < 260; i++) {
-    const p = new THREE.Mesh(geoPiedra, matPiedra);
-    p.rotation.x = -Math.PI / 2;
-    p.position.set((Math.random() - 0.5) * (ANCHO - 0.1), 0.006, Z_DELANTE - Math.random() * largo);
-    p.scale.setScalar(0.5 + Math.random());
-    raiz.add(p);
-  }
-  const matMadera = R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 }));
+  // Bordes de tablón: la veta va a lo largo de cada tablón
+  const matMadera = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x8d6e63, { repetir: [3, 1], semilla: 5 })) }));
+  const matBordeLargo = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x8d6e63, { repetir: [9, 1], semilla: 5 })) }));
   const bordes = [
-    [ANCHO + 0.2, 0, Z_FONDO - 0.05, 0.1],
-    [ANCHO + 0.2, 0, Z_DELANTE + 0.05, 0.1],
-    [0.1, -ANCHO / 2 - 0.05, (Z_DELANTE + Z_FONDO) / 2, largo],
-    [0.1, ANCHO / 2 + 0.05, (Z_DELANTE + Z_FONDO) / 2, largo],
+    [ANCHO + 0.2, 0, Z_FONDO - 0.05, false],
+    [ANCHO + 0.2, 0, Z_DELANTE + 0.05, false],
+    [largo, -ANCHO / 2 - 0.05, (Z_DELANTE + Z_FONDO) / 2, true],
+    [largo, ANCHO / 2 + 0.05, (Z_DELANTE + Z_FONDO) / 2, true],
   ];
-  for (const [ancho, x, z, fondo] of bordes) {
-    const b = new THREE.Mesh(R(new THREE.BoxGeometry(ancho, ALTO_BORDE, fondo)), matMadera);
+  for (const [longitud, x, z, lateral] of bordes) {
+    const b = new THREE.Mesh(R(new THREE.BoxGeometry(longitud, ALTO_BORDE, 0.1)), lateral ? matBordeLargo : matMadera);
+    if (lateral) b.rotation.y = Math.PI / 2;
     b.position.set(x, ALTO_BORDE / 2, z);
     raiz.add(b);
   }
@@ -73,28 +80,77 @@ export function iniciar(ctx) {
   circulo.rotation.x = -Math.PI / 2;
   circulo.position.y = 0.006;
   raiz.add(circulo);
-  // Árboles de fondo (conos sencillos)
-  const geoCopa = R(new THREE.ConeGeometry(0.9, 2.6, 8));
-  const geoTronco = R(new THREE.CylinderGeometry(0.1, 0.14, 0.8, 6));
-  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0x4f7f3a }));
-  for (const [x, z] of [[-4, -6], [4.2, -9], [-3.8, -12], [3.6, -3.5], [-4.4, -2], [0.5, -15], [-2, -15.5], [3, -14]]) {
-    const tronco = new THREE.Mesh(geoTronco, matMadera);
-    tronco.position.set(x, 0.4, z);
-    const copa = new THREE.Mesh(geoCopa, matCopa);
-    copa.position.set(x, 2.1, z);
-    raiz.add(tronco, copa);
-  }
+
+  // ─── Árboles de fondo (instanciados: pocas llamadas de dibujo) ─────────
+  const pinos = [[-4, -6], [4.2, -9], [-3.8, -12], [3.6, -3.5], [-4.4, -2], [0.5, -15], [-2, -15.5], [3, -14],
+    [-6.5, -9], [6.8, -6], [-7, -14.5], [6.5, -13], [5.5, -17.5], [-5, -18]];
+  const redondos = [[-5.6, -4.5], [5.8, -2.2], [-2.6, -18.5], [2.4, -18], [7.5, -10], [-7.8, -7]];
+  const matriz = new THREE.Matrix4();
+  const posI = new THREE.Vector3();
+  const escI = new THREE.Vector3();
+  const giroI = new THREE.Quaternion();
+  const colorI = new THREE.Color();
+  const instanciar = (geo, mat, lista, colocar, colorear = false) => {
+    const malla = new THREE.InstancedMesh(geo, mat, lista.length);
+    lista.forEach(([x, z], i) => {
+      const s = 0.85 + ((i * 37) % 10) / 25;
+      colocar(x, z, s);
+      matriz.compose(posI, giroI.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, i * 1.7), escI);
+      malla.setMatrixAt(i, matriz);
+      // Cada copa con un verde algo distinto
+      if (colorear) malla.setColorAt(i, colorI.setHSL(0.26 + ((i * 13) % 7) / 100, 0.5, 0.15 + ((i * 7) % 5) / 80));
+    });
+    raiz.add(malla);
+  };
+  const matTronco = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x6d4c41, { tam: 128, repetir: [1, 2], semilla: 9 })) }));
+  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0xffffff }));
+  const geoTronco = R(new THREE.CylinderGeometry(0.1, 0.15, 1, 7).translate(0, 0.5, 0));
+  const todos = [...pinos, ...redondos];
+  instanciar(geoTronco, matTronco, todos, (x, z, s) => { posI.set(x, 0, z); escI.set(s, 0.9 * s, s); });
+  // Pinos: dos pisos de copa
+  instanciar(R(new THREE.ConeGeometry(0.95, 1.9, 10).translate(0, 0.95, 0)), matCopa, pinos, (x, z, s) => { posI.set(x, 0.7 * s, z); escI.setScalar(s); }, true);
+  instanciar(R(new THREE.ConeGeometry(0.7, 1.5, 10).translate(0, 0.75, 0)), matCopa, pinos, (x, z, s) => { posI.set(x, 1.8 * s, z); escI.setScalar(s); }, true);
+  // Árboles de hoja: copa redondeada
+  instanciar(R(new THREE.IcosahedronGeometry(1, 1)), matCopa, redondos, (x, z, s) => { posI.set(x, 1.9 * s, z); escI.set(1.1 * s, s, 1.1 * s); }, true);
+  // Manchas de sombra bajo los árboles
+  // (geometría y degradado de las sombras de la shell; el material es nuestro)
+  const sombraArbol = ctx.crearSombra({ opacidad: 0.4 });
+  R(sombraArbol.material);
+  instanciar(sombraArbol.geometry, sombraArbol.material, todos, (x, z, s) => { posI.set(x, 0.006, z); escI.set(2.6 * s, 1, 2.6 * s); });
 
   // ─── Bolas ─────────────────────────────────────────────────────────────
-  const geoBola = R(new THREE.SphereGeometry(R_BOLA, 20, 14));
-  const geoEstria = R(new THREE.TorusGeometry(R_BOLA * 1.003, 0.0025, 4, 28));
-  const geoBoliche = R(new THREE.SphereGeometry(R_BOLICHE, 14, 10));
+  // Acero pulido (tuyas) y bronce (máquina): reflejan el cielo gracias al entorno de la shell
+  const geoBola = R(new THREE.SphereGeometry(R_BOLA, 28, 18));
+  const geoEstria = R(new THREE.TorusGeometry(R_BOLA * 1.003, 0.0025, 4, 32));
+  const geoBoliche = R(new THREE.SphereGeometry(R_BOLICHE, 18, 12));
   const materiales = {
-    jugador: R(new THREE.MeshLambertMaterial({ color: 0xd8dde3, emissive: 0x1a1d22 })),
-    maquina: R(new THREE.MeshLambertMaterial({ color: 0xb06a3b, emissive: 0x1a0d05 })),
+    jugador: R(new THREE.MeshStandardMaterial({ color: 0xd4dae2, metalness: 0.9, roughness: 0.28 })),
+    maquina: R(new THREE.MeshStandardMaterial({ color: 0xc27a45, metalness: 0.85, roughness: 0.32 })),
   };
-  const matEstria = R(new THREE.MeshBasicMaterial({ color: 0x37474f }));
-  const matBoliche = R(new THREE.MeshLambertMaterial({ color: 0xffb300, emissive: 0x332200 }));
+  const matEstria = R(new THREE.MeshStandardMaterial({ color: 0x2b3238, metalness: 0.6, roughness: 0.6 }));
+  // Boliche de madera barnizada
+  const matBoliche = R(new THREE.MeshStandardMaterial({ color: 0xffb300, emissive: 0x2a1a00, roughness: 0.4 }));
+
+  // Sombras de mancha: una por cuerpo en la pista (6 bolas + boliche, y una de reserva)
+  const sombras = [];
+  for (let i = 0; i < BOLAS * 2 + 2; i++) {
+    const s = ctx.crearSombra({ radio: R_BOLA * 1.1, opacidad: 0.55 });
+    s.visible = false;
+    raiz.add(s);
+    sombras.push(s);
+  }
+  function colocarSombras() {
+    for (let i = 0; i < sombras.length; i++) {
+      const s = sombras[i];
+      const c = cuerpos[i];
+      if (!c) {
+        s.visible = false;
+        continue;
+      }
+      s.userData.radio = c.r * 1.1;
+      ctx.colocarSombra(s, c.malla.position, 0.004);
+    }
+  }
 
   function crearBola(equipo) {
     const malla = new THREE.Mesh(geoBola, materiales[equipo]);
@@ -138,7 +194,7 @@ export function iniciar(ctx) {
   });
   let bolaSoporte = null;   // bola esperando en el soporte (VR)
   let manoConBola = null;
-  const soporte = new THREE.Mesh(R(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 14)), R(new THREE.MeshLambertMaterial({ color: 0x546e7a })));
+  const soporte = new THREE.Mesh(R(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 20)), R(new THREE.MeshStandardMaterial({ color: 0x546e7a, metalness: 0.5, roughness: 0.45 })));
   soporte.position.copy(SOPORTE).y -= R_BOLA + 0.025;
   raiz.add(soporte);
 
@@ -544,6 +600,7 @@ export function iniciar(ctx) {
     }
     soporte.visible = vr;
 
+    colocarSombras();
     actualizarMarcador();
   }
 

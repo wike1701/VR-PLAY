@@ -28,45 +28,285 @@ export function iniciar(ctx) {
   const vistaPos = new THREE.Vector3(0, 1.6, 0.4);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 1.3, -6));
 
-  // ─── Muñecos ───────────────────────────────────────────────────────────
-  // Cada muñeco es un recorte de cartón con bisagra en la base: tumbado hacia
-  // atrás (escondido) o de pie (activo).
-  const geoBase = R(new THREE.BoxGeometry(0.7, 0.08, 0.3));
-  const geoPoste = R(new THREE.BoxGeometry(0.08, 0.35, 0.04));
-  const geoCuerpo = R(new THREE.BoxGeometry(0.55, 0.85, 0.04));
-  const geoCabeza = R(new THREE.CylinderGeometry(0.17, 0.17, 0.04, 24));
-  geoCabeza.rotateX(Math.PI / 2);
-  const geoAro = R(new THREE.CircleGeometry(0.17, 24));
-  const geoAroMedio = R(new THREE.CircleGeometry(0.11, 24));
-  const geoCentro = R(new THREE.CircleGeometry(0.05, 16));
-  const geoOjo = R(new THREE.CircleGeometry(0.025, 10));
-  const geoAntifaz = R(new THREE.PlaneGeometry(0.3, 0.07));
-  const geoSonrisa = R(new THREE.RingGeometry(0.06, 0.08, 16, 1, Math.PI * 1.15, Math.PI * 0.7));
-  const geoChispa = R(new THREE.TetrahedronGeometry(0.03));
-
-  const matBase = R(new THREE.MeshLambertMaterial({ color: 0x3e4658 }));
-  const matPoste = R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 }));
-  const matMalo = R(new THREE.MeshLambertMaterial({ color: 0xd84315 }));
-  const matBueno = R(new THREE.MeshLambertMaterial({ color: 0x42a5f5 }));
-  const matPiel = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const matBlanco = R(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-  const matRojo = R(new THREE.MeshBasicMaterial({ color: 0xc62828 }));
-  const matNegro = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
-  const matChispa = R(new THREE.MeshBasicMaterial({ color: 0xffe082 }));
-
-  function anadir(padre, geo, mat, x, y, z) {
-    const m = new THREE.Mesh(geo, mat);
-    m.position.set(x, y, z);
-    padre.add(m);
-    return m;
+  // ─── Utilidades de geometría ───────────────────────────────────────────
+  // Junta varias geometrías ya colocadas en una sola (una llamada de dibujo).
+  function fusionar(geos) {
+    const partes = geos.map((g) => (g.index ? g.toNonIndexed() : g));
+    const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
+    const res = new THREE.BufferGeometry();
+    for (const nombre of ['position', 'normal', 'uv']) {
+      const tam = partes[0].attributes[nombre].itemSize;
+      const datos = new Float32Array(total * tam);
+      let o = 0;
+      for (const g of partes) {
+        datos.set(g.attributes[nombre].array, o);
+        o += g.attributes[nombre].array.length;
+      }
+      res.setAttribute(nombre, new THREE.BufferAttribute(datos, tam));
+    }
+    for (const g of [...geos, ...partes]) g.dispose();
+    return res;
+  }
+  // Recalcula las coordenadas de textura vértice a vértice: fn(x, y, z, nz) -> [u, v]
+  function mapearUV(geo, fn) {
+    const pos = geo.attributes.position;
+    const nor = geo.attributes.normal;
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+      const [u, v] = fn(pos.getX(i), pos.getY(i), pos.getZ(i), nor.getZ(i));
+      uv.setXY(i, u, v);
+    }
+    return geo;
   }
 
-  const munecos = HUECOS.map(([x, z]) => {
+  // ─── Decorado: barraca de feria ────────────────────────────────────────
+  ctx.sueloBase(false);
+  const texSuelo = R(ctx.texturas.grano(0x6e5a44, { tam: 512, repetir: [8, 7], cantidad: 5000, contraste: 0.22, semilla: 3 }));
+  const suelo = new THREE.Mesh(
+    R(new THREE.PlaneGeometry(16, 14).rotateX(-Math.PI / 2)),
+    R(new THREE.MeshLambertMaterial({ map: texSuelo })),
+  );
+  suelo.position.set(0, 0, -4);
+  raiz.add(suelo);
+
+  // Lona a rayas rojas y crema al fondo y a los lados (una sola malla)
+  const texLona = R(ctx.texturaCanvas((g, tam, azar) => {
+    for (let i = 0; i < 2; i++) {
+      g.fillStyle = i ? '#efe2c4' : '#b3261e';
+      g.fillRect((i * tam) / 2, 0, tam / 2, tam);
+    }
+    // Pliegues suaves y trama de tela
+    for (let x = 0; x < tam; x += 2) {
+      g.fillStyle = `rgba(0,0,0,${0.12 * (0.5 + 0.5 * Math.cos((x / tam) * Math.PI * 4))})`;
+      g.fillRect(x, 0, 2, tam);
+    }
+    for (let i = 0; i < 1500; i++) {
+      g.fillStyle = azar() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)';
+      g.fillRect(azar() * tam, azar() * tam, 1, 1 + azar() * 2);
+    }
+    // Faldón oscuro abajo
+    const grad = g.createLinearGradient(0, tam * 0.75, 0, tam);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.45)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, tam, tam);
+  }, { semilla: 5 }));
+  const ALTO_LONA = 4.2;
+  const FONDO_LONA = -10.8;
+  const ANCHO_LONA = 16;
+  const piezasLona = [];
+  const lonaFondo = new THREE.PlaneGeometry(ANCHO_LONA, ALTO_LONA).translate(0, ALTO_LONA / 2, FONDO_LONA);
+  piezasLona.push([lonaFondo, ANCHO_LONA]);
+  for (const lado of [-1, 1]) {
+    const largo = 12;
+    const g = new THREE.PlaneGeometry(largo, ALTO_LONA)
+      .rotateY(-lado * Math.PI / 2)
+      .translate(lado * ANCHO_LONA / 2, ALTO_LONA / 2, FONDO_LONA + largo / 2);
+    piezasLona.push([g, largo]);
+  }
+  // Una franja (roja + crema) cada 1,6 m
+  for (const [g, ancho] of piezasLona) {
+    const uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * ancho / 1.6);
+  }
+  const lona = new THREE.Mesh(
+    R(fusionar(piezasLona.map(([g]) => g))),
+    R(new THREE.MeshLambertMaterial({ map: texLona })),
+  );
+  raiz.add(lona);
+
+  // Guirnalda de bombillas por el borde superior de la lona (una sola malla instanciada)
+  const posBombillas = [];
+  for (let x = -ANCHO_LONA / 2; x <= ANCHO_LONA / 2 + 0.01; x += 0.5) posBombillas.push([x, ALTO_LONA - 0.15, FONDO_LONA + 0.05]);
+  for (const lado of [-1, 1]) {
+    for (let z = FONDO_LONA + 0.5; z <= 1; z += 0.6) posBombillas.push([lado * (ANCHO_LONA / 2 - 0.05), ALTO_LONA - 0.15, z]);
+  }
+  const bombillas = new THREE.InstancedMesh(
+    R(new THREE.SphereGeometry(0.075, 8, 6)),
+    R(new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })),
+    posBombillas.length,
+  );
+  const coloresBombilla = [0xffd54f, 0xff7043, 0xfff3c4, 0x80deea, 0xff8a80];
+  const auxObj = new THREE.Object3D();
+  const auxColor = new THREE.Color();
+  posBombillas.forEach(([x, y, z], i) => {
+    auxObj.position.set(x, y, z);
+    auxObj.updateMatrix();
+    bombillas.setMatrixAt(i, auxObj.matrix);
+    bombillas.setColorAt(i, auxColor.setHex(coloresBombilla[i % coloresBombilla.length]));
+  });
+  raiz.add(bombillas);
+
+  // Mostrador de madera delante del jugador (cuerpo + tablero en una malla)
+  const texMostrador = R(ctx.texturas.tablas(0x7a4a2a, { tablas: 6, repetir: [2, 1], semilla: 8 }));
+  const mostrador = new THREE.Mesh(
+    R(fusionar([
+      new THREE.BoxGeometry(3.4, 0.74, 0.4).translate(0, 0.37, -1.35),
+      new THREE.BoxGeometry(3.6, 0.06, 0.58).translate(0, 0.77, -1.3),
+    ])),
+    R(new THREE.MeshLambertMaterial({ map: texMostrador })),
+  );
+  raiz.add(mostrador);
+
+  // ─── Muñecos ───────────────────────────────────────────────────────────
+  // Cada muñeco es un recorte de cartón con bisagra en la base: tumbado hacia
+  // atrás (escondido) o de pie (activo). Para gastar pocas llamadas de dibujo,
+  // el cuerpo y el poste son una sola malla, y la diana y la cara van pintadas
+  // en la textura (en lugar de piezas sueltas).
+  const ANCHO_CUERPO = 0.55;
+  const ALTO_CUERPO = 0.85;
+  const Y_CUERPO = 0.775;
+  const Y_DIANA = 0.8;
+  const RADIO_CABEZA = 0.17;
+  // Puntos de la textura para las caras que no llevan dibujo
+  const UV_BORDE = [0.5, 0.99];
+  const UV_POSTE = [0.03, 0.03];
+
+  const geoCuerpo = R(fusionar([
+    mapearUV(new THREE.BoxGeometry(ANCHO_CUERPO, ALTO_CUERPO, 0.04).toNonIndexed().translate(0, Y_CUERPO, 0),
+      (x, y, z, nz) => (nz > 0.9 ? [x / ANCHO_CUERPO + 0.5, (y - Y_CUERPO) / ALTO_CUERPO + 0.5] : UV_BORDE)),
+    mapearUV(new THREE.BoxGeometry(0.08, 0.35, 0.04).toNonIndexed().translate(0, 0.175, 0), () => UV_POSTE),
+  ]));
+  const geoCabeza = R(mapearUV(
+    new THREE.CylinderGeometry(RADIO_CABEZA, RADIO_CABEZA, 0.04, 24).rotateX(Math.PI / 2).toNonIndexed(),
+    (x, y, z, nz) => (nz > 0.9 ? [x / (RADIO_CABEZA * 2) + 0.5, y / (RADIO_CABEZA * 2) + 0.5] : [0.5, 0.01]),
+  ));
+  const geoBase = R(new THREE.BoxGeometry(0.7, 0.08, 0.3));
+  const geoChispa = R(new THREE.TetrahedronGeometry(0.03));
+
+  // Cartón pintado: color, grano, borde oscuro y el poste de madera en una esquina
+  function pintarCarton(g, tam, azar, color) {
+    g.fillStyle = color;
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 1400; i++) {
+      g.fillStyle = azar() < 0.5 ? `rgba(255,255,255,${azar() * 0.07})` : `rgba(0,0,0,${azar() * 0.1})`;
+      g.fillRect(azar() * tam, azar() * tam, 1 + azar() * 2, 1 + azar() * 2);
+    }
+    g.strokeStyle = 'rgba(0,0,0,0.35)';
+    g.lineWidth = tam * 0.04;
+    g.strokeRect(0, 0, tam, tam);
+    g.fillStyle = '#7b5a43';
+    g.fillRect(0, tam * 0.92, tam * 0.08, tam * 0.08);
+  }
+  const texCuerpoMalo = R(ctx.texturaCanvas((g, tam, azar) => {
+    pintarCarton(g, tam, azar, '#d84315');
+    // Diana: en la textura el cuerpo se estira, así que los aros son elipses
+    const cx = tam / 2;
+    const cy = tam * (0.5 - (Y_DIANA - Y_CUERPO) / ALTO_CUERPO);
+    const sx = tam / ANCHO_CUERPO;
+    const sy = tam / ALTO_CUERPO;
+    const aros = [[0.17, '#fafafa'], [0.135, '#c62828'], [0.1, '#fafafa'], [0.065, '#c62828'], [0.03, '#fafafa']];
+    for (const [r, color] of aros) {
+      g.beginPath();
+      g.ellipse(cx, cy, r * sx, r * sy, 0, 0, Math.PI * 2);
+      g.fillStyle = color;
+      g.fill();
+      g.lineWidth = 1.5;
+      g.strokeStyle = 'rgba(40,0,0,0.6)';
+      g.stroke();
+    }
+  }, { semilla: 11 }));
+  const texCuerpoBueno = R(ctx.texturaCanvas((g, tam, azar) => {
+    pintarCarton(g, tam, azar, '#42a5f5');
+    // Un corazón blanco en el pecho: "a mí no"
+    const cx = tam / 2;
+    const cy = tam * 0.47;
+    const s = tam * 0.0042;
+    g.fillStyle = '#ffffff';
+    g.beginPath();
+    g.moveTo(cx, cy + 22 * s);
+    g.bezierCurveTo(cx - 36 * s, cy - 2 * s, cx - 18 * s, cy - 26 * s, cx, cy - 10 * s);
+    g.bezierCurveTo(cx + 18 * s, cy - 26 * s, cx + 36 * s, cy - 2 * s, cx, cy + 22 * s);
+    g.fill();
+  }, { semilla: 12 }));
+
+  // Caras: el disco de la cabeza ocupa toda la textura (1 m = tam / 0.34 px)
+  function pintarCabeza(g, tam, azar, dibujarCara) {
+    g.fillStyle = '#f0b878';
+    g.fillRect(0, 0, tam, tam);
+    const grad = g.createRadialGradient(tam * 0.45, tam * 0.4, 0, tam / 2, tam / 2, tam / 2);
+    grad.addColorStop(0, '#ffdcae');
+    grad.addColorStop(0.85, '#ffc98a');
+    grad.addColorStop(1, '#d9995a');
+    g.fillStyle = grad;
+    g.beginPath();
+    g.arc(tam / 2, tam / 2, tam / 2, 0, Math.PI * 2);
+    g.fill();
+    const esc = tam / (RADIO_CABEZA * 2);
+    dibujarCara((x) => tam / 2 + x * esc, (y) => tam / 2 - y * esc, esc);
+  }
+  const texCabezaMalo = R(ctx.texturaCanvas((g, tam, azar) => pintarCabeza(g, tam, azar, (px, py, esc) => {
+    // Antifaz de bandido con ojos
+    g.fillStyle = '#151515';
+    g.beginPath();
+    g.roundRect(px(-0.15), py(0.065), 0.3 * esc, 0.07 * esc, 0.03 * esc);
+    g.fill();
+    for (const x of [-0.06, 0.06]) {
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.arc(px(x), py(0.03), 0.022 * esc, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#111111';
+      g.beginPath();
+      g.arc(px(x), py(0.028), 0.011 * esc, 0, Math.PI * 2);
+      g.fill();
+    }
+    // Boca torcida y bigote
+    g.strokeStyle = '#3a1d10';
+    g.lineWidth = 0.012 * esc;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.moveTo(px(-0.055), py(-0.075));
+    g.lineTo(px(0.05), py(-0.085));
+    g.stroke();
+    g.fillStyle = '#3a1d10';
+    g.beginPath();
+    g.ellipse(px(-0.035), py(-0.045), 0.04 * esc, 0.012 * esc, 0.2, 0, Math.PI * 2);
+    g.ellipse(px(0.035), py(-0.045), 0.04 * esc, 0.012 * esc, -0.2, 0, Math.PI * 2);
+    g.fill();
+  }), { semilla: 13 }));
+  const texCabezaBueno = R(ctx.texturaCanvas((g, tam, azar) => pintarCabeza(g, tam, azar, (px, py, esc) => {
+    g.fillStyle = 'rgba(255,110,110,0.35)';
+    for (const x of [-0.095, 0.095]) {
+      g.beginPath();
+      g.arc(px(x), py(-0.02), 0.03 * esc, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.fillStyle = '#111111';
+    for (const x of [-0.06, 0.06]) {
+      g.beginPath();
+      g.arc(px(x), py(0.04), 0.025 * esc, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.strokeStyle = '#111111';
+    g.lineWidth = 0.02 * esc;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.arc(px(0), py(0), 0.07 * esc, Math.PI * 0.2, Math.PI * 0.8);
+    g.stroke();
+  }), { semilla: 14 }));
+
+  // Un poco de brillo propio para que el cartón se lea bien en la penumbra
+  const materialCarton = (map) => R(new THREE.MeshLambertMaterial({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.22 }));
+  const matCuerpoMalo = materialCarton(texCuerpoMalo);
+  const matCuerpoBueno = materialCarton(texCuerpoBueno);
+  const matCabezaMalo = materialCarton(texCabezaMalo);
+  const matCabezaBueno = materialCarton(texCabezaBueno);
+  const matBase = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x4a3a30, { semilla: 9 })) }));
+  const matChispa = R(new THREE.MeshBasicMaterial({ color: 0xffe082 }));
+
+  // Las bases no se mueven: todas en una malla instanciada
+  const bases = new THREE.InstancedMesh(geoBase, matBase, HUECOS.length);
+  raiz.add(bases);
+  const matrizBase = new THREE.Matrix4().makeTranslation(0, 0.04, 0);
+
+  const munecos = HUECOS.map(([x, z], i) => {
     const exterior = new THREE.Group();
     exterior.position.set(x, 0, z);
     exterior.lookAt(0, 0, 0); // +Z mira al jugador
     raiz.add(exterior);
-    anadir(exterior, geoBase, matBase, 0, 0.04, 0);
+    exterior.updateMatrix();
+    bases.setMatrixAt(i, auxObj.matrix.multiplyMatrices(exterior.matrix, matrizBase));
 
     const carril = new THREE.Group(); // se desplaza a los lados en los muñecos que se mueven
     exterior.add(carril);
@@ -74,41 +314,25 @@ export function iniciar(ctx) {
     bisagra.position.y = 0.08;
     carril.add(bisagra);
 
-    anadir(bisagra, geoPoste, matPoste, 0, 0.175, 0);
-    const cuerpo = anadir(bisagra, geoCuerpo, matMalo, 0, 0.775, 0);
-    const cabeza = anadir(bisagra, geoCabeza, matPiel, 0, 1.38, 0);
-
-    // Cara y diana del malo
-    const malo = new THREE.Group();
-    anadir(malo, geoAro, matBlanco, 0, 0.8, 0.026);
-    anadir(malo, geoAroMedio, matRojo, 0, 0.8, 0.031);
-    anadir(malo, geoCentro, matBlanco, 0, 0.8, 0.036);
-    const antifaz = anadir(malo, geoAntifaz, matNegro, 0, 1.41, 0.026);
-    // Cara del inocente
-    const bueno = new THREE.Group();
-    const cara = [
-      anadir(bueno, geoOjo, matNegro, -0.06, 1.42, 0.026),
-      anadir(bueno, geoOjo, matNegro, 0.06, 1.42, 0.026),
-      anadir(bueno, geoSonrisa, matNegro, 0, 1.38, 0.026),
-    ];
-    bisagra.add(malo, bueno);
-    const piezasCabeza = new Set([cabeza, antifaz, ...cara]);
+    const cuerpo = new THREE.Mesh(geoCuerpo, matCuerpoMalo);
+    const cabeza = new THREE.Mesh(geoCabeza, matCabezaMalo);
+    cabeza.position.y = 1.38;
+    bisagra.add(cuerpo, cabeza);
 
     const muneco = {
-      carril, bisagra, cuerpo, malo, bueno,
+      carril, bisagra, cuerpo, cabeza,
       estado: 'abajo', t: 0, tiempoArriba: 0,
       inocente: false, mueve: false, fase: 0,
-      mallas: [],
+      mallas: [cuerpo, cabeza],
     };
-    bisagra.traverse((o) => {
-      if (!o.isMesh) return;
+    for (const o of muneco.mallas) {
       o.userData.muneco = muneco;
-      o.userData.cabeza = piezasCabeza.has(o);
-      muneco.mallas.push(o);
-    });
+      o.userData.cabeza = o === cabeza;
+    }
     bisagra.rotation.x = -Math.PI / 2;
     return muneco;
   });
+  bases.instanceMatrix.needsUpdate = true;
 
   // ─── Pistolas ──────────────────────────────────────────────────────────
   const geoLaser = R(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]));
@@ -116,13 +340,21 @@ export function iniciar(ctx) {
   const matLaserRojo = R(new THREE.LineBasicMaterial({ color: 0xff5252, transparent: true, opacity: 0.8 }));
   const geoFogonazo = R(new THREE.SphereGeometry(0.04, 8, 6));
   const matFogonazo = R(new THREE.MeshBasicMaterial({ color: 0xffd54f }));
+  // Metal pavonado y cachas de madera, compartidos por las tres pistolas
+  const geoArmazon = R(fusionar([
+    new THREE.BoxGeometry(0.035, 0.05, 0.2).translate(0, 0.03, -0.08),
+    new THREE.CylinderGeometry(0.011, 0.011, 0.03, 12).rotateX(Math.PI / 2).translate(0, 0.035, -0.19),
+    new THREE.BoxGeometry(0.006, 0.012, 0.012).translate(0, 0.061, -0.17),
+    new THREE.BoxGeometry(0.012, 0.035, 0.035).translate(0, -0.005, -0.045),
+  ]));
+  const matMetal = R(new THREE.MeshStandardMaterial({ color: 0x3a4148, metalness: 0.85, roughness: 0.32 }));
+  const geoEmpunadura = R(new THREE.BoxGeometry(0.03, 0.1, 0.045));
+  const matEmpunadura = R(new THREE.MeshStandardMaterial({ color: 0x6d4330, metalness: 0, roughness: 0.6 }));
 
   function crearPistola() {
     const arma = new THREE.Group();
-    const metal = new THREE.MeshLambertMaterial({ color: 0x37474f });
-    const canon = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.05, 0.2), metal);
-    canon.position.set(0, 0.03, -0.08);
-    const empunadura = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.1, 0.045), new THREE.MeshLambertMaterial({ color: 0x5d4037 }));
+    const armazon = new THREE.Mesh(geoArmazon, matMetal);
+    const empunadura = new THREE.Mesh(geoEmpunadura, matEmpunadura);
     empunadura.position.set(0, -0.02, 0.0);
     empunadura.rotation.x = -0.25;
     const laser = new THREE.Line(geoLaser, matLaser);
@@ -130,7 +362,7 @@ export function iniciar(ctx) {
     const fogonazo = new THREE.Mesh(geoFogonazo, matFogonazo);
     fogonazo.position.set(0, 0.03, CANON - 0.02);
     fogonazo.visible = false;
-    arma.add(canon, empunadura, laser, fogonazo);
+    arma.add(armazon, empunadura, laser, fogonazo);
     return { arma, laser, fogonazo };
   }
 
@@ -210,9 +442,8 @@ export function iniciar(ctx) {
     m.mueve = progreso > 0.35 && Math.random() < 0.35;
     m.fase = Math.random() * Math.PI * 2;
     m.tiempoArriba = 2.2 - progreso * 1.0 + Math.random() * 0.5;
-    m.cuerpo.material = m.inocente ? matBueno : matMalo;
-    m.malo.visible = !m.inocente;
-    m.bueno.visible = m.inocente;
+    m.cuerpo.material = m.inocente ? matCuerpoBueno : matCuerpoMalo;
+    m.cabeza.material = m.inocente ? matCabezaBueno : matCabezaMalo;
   }
 
   const activo = (m) => m.estado === 'subiendo' || m.estado === 'arriba';
@@ -412,6 +643,8 @@ export function iniciar(ctx) {
     actualizar,
     liberar() {
       particulas.length = 0;
+      bases.dispose();
+      bombillas.dispose();
     },
   };
 }

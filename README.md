@@ -12,6 +12,7 @@ shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
   boton-cambio.js       Botón virtual detrás del hombro derecho
   utilidades.js         Paneles de texto 3D y liberación de memoria
+  graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   sonido.js             Efectos de sonido sintetizados
 juegos/
   catalogo.js           Lista de juegos con sus etiquetas para buscar por # (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
@@ -72,6 +73,8 @@ export function iniciar(ctx) {
   // ctx.adjuntarAMano(mano, objeto), ctx.recurso(geometriaOMaterial)
   // ctx.crearPanel(...), ctx.sonido(nombre), ctx.vibrar(mano, fuerza, ms)
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
+  // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
+  // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
     liberar() { /* limpia lo que no esté en ctx.raiz */ },
@@ -110,6 +113,16 @@ En el buscador del catálogo se puede escribir `#etiqueta` para ver los juegos d
 - Reutiliza las etiquetas que ya existen para que los juegos parecidos salgan juntos.
 
 Reglas para que el cambio sea fluido: todo lo visible va dentro de `ctx.raiz` o en las manos con `ctx.adjuntarAMano`. Las geometrías y los materiales compartidos se registran con `ctx.recurso()`. No uses `setTimeout` ni listeners propios, sino el tiempo de `actualizar`. Así la shell puede liberar todo al cambiar y la memoria del Quest no crece.
+
+## Calidad gráfica y rendimiento
+
+El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los fotogramas del Quest. La shell ya pone tone mapping, un cielo con degradado (`ctx.fondo(color)`) y un mapa de entorno sacado de ese cielo, así que los `MeshStandardMaterial` tienen reflejos sin coste extra. El estándar para cada juego:
+
+- **Suelos y superficies grandes con textura** generada por código (`ctx.texturas.*`, registradas con `ctx.recurso()`). Si el juego tiene su propio suelo, oculta el de la shell con `ctx.sueloBase(false)`.
+- **Sombras de mancha** (`ctx.crearSombra`) bajo los objetos que se mueven o flotan. Nunca sombras reales (`castShadow`): en las gafas son caras.
+- **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
+- **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
+- Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
 
 ## Anuncios
 
