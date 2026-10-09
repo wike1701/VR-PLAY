@@ -4,8 +4,8 @@
 // se queda quieto y es el circuito el que se mueve a tu alrededor (así funciona
 // igual con gafas y sin ellas).
 // Los neumáticos tienen un límite de agarre: si entras en una curva demasiado
-// rápido el coche no gira lo que le pides, derrapa y se va hacia fuera. Hay que
-// frenar antes de las curvas cerradas.
+// rápido el coche no gira lo que le pides, derrapa y se va hacia fuera sin
+// frenar solo. Hay que frenar antes de las curvas cerradas.
 // En VR giras un volante "invisible" con las dos manos (como si lo agarraras),
 // aceleras con el gatillo derecho y frenas con el izquierdo. Con ratón o con el
 // dedo: a los lados para girar, mantén pulsado para acelerar y suelta para frenar.
@@ -24,6 +24,7 @@ const FRENADA = 22;            // VR: gatillo izquierdo
 const FRENADA_RATON = 12;      // ratón o dedo: al soltar
 const RETENCION = 3;           // sin acelerar ni frenar
 const AGARRE = 15;             // m/s² de aceleración lateral antes de derrapar
+const AGARRE_DESLIZANDO = 0.8; // fracción del agarre que queda mientras derrapas
 const BATALLA = 3;             // distancia entre ejes (radio de giro)
 const GIRO_MAX = 0.4;          // ángulo máximo de las ruedas
 const GIRO_VOLANTE = 1.6;      // radianes de volante para girar del todo
@@ -416,14 +417,15 @@ export function iniciar(ctx) {
     if (enHierba && v > VELOCIDAD_HIERBA) v = Math.max(VELOCIDAD_HIERBA, v - 25 * dt);
 
     // Giro con límite de agarre: si la curva pide más aceleración lateral de la que
-    // aguantan los neumáticos, el coche gira solo hasta ese límite (se abre) y derrapa
+    // aguantan los neumáticos, el coche derrapa: gira menos de lo que pides y se
+    // abre hacia fuera sin perder velocidad (solo frena el jugador)
     const giro = mando.direccion * GIRO_MAX * (1 - 0.55 * (v / VELOCIDAD_MAX));
     let giroPorSegundo = (v / BATALLA) * Math.tan(giro);
     const lateral = v * Math.abs(giroPorSegundo);
     derrape = lateral > AGARRE ? (lateral - AGARRE) / AGARRE : 0;
     if (derrape > 0) {
-      giroPorSegundo = Math.sign(giroPorSegundo) * (AGARRE / Math.max(v, 1));
-      v -= derrape * 6 * dt; // los neumáticos arrastran y frenan
+      // Una vez que deslizan, los neumáticos agarran menos que justo en el límite
+      giroPorSegundo = Math.sign(giroPorSegundo) * ((AGARRE * AGARRE_DESLIZANDO) / Math.max(v, 1));
     }
     v = THREE.MathUtils.clamp(v, 0, VELOCIDAD_MAX);
     rumbo -= giroPorSegundo * dt;
