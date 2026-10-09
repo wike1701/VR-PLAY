@@ -176,4 +176,23 @@ export const JUEGOS = [
     miniatura: 'juegos/beisbol/miniatura.svg',
     modulo: 'juegos/beisbol/juego.js',
   },
+  {
+    id: 'pingpong',
+    titulo: 'Ping Pong',
+    genero: 'Deportes',
+    etiquetas: [
+      'ping pong', 'tenis de mesa', 'pala', 'mesa', 'deportes', 'reflejos',
+      'pingpong', 'table tennis', 'tenis', 'raqueta', 'pelota', 'bola', 'red', 'saque', 'sacar',
+      'restar', 'golpear', 'golpe', 'remate', 'rematar', 'peloteo', 'partido', 'set', 'punto',
+      'puntos', 'contra la máquina', 'rival', 'raquetazo', 'efecto', 'rapidez', 'velocidad',
+      'precisión', 'puntería', 'coordinación', 'brazos', 'movimiento', 'ejercicio', 'sin moverse',
+      'olímpico', 'casual', 'familia', 'niños', 'clásico', 'récord', 'deporte',
+    ],
+    descripcion: 'Partido contra la máquina a 11 puntos: saca, devuelve y remata. El saque cambia cada 2 puntos y hay que ganar por 2.',
+    controlesVR: 'Pala en la mano derecha (el gatillo de la otra mano la cambia de mano). Golpea la bola como en una mesa de verdad.',
+    controlesEscritorio: 'Mueve la pala con el ratón: devuelve sola. El ángulo depende de dónde da la bola en la pala, y si la mueves rápido, rematas.',
+    controlesTactil: 'Arrastra el dedo para mover la pala: devuelve sola. Muévela rápido al golpear para rematar.',
+    miniatura: 'juegos/pingpong/miniatura.svg',
+    modulo: 'juegos/pingpong/juego.js',
+  },
 ];
