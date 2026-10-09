@@ -9,9 +9,7 @@ const DESPLAZAMIENTO = new THREE.Vector3(0.32, 0.14, 0.3);
 const ESCALA = 2.2;           // tamaño del botón respecto al diseño original
 const RADIO_ZONA = 0.3;       // a esta distancia la mano "toca" el botón
 const RADIO_AVISO = 0.65;     // desde aquí el mando vibra para guiarte hasta el botón
-const RADIO_GUIA = 0.9;       // con la mano a esta distancia aparece la flecha que señala el botón
-const TIEMPO_AYUDA = 6;       // segundos que se ve la flecha al empezar cada juego
-const DETRAS_GUIA = -0.05;    // la flecha solo sale con la mano a la altura de la cabeza o más atrás
+const TIEMPO_AYUDA = 6;       // segundos que se ve la flecha al empezar cada juego (solo entonces)
 const DETRAS_AVISO = 0.12;    // la guía solo suena con la mano por detrás de la cabeza (no al jugar)
 const TIEMPO_PULSACION = 0.5; // segundos con la mano dentro para activarlo
 const MARGEN_GIRO = 0.8;      // radianes que puede girar la cabeza sin arrastrar el botón
@@ -119,7 +117,8 @@ export class BotonCambio {
 
     // ─── Flecha guía en la vista ───────────────────────────────────────
     // Va pegada a la cámara y señala hacia el botón (detrás del hombro derecho).
-    // Se ve unos segundos al empezar cada juego y cuando acercas la mano.
+    // Solo se ve unos segundos al empezar cada juego (si saliera al acercar la mano,
+    // aparecería a cada rato mientras juegas).
     this.indicador = new THREE.Group();
     this.indicador.position.z = -DISTANCIA_GUIA;
     this.indicador.renderOrder = 998;
@@ -258,21 +257,20 @@ export class BotonCambio {
     this.halo.material.opacity = manoDentro ? 0.9 : 0.3 + latido * 0.35;
     this.halo.scale.setScalar(1 + latido * 0.12);
 
-    this.actualizarGuia(dt, atras > DETRAS_GUIA ? distancia : Infinity, manoDentro);
+    this.actualizarGuia(dt, manoDentro);
 
     return resultado;
   }
 
-  actualizarGuia(dt, distancia, manoDentro) {
+  actualizarGuia(dt, manoDentro) {
     this.ayuda = Math.max(0, this.ayuda - dt);
-    const cercaGuia = THREE.MathUtils.clamp(1 - (distancia - RADIO_ZONA) / (RADIO_GUIA - RADIO_ZONA), 0, 1);
 
     // ¿Dónde está el botón respecto a la vista? Si ya se ve, la flecha sobra.
     this.camara.updateMatrixWorld();
     const local = this.camara.worldToLocal(this._local.copy(this.grupo.position));
     const enVista = local.z < 0 && Math.hypot(local.x, local.y) < -local.z * 0.45;
 
-    const objetivo = !enVista && !manoDentro && (this.ayuda > 0 || cercaGuia > 0) ? 1 : 0;
+    const objetivo = !enVista && !manoDentro && this.ayuda > 0 ? 1 : 0;
     this.opacidadGuia += (objetivo - this.opacidadGuia) * Math.min(1, dt * 6);
     this.indicador.visible = this.opacidadGuia > 0.02;
     if (!this.indicador.visible) return;

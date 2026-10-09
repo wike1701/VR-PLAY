@@ -135,23 +135,57 @@ export function iniciar(ctx) {
   const anterior = new THREE.Vector3();
 
   // ─── Manos ─────────────────────────────────────────────────────────────
-  const geoMano = R(new THREE.SphereGeometry(0.06, 14, 10));
-  geoMano.scale(1, 0.55, 1.3);
+  // Al sujetar el mando, la mano real queda de canto: la palma mira hacia dentro
+  // (hacia la otra mano), los dedos hacia delante y el pulgar arriba. El modelo
+  // se construye igual, en el espacio del mando (-Z delante, +Y arriba), y se
+  // fusiona en una sola geometría por mano (una llamada de dibujo cada una).
+  const fusionar = (piezas) => {
+    const datos = { position: [], normal: [], uv: [] };
+    for (const [geo, matriz] of piezas) {
+      const g = geo.index ? geo.toNonIndexed() : geo.clone();
+      g.applyMatrix4(matriz);
+      for (const nombre in datos) datos[nombre].push(...g.attributes[nombre].array);
+      g.dispose();
+      geo.dispose();
+    }
+    const resultado = new THREE.BufferGeometry();
+    for (const nombre in datos) resultado.setAttribute(nombre, new THREE.Float32BufferAttribute(datos[nombre], nombre === 'uv' ? 2 : 3));
+    return R(resultado);
+  };
+  // lado: -1 izquierda, 1 derecha. La palma mira hacia "dentro" (-lado en X).
+  function geometriaMano(lado) {
+    const dentro = -lado;
+    const pieza = (geo, x, y, z, rx = 0, ry = 0) =>
+      [geo, new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, 0, 'YXZ')), new THREE.Vector3(1, 1, 1))];
+    // Dedo: cápsula a lo largo de Z que empieza en el nudillo y va hacia delante.
+    // Un giro en Y de -dentro lleva la punta hacia el lado de la palma.
+    const dedo = (largo, radio) => new THREE.CapsuleGeometry(radio, largo, 3, 8).rotateX(Math.PI / 2).translate(0, 0, -largo / 2);
+    return fusionar([
+      pieza(new THREE.BoxGeometry(0.03, 0.082, 0.085), 0, 0, -0.005),                // palma
+      pieza(new THREE.CapsuleGeometry(0.024, 0.02, 3, 10).rotateX(Math.PI / 2), 0, -0.004, 0.05), // muñeca
+      pieza(dedo(0.05, 0.0095), dentro * 0.004, 0.029, -0.05, 0, -dentro * 0.12),  // índice
+      pieza(dedo(0.056, 0.0095), dentro * 0.004, 0.009, -0.05, 0, -dentro * 0.12), // corazón
+      pieza(dedo(0.051, 0.009), dentro * 0.004, -0.011, -0.05, 0, -dentro * 0.12), // anular
+      pieza(dedo(0.042, 0.0085), dentro * 0.004, -0.03, -0.045, 0, -dentro * 0.12), // meñique
+      pieza(dedo(0.042, 0.011), dentro * 0.014, 0.04, -0.01, 0.55, -dentro * 0.5),  // pulgar, arriba y hacia dentro
+    ]);
+  }
+  const geoManos = { izquierda: geometriaMano(-1), derecha: geometriaMano(1) };
   const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const OFFSET_MANO = new THREE.Vector3(0, 0, -0.05);
+  const OFFSET_MANO = new THREE.Vector3(0, 0, -0.035); // centro de la zona que golpea (palma y dedos)
   const manosVR = ctx.manos.map((mano) => {
-    const malla = new THREE.Mesh(geoMano, matMano);
-    malla.position.copy(OFFSET_MANO);
-    ctx.adjuntarAMano(mano, malla);
-    return { mano, centro: new THREE.Vector3(), centroAntes: new THREE.Vector3(), lista: false };
+    // Se crean las dos versiones y se enseña la que toca cuando se sabe qué mando es
+    const izquierda = ctx.adjuntarAMano(mano, new THREE.Mesh(geoManos.izquierda, matMano));
+    const derecha = ctx.adjuntarAMano(mano, new THREE.Mesh(geoManos.derecha, matMano));
+    return { mano, izquierda, derecha, centro: new THREE.Vector3(), centroAntes: new THREE.Vector3(), lista: false };
   });
 
-  // Ratón / dedo: un par de manos juntas que siguen al puntero
+  // Ratón / dedo: un par de manos juntas, palmas enfrentadas y dedos hacia arriba, que siguen al puntero
   const parRaton = new THREE.Group();
   for (const s of [-1, 1]) {
-    const m = new THREE.Mesh(geoMano, matMano);
-    m.position.x = s * 0.07;
-    m.rotation.x = -0.6;
+    const m = new THREE.Mesh(s < 0 ? geoManos.izquierda : geoManos.derecha, matMano);
+    m.position.x = s * 0.06;
+    m.rotation.x = 0.9;
     parRaton.add(m);
   }
   parRaton.position.set(0, 1.4, Z_RATON);
@@ -353,6 +387,10 @@ export function iniciar(ctx) {
   function manosVRActualizar() {
     const activas = [];
     for (const m of manosVR) {
+      // Mano izquierda o derecha según el mando (si aún no se sabe, el primero es el izquierdo)
+      const esIzquierda = m.mano.lado ? m.mano.lado === 'left' : m.mano.indice === 0;
+      m.izquierda.visible = esIzquierda;
+      m.derecha.visible = !esIzquierda;
       if (!m.mano.activa) {
         m.lista = false;
         continue;
