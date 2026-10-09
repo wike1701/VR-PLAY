@@ -7,6 +7,8 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 ```
 index.html              Catálogo con la cuadrícula de juegos
 favicon.svg             Icono de la pestaña del navegador
+manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
+iconos/                 Iconos PNG de la app (Android e iPhone)
 play.html               Página de juego (la "shell" VR)
 shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
@@ -14,6 +16,7 @@ shell/
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   sonido.js             Efectos de sonido sintetizados
+  pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
 juegos/
   catalogo.js           Lista de juegos con sus etiquetas para buscar por # (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
   fruta/juego.js        Corta Fruta
@@ -37,6 +40,7 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego (y al llevar la mano hacia la cabeza) aparece en la vista una flecha que señala dónde está. Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
 - En el móvil se juega con el dedo, también en vertical: la shell abre el campo de visión para que quepa lo importante a lo ancho, y cada juego del catálogo tiene su texto `controlesTactil`. En los juegos, `ctx.tactil` indica si la pantalla es táctil (para decir «toca» en vez de «haz clic»).
+- Pantalla completa en el móvil: en Android el primer toque en el juego la activa (o el botón ⛶); solo quedan el juego y dos botones flotantes (⏭ siguiente, ✕ salir). En iPhone Safari no lo permite: hay que usar Compartir → «Añadir a pantalla de inicio», y desde ese icono se abre sin barras.
 
 ## Probarlo en tu ordenador
 

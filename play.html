@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Jugar · VR Play</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f0f14">
+  <!-- iPhone: al abrirla desde la pantalla de inicio, sin barras de Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VR Play">
   <style>
     :root {
       --bg: #0f0f14;
@@ -64,6 +72,25 @@
 
     body.en-vr .barra, body.en-vr .pie { display: none; }
 
+    /* Pantalla completa (o app instalada): solo el juego y dos botones flotantes */
+    body.inmersivo .barra, body.inmersivo .pie { display: none; }
+    .flotantes {
+      position: fixed; z-index: 5; display: flex; gap: 8px;
+      top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right));
+    }
+    .flotantes[hidden], body.en-vr .flotantes { display: none; }
+    .flotantes button {
+      width: 42px; height: 42px; padding: 0; font-size: 1.05rem; line-height: 1;
+      background: rgba(15, 15, 20, 0.45); border-color: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+    .aviso-completa {
+      position: fixed; z-index: 6; left: 16px; right: 16px; top: 64px; margin: 0 auto; max-width: 420px;
+      padding: 12px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4;
+      background: var(--panel); border: 1px solid var(--accent);
+    }
+    .aviso-completa[hidden] { display: none; }
+
     /* Móvil en vertical: todo en una fila y textos cortos para dejar sitio al juego */
     @media (max-width: 600px) {
       .barra { flex-wrap: nowrap; gap: 8px; padding-inline: 12px; }
@@ -89,6 +116,7 @@
   <div class="barra">
     <a class="volver" href="index.html" aria-label="Volver al catálogo">←<span class="largo"> Catálogo</span></a>
     <div class="titulo" id="titulo">Cargando…</div>
+    <button id="btn-completa" type="button" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> Pantalla completa</span></button>
     <button id="btn-siguiente" type="button">Siguiente<span class="largo"> juego</span> <kbd>N</kbd></button>
     <button id="btn-vr" class="principal" type="button" disabled>Comprobando VR…</button>
   </div>
@@ -97,6 +125,12 @@
     <p id="controles"></p>
     <p id="estado"></p>
   </div>
+
+  <div class="flotantes" id="flotantes" hidden>
+    <button id="flotante-siguiente" type="button" title="Siguiente juego" aria-label="Siguiente juego">⏭</button>
+    <button id="flotante-salir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">✕</button>
+  </div>
+  <p class="aviso-completa" id="aviso-completa" hidden></p>
 
   <div class="carga" id="carga" hidden>Cargando…</div>
 

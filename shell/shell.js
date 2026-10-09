@@ -13,6 +13,7 @@ import { JUEGOS } from '../juegos/catalogo.js';
 import { BotonCambio } from './boton-cambio.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido } from './sonido.js';
+import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
   texturas, texturaCanvas, crearSombra, colocarSombra,
@@ -647,5 +648,13 @@ window.vrPlay = {
   get cambiando() { return cambiando; },
 };
 
+iniciarPantallaCompleta({
+  lienzo,
+  tactil: TACTIL,
+  siguienteJuego() {
+    activarAudio();
+    siguienteJuego();
+  },
+});
 comprobarVR();
 cambiarA(indiceActual);
