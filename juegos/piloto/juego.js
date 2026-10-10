@@ -1,24 +1,33 @@
 // PILOTO ESTELAR
-// Shooter sobre raíles en el espacio, al estilo de los clásicos: tu nave vuela delante
-// de ti y el espacio viene hacia ella. Pasa por los anillos dorados (recargan el escudo),
+// Shooter sobre raíles en el espacio, al estilo de los clásicos, en primera persona: vas en
+// la cabina y el espacio viene hacia ti. Pasa por los anillos dorados (recargan el escudo),
 // esquiva los asteroides y los disparos, derriba los cazas y, al final, la nave nodriza.
-// En VR la nave se pilota inclinando los mandos (como una palanca: arriba sube, abajo baja,
-// girarlos la lleva a los lados) y se dispara con el gatillo a donde miras.
-// Con ratón o con el dedo, la nave sigue al puntero y dispara hacia él.
+// En VR se pilota con un volante entre las dos manos: girarlo te lleva a los lados e
+// inclinarlo hacia arriba o hacia abajo te sube o te baja. El gatillo dispara a donde miras.
+// Con ratón o con el dedo, la nave va hacia donde apuntas y dispara hacia ahí.
+//
+// Coordenadas: la lógica del juego va en el "espacio" (la nave en posNave, con z = 0). Todo lo
+// del espacio cuelga de un grupo que se desplaza para que la nave quede siempre en la cabina,
+// alrededor del jugador: así la cabina no se mueve nunca y la vista no gira ni se ladea.
 import * as THREE from 'three';
 
 // Sin archivos externos: todo se genera con código (ver el comentario en Corta Fruta).
 export async function precargar() {}
 
 const VELOCIDAD = 28;            // m/s a los que el espacio viene hacia la nave
-const Z_NAVE = -2.6;             // la nave vuela a esta distancia delante del jugador
-const CAJA = { x: 1.5, yMin: 0.75, yMax: 2.15 }; // por donde se puede mover la nave
-const Y_CENTRO = (CAJA.yMin + CAJA.yMax) / 2;
+const Z_NAVE = 0;                // la nave (y el jugador) están en z = 0 del espacio
+const CAJA = { x: 2.4, yMin: -1.2, yMax: 1.2 }; // por donde se puede mover la nave
+const Y_CENTRO = 0;
 const Z_APARICION = -150;
-const VEL_NAVE = 2.4;            // m/s máximos de la nave
+const VEL_NAVE = 2.6;            // m/s máximos de la nave
+// Volante: girarlo mueve a los lados, inclinarlo sube y baja (zona muerta y ángulo a tope)
+const GIRO_MUERTO = THREE.MathUtils.degToRad(6);
+const GIRO_MAXIMO = THREE.MathUtils.degToRad(45);
 const INCLINACION_MUERTA = THREE.MathUtils.degToRad(5);
-const INCLINACION_MAXIMA = THREE.MathUtils.degToRad(30);
-const RADIO_NAVE = 0.35;
+const INCLINACION_MAXIMA = THREE.MathUtils.degToRad(28);
+const MANOS_VOLANTE = 0.75;      // a menos de esta distancia, las dos manos llevan el volante
+const ALTURA_OJOS = 0.32;        // los ojos quedan esta altura por encima del centro de la cabina
+const RADIO_NAVE = 0.6;
 const VEL_LASER = 130;
 const CADENCIA = 0.13;           // segundos entre disparos
 const ASISTENCIA = THREE.MathUtils.degToRad(4.5); // ayuda a apuntar: blancos a menos de este ángulo
@@ -34,7 +43,10 @@ export function iniciar(ctx) {
 
   ctx.fondo(0x070a1c, { cenit: new THREE.Color(0x020309), horizonte: new THREE.Color(0x0d1233), suelo: new THREE.Color(0x020309) });
   ctx.sueloBase(false);
-  ctx.vistaEscritorio(new THREE.Vector3(0, 1.8, 0.7), new THREE.Vector3(0, 1.45, -25));
+  // Sin gafas, la cámara va en la cabina (centro de la cabina a 1,2 m, ver centroCabina)
+  // (un poco detrás de los ojos: sin gafas el campo de visión es más estrecho)
+  if (ctx.tactil) ctx.vistaEscritorio(new THREE.Vector3(0, 1.2 + 0.55, 0.75), new THREE.Vector3(0, 1.35, -30));
+  else ctx.vistaEscritorio(new THREE.Vector3(0, 1.2 + 0.45, 0.45), new THREE.Vector3(0, 1.38, -30));
   // El espacio es profundo: la cámara ve más lejos y la niebla está lejos mientras dura el juego
   const camaraLejos = ctx.camara.far;
   ctx.camara.far = 600;
@@ -43,6 +55,10 @@ export function iniciar(ctx) {
   const nieblaOriginal = { near: niebla.near, far: niebla.far };
   niebla.near = 70;
   niebla.far = 150;
+
+  // Todo lo del espacio va en este grupo (ver el comentario de arriba)
+  const mundo = new THREE.Group();
+  raiz.add(mundo);
 
   // ─── Espacio: estrellas y un planeta ───────────────────────────────────
   const N_ESTRELLAS = 700;
@@ -61,7 +77,7 @@ export function iniciar(ctx) {
   geoEstrellas.setAttribute('position', new THREE.BufferAttribute(posEstrellas, 3));
   const estrellas = new THREE.Points(geoEstrellas, R(new THREE.PointsMaterial({ color: 0xdfe8ff, size: 0.9, sizeAttenuation: true, fog: false })));
   estrellas.frustumCulled = false;
-  raiz.add(estrellas);
+  mundo.add(estrellas);
 
   const texPlaneta = R(ctx.texturaCanvas((g, tam, al) => {
     const grad = g.createLinearGradient(0, 0, 0, tam);
@@ -78,38 +94,62 @@ export function iniciar(ctx) {
   const planeta = new THREE.Mesh(R(new THREE.SphereGeometry(50, 32, 20)), R(new THREE.MeshBasicMaterial({ map: texPlaneta, fog: false })));
   planeta.position.set(-170, 105, -460);
   planeta.rotation.z = 0.35;
-  raiz.add(planeta);
+  mundo.add(planeta);
 
-  // ─── Nave del jugador ──────────────────────────────────────────────────
-  // Construida mirando a -Z (hacia donde vuela)
-  const nave = new THREE.Group();
+  // ─── Cabina (primera persona) ─────────────────────────────────────────
+  // Su origen es el centro de la cabina; los ojos del jugador quedan ALTURA_OJOS por encima.
+  // Construida mirando a -Z (hacia donde vuela).
+  const posNave = new THREE.Vector3(0, Y_CENTRO, Z_NAVE); // la nave en el espacio
+  let viva = true;
+  const cabina = new THREE.Group();
+  const centroCabina = new THREE.Vector3(0, 1.2, 0);       // dónde está la cabina en la sala
   const matBlanco = R(new THREE.MeshStandardMaterial({ color: 0xe8ecf2, metalness: 0.5, roughness: 0.35 }));
   const matAzul = R(new THREE.MeshStandardMaterial({ color: 0x1e88e5, metalness: 0.4, roughness: 0.3 }));
-  const matCabina = R(new THREE.MeshStandardMaterial({ color: 0x80deea, metalness: 0.2, roughness: 0.05, emissive: 0x0b3d4a }));
-  const fuselaje = new THREE.Mesh(R(new THREE.ConeGeometry(0.11, 0.75, 6).rotateX(-Math.PI / 2)), matBlanco);
-  const cabina = new THREE.Mesh(R(new THREE.SphereGeometry(0.07, 12, 8)), matCabina);
-  cabina.scale.set(1, 0.7, 1.8);
-  cabina.position.set(0, 0.06, 0.05);
-  nave.add(fuselaje, cabina);
-  const geoAla = R(new THREE.BoxGeometry(0.42, 0.018, 0.24));
-  const geoAleta = R(new THREE.BoxGeometry(0.018, 0.2, 0.16));
-  const puntasAla = [];
+  const matPanel = R(new THREE.MeshStandardMaterial({ color: 0x263238, metalness: 0.6, roughness: 0.5 }));
+  const matGris = R(new THREE.MeshStandardMaterial({ color: 0x78909c, metalness: 0.8, roughness: 0.3 }));
+  const salpicadero = new THREE.Mesh(R(new THREE.BoxGeometry(1.0, 0.12, 0.32)), matPanel);
+  salpicadero.position.set(0, -0.02, -0.52);
+  salpicadero.rotation.x = 0.45;
+  const marco = new THREE.Mesh(R(new THREE.TorusGeometry(0.55, 0.016, 6, 32, Math.PI)), matPanel);
+  marco.position.set(0, 0.05, -0.62);
+  const morro = new THREE.Mesh(R(new THREE.ConeGeometry(0.3, 1.6, 8).rotateX(-Math.PI / 2)), matBlanco);
+  morro.position.set(0, -0.22, -1.35);
+  morro.scale.y = 0.6;
+  cabina.add(salpicadero, marco, morro);
+  const geoLateral = R(new THREE.BoxGeometry(0.06, 0.2, 1.1));
+  const geoAla = R(new THREE.BoxGeometry(1.5, 0.035, 0.55));
+  const geoAleta = R(new THREE.BoxGeometry(0.04, 0.45, 0.4));
+  const geoCanon = R(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 8).rotateX(Math.PI / 2));
+  const canones = [];
   for (const s of [-1, 1]) {
+    const lateral = new THREE.Mesh(geoLateral, matPanel);
+    lateral.position.set(s * 0.5, -0.12, -0.25);
     const ala = new THREE.Mesh(geoAla, matBlanco);
-    ala.position.set(s * 0.26, -0.02, 0.12);
-    ala.rotation.z = s * 0.18;
-    ala.rotation.y = s * 0.25;
+    ala.position.set(s * 1.15, -0.32, 0.05);
+    ala.rotation.z = -s * 0.12;
     const aleta = new THREE.Mesh(geoAleta, matAzul);
-    aleta.position.set(s * 0.46, 0.06, 0.16);
-    aleta.rotation.z = -s * 0.25;
-    nave.add(ala, aleta);
-    puntasAla.push(new THREE.Vector3(s * 0.44, 0.02, -0.02));
+    aleta.position.set(s * 1.9, -0.2, 0.08);
+    aleta.rotation.z = s * 0.2;
+    const canon = new THREE.Mesh(geoCanon, matGris);
+    canon.position.set(s * 1.85, -0.42, -0.35);
+    cabina.add(lateral, ala, aleta, canon);
+    canones.push(new THREE.Vector3(s * 1.85, -0.42, -0.68)); // boca del cañón, respecto a la nave
   }
-  const matLlama = R(new THREE.MeshBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
-  const llama = new THREE.Mesh(R(new THREE.ConeGeometry(0.06, 0.35, 8).rotateX(Math.PI / 2).translate(0, 0, 0.55)), matLlama);
-  nave.add(llama);
-  nave.position.set(0, Y_CENTRO, Z_NAVE);
-  raiz.add(nave);
+  raiz.add(cabina);
+
+  // Volante: entre las dos manos (o en su sitio, delante del salpicadero)
+  const volante = new THREE.Group();
+  const RADIO_VOLANTE = 0.17;
+  volante.add(new THREE.Mesh(R(new THREE.TorusGeometry(RADIO_VOLANTE, 0.018, 8, 32)), matGris));
+  const geoRadio = R(new THREE.BoxGeometry(RADIO_VOLANTE * 2, 0.025, 0.02));
+  for (const a of [0, Math.PI / 2]) {
+    const radio = new THREE.Mesh(geoRadio, matPanel);
+    radio.rotation.z = a;
+    volante.add(radio);
+  }
+  volante.add(new THREE.Mesh(R(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 12).rotateX(Math.PI / 2)), matAzul));
+  raiz.add(volante);
+  const POS_VOLANTE = new THREE.Vector3(0, -0.06, -0.3); // su sitio en la cabina
 
   // ─── Retícula (donde miras / donde está el ratón) ──────────────────────
   const matReticula = R(new THREE.MeshBasicMaterial({ color: 0x76ff03, transparent: true, opacity: 0.85, depthTest: false, fog: false }));
@@ -138,7 +178,7 @@ export function iniciar(ctx) {
   const mallaAsteroides = new THREE.InstancedMesh(geoRoca, R(new THREE.MeshStandardMaterial({ color: 0x8d7b6a, roughness: 0.95, flatShading: true })), MAX_ASTEROIDES);
   mallaAsteroides.frustumCulled = false;
   mallaAsteroides.count = 0;
-  raiz.add(mallaAsteroides);
+  mundo.add(mallaAsteroides);
   const asteroides = Array.from({ length: MAX_ASTEROIDES }, () => ({
     activo: false, pos: new THREE.Vector3(), vel: new THREE.Vector3(), rot: new THREE.Euler(), giro: new THREE.Vector3(), escala: new THREE.Vector3(), radio: 1, vida: 1, grande: false,
   }));
@@ -148,20 +188,20 @@ export function iniciar(ctx) {
   const mallaLaseres = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.035, 0.035, 1.4)), R(new THREE.MeshBasicMaterial({ color: 0x69f0ae, fog: false })), MAX_LASERES);
   mallaLaseres.frustumCulled = false;
   mallaLaseres.count = 0;
-  raiz.add(mallaLaseres);
+  mundo.add(mallaLaseres);
   const laseres = Array.from({ length: MAX_LASERES }, () => ({ activo: false, pos: new THREE.Vector3(), prev: new THREE.Vector3(), vel: new THREE.Vector3(), vida: 0 }));
 
   const MAX_BALAS = 40;
   const mallaBalas = new THREE.InstancedMesh(R(new THREE.SphereGeometry(0.13, 10, 8)), R(new THREE.MeshBasicMaterial({ color: 0xff6e40, fog: false })), MAX_BALAS);
   mallaBalas.frustumCulled = false;
   mallaBalas.count = 0;
-  raiz.add(mallaBalas);
+  mundo.add(mallaBalas);
   const balas = Array.from({ length: MAX_BALAS }, () => ({ activo: false, pos: new THREE.Vector3(), prev: new THREE.Vector3(), vel: new THREE.Vector3(), vida: 0 }));
 
   const MAX_PARTICULAS = 180;
   const mallaParticulas = new THREE.InstancedMesh(R(new THREE.BoxGeometry(1, 1, 1)), R(new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false })), MAX_PARTICULAS);
   mallaParticulas.frustumCulled = false;
-  raiz.add(mallaParticulas);
+  mundo.add(mallaParticulas);
   const particulas = Array.from({ length: MAX_PARTICULAS }, () => ({ activo: false, pos: new THREE.Vector3(), vel: new THREE.Vector3(), vida: 0, vidaInicial: 1, tam: 0.1, color: new THREE.Color() }));
   for (let i = 0; i < MAX_PARTICULAS; i++) mallaParticulas.setColorAt(i, new THREE.Color(1, 1, 1));
   mallaParticulas.count = 0;
@@ -170,7 +210,7 @@ export function iniciar(ctx) {
   const destellos = Array.from({ length: 8 }, () => {
     const malla = new THREE.Mesh(geoDestello, R(new THREE.MeshBasicMaterial({ color: 0xffd180, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })));
     malla.visible = false;
-    raiz.add(malla);
+    mundo.add(malla);
     return { malla, vida: 0, vidaInicial: 1, tam: 1 };
   });
 
@@ -182,7 +222,7 @@ export function iniciar(ctx) {
   const anillos = Array.from({ length: 12 }, () => {
     const malla = new THREE.Mesh(geoAnillo, matAnillo);
     malla.visible = false;
-    raiz.add(malla);
+    mundo.add(malla);
     return { activo: false, malla, pos: new THREE.Vector3(), prevZ: 0, pasado: false };
   });
 
@@ -203,7 +243,7 @@ export function iniciar(ctx) {
     ojo.position.set(0, 0.08, 0.45);
     grupo.add(cuerpo, ala, ojo);
     grupo.visible = false;
-    raiz.add(grupo);
+    mundo.add(grupo);
     return { activo: false, grupo, pos: new THREE.Vector3(), vel: new THREE.Vector3(), base: new THREE.Vector3(), fase: 0, vida: 1, proximoDisparo: 0, saliendo: false, radio: 0.75 };
   });
 
@@ -228,14 +268,20 @@ export function iniciar(ctx) {
     jefe.grupo.add(casco, proa, alas, nucleo);
     jefe.nucleo = nucleo;
     jefe.grupo.visible = false;
-    raiz.add(jefe.grupo);
+    mundo.add(jefe.grupo);
   }
 
   // ─── Marcador ──────────────────────────────────────────────────────────
-  const marcador = ctx.crearPanel({ ancho: 3.2, alto: 0.76 });
-  marcador.mesh.position.set(0, 3.2, -6.5);
-  marcador.mesh.rotation.x = 0.12;
-  raiz.add(marcador.mesh);
+  // Pantalla del salpicadero (durante el vuelo) y cartel grande delante (al empezar y al acabar)
+  const marcador = ctx.crearPanel({ ancho: 0.46, alto: 0.13, borde: 'rgba(0, 229, 255, 0.8)' });
+  // A la izquierda del salpicadero, inclinada y girada hacia el jugador (el volante queda en medio)
+  marcador.mesh.position.set(-0.3, 0.04, -0.46);
+  // Que mire a los ojos (sin ladearse): eje Z del panel hacia los ojos, con el "arriba" vertical
+  marcador.mesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(new THREE.Vector3(0, ALTURA_OJOS, 0), marcador.mesh.position, new THREE.Vector3(0, 1, 0)));
+  cabina.add(marcador.mesh);
+  const cartel = ctx.crearPanel({ ancho: 2.4, alto: 0.62 });
+  cartel.mesh.position.set(0, 0.85, -3.6);
+  cabina.add(cartel.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
   let estado = 'intro'; // 'intro' | 'cuenta' | 'mision' | 'jefe' | 'final' | 'fin'
@@ -259,6 +305,7 @@ export function iniciar(ctx) {
   const propulsor = ctx.sonidoContinuo('propulsor');
 
   const cabeza = new THREE.Vector3();
+  const cabezaSala = new THREE.Vector3();
   const mirada = new THREE.Vector3();
   const objetivo = new THREE.Vector3();
   const tmp = new THREE.Vector3();
@@ -267,8 +314,6 @@ export function iniciar(ctx) {
   const q = new THREE.Quaternion();
   const m4 = new THREE.Matrix4();
   const eje = new THREE.Vector3(0, 0, -1);
-  const destinoRaton = new THREE.Vector3(0, Y_CENTRO, Z_NAVE);
-  const planoNave = new THREE.Plane(new THREE.Vector3(0, 0, 1), -Z_NAVE);
   let bloqueado = null; // blanco al que ayuda a apuntar
 
   // ─── Utilidades ────────────────────────────────────────────────────────
@@ -408,7 +453,7 @@ export function iniciar(ctx) {
     b.pos.copy(origen);
     b.prev.copy(origen);
     // Apunta a la nave (con un poco de margen para que se pueda esquivar)
-    tmp.copy(nave.position);
+    tmp.copy(posNave);
     tmp.x += desvio;
     b.vel.subVectors(tmp, origen).normalize().multiplyScalar(velocidad);
     b.vida = 6;
@@ -424,8 +469,9 @@ export function iniciar(ctx) {
     ctx.destello(0xff1744, 0.35);
     for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.9, 200);
     if (escudo <= 0) {
-      explosion(nave.position, 2.2, 0xff6d00);
-      nave.visible = false;
+      explosion(tmp.copy(posNave).add(tmp3.set(0, 0, -1.5)), 2.2, 0xff6d00);
+      ctx.destello(0xff6d00, 0.6);
+      viva = false;
       terminarMision('Nave derribada', '#ff8a80', false);
     }
   }
@@ -444,68 +490,110 @@ export function iniciar(ctx) {
   }
 
   // ─── Pilotaje ──────────────────────────────────────────────────────────
-  // Inclinación media de los mandos: cabeceo (arriba/abajo) y alabeo (girarlos a los lados)
+  // Volante: el giro sale de la línea entre las dos manos (como un volante de coche) y la
+  // inclinación, del cabeceo medio de los mandos. Con una sola mano, el giro es el de la muñeca.
   const adelante = new THREE.Vector3();
   const derecha = new THREE.Vector3();
-  function inclinacionMandos() {
+  const entreManos = new THREE.Vector3();
+  const centroManos = new THREE.Vector3();
+  function leerVolante() {
+    const activas = ctx.manos.filter((m) => m.activa);
+    if (!activas.length) return null;
     let cabeceo = 0;
     let alabeo = 0;
-    let n = 0;
-    for (const m of ctx.manos) {
-      if (!m.activa) continue;
+    for (const m of activas) {
       m.grip.getWorldQuaternion(q);
       adelante.set(0, 0, -1).applyQuaternion(q);
       derecha.set(1, 0, 0).applyQuaternion(q);
       cabeceo += Math.asin(THREE.MathUtils.clamp(adelante.y, -1, 1));
       alabeo += -Math.asin(THREE.MathUtils.clamp(derecha.y, -1, 1));
-      n++;
     }
-    return n ? { cabeceo: cabeceo / n, alabeo: alabeo / n } : null;
+    cabeceo /= activas.length;
+    alabeo /= activas.length;
+    const izquierda = activas.find((m) => m.lado === 'left');
+    const derechaMano = activas.find((m) => m.lado === 'right');
+    if (izquierda && derechaMano) {
+      entreManos.subVectors(derechaMano.posicion, izquierda.posicion);
+      const separacion = entreManos.length();
+      if (separacion < MANOS_VOLANTE) {
+        // Ángulo de la línea entre las manos; positivo = girar a la derecha (la mano derecha baja)
+        const horizontal = Math.hypot(entreManos.x, entreManos.z) * Math.sign(entreManos.x || 1);
+        const giro = -Math.atan2(entreManos.y, horizontal);
+        centroManos.addVectors(izquierda.posicion, derechaMano.posicion).multiplyScalar(0.5);
+        return { giro, cabeceo, dosManos: true, separacion };
+      }
+    }
+    return { giro: alabeo, cabeceo, dosManos: false, separacion: 0 };
   }
-  // Inclinación → velocidad: zona muerta pequeña y a tope con 30°
-  function curva(angulo) {
+  function curva(angulo, muerta, maxima) {
     const a = Math.abs(angulo);
-    if (a < INCLINACION_MUERTA) return 0;
-    return Math.sign(angulo) * Math.min(1, (a - INCLINACION_MUERTA) / (INCLINACION_MAXIMA - INCLINACION_MUERTA)) ** 1.3;
+    if (a < muerta) return 0;
+    return Math.sign(angulo) * Math.min(1, (a - muerta) / (maxima - muerta)) ** 1.3;
+  }
+  // Coloca la cabina alrededor de la cabeza del jugador (de pie o sentado)
+  function colocarCabina() {
+    ctx.camara.getWorldPosition(tmp);
+    centroCabina.set(tmp.x, tmp.y - ALTURA_OJOS, tmp.z);
   }
 
   function pilotar(dt) {
-    const vivo = nave.visible && (estado === 'mision' || estado === 'jefe' || estado === 'cuenta');
+    let giroVisible = 0;
+    let inclinacionVisible = 0;
     if (ctx.enVR()) {
-      const inc = inclinacionMandos();
-      // El botón lateral vuelve a fijar el centro
+      const v = leerVolante();
+      if (estado === 'intro' || estado === 'cuenta') colocarCabina();
+      // El botón lateral vuelve a fijar el reposo del volante (y recoloca la cabina)
       ctx.manos.forEach((m, i) => {
-        if (m.activa && m.apreton && !apretonAntes[i] && inc) {
-          neutro = inc;
+        if (m.activa && m.apreton && !apretonAntes[i] && v) {
+          neutro = { giro: v.giro, cabeceo: v.cabeceo };
+          colocarCabina();
           ctx.sonido('tic');
         }
         apretonAntes[i] = m.activa && m.apreton;
       });
-      if (inc && !neutro && estado !== 'cuenta') neutro = inc; // mandos conectados más tarde
-      if (inc && neutro && vivo && estado !== 'cuenta') {
-        velNave.set(curva(inc.alabeo - neutro.alabeo), curva(inc.cabeceo - neutro.cabeceo)).multiplyScalar(VEL_NAVE);
+      // Mandos conectados después de la cuenta atrás
+      if (v && !neutro && estado !== 'cuenta' && estado !== 'intro') neutro = { giro: v.giro, cabeceo: v.cabeceo };
+      if (v && neutro) {
+        giroVisible = v.giro - neutro.giro;
+        inclinacionVisible = v.cabeceo - neutro.cabeceo;
+      }
+      if (v && neutro && (estado === 'mision' || estado === 'jefe') && viva) {
+        velNave.set(
+          curva(giroVisible, GIRO_MUERTO, GIRO_MAXIMO),
+          curva(inclinacionVisible, INCLINACION_MUERTA, INCLINACION_MAXIMA),
+        ).multiplyScalar(VEL_NAVE);
       } else {
         velNave.multiplyScalar(0.85);
       }
-      nave.position.x += velNave.x * dt;
-      nave.position.y += velNave.y * dt;
+      // El volante: entre las manos si lo llevan las dos; si no, en su sitio
+      if (v && v.dosManos) {
+        volante.position.copy(centroManos);
+        volante.scale.setScalar(Math.max(0.7, v.separacion / 2 / RADIO_VOLANTE));
+      } else {
+        volante.position.copy(centroCabina).add(POS_VOLANTE);
+        volante.scale.setScalar(1);
+      }
     } else {
-      // La nave va hacia el puntero con velocidad limitada
+      // Sin gafas: la nave va hacia donde apunta el puntero (respecto al centro de la pantalla)
       const raton = ctx.raton;
-      if (raton.dentro && raton.rayo.ray.intersectPlane(planoNave, tmp)) destinoRaton.copy(tmp);
-      const paso = tmp.subVectors(destinoRaton, nave.position);
-      paso.z = 0;
-      const maximo = VEL_NAVE * 1.5 * dt;
-      if (paso.length() > maximo) paso.setLength(maximo);
-      if (!vivo) paso.set(0, 0, 0);
-      velNave.set(paso.x / dt, paso.y / dt);
-      nave.position.add(paso);
+      const activo = raton.dentro && (!ctx.tactil || raton.pulsado) && viva && (estado === 'mision' || estado === 'jefe');
+      const eje = (n) => {
+        const a = Math.abs(n);
+        return a < 0.08 ? 0 : Math.sign(n) * Math.min(1, (a - 0.08) / 0.5);
+      };
+      if (activo) velNave.set(eje(raton.ndc.x), eje(raton.ndc.y)).multiplyScalar(VEL_NAVE);
+      else velNave.multiplyScalar(0.85);
+      giroVisible = (velNave.x / VEL_NAVE) * 0.8;
+      inclinacionVisible = (velNave.y / VEL_NAVE) * 0.4;
+      volante.position.copy(centroCabina).add(POS_VOLANTE);
+      volante.scale.setScalar(1);
     }
-    nave.position.x = THREE.MathUtils.clamp(nave.position.x, -CAJA.x, CAJA.x);
-    nave.position.y = THREE.MathUtils.clamp(nave.position.y, CAJA.yMin, CAJA.yMax);
-    // La nave se inclina al moverse
-    nave.rotation.z = THREE.MathUtils.lerp(nave.rotation.z, -velNave.x * 0.28, Math.min(1, dt * 8));
-    nave.rotation.x = THREE.MathUtils.lerp(nave.rotation.x, velNave.y * 0.18, Math.min(1, dt * 8));
+    volante.rotation.set(inclinacionVisible, 0, -giroVisible, 'XYZ');
+    posNave.x = THREE.MathUtils.clamp(posNave.x + velNave.x * dt, -CAJA.x, CAJA.x);
+    posNave.y = THREE.MathUtils.clamp(posNave.y + velNave.y * dt, CAJA.yMin, CAJA.yMax);
+    // La cabina se queda quieta en la sala; lo que se mueve es el espacio
+    cabina.position.copy(centroCabina);
+    mundo.position.subVectors(centroCabina, posNave);
   }
 
   // ─── Apuntar y disparar ────────────────────────────────────────────────
@@ -517,6 +605,8 @@ export function iniciar(ctx) {
       cabeza.copy(ctx.raton.rayo.ray.origin);
       mirada.copy(ctx.raton.rayo.ray.direction);
     }
+    cabezaSala.copy(cabeza);
+    cabeza.sub(mundo.position); // de la sala al espacio
     // Ayuda a apuntar: el blanco más cercano a la línea de la mirada
     bloqueado = null;
     let mejor = ASISTENCIA;
@@ -535,19 +625,19 @@ export function iniciar(ctx) {
 
     if (bloqueado) {
       // Adelantamos el tiro según lo que tarde en llegar el láser
-      const t = bloqueado.pos.distanceTo(nave.position) / VEL_LASER;
+      const t = bloqueado.pos.distanceTo(posNave) / VEL_LASER;
       objetivo.copy(bloqueado.pos).addScaledVector(bloqueado.vel, t);
-      reticula.position.copy(bloqueado.pos);
-      reticula.scale.setScalar(Math.max(1, cabeza.distanceTo(bloqueado.pos) / 15));
+      reticula.position.copy(bloqueado.pos).add(mundo.position);
+      reticula.scale.setScalar(Math.max(1, cabezaSala.distanceTo(reticula.position) / 15));
       matReticula.color.setHex(0xff5252);
     } else {
       objetivo.copy(cabeza).addScaledVector(mirada, 90);
-      reticula.position.copy(cabeza).addScaledVector(mirada, 15);
+      reticula.position.copy(cabezaSala).addScaledVector(mirada, 15);
       reticula.scale.setScalar(1);
       matReticula.color.setHex(0x76ff03);
     }
-    reticula.lookAt(cabeza);
-    reticula.visible = (estado === 'mision' || estado === 'jefe' || estado === 'cuenta') && (ctx.enVR() || ctx.raton.dentro);
+    reticula.lookAt(cabezaSala);
+    reticula.visible = (estado === 'mision' || estado === 'jefe' || estado === 'cuenta') && viva && (ctx.enVR() || ctx.raton.dentro);
   }
 
   function quiereDisparar() {
@@ -558,8 +648,7 @@ export function iniciar(ctx) {
   function disparar() {
     const l = libre(laseres);
     if (!l) return;
-    nave.updateMatrixWorld(true);
-    nave.localToWorld(l.pos.copy(puntasAla[alaDisparo]));
+    l.pos.copy(posNave).add(canones[alaDisparo]);
     alaDisparo = 1 - alaDisparo;
     l.prev.copy(l.pos);
     l.vel.subVectors(objetivo, l.pos).normalize().multiplyScalar(VEL_LASER);
@@ -590,46 +679,43 @@ export function iniciar(ctx) {
     patronesHechos = 0;
     proximoPatron = 1;
     invulnerable = 0;
-    nave.visible = true;
-    nave.position.set(0, Y_CENTRO, Z_NAVE);
-    destinoRaton.copy(nave.position);
+    viva = true;
+    posNave.set(0, Y_CENTRO, Z_NAVE);
     estado = 'cuenta';
     reloj = 3;
   }
 
   function actualizarMarcador() {
+    // Pantalla del salpicadero: siempre los datos del vuelo
     const barra = '▮'.repeat(Math.round(escudo / 10)) + '▯'.repeat(10 - Math.round(escudo / 10));
-    const linea = { texto: `Escudo ${barra}   ·   Anillos ${anillosPasados}   ·   Derribos ${derribos}`, tam: 0.7, color: escudo <= 30 ? '#ff8a80' : '#b3e5fc' };
+    const segunda = estado === 'jefe'
+      ? { texto: `Nodriza ${'▮'.repeat(Math.ceil((jefe.vida / VIDA_JEFE) * 10)).padEnd(10, '▯')} · ${Math.max(0, Math.ceil(TIEMPO_JEFE - jefe.tiempo))} s`, tam: 0.8, color: '#ff8a80' }
+      : { texto: `Nodriza en ${Math.max(0, Math.ceil(DURACION_MISION - tiempoMision))} s · Récord ${record}`, tam: 0.8, color: '#ffe082' };
+    marcador.escribir([
+      { texto: `${puntos} puntos`, tam: 1.2 },
+      { texto: `Escudo ${barra}`, tam: 0.8, color: escudo <= 30 ? '#ff8a80' : '#80deea' },
+      segunda,
+    ]);
+
+    // Cartel grande delante: instrucciones y resultado
+    cartel.mesh.visible = estado === 'intro' || estado === 'cuenta' || estado === 'final' || estado === 'fin';
     if (estado === 'intro') {
-      marcador.escribir([
+      cartel.escribir([
         { texto: 'PILOTO ESTELAR', tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Inclina los mandos para pilotar · gatillo: dispara a donde miras' : (ctx.tactil ? 'Arrastra el dedo: la nave lo sigue y dispara' : 'Mueve el ratón para pilotar · mantén el clic para disparar'), tam: 0.7 },
-        { texto: `Anillos dorados: escudo y puntos · Récord: ${record}`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.enVR() ? 'Coge el volante con las dos manos: gíralo para ir a los lados e inclínalo para subir o bajar' : (ctx.tactil ? 'Arrastra el dedo hacia donde quieras ir: la nave va y dispara' : 'Apunta con el ratón hacia donde quieras ir · mantén el clic para disparar'), tam: 0.7 },
+        { texto: ctx.enVR() ? 'Gatillo: disparas a donde miras · anillos dorados: escudo y puntos' : `Anillos dorados: escudo y puntos · Récord: ${record}`, tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'cuenta') {
-      marcador.escribir([
+      cartel.escribir([
         { texto: `${Math.ceil(reloj)}`, tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Sujeta los mandos rectos y relajados: esa será la posición de reposo' : '¡Prepárate!', tam: 0.7 },
+        { texto: ctx.enVR() ? 'Coge el volante y déjalo recto: esa será su posición de reposo' : '¡Prepárate!', tam: 0.7 },
         { texto: ctx.enVR() ? 'El botón lateral vuelve a fijar el reposo cuando quieras' : `Récord: ${record}`, tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'fin' || estado === 'final') {
-      marcador.escribir([
+      cartel.escribir([
         { texto: `${mensajeFinal} · ${puntos} puntos`, tam: 1.2, color: colorFinal },
         { texto: `Anillos ${anillosPasados} · Derribos ${derribos}${escudo > 0 && colorFinal === '#b9f6ca' ? ` · Escudo +${escudo * 5}` : ''}`, tam: 0.7 },
         { texto: estado === 'fin' ? `Récord: ${record} · nueva misión en ${Math.ceil(reloj)}` : ' ', tam: 0.7, color: '#ffe082' },
-      ]);
-    } else if (estado === 'jefe') {
-      const vida = '▮'.repeat(Math.ceil((jefe.vida / VIDA_JEFE) * 10)).padEnd(10, '▯');
-      marcador.escribir([
-        { texto: `${puntos} puntos`, tam: 1.2 },
-        { texto: `¡Nave nodriza! ${vida}   ·   se escapa en ${Math.max(0, Math.ceil(TIEMPO_JEFE - jefe.tiempo))} s`, tam: 0.7, color: '#ff8a80' },
-        linea,
-      ]);
-    } else {
-      marcador.escribir([
-        { texto: `${puntos} puntos`, tam: 1.2 },
-        { texto: `Récord: ${record}   ·   nave nodriza en ${Math.max(0, Math.ceil(DURACION_MISION - tiempoMision))} s`, tam: 0.7, color: '#ffe082' },
-        linea,
       ]);
     }
   }
@@ -645,7 +731,11 @@ export function iniciar(ctx) {
         break;
       case 'cuenta':
         if (reloj <= 0) {
-          neutro = inclinacionMandos(); // posición de reposo de los mandos
+          // Posición de reposo del volante (y la cabina queda donde está ahora la cabeza)
+          if (ctx.enVR()) {
+            const v = leerVolante();
+            neutro = v ? { giro: v.giro, cabeceo: v.cabeceo } : null;
+          }
           estado = 'mision';
         }
         break;
@@ -684,15 +774,12 @@ export function iniciar(ctx) {
 
     pilotar(dt);
     apuntar();
-    if ((estado === 'mision' || estado === 'jefe') && nave.visible && quiereDisparar() && enfriamiento <= 0) {
+    if ((estado === 'mision' || estado === 'jefe') && viva && quiereDisparar() && enfriamiento <= 0) {
       disparar();
       enfriamiento = CADENCIA;
     }
 
-    // Nave: llama del motor y parpadeo si acaba de recibir un golpe
-    llama.scale.set(1, 1, 0.8 + Math.random() * 0.5);
-    nave.children.forEach((h) => { h.visible = invulnerable <= 0 || Math.sin(t * 40) > 0; });
-    propulsor.ajustar(0.4 + Math.min(1, velNave.length() / VEL_NAVE) * 0.6, estado === 'intro' || !nave.visible ? 0 : 0.07);
+    propulsor.ajustar(0.4 + Math.min(1, velNave.length() / VEL_NAVE) * 0.6, estado === 'intro' || !viva ? 0 : 0.07);
 
     // Estrellas
     const pe = geoEstrellas.attributes.position;
@@ -704,7 +791,7 @@ export function iniciar(ctx) {
     pe.needsUpdate = true;
     planeta.rotation.y += dt * 0.01;
 
-    const naveViva = nave.visible && (estado === 'mision' || estado === 'jefe');
+    const naveViva = viva && (estado === 'mision' || estado === 'jefe');
 
     // Láseres
     for (const l of laseres) {
@@ -771,13 +858,13 @@ export function iniciar(ctx) {
       a.rot.x += a.giro.x * dt;
       a.rot.y += a.giro.y * dt;
       if (naveViva && tmp2.z < Z_NAVE + a.radio && a.pos.z > Z_NAVE - a.radio - 0.5) {
-        if (distanciaSegmento(tmp3.copy(tmp2), a.pos, nave.position) < a.radio + RADIO_NAVE) {
+        if (distanciaSegmento(tmp3.copy(tmp2), a.pos, posNave) < a.radio + RADIO_NAVE) {
           a.activo = false;
           explosion(a.pos, 1, 0xbcaaa4);
           danar(a.grande ? 30 : 20);
         }
       }
-      if (a.pos.z > Z_NAVE + 1.4) a.activo = false;
+      if (a.pos.z > Z_NAVE + 6) a.activo = false;
     }
 
     // Anillos
@@ -786,7 +873,7 @@ export function iniciar(ctx) {
       a.prevZ = a.pos.z;
       a.pos.z += VELOCIDAD * dt;
       if (naveViva && !a.pasado && a.prevZ < Z_NAVE && a.pos.z >= Z_NAVE) {
-        const d = Math.hypot(nave.position.x - a.pos.x, nave.position.y - a.pos.y);
+        const d = Math.hypot(posNave.x - a.pos.x, posNave.y - a.pos.y);
         if (d < RADIO_ANILLO - 0.15) {
           a.pasado = true;
           anillosPasados++;
@@ -835,7 +922,7 @@ export function iniciar(ctx) {
       if (dt > 0) c.vel.copy(tmp3.subVectors(c.pos, tmp2).divideScalar(dt));
       c.grupo.position.copy(c.pos);
       c.grupo.rotation.z = -Math.cos(c.fase * 1.3) * 0.5;
-      if (naveViva && tmp2.z < Z_NAVE + 0.8 && c.pos.z > Z_NAVE - 1.5 && distanciaSegmento(tmp3.copy(tmp2), c.pos, nave.position) < c.radio + RADIO_NAVE) {
+      if (naveViva && tmp2.z < Z_NAVE + 0.8 && c.pos.z > Z_NAVE - 1.5 && distanciaSegmento(tmp3.copy(tmp2), c.pos, posNave) < c.radio + RADIO_NAVE) {
         c.activo = false;
         c.grupo.visible = false;
         explosion(c.pos, 1.2);
@@ -887,13 +974,13 @@ export function iniciar(ctx) {
       b.prev.copy(b.pos);
       b.pos.addScaledVector(b.vel, dt);
       b.vida -= dt;
-      if (naveViva && distanciaSegmento(b.prev, b.pos, nave.position) < RADIO_NAVE + 0.1) {
+      if (naveViva && distanciaSegmento(b.prev, b.pos, posNave) < RADIO_NAVE + 0.1) {
         b.activo = false;
         explosion(b.pos, 0.4, 0xff6e40);
         danar(10);
         continue;
       }
-      if (b.vida <= 0 || b.pos.z > Z_NAVE + 2) b.activo = false;
+      if (b.vida <= 0 || b.pos.z > Z_NAVE + 3) b.activo = false;
     }
 
     // Partículas y destellos
@@ -923,8 +1010,9 @@ export function iniciar(ctx) {
     let n = 0;
     for (const a of asteroides) {
       if (!a.activo) continue;
-      // Al pasar la nave se encogen, para no atravesar la cara del jugador
-      const f = THREE.MathUtils.clamp((Z_NAVE + 1.4 - a.pos.z) / 1.4, 0, 1);
+      // Los que pasan cerca de la cabina se encogen al llegar, para no atravesar al jugador
+      const lateral = Math.hypot(a.pos.x - posNave.x, a.pos.y - posNave.y);
+      const f = lateral < a.radio + 1.2 ? THREE.MathUtils.clamp((Z_NAVE - a.pos.z) / 1.8, 0, 1) : 1;
       m4.compose(a.pos, q.setFromEuler(a.rot), escalaTmp.copy(a.escala).multiplyScalar(f));
       mallaAsteroides.setMatrixAt(n++, m4);
     }
