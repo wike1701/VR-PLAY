@@ -7,6 +7,7 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 ```
 index.html              Catálogo con la cuadrícula de juegos
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
+admin.html              Panel de administración del foro (pide la clave ADMIN_TOKEN)
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
 servidor/               API del foro: solo atiende /api/* (index.js reparte las rutas)
@@ -154,7 +155,7 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - Cada sugerencia es un hilo con un **estado**: nueva, en estudio, en desarrollo, hecha, ya existe o descartada.
 - Cuando se hace un juego, la respuesta oficial de VR Play queda **anclada** arriba del hilo, con un botón «Jugar». El hilo **sigue abierto** para que la gente opine sobre el juego. Si hay otra respuesta oficial más tarde (por ejemplo, «Actualizado: …»), pasa a ser la anclada y la anterior queda en el historial.
 - Contra el spam: límites por hora y por IP (solo se guarda un hash de la IP), nombres reservados (nadie puede firmar como «VR Play») y, si se configura, el captcha invisible de Cloudflare (Turnstile).
-- La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs`.
+- La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs` o desde el navegador en `admin.html`: un panel con las sugerencias por estado (empieza por «en desarrollo»), incluidas las ocultas. La página es pública, pero sin la clave no muestra nada, porque el servidor la comprueba en cada petición. La clave se guarda solo en ese navegador, y solo si marcas «Recordar».
 
 ### Ponerlo en marcha (una vez)
 

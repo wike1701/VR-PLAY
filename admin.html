@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Administración · VR Play</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="theme-color" content="#0f0f14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+  /* Panel de administración del foro. La página es pública, pero sin la clave
+     ADMIN_TOKEN no muestra nada: el servidor comprueba la clave en cada petición. */
+  :root {
+    --bg: #0e0d16;
+    --surface: #1a1828;
+    --surface-2: #24213a;
+    --line: #34304f;
+    --fg: #f1effa;
+    --muted: #a19cbd;
+    --accent: #8f6bff;
+    --accent-2: #00e5ff;
+    --ok: #69f0ae;
+    --peligro: #ff8a80;
+    --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.5; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+  [hidden] { display: none !important; }
+  .contenedor { max-width: 900px; margin-inline: auto; padding-inline: 16px; }
+
+  header { border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+  .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; }
+  .logo { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.04em; text-decoration: none; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .menu { display: flex; gap: 18px; margin-left: auto; font-size: 0.95rem; align-items: center; }
+  .menu a { text-decoration: none; color: var(--muted); }
+  .menu a:hover { color: var(--fg); }
+
+  h1, h2 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); margin: 28px 0 8px; }
+  .entradilla { color: var(--muted); margin: 0 0 20px; }
+
+  .boton {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 999px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    font: inherit; font-weight: 600; font-size: 0.9rem; text-decoration: none; cursor: pointer;
+  }
+  .boton:hover { filter: brightness(1.1); }
+  .boton:disabled { opacity: 0.6; cursor: wait; }
+  .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
+  .boton.peligro { background: transparent; color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 50%, var(--line)); }
+  .boton.mini { padding: 4px 12px; font-size: 0.8rem; }
+
+  .pestanas { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 8px 20px; }
+  .chip {
+    padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--muted); font: inherit; font-size: 0.85rem; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .chip .numero { opacity: 0.7; margin-left: 4px; }
+
+  .lista { display: grid; gap: 14px; }
+  .tarjeta { padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+  .tarjeta.oculta { opacity: 0.6; border-style: dashed; }
+  .tarjeta h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .tarjeta h3 a { text-decoration: none; }
+  .tarjeta h3 a:hover { color: var(--accent-2); }
+  .descripcion { margin: 0 0 10px; color: var(--muted); font-size: 0.92rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .detalles { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+  .controles { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .controles select, .controles input { width: auto; }
+
+  .estado {
+    display: inline-block; padding: 1px 9px; border-radius: 6px;
+    font-family: var(--font-display); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--surface-2); color: var(--muted); border: 1px solid var(--line);
+  }
+  .estado.nueva { color: var(--accent-2); }
+  .estado.estudio { color: #ffd740; border-color: #8a7420; }
+  .estado.desarrollo { color: #ffab40; border-color: #8a5a1c; }
+  .estado.hecha { color: var(--ok); border-color: #2c7a52; }
+  .estado.existe { color: #b388ff; border-color: #5b4596; }
+  .marca-oculta { color: var(--peligro); font-weight: 600; }
+
+  .hilo { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .comentario { padding: 10px 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+  .comentario.oficial { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+  .comentario.oculto { opacity: 0.55; border-style: dashed; }
+  .comentario .cabeza { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); }
+  .comentario .cabeza strong { color: var(--fg); }
+  .comentario .cabeza .boton { margin-left: auto; }
+  .comentario p { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  form { display: grid; gap: 12px; }
+  .formulario { padding: 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); max-width: 460px; }
+  label { display: grid; gap: 6px; font-weight: 600; font-size: 0.92rem; }
+  label.casilla { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  label.casilla input { width: auto; }
+  input, textarea, select {
+    width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--fg); font: inherit; font-weight: 400;
+  }
+  textarea { min-height: 100px; resize: vertical; }
+  .aviso { margin: 0; font-size: 0.88rem; color: var(--muted); }
+  .aviso.error { color: var(--peligro); }
+  .aviso.ok { color: var(--ok); }
+  .vacio { color: var(--muted); padding: 20px 0; }
+  footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <nav class="menu" aria-label="Secciones">
+      <a href="foro.html">Foro público</a>
+      <button type="button" class="boton secundario mini" id="salir" hidden>Salir</button>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor" id="vista" aria-live="polite"></main>
+
+<footer class="contenedor">
+  <p>Panel de administración de VR Play. Solo funciona con la clave de administrador.</p>
+</footer>
+
+<script type="module">
+  import { JUEGOS } from './juegos/catalogo.js';
+
+  const ESTADOS = {
+    desarrollo: 'En desarrollo',
+    estudio: 'En estudio',
+    nueva: 'Nueva',
+    hecha: 'Hecha',
+    existe: 'Ya existe',
+    descartada: 'Descartada',
+  };
+  const CLAVE_GUARDADA = 'vrplay:admin';
+
+  const $vista = document.getElementById('vista');
+  const $salir = document.getElementById('salir');
+  let clave = '';
+  let pestana = 'desarrollo';
+
+  // La clave se guarda en este navegador solo si lo pides (localStorage) y, si no,
+  // únicamente mientras la pestaña esté abierta (sessionStorage).
+  try { clave = localStorage.getItem(CLAVE_GUARDADA) || sessionStorage.getItem(CLAVE_GUARDADA) || ''; } catch { /* sin almacenamiento */ }
+
+  function el(etiqueta, atributos = {}, ...hijos) {
+    const nodo = document.createElement(etiqueta);
+    for (const [k, v] of Object.entries(atributos)) {
+      if (v === false || v === null || v === undefined) continue;
+      if (k.startsWith('on')) nodo.addEventListener(k.slice(2), v);
+      else if (k === 'class') nodo.className = v;
+      else nodo.setAttribute(k, v === true ? '' : v);
+    }
+    for (const h of hijos.flat()) {
+      if (h === null || h === undefined || h === false) continue;
+      nodo.append(h instanceof Node ? h : String(h));
+    }
+    return nodo;
+  }
+
+  async function api(ruta, { method = 'GET', datos } = {}) {
+    const r = await fetch(`/api${ruta}`, {
+      method,
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${clave}` },
+      body: datos ? JSON.stringify(datos) : undefined,
+    });
+    let cuerpo = null;
+    try { cuerpo = await r.json(); } catch { /* sin JSON */ }
+    if (r.status === 401) { cerrarSesion('La clave ya no es válida. Vuelve a entrar.'); throw new Error('No autorizado.'); }
+    if (!r.ok) throw new Error(cuerpo?.error || 'El servidor no responde. Prueba más tarde.');
+    return cuerpo;
+  }
+
+  // Comprueba la clave sin cambiar nada: un PATCH a la sugerencia 0 responde 401 si
+  // la clave es mala y 404 ("no encontrada") si es buena.
+  async function claveValida(prueba) {
+    const r = await fetch('/api/sugerencias/0', {
+      method: 'PATCH', headers: { 'content-type': 'application/json', authorization: `Bearer ${prueba}` }, body: '{}',
+    });
+    if (r.status === 401) return false;
+    if (r.status === 404) return true;
+    throw new Error('No se ha podido comprobar la clave. ¿Está desplegado el foro?');
+  }
+
+  function cerrarSesion(mensaje = '') {
+    clave = '';
+    try { localStorage.removeItem(CLAVE_GUARDADA); sessionStorage.removeItem(CLAVE_GUARDADA); } catch { /* nada */ }
+    verEntrada(mensaje);
+  }
+  $salir.addEventListener('click', () => cerrarSesion('Has salido del panel.'));
+
+  function hace(fecha) {
+    const t = Date.parse(fecha.replace(' ', 'T') + 'Z');
+    const s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 3600) return `hace ${Math.max(1, Math.floor(s / 60))} min`;
+    if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
+    if (s < 86400 * 30) return `hace ${Math.floor(s / 86400)} d`;
+    return new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function avisar($aviso, texto, tipo = '') {
+    $aviso.textContent = texto;
+    $aviso.className = `aviso ${tipo}`;
+  }
+
+  // ─── Entrada con la clave ──────────────────────────────────────────────
+  function verEntrada(mensaje = '') {
+    $salir.hidden = true;
+    const $aviso = el('p', { class: 'aviso', role: 'status' }, mensaje);
+    const $formulario = el('form', { class: 'formulario' },
+      el('label', {}, 'Clave de administrador', el('input', { name: 'clave', type: 'password', required: true, autocomplete: 'current-password' })),
+      el('label', { class: 'casilla' }, el('input', { name: 'recordar', type: 'checkbox' }), 'Recordar en este navegador'),
+      el('div', {}, el('button', { class: 'boton', type: 'submit' }, 'Entrar')),
+      $aviso,
+    );
+    $formulario.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const prueba = $formulario.clave.value.trim();
+      if (!prueba) return;
+      const boton = $formulario.querySelector('button');
+      boton.disabled = true;
+      try {
+        if (!(await claveValida(prueba))) {
+          avisar($aviso, 'Clave incorrecta.', 'error');
+          return;
+        }
+        clave = prueba;
+        try {
+          (($formulario.recordar.checked) ? localStorage : sessionStorage).setItem(CLAVE_GUARDADA, clave);
+        } catch { /* sin almacenamiento: solo dura mientras no recargues */ }
+        verPanel();
+      } catch (error) {
+        avisar($aviso, error.message, 'error');
+      } finally {
+        boton.disabled = false;
+      }
+    });
+    $vista.replaceChildren(
+      el('h1', {}, 'Administración'),
+      el('p', { class: 'entradilla' }, 'Introduce la clave de administrador (la misma que ADMIN_TOKEN en Cloudflare).'),
+      $formulario,
+    );
+    $formulario.clave.focus();
+  }
+
+  // ─── Panel ─────────────────────────────────────────────────────────────
+  async function verPanel() {
+    $salir.hidden = false;
+    const $pestanas = el('div', { class: 'pestanas', role: 'group', 'aria-label': 'Estado' });
+    const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
+    $vista.replaceChildren(
+      el('h1', {}, 'Sugerencias'),
+      el('p', { class: 'entradilla' }, 'Cambia el estado, responde como VR Play y modera. Incluye las sugerencias y comentarios ocultos.'),
+      $pestanas,
+      $lista,
+    );
+
+    let todas;
+    try {
+      ({ sugerencias: todas } = await api('/sugerencias?ocultas=1&orden=actividad'));
+    } catch (e) {
+      $lista.replaceChildren(el('p', { class: 'vacio' }, e.message));
+      return;
+    }
+    const cuenta = (estado) => todas.filter((s) => s.estado === estado).length;
+    $pestanas.replaceChildren(...Object.entries(ESTADOS).map(([estado, nombre]) => el('button', {
+      type: 'button', class: 'chip', 'aria-pressed': String(estado === pestana),
+      onclick: () => { pestana = estado; verPanel(); },
+    }, nombre, el('span', { class: 'numero' }, cuenta(estado)))));
+
+    const visibles = todas.filter((s) => s.estado === pestana);
+    $lista.replaceChildren(...(visibles.length
+      ? visibles.map(tarjeta)
+      : [el('p', { class: 'vacio' }, `No hay sugerencias «${ESTADOS[pestana].toLowerCase()}».`)]));
+  }
+
+  function tarjeta(s) {
+    const $aviso = el('p', { class: 'aviso', role: 'status' });
+    const $estado = el('select', { 'aria-label': 'Estado' },
+      Object.entries(ESTADOS).map(([k, v]) => el('option', { value: k, selected: k === s.estado }, v)));
+    const $juego = el('select', { 'aria-label': 'Juego del catálogo' },
+      el('option', { value: '' }, 'Sin juego'),
+      JUEGOS.map((j) => el('option', { value: j.id, selected: j.id === s.juego }, j.titulo)));
+    const $hilo = el('div', { class: 'hilo', hidden: true });
+
+    const guardar = el('button', {
+      type: 'button', class: 'boton mini',
+      onclick: async () => {
+        guardar.disabled = true;
+        try {
+          await api(`/sugerencias/${s.id}`, { method: 'PATCH', datos: { estado: $estado.value, juego: $juego.value } });
+          verPanel();
+        } catch (e) {
+          avisar($aviso, e.message, 'error');
+          guardar.disabled = false;
+        }
+      },
+    }, 'Guardar estado');
+
+    const ocultar = el('button', {
+      type: 'button', class: 'boton mini peligro',
+      onclick: async () => {
+        ocultar.disabled = true;
+        try {
+          await api(`/sugerencias/${s.id}`, { method: 'PATCH', datos: { oculta: !s.oculta } });
+          verPanel();
+        } catch (e) {
+          avisar($aviso, e.message, 'error');
+          ocultar.disabled = false;
+        }
+      },
+    }, s.oculta ? 'Mostrar' : 'Ocultar');
+
+    const abrir = el('button', {
+      type: 'button', class: 'boton mini secundario',
+      onclick: () => {
+        $hilo.hidden = !$hilo.hidden;
+        abrir.textContent = $hilo.hidden ? `Comentarios y responder (${s.comentarios})` : 'Cerrar';
+        if (!$hilo.hidden) cargarHilo(s, $hilo);
+      },
+    }, `Comentarios y responder (${s.comentarios})`);
+
+    return el('article', { class: `tarjeta${s.oculta ? ' oculta' : ''}` },
+      el('h3', {}, el('a', { href: `foro.html#/s/${s.id}`, target: '_blank', rel: 'noopener' }, `#${s.id} · ${s.titulo}`)),
+      el('div', { class: 'detalles' },
+        el('span', { class: `estado ${s.estado}` }, ESTADOS[s.estado] || s.estado),
+        s.oculta ? el('span', { class: 'marca-oculta' }, 'OCULTA') : null,
+        el('span', {}, `♥ ${s.me_gusta}`),
+        el('span', {}, `${s.autor} · ${hace(s.creada)}`),
+        s.tipo && el('span', {}, s.tipo),
+        s.manos && el('span', {}, `Manos: ${s.manos}`),
+        s.accion && el('span', {}, `Acción: ${s.accion}`),
+        s.juego && el('span', {}, `Juego: ${s.juego}`)),
+      el('p', { class: 'descripcion' }, s.descripcion),
+      el('div', { class: 'controles' }, $estado, $juego, guardar, abrir, ocultar),
+      $aviso,
+      $hilo,
+    );
+  }
+
+  // Comentarios del hilo (también los ocultos) y formulario de respuesta oficial
+  async function cargarHilo(s, $hilo) {
+    $hilo.replaceChildren(el('p', { class: 'aviso' }, 'Cargando…'));
+    let comentarios;
+    try {
+      ({ comentarios } = await api(`/sugerencias/${s.id}`));
+    } catch (e) {
+      $hilo.replaceChildren(el('p', { class: 'aviso error' }, e.message));
+      return;
+    }
+    const lista = comentarios.map((c) => {
+      const boton = el('button', {
+        type: 'button', class: 'boton mini peligro',
+        onclick: async () => {
+          boton.disabled = true;
+          try {
+            await api(`/comentarios/${c.id}`, { method: 'PATCH', datos: { oculto: !c.oculto } });
+            cargarHilo(s, $hilo);
+          } catch { boton.disabled = false; }
+        },
+      }, c.oculto ? 'Mostrar' : 'Ocultar');
+      return el('div', { class: `comentario${c.oficial ? ' oficial' : ''}${c.oculto ? ' oculto' : ''}` },
+        el('div', { class: 'cabeza' },
+          el('strong', {}, c.autor),
+          c.oficial ? el('span', {}, 'Oficial') : null,
+          c.anclado ? el('span', {}, '📌 Anclado') : null,
+          c.oculto ? el('span', { class: 'marca-oculta' }, 'Oculto') : null,
+          el('span', {}, hace(c.creada)),
+          boton),
+        el('p', {}, c.texto));
+    });
+
+    const $aviso = el('p', { class: 'aviso', role: 'status' });
+    const $formulario = el('form', {},
+      el('label', {}, 'Respuesta oficial de VR Play', el('textarea', { name: 'texto', required: true, minlength: 2, maxlength: 4000 })),
+      el('label', { class: 'casilla' }, el('input', { name: 'anclar', type: 'checkbox', checked: true }), 'Anclarla arriba del hilo'),
+      el('div', { class: 'controles' }, el('button', { class: 'boton mini', type: 'submit' }, 'Publicar respuesta'), $aviso),
+    );
+    $formulario.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const texto = $formulario.texto.value.trim();
+      if (texto.length < 2) return avisar($aviso, 'Escribe la respuesta.', 'error');
+      const boton = $formulario.querySelector('button');
+      boton.disabled = true;
+      try {
+        await api(`/sugerencias/${s.id}/comentarios`, { method: 'POST', datos: { texto, anclar: $formulario.anclar.checked } });
+        cargarHilo(s, $hilo);
+      } catch (error) {
+        avisar($aviso, error.message, 'error');
+        boton.disabled = false;
+      }
+    });
+
+    $hilo.replaceChildren(...(lista.length ? lista : [el('p', { class: 'aviso' }, 'Sin comentarios.')]), $formulario);
+  }
+
+  if (clave) {
+    claveValida(clave).then((ok) => (ok ? verPanel() : cerrarSesion('La clave guardada ya no es válida.')))
+      .catch((e) => verEntrada(e.message));
+  } else {
+    verEntrada();
+  }
+</script>
+</body>
+</html>
