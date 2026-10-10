@@ -348,4 +348,23 @@ export const JUEGOS = [
     miniatura: 'juegos/minigolf/miniatura.svg',
     modulo: 'juegos/minigolf/juego.js',
   },
+  {
+    id: 'globos',
+    titulo: 'Pincha Globos',
+    genero: 'Arcade',
+    etiquetas: [
+      'globos', 'dardos', 'lanzar', 'feria', 'puntería', 'arcade',
+      'globo', 'dardo', 'pinchar', 'reventar', 'explotar', 'tirar', 'lanzamiento', 'apuntar',
+      'precisión', 'diana', 'blanco', 'blancos', 'corcho', 'tablero', 'caseta', 'barraca',
+      'verbena', 'fiestas', 'noria', 'noche', 'colores', 'dorado', 'en movimiento', 'reflejos',
+      'rapidez', 'combo', 'brazos', 'sin moverse', 'casual', 'familia', 'niños', 'fácil',
+      'divertido', 'clásico', 'contrarreloj', 'puntos', 'récord', 'darts', 'balloon', 'pop',
+    ],
+    descripcion: 'Caseta de feria: lanza dardos a los globos del tablero, a los que cruzan por delante y a los dorados que suben. Rondas de 60 segundos.',
+    controlesVR: 'Coge un dardo del mostrador con el gatillo o el botón lateral, lánzalo con el brazo y suelta.',
+    controlesEscritorio: 'Haz clic en un globo y el dardo irá hacia él.',
+    controlesTactil: 'Toca un globo y el dardo irá hacia él.',
+    miniatura: 'juegos/globos/miniatura.svg',
+    modulo: 'juegos/globos/juego.js',
+  },
 ];

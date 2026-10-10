@@ -45,6 +45,7 @@ juegos/
   pulso/juego.js        Pulso Firme
   piloto/juego.js       Piloto Estelar
   minigolf/juego.js     Minigolf
+  globos/juego.js       Pincha Globos
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
