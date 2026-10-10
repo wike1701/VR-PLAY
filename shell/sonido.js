@@ -34,15 +34,19 @@ function tono(f1, f2, duracion, tipo = 'sine', volumen = 0.3, retraso = 0) {
   osc.stop(t0 + duracion + 0.02);
 }
 
-function ruido(duracion, frecuencia, volumen = 0.3, q = 1) {
+function obtenerRuido() {
   if (!bufferRuido) {
     bufferRuido = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
     const datos = bufferRuido.getChannelData(0);
     for (let i = 0; i < datos.length; i++) datos[i] = Math.random() * 2 - 1;
   }
+  return bufferRuido;
+}
+
+function ruido(duracion, frecuencia, volumen = 0.3, q = 1) {
   const t0 = ac.currentTime;
   const fuente = ac.createBufferSource();
-  fuente.buffer = bufferRuido;
+  fuente.buffer = obtenerRuido();
   const filtro = ac.createBiquadFilter();
   filtro.type = 'bandpass';
   filtro.frequency.value = frecuencia;
@@ -78,6 +82,11 @@ const SONIDOS = {
   zas: () => ruido(0.18, 900, 0.25, 0.9),
   ovacion: () => { ruido(1.4, 1400, 0.35, 0.35); ruido(1.2, 700, 0.25, 0.5); },
   calambre: () => { tono(95, 80, 0.45, 'sawtooth', 0.35); tono(190, 160, 0.45, 'square', 0.12); ruido(0.35, 3500, 0.45, 0.6); },
+  laser: () => { tono(1800, 420, 0.11, 'square', 0.07); tono(2400, 900, 0.08, 'sine', 0.06); },
+  laserEnemigo: () => tono(520, 180, 0.16, 'sawtooth', 0.07),
+  explosion: () => { ruido(0.5, 260, 0.7, 0.6); tono(140, 40, 0.4, 'sawtooth', 0.22); },
+  impacto: () => { ruido(0.3, 700, 0.6, 0.7); tono(160, 60, 0.25, 'square', 0.25); },
+  anillo: () => { tono(880, 1760, 0.14, 'sine', 0.18); tono(1320, 2640, 0.16, 'sine', 0.12, 0.07); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
@@ -140,6 +149,42 @@ const CONTINUOS = {
         salida.gain.setTargetAtTime(0, t, 0.05);
         for (const { o } of oscs) o.stop(t + 0.3);
         lfo.stop(t + 0.3);
+      },
+    };
+  },
+  // Propulsor de nave (Piloto Estelar): ruido grave filtrado que se abre con la potencia
+  propulsor() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const fuente = ac.createBufferSource();
+    fuente.buffer = obtenerRuido();
+    fuente.loop = true;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.Q.value = 1.5;
+    filtro.frequency.value = 300;
+    const tonoBase = ac.createOscillator();
+    tonoBase.type = 'triangle';
+    tonoBase.frequency.value = 55;
+    const gTono = ac.createGain();
+    gTono.gain.value = 0.25;
+    fuente.connect(filtro).connect(salida);
+    tonoBase.connect(gTono).connect(salida);
+    salida.connect(maestro);
+    fuente.start();
+    tonoBase.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        filtro.frequency.setTargetAtTime(250 + valor * 900, t, 0.1);
+        tonoBase.frequency.setTargetAtTime(50 + valor * 25, t, 0.1);
+        salida.gain.setTargetAtTime(volumen, t, 0.1);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        fuente.stop(t + 0.3);
+        tonoBase.stop(t + 0.3);
       },
     };
   },

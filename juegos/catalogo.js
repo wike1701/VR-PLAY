@@ -310,4 +310,23 @@ export const JUEGOS = [
     miniatura: 'juegos/pulso/miniatura.svg',
     modulo: 'juegos/pulso/juego.js',
   },
+  {
+    id: 'piloto',
+    titulo: 'Piloto Estelar',
+    genero: 'Disparos',
+    etiquetas: [
+      'naves', 'espacio', 'disparar', 'pilotar', 'anillos', 'esquivar',
+      'nave', 'nave espacial', 'espacial', 'galaxia', 'estrellas', 'planeta', 'asteroides', 'meteoritos',
+      'láser', 'laser', 'disparos', 'shooter', 'arcade', 'clásico', 'retro', 'star fox', 'arwing',
+      'piloto', 'volar', 'vuelo', 'avión', 'cazas', 'enemigos', 'derribar', 'jefe', 'nave nodriza',
+      'escudo', 'mirar', 'apuntar', 'puntería', 'reflejos', 'acción', 'intenso', 'misión',
+      'ciencia ficción', 'sin moverse', 'sentado', 'puntos', 'récord',
+    ],
+    descripcion: 'Pilota tu nave por el espacio: pasa por los anillos dorados, esquiva los asteroides y los disparos, derriba a los cazas y acaba con la nave nodriza.',
+    controlesVR: 'Inclina los mandos para pilotar (arriba sube, abajo baja, girarlos la lleva a los lados) y aprieta el gatillo para disparar a donde miras. El botón lateral fija el reposo de los mandos.',
+    controlesEscritorio: 'Mueve el ratón: la nave lo sigue. Mantén el clic para disparar hacia el puntero.',
+    controlesTactil: 'Arrastra el dedo: la nave lo sigue y dispara mientras lo mantienes en la pantalla.',
+    miniatura: 'juegos/piloto/miniatura.svg',
+    modulo: 'juegos/piloto/juego.js',
+  },
 ];
