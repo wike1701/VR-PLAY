@@ -4,7 +4,7 @@
 import {
   json, error, leerJson, texto, huellaIp, esAdmin, superaLimite, captchaValido,
   nombreReservado, idValido, sinBaseDeDatos,
-} from '../../_comun.js';
+} from './comun.js';
 
 export async function onRequestPost({ request, params, env }) {
   const falta = sinBaseDeDatos(env);

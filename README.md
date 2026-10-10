@@ -7,7 +7,9 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 ```
 index.html              Catálogo con la cuadrícula de juegos
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
-functions/api/          API del foro (Cloudflare Pages Functions)
+wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
+.assetsignore           Archivos del repositorio que no se publican
+servidor/               API del foro: solo atiende /api/* (index.js reparte las rutas)
 bd/esquema.sql          Tablas de la base de datos del foro (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
@@ -70,7 +72,7 @@ Abre `http://localhost:8000` y juega con el ratón.
 La VR solo funciona con HTTPS, así que lo más sencillo es publicarlo:
 
 1. Sube la carpeta a un repositorio de GitHub.
-2. En Cloudflare Pages, crea un proyecto conectado a ese repositorio. No hace falta comando de compilación y el directorio de salida es la raíz (`/`).
+2. En Cloudflare (Workers & Pages), crea un Worker conectado a ese repositorio. Se despliega con `npx wrangler deploy` según `wrangler.jsonc`: la web son los archivos de la raíz y `servidor/` atiende la API del foro.
 3. Abre la dirección `https://…pages.dev` en el navegador del Quest, entra en un juego y pulsa **Entrar en VR**.
 
 ## Añadir un juego nuevo
@@ -146,7 +148,7 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 
 ## Foro de sugerencias
 
-`foro.html` es un foro donde cualquiera, sin cuenta, puede sugerir juegos, darles ♥ y comentar. Las sugerencias se guardan en una base de datos **Cloudflare D1** a través de las funciones de `functions/api/`, que Cloudflare Pages publica automáticamente junto a la web.
+`foro.html` es un foro donde cualquiera, sin cuenta, puede sugerir juegos, darles ♥ y comentar. Las sugerencias se guardan en una base de datos **Cloudflare D1** a través de `servidor/`, el programa del Worker que solo atiende las direcciones `/api/*` (el resto de la web son archivos estáticos).
 
 - Cada sugerencia es un hilo con un **estado**: nueva, en estudio, en desarrollo, hecha, ya existe o descartada.
 - Cuando se hace un juego, la respuesta oficial de VR Play queda **anclada** arriba del hilo, con un botón «Jugar». El hilo **sigue abierto** para que la gente opine sobre el juego. Si hay otra respuesta oficial más tarde (por ejemplo, «Actualizado: …»), pasa a ser la anclada y la anterior queda en el historial.
@@ -159,12 +161,13 @@ En el panel de Cloudflare:
 
 1. **Crear la base de datos.** Storage & Databases → D1 → *Create database*, con el nombre `vrplay-foro`.
 2. **Crear las tablas.** Abre la base de datos, pestaña *Console*. Pega el contenido de `bd/esquema.sql` y ejecútalo.
-3. **Conectarla a la web.** Workers & Pages → el proyecto de VR Play → Settings → *Bindings* → Add → *D1 database*. Nombre de la variable: `DB`. Base de datos: `vrplay-foro`.
-4. **Clave de administrador.** Settings → *Variables and Secrets* → Add:
-   - `ADMIN_TOKEN`, tipo *Secret*, con una clave larga y aleatoria de 32 caracteres o más. Guárdala: es la que da permiso para moderar.
-   - `SAL`, tipo *Secret*, con otro texto aleatorio. Sirve para las huellas de IP.
-5. **Captcha (opcional, recomendado si llega spam).** En Turnstile → *Add widget*, con el dominio de la web. Añade `TURNSTILE_SITEKEY` (tipo *Text*) y `TURNSTILE_SECRET` (tipo *Secret*).
-6. **Volver a publicar.** Deployments → en el último despliegue, *Retry deployment*. Así se aplican las variables.
+3. **Conectarla a la web.** Copia el *Database ID* de la base de datos y el nombre del Worker, y ponlos en `wrangler.jsonc` (`database_id` y `name`). El nombre tiene que ser exactamente el del Worker, o el despliegue fallará. Sube el cambio a main.
+4. **Comprobar el despliegue.** En el Worker, *Settings → Build*: el comando de despliegue tiene que ser `npx wrangler deploy`, sin más opciones. Espera a que termine el despliegue de la subida del paso 3.
+5. **Clave de administrador.** En el Worker, Settings → *Variables and Secrets* → Add, las dos de tipo *Secret* (los secretos no se borran al desplegar):
+   - `ADMIN_TOKEN`: una clave larga y aleatoria de 32 caracteres o más. Guárdala: es la que da permiso para moderar.
+   - `SAL`: otro texto aleatorio. Sirve para las huellas de IP.
+6. **Captcha (opcional, recomendado si llega spam).** En Turnstile → *Add widget*, con el dominio de la web. Añade `TURNSTILE_SITEKEY` y `TURNSTILE_SECRET`, también como *Secret*.
+7. **Comprobarlo.** `https://<tu-web>/api/config` tiene que responder `"activo":true`.
 
 En tu ordenador, para que Claude Code pueda moderar:
 
@@ -183,13 +186,9 @@ node herramientas/foro.mjs ocultar 12                   # o mostrar, ocultar-com
 
 ### Probar el foro en local
 
-`python -m http.server` solo sirve archivos, así que el foro dirá que no está disponible. Para probarlo con su API hace falta `wrangler` (las herramientas de Cloudflare). Crea un `wrangler.toml` de prueba con la base de datos `DB` y luego ejecuta lo de abajo. Ese archivo está en `.gitignore` y no debe subirse: si Cloudflare Pages lo encuentra en el repositorio, lo usa en lugar de la configuración del panel.
+`python -m http.server` solo sirve archivos, así que el foro dirá que no está disponible. Para probarlo con su API hace falta `wrangler` (las herramientas de Cloudflare). La base de datos local es una copia vacía en `.wrangler/`, y la clave de prueba va en un archivo `.dev.vars` (`ADMIN_TOKEN=...`). Las dos cosas están en `.gitignore`.
 
 ```
-npx wrangler d1 execute <nombre> --local --file bd/esquema.sql
-npx wrangler pages dev . --port 8788
+npx wrangler d1 execute vrplay-foro --local --file bd/esquema.sql
+npx wrangler dev
 ```
-
-## Anuncios
-
-Los anuncios van en el catálogo (`index.html`, donde está «Espacio publicitario») y, si quieres, en la barra de `play.html`. Nunca dentro de la escena VR.

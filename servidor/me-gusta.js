@@ -1,6 +1,6 @@
 // POST /api/sugerencias/:id/me-gusta { votante } → pone o quita el "me gusta" de este navegador.
 // "votante" es un identificador anónimo que foro.html guarda en el navegador.
-import { json, error, leerJson, huellaIp, huellaVotante, superaLimite, idValido, sinBaseDeDatos } from '../../_comun.js';
+import { json, error, leerJson, huellaIp, huellaVotante, superaLimite, idValido, sinBaseDeDatos } from './comun.js';
 
 export async function onRequestPost({ request, params, env }) {
   const falta = sinBaseDeDatos(env);

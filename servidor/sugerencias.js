@@ -3,7 +3,7 @@
 import {
   CAMPOS, ESTADOS, json, error, leerJson, texto, huellaIp, huellaVotante, esAdmin,
   superaLimite, captchaValido, nombreReservado, sinBaseDeDatos,
-} from '../_comun.js';
+} from './comun.js';
 
 const ORDENES = {
   votos: 'me_gusta DESC, actividad DESC',

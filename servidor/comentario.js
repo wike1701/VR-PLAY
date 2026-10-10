@@ -1,5 +1,5 @@
 // PATCH /api/comentarios/:id { oculto, anclado } → moderación, solo administrador
-import { json, error, leerJson, esAdmin, idValido, sinBaseDeDatos } from '../_comun.js';
+import { json, error, leerJson, esAdmin, idValido, sinBaseDeDatos } from './comun.js';
 
 export async function onRequestPatch({ request, params, env }) {
   const falta = sinBaseDeDatos(env);

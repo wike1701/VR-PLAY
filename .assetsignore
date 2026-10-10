@@ -1,0 +1,12 @@
+# Archivos del repositorio que NO se publican como parte de la web
+.git
+.gitignore
+.assetsignore
+.wrangler
+node_modules
+wrangler.jsonc
+servidor
+bd
+herramientas
+CLAUDE.md
+.dev.vars

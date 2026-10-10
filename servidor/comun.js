@@ -1,8 +1,8 @@
-// Utilidades compartidas por la API del foro (Cloudflare Pages Functions).
-// Este archivo no exporta onRequest, así que no crea ninguna ruta.
+// Utilidades compartidas por la API del foro (las rutas están en servidor/index.js).
 //
-// Variables del proyecto en Cloudflare (Settings → Variables and Secrets / Bindings):
-//   DB                 base de datos D1 con bd/esquema.sql (obligatoria)
+// El Worker recibe:
+//   DB                 base de datos D1 con bd/esquema.sql (se conecta en wrangler.jsonc)
+// Y, en el panel de Cloudflare (Settings → Variables and Secrets):
 //   ADMIN_TOKEN        clave para moderar y publicar respuestas oficiales (secreto, 16+ caracteres)
 //   SAL                texto aleatorio para las huellas de IP (secreto, opcional)
 //   TURNSTILE_SITEKEY  y TURNSTILE_SECRET: captcha de Cloudflare contra el spam (opcionales)

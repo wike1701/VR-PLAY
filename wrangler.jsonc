@@ -1,0 +1,22 @@
+// Configuración del Worker de VR Play en Cloudflare (se despliega solo con cada subida a main).
+// - La web son los archivos de la raíz del repositorio (menos lo que excluye .assetsignore).
+// - El programa de servidor/index.js solo se ejecuta para /api/* (el foro).
+// - Las claves ADMIN_TOKEN y SAL NO van aquí: se ponen como "Secret" en el panel de Cloudflare.
+{
+  "name": "vr-play",
+  "main": "servidor/index.js",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vrplay-foro",
+      "database_id": "4f1328b4-ff9d-4bd9-a185-a0de54a4238c"
+    }
+  ],
+  "observability": { "enabled": true }
+}

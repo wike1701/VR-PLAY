@@ -1,6 +1,6 @@
 // GET   /api/sugerencias/:id → la sugerencia con sus comentarios (el anclado primero)
 // PATCH /api/sugerencias/:id { estado, juego, oculta } → solo administrador
-import { CAMPOS, ESTADOS, json, error, leerJson, texto, huellaVotante, esAdmin, idValido, sinBaseDeDatos } from '../../_comun.js';
+import { CAMPOS, ESTADOS, json, error, leerJson, texto, huellaVotante, esAdmin, idValido, sinBaseDeDatos } from './comun.js';
 
 export async function onRequestGet({ request, params, env }) {
   const falta = sinBaseDeDatos(env);

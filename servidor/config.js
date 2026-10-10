@@ -1,5 +1,5 @@
 // GET /api/config → datos públicos que necesita foro.html
-import { json } from './_comun.js';
+import { json } from './comun.js';
 
 export function onRequestGet({ env }) {
   return json({
