@@ -2,8 +2,10 @@
 // Shooter sobre raíles en el espacio, al estilo de los clásicos, en primera persona: vas en
 // la cabina y el espacio viene hacia ti. Pasa por los anillos dorados (recargan el escudo),
 // esquiva los asteroides y los disparos, derriba los cazas y, al final, la nave nodriza.
-// En VR se pilota con un volante entre las dos manos: girarlo te lleva a los lados e
-// inclinarlo hacia arriba o hacia abajo te sube o te baja. El gatillo dispara a donde miras.
+// En VR se pilota con una palanca virtual: aprieta el botón lateral para agarrarla donde
+// tengas la mano y mueve la mano (a la derecha, la nave va a la derecha; arriba, sube). Al
+// soltarla vuelve al centro. También vale el joystick de cualquier mando. El gatillo dispara
+// a donde miras.
 // Con ratón o con el dedo, la nave va hacia donde apuntas y dispara hacia ahí.
 //
 // Coordenadas: la lógica del juego va en el "espacio" (la nave en posNave, con z = 0). Todo lo
@@ -20,12 +22,11 @@ const CAJA = { x: 2.4, yMin: -1.2, yMax: 1.2 }; // por donde se puede mover la n
 const Y_CENTRO = 0;
 const Z_APARICION = -150;
 const VEL_NAVE = 2.6;            // m/s máximos de la nave
-// Volante: girarlo mueve a los lados, inclinarlo sube y baja (zona muerta y ángulo a tope)
-const GIRO_MUERTO = THREE.MathUtils.degToRad(6);
-const GIRO_MAXIMO = THREE.MathUtils.degToRad(45);
-const INCLINACION_MUERTA = THREE.MathUtils.degToRad(5);
-const INCLINACION_MAXIMA = THREE.MathUtils.degToRad(28);
-const MANOS_VOLANTE = 0.75;      // a menos de esta distancia, las dos manos llevan el volante
+// Palanca virtual: se mueve con la posición de la mano (no con su ángulo), desde donde se agarró
+const RECORRIDO_PALANCA = 0.12;  // metros de mano para ir a tope
+const ZONA_MUERTA_PALANCA = 0.012;
+const ZONA_MUERTA_JOYSTICK = 0.15;
+const RESPUESTA = 9;             // lo rápido que la nave alcanza la velocidad pedida
 const ALTURA_OJOS = 0.32;        // los ojos quedan esta altura por encima del centro de la cabina
 const RADIO_NAVE = 0.6;
 const VEL_LASER = 130;
@@ -137,19 +138,16 @@ export function iniciar(ctx) {
   }
   raiz.add(cabina);
 
-  // Volante: entre las dos manos (o en su sitio, delante del salpicadero)
-  const volante = new THREE.Group();
-  const RADIO_VOLANTE = 0.17;
-  volante.add(new THREE.Mesh(R(new THREE.TorusGeometry(RADIO_VOLANTE, 0.018, 8, 32)), matGris));
-  const geoRadio = R(new THREE.BoxGeometry(RADIO_VOLANTE * 2, 0.025, 0.02));
-  for (const a of [0, Math.PI / 2]) {
-    const radio = new THREE.Mesh(geoRadio, matPanel);
-    radio.rotation.z = a;
-    volante.add(radio);
-  }
-  volante.add(new THREE.Mesh(R(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 12).rotateX(Math.PI / 2)), matAzul));
-  raiz.add(volante);
-  const POS_VOLANTE = new THREE.Vector3(0, -0.06, -0.3); // su sitio en la cabina
+  // Palanca: cuando la agarras aparece bajo tu mano; si no, en su sitio, a la derecha del salpicadero
+  const palanca = new THREE.Group();
+  const matPomo = R(new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.5 }));
+  const basePalanca = new THREE.Mesh(R(new THREE.CylinderGeometry(0.05, 0.06, 0.025, 16)), matPanel);
+  const varaPalanca = new THREE.Mesh(R(new THREE.CylinderGeometry(0.012, 0.014, 1, 8).translate(0, 0.5, 0)), matGris);
+  const pomoPalanca = new THREE.Mesh(R(new THREE.SphereGeometry(0.032, 14, 10)), matPomo);
+  palanca.add(basePalanca, varaPalanca, pomoPalanca);
+  raiz.add(palanca);
+  const SITIO_PALANCA = new THREE.Vector3(0.3, -0.12, -0.32); // base de la palanca en la cabina
+  const ALTO_PALANCA = 0.15;
 
   // ─── Retícula (donde miras / donde está el ratón) ──────────────────────
   const matReticula = R(new THREE.MeshBasicMaterial({ color: 0x76ff03, transparent: true, opacity: 0.85, depthTest: false, fog: false }));
@@ -274,7 +272,7 @@ export function iniciar(ctx) {
   // ─── Marcador ──────────────────────────────────────────────────────────
   // Pantalla del salpicadero (durante el vuelo) y cartel grande delante (al empezar y al acabar)
   const marcador = ctx.crearPanel({ ancho: 0.46, alto: 0.13, borde: 'rgba(0, 229, 255, 0.8)' });
-  // A la izquierda del salpicadero, inclinada y girada hacia el jugador (el volante queda en medio)
+  // A la izquierda del salpicadero, inclinada y girada hacia el jugador
   marcador.mesh.position.set(-0.3, 0.04, -0.46);
   // Que mire a los ojos (sin ladearse): eje Z del panel hacia los ojos, con el "arriba" vertical
   marcador.mesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(new THREE.Vector3(0, ALTURA_OJOS, 0), marcador.mesh.position, new THREE.Vector3(0, 1, 0)));
@@ -299,8 +297,10 @@ export function iniciar(ctx) {
   let patronesHechos = 0;
   let mensajeFinal = '';
   let colorFinal = '#ffffff';
-  let neutro = null;          // inclinación de los mandos en reposo (se calibra al empezar)
   const apretonAntes = [false, false];
+  let manoPalanca = null;     // la mano que tiene agarrada la palanca
+  const anclaPalanca = new THREE.Vector3(); // dónde estaba la mano al agarrarla
+  const mando = new THREE.Vector2();        // lo que pide el jugador: x e y entre -1 y 1
   const velNave = new THREE.Vector2();
   const propulsor = ctx.sonidoContinuo('propulsor');
 
@@ -490,110 +490,96 @@ export function iniciar(ctx) {
   }
 
   // ─── Pilotaje ──────────────────────────────────────────────────────────
-  // Volante: el giro sale de la línea entre las dos manos (como un volante de coche) y la
-  // inclinación, del cabeceo medio de los mandos. Con una sola mano, el giro es el de la muñeca.
-  const adelante = new THREE.Vector3();
-  const derecha = new THREE.Vector3();
-  const entreManos = new THREE.Vector3();
-  const centroManos = new THREE.Vector3();
-  function leerVolante() {
-    const activas = ctx.manos.filter((m) => m.activa);
-    if (!activas.length) return null;
-    let cabeceo = 0;
-    let alabeo = 0;
-    for (const m of activas) {
-      m.grip.getWorldQuaternion(q);
-      adelante.set(0, 0, -1).applyQuaternion(q);
-      derecha.set(1, 0, 0).applyQuaternion(q);
-      cabeceo += Math.asin(THREE.MathUtils.clamp(adelante.y, -1, 1));
-      alabeo += -Math.asin(THREE.MathUtils.clamp(derecha.y, -1, 1));
-    }
-    cabeceo /= activas.length;
-    alabeo /= activas.length;
-    const izquierda = activas.find((m) => m.lado === 'left');
-    const derechaMano = activas.find((m) => m.lado === 'right');
-    if (izquierda && derechaMano) {
-      entreManos.subVectors(derechaMano.posicion, izquierda.posicion);
-      const separacion = entreManos.length();
-      if (separacion < MANOS_VOLANTE) {
-        // Ángulo de la línea entre las manos; positivo = girar a la derecha (la mano derecha baja)
-        const horizontal = Math.hypot(entreManos.x, entreManos.z) * Math.sign(entreManos.x || 1);
-        const giro = -Math.atan2(entreManos.y, horizontal);
-        centroManos.addVectors(izquierda.posicion, derechaMano.posicion).multiplyScalar(0.5);
-        return { giro, cabeceo, dosManos: true, separacion };
+  // Palanca virtual (agarrar con el botón lateral y mover la mano) y joysticks. Se suman.
+  const desvio = new THREE.Vector3();
+  function leerMandos() {
+    mando.set(0, 0);
+    ctx.manos.forEach((m, i) => {
+      const agarra = m.activa && m.apreton;
+      if (agarra && !apretonAntes[i]) {
+        manoPalanca = m;
+        anclaPalanca.copy(m.posicion);
+        ctx.vibrar(m, 0.35, 40);
+      }
+      if (!agarra && manoPalanca === m) manoPalanca = null;
+      apretonAntes[i] = agarra;
+    });
+    if (manoPalanca) {
+      // La cabina no gira, así que los ejes de la sala son los de la nave
+      desvio.subVectors(manoPalanca.posicion, anclaPalanca);
+      const largo = Math.hypot(desvio.x, desvio.y);
+      if (largo > ZONA_MUERTA_PALANCA) {
+        const fuerza = Math.min(1, (largo - ZONA_MUERTA_PALANCA) / (RECORRIDO_PALANCA - ZONA_MUERTA_PALANCA)) ** 1.2;
+        mando.set(desvio.x / largo, desvio.y / largo).multiplyScalar(fuerza);
       }
     }
-    return { giro: alabeo, cabeceo, dosManos: false, separacion: 0 };
+    // Joysticks (en los mandos del Quest son los ejes 2 y 3)
+    for (const m of ctx.manos) {
+      const ejes = m.activa ? m.fuente?.gamepad?.axes : null;
+      if (!ejes || ejes.length < 4) continue;
+      const x = ejes[2];
+      const y = -ejes[3];
+      const largo = Math.hypot(x, y);
+      if (largo > ZONA_MUERTA_JOYSTICK) {
+        const fuerza = Math.min(1, (largo - ZONA_MUERTA_JOYSTICK) / (1 - ZONA_MUERTA_JOYSTICK));
+        mando.x += (x / largo) * fuerza;
+        mando.y += (y / largo) * fuerza;
+      }
+    }
+    if (mando.length() > 1) mando.normalize();
   }
-  function curva(angulo, muerta, maxima) {
-    const a = Math.abs(angulo);
-    if (a < muerta) return 0;
-    return Math.sign(angulo) * Math.min(1, (a - muerta) / (maxima - muerta)) ** 1.3;
-  }
+
   // Coloca la cabina alrededor de la cabeza del jugador (de pie o sentado)
   function colocarCabina() {
     ctx.camara.getWorldPosition(tmp);
     centroCabina.set(tmp.x, tmp.y - ALTURA_OJOS, tmp.z);
   }
 
+  const velPedida = new THREE.Vector2();
   function pilotar(dt) {
-    let giroVisible = 0;
-    let inclinacionVisible = 0;
+    const pilotando = viva && (estado === 'mision' || estado === 'jefe');
     if (ctx.enVR()) {
-      const v = leerVolante();
       if (estado === 'intro' || estado === 'cuenta') colocarCabina();
-      // El botón lateral vuelve a fijar el reposo del volante (y recoloca la cabina)
-      ctx.manos.forEach((m, i) => {
-        if (m.activa && m.apreton && !apretonAntes[i] && v) {
-          neutro = { giro: v.giro, cabeceo: v.cabeceo };
-          colocarCabina();
-          ctx.sonido('tic');
-        }
-        apretonAntes[i] = m.activa && m.apreton;
-      });
-      // Mandos conectados después de la cuenta atrás
-      if (v && !neutro && estado !== 'cuenta' && estado !== 'intro') neutro = { giro: v.giro, cabeceo: v.cabeceo };
-      if (v && neutro) {
-        giroVisible = v.giro - neutro.giro;
-        inclinacionVisible = v.cabeceo - neutro.cabeceo;
-      }
-      if (v && neutro && (estado === 'mision' || estado === 'jefe') && viva) {
-        velNave.set(
-          curva(giroVisible, GIRO_MUERTO, GIRO_MAXIMO),
-          curva(inclinacionVisible, INCLINACION_MUERTA, INCLINACION_MAXIMA),
-        ).multiplyScalar(VEL_NAVE);
-      } else {
-        velNave.multiplyScalar(0.85);
-      }
-      // El volante: entre las manos si lo llevan las dos; si no, en su sitio
-      if (v && v.dosManos) {
-        volante.position.copy(centroManos);
-        volante.scale.setScalar(Math.max(0.7, v.separacion / 2 / RADIO_VOLANTE));
-      } else {
-        volante.position.copy(centroCabina).add(POS_VOLANTE);
-        volante.scale.setScalar(1);
-      }
+      leerMandos();
     } else {
       // Sin gafas: la nave va hacia donde apunta el puntero (respecto al centro de la pantalla)
       const raton = ctx.raton;
-      const activo = raton.dentro && (!ctx.tactil || raton.pulsado) && viva && (estado === 'mision' || estado === 'jefe');
       const eje = (n) => {
         const a = Math.abs(n);
         return a < 0.08 ? 0 : Math.sign(n) * Math.min(1, (a - 0.08) / 0.5);
       };
-      if (activo) velNave.set(eje(raton.ndc.x), eje(raton.ndc.y)).multiplyScalar(VEL_NAVE);
-      else velNave.multiplyScalar(0.85);
-      giroVisible = (velNave.x / VEL_NAVE) * 0.8;
-      inclinacionVisible = (velNave.y / VEL_NAVE) * 0.4;
-      volante.position.copy(centroCabina).add(POS_VOLANTE);
-      volante.scale.setScalar(1);
+      if (raton.dentro && (!ctx.tactil || raton.pulsado)) mando.set(eje(raton.ndc.x), eje(raton.ndc.y));
+      else mando.set(0, 0);
     }
-    volante.rotation.set(inclinacionVisible, 0, -giroVisible, 'XYZ');
+    // La nave acelera y frena con suavidad hacia la velocidad pedida
+    velPedida.copy(mando).multiplyScalar(pilotando ? VEL_NAVE : 0);
+    velNave.lerp(velPedida, 1 - Math.exp(-RESPUESTA * dt));
     posNave.x = THREE.MathUtils.clamp(posNave.x + velNave.x * dt, -CAJA.x, CAJA.x);
     posNave.y = THREE.MathUtils.clamp(posNave.y + velNave.y * dt, CAJA.yMin, CAJA.yMax);
     // La cabina se queda quieta en la sala; lo que se mueve es el espacio
     cabina.position.copy(centroCabina);
     mundo.position.subVectors(centroCabina, posNave);
+    colocarPalanca();
+  }
+
+  // La palanca se ve bajo la mano que la agarra, inclinada hacia ella; si no, en su sitio,
+  // inclinada según lo que pidan el joystick o el ratón
+  const puntaPalanca = new THREE.Vector3();
+  const ARRIBA = new THREE.Vector3(0, 1, 0);
+  function colocarPalanca() {
+    if (manoPalanca) {
+      palanca.position.copy(anclaPalanca).y -= ALTO_PALANCA;
+      puntaPalanca.copy(manoPalanca.posicion);
+    } else {
+      palanca.position.copy(centroCabina).add(SITIO_PALANCA);
+      puntaPalanca.copy(palanca.position).add(tmp.set(mando.x * 0.06, ALTO_PALANCA, -mando.y * 0.06));
+    }
+    // Vara de la base a la punta (en coordenadas de la palanca)
+    tmp.subVectors(puntaPalanca, palanca.position);
+    const largo = Math.max(0.05, tmp.length());
+    varaPalanca.scale.set(1, largo, 1);
+    varaPalanca.quaternion.setFromUnitVectors(ARRIBA, tmp.normalize());
+    pomoPalanca.position.copy(tmp).multiplyScalar(largo);
   }
 
   // ─── Apuntar y disparar ────────────────────────────────────────────────
@@ -702,14 +688,14 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       cartel.escribir([
         { texto: 'PILOTO ESTELAR', tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Coge el volante con las dos manos: gíralo para ir a los lados e inclínalo para subir o bajar' : (ctx.tactil ? 'Arrastra el dedo hacia donde quieras ir: la nave va y dispara' : 'Apunta con el ratón hacia donde quieras ir · mantén el clic para disparar'), tam: 0.7 },
-        { texto: ctx.enVR() ? 'Gatillo: disparas a donde miras · anillos dorados: escudo y puntos' : `Anillos dorados: escudo y puntos · Récord: ${record}`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.enVR() ? 'Botón lateral: agarras la palanca · mueve la mano hacia donde quieras ir · suelta y se centra' : (ctx.tactil ? 'Mantén el dedo hacia donde quieras ir: la nave va y dispara' : 'Apunta con el ratón hacia donde quieras ir · mantén el clic para disparar'), tam: 0.7 },
+        { texto: ctx.enVR() ? 'También vale el joystick · gatillo: disparas a donde miras' : `Anillos dorados: escudo y puntos · Récord: ${record}`, tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'cuenta') {
       cartel.escribir([
         { texto: `${Math.ceil(reloj)}`, tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Coge el volante y déjalo recto: esa será su posición de reposo' : '¡Prepárate!', tam: 0.7 },
-        { texto: ctx.enVR() ? 'El botón lateral vuelve a fijar el reposo cuando quieras' : `Récord: ${record}`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.enVR() ? 'Agarra la palanca con el botón lateral y mueve la mano' : '¡Prepárate!', tam: 0.7 },
+        { texto: ctx.enVR() ? 'Anillos dorados: escudo y puntos' : `Récord: ${record}`, tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'fin' || estado === 'final') {
       cartel.escribir([
@@ -731,11 +717,6 @@ export function iniciar(ctx) {
         break;
       case 'cuenta':
         if (reloj <= 0) {
-          // Posición de reposo del volante (y la cabina queda donde está ahora la cabeza)
-          if (ctx.enVR()) {
-            const v = leerVolante();
-            neutro = v ? { giro: v.giro, cabeceo: v.cabeceo } : null;
-          }
           estado = 'mision';
         }
         break;
