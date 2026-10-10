@@ -87,6 +87,8 @@ const SONIDOS = {
   explosion: () => { ruido(0.5, 260, 0.7, 0.6); tono(140, 40, 0.4, 'sawtooth', 0.22); },
   impacto: () => { ruido(0.3, 700, 0.6, 0.7); tono(160, 60, 0.25, 'square', 0.25); },
   anillo: () => { tono(880, 1760, 0.14, 'sine', 0.18); tono(1320, 2640, 0.16, 'sine', 0.12, 0.07); },
+  putt: () => { tono(950, 600, 0.05, 'sine', 0.32); ruido(0.03, 2400, 0.18, 1.5); },
+  hoyo: () => { tono(620, 300, 0.08, 'triangle', 0.3); tono(520, 260, 0.08, 'triangle', 0.25, 0.09); tono(880, 1320, 0.14, 'sine', 0.15, 0.25); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);

@@ -329,4 +329,23 @@ export const JUEGOS = [
     miniatura: 'juegos/piloto/miniatura.svg',
     modulo: 'juegos/piloto/juego.js',
   },
+  {
+    id: 'minigolf',
+    titulo: 'Minigolf',
+    genero: 'Deportes',
+    etiquetas: [
+      'minigolf', 'golf', 'palo', 'golpear', 'hoyos', 'tranquilo',
+      'mini golf', 'putt', 'putter', 'green', 'césped', 'bola', 'pelota', 'hoyo', 'bandera', 'par',
+      'birdie', 'hoyo en uno', 'recorrido', 'obstáculos', 'molino', 'paredes', 'rebote', 'rebotar',
+      'puntería', 'precisión', 'fuerza', 'calma', 'relajado', 'sin prisa', 'por turnos', 'golpes',
+      'parque', 'verano', 'feria', 'familia', 'niños', 'abuelos', 'casual', 'fácil', 'clásico',
+      'al azar', 'generado', 'sin moverse', 'deporte', 'deportes', 'récord',
+    ],
+    descripcion: '9 hoyos nuevos en cada ronda, con curvas, postes, estrechamientos y molinos. Mete la bola en el menor número de golpes.',
+    controlesVR: 'El palo va en tu mano y su cabeza llega sola al suelo: golpea la bola con suavidad. Tras cada golpe, el campo se recoloca a tus pies. El gatillo de la otra mano cambia el palo de mano.',
+    controlesEscritorio: 'Haz clic en el campo donde quieres que llegue la bola: cuanto más lejos, más fuerte.',
+    controlesTactil: 'Toca el campo donde quieres que llegue la bola: cuanto más lejos, más fuerte.',
+    miniatura: 'juegos/minigolf/miniatura.svg',
+    modulo: 'juegos/minigolf/juego.js',
+  },
 ];
