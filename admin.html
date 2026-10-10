@@ -58,6 +58,9 @@
   .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
   .boton.peligro { background: transparent; color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 50%, var(--line)); }
   .boton.mini { padding: 4px 12px; font-size: 0.8rem; }
+  .boton.probar { background: var(--ok); border-color: var(--ok); color: #0b2216; }
+  .pruebas { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px dashed var(--line); color: var(--muted); font-size: 0.9rem; }
+  .pruebas a { color: var(--accent-2); margin-right: 10px; }
 
   .pestanas { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 8px 20px; }
   .chip {
@@ -136,6 +139,8 @@
 
 <script type="module">
   import { JUEGOS } from './juegos/catalogo.js';
+  import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  const juegoDe = (id) => JUEGOS.find((j) => j.id === id);
 
   const ESTADOS = {
     desarrollo: 'En desarrollo',
@@ -261,12 +266,20 @@
     $salir.hidden = false;
     const $pestanas = el('div', { class: 'pestanas', role: 'group', 'aria-label': 'Estado' });
     const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
+    const $pruebas = el('p', { class: 'pruebas', hidden: true });
     $vista.replaceChildren(
       el('h1', {}, 'Sugerencias'),
-      el('p', { class: 'entradilla' }, 'Cambia el estado, responde como VR Play y modera. Incluye las sugerencias y comentarios ocultos.'),
+      el('p', { class: 'entradilla' }, 'Cambia el estado, responde como VR Play y modera. Incluye las sugerencias y comentarios ocultos. Un juego enlazado a una sugerencia que aún no está «Hecha» no sale en el catálogo: pruébalo aquí con «▶ Probar».'),
+      $pruebas,
       $pestanas,
       $lista,
     );
+    juegosEnPruebas().then((ids) => {
+      if (!ids.size) return;
+      $pruebas.replaceChildren('🧪 En pruebas (fuera del catálogo): ',
+        [...ids].map((id) => el('a', { href: `play.html#${id}`, target: '_blank', rel: 'noopener' }, juegoDe(id)?.titulo || id)));
+      $pruebas.hidden = false;
+    });
 
     let todas;
     try {
@@ -345,7 +358,9 @@
         s.accion && el('span', {}, `Acción: ${s.accion}`),
         s.juego && el('span', {}, `Juego: ${s.juego}`)),
       el('p', { class: 'descripcion' }, s.descripcion),
-      el('div', { class: 'controles' }, $estado, $juego, guardar, abrir, ocultar),
+      el('div', { class: 'controles' },
+        s.juego ? el('a', { class: 'boton mini probar', href: `play.html#${s.juego}`, target: '_blank', rel: 'noopener' }, '▶ Probar') : null,
+        $estado, $juego, guardar, abrir, ocultar),
       $aviso,
       $hilo,
     );

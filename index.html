@@ -267,7 +267,12 @@
 </footer>
 
 <script type="module">
-  import { JUEGOS } from './juegos/catalogo.js';
+  import { JUEGOS as TODOS } from './juegos/catalogo.js';
+  import { juegosEnPruebas } from './juegos/en-pruebas.js';
+
+  // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
+  const enPruebas = await juegosEnPruebas();
+  const JUEGOS = TODOS.filter((j) => !enPruebas.has(j.id));
 
   const generos = ['Todos', ...new Set(JUEGOS.map((j) => j.genero))];
   let generoActivo = 'Todos';

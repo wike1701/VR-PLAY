@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS sugerencias (
   tipo        TEXT NOT NULL DEFAULT '',          -- género (Deportes, Disparos...)
   autor       TEXT NOT NULL DEFAULT 'Anónimo',
   estado      TEXT NOT NULL DEFAULT 'nueva',     -- nueva | estudio | desarrollo | hecha | existe | descartada
-  juego       TEXT NOT NULL DEFAULT '',          -- id del juego del catálogo (si está hecha o ya existe)
+  juego       TEXT NOT NULL DEFAULT '',          -- id del juego del catálogo; mientras no esté hecha, el juego queda en pruebas
   me_gusta    INTEGER NOT NULL DEFAULT 0,
   comentarios INTEGER NOT NULL DEFAULT 0,
   oculta      INTEGER NOT NULL DEFAULT 0,        -- moderación: 1 = no se muestra

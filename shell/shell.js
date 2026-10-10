@@ -10,6 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 import * as THREE from 'three';
 import { JUEGOS } from '../juegos/catalogo.js';
+import { juegosEnPruebas } from '../juegos/en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
@@ -284,6 +285,20 @@ let errorJuego = false;
 // La primera vuelta incluye el juego inicial, así que solo baraja los demás.
 let cola = barajar(JUEGOS.map((_, i) => i).filter((i) => i !== indiceActual));
 
+// Los juegos en pruebas no entran en la rotación (sí se pueden abrir con su
+// enlace). La lista llega del servidor al poco de arrancar.
+let enPruebas = new Set();
+juegosEnPruebas().then((ids) => {
+  enPruebas = ids;
+  if (!ids.size) return;
+  cola = cola.filter((i) => !ids.has(JUEGOS[i].id));
+  if (actual && !cambiando) anunciarSiguiente();
+});
+const indicesPublicos = () => {
+  const lista = JUEGOS.map((_, i) => i).filter((i) => !enPruebas.has(JUEGOS[i].id));
+  return lista.length ? lista : JUEGOS.map((_, i) => i);
+};
+
 function barajar(lista) {
   for (let i = lista.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -295,7 +310,7 @@ function barajar(lista) {
 // Devuelve el próximo juego sin sacarlo de la cola (para precargarlo y anunciarlo).
 function siguienteIndice() {
   if (cola.length === 0) {
-    cola = barajar(JUEGOS.map((_, i) => i));
+    cola = barajar(indicesPublicos());
     if (cola.length > 1 && cola[0] === indiceActual) cola.push(cola.shift());
   }
   return cola[0];
@@ -451,8 +466,11 @@ async function cambiarA(indice) {
   }
   await fundido.a(0, 0.35);
   cambiando = false;
+  anunciarSiguiente();
+}
 
-  // Precarga en segundo plano el siguiente juego para que el cambio sea instantáneo
+// Precarga en segundo plano el siguiente juego para que el cambio sea instantáneo
+function anunciarSiguiente() {
   const siguiente = siguienteIndice();
   boton.setSiguiente(JUEGOS[siguiente].titulo);
   actualizarInterfaz();

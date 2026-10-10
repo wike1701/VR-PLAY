@@ -8,6 +8,7 @@ import * as sugerencia from './sugerencia.js';
 import * as comentarios from './comentarios.js';
 import * as meGusta from './me-gusta.js';
 import * as comentario from './comentario.js';
+import * as juegosEnPruebas from './juegos-en-pruebas.js';
 import { error } from './comun.js';
 
 const RUTAS = [
@@ -17,6 +18,7 @@ const RUTAS = [
   [/^\/api\/sugerencias\/([^/]+)\/comentarios$/, comentarios],
   [/^\/api\/sugerencias\/([^/]+)\/me-gusta$/, meGusta],
   [/^\/api\/comentarios\/([^/]+)$/, comentario],
+  [/^\/api\/juegos-en-pruebas$/, juegosEnPruebas],
 ];
 
 export default {
