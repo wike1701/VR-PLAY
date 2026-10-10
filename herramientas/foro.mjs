@@ -115,6 +115,14 @@ switch (orden) {
     const id = pedirId(resto[0]);
     const texto = opciones.archivo ? readFileSync(opciones.archivo, 'utf8') : resto.slice(1).join(' ');
     if (!texto.trim()) salir('Escribe el texto de la respuesta (o usa --archivo).');
+    // Con una clave incorrecta el servidor publicaría la respuesta como un comentario
+    // anónimo normal. Antes lo comprobamos con un PATCH vacío: 401 = clave mala,
+    // 400 ("nada que cambiar") = clave buena, y no modifica nada.
+    if (!token) salir('Esta acción necesita la clave de administrador en la variable FORO_TOKEN.');
+    const prueba = await fetch(`${url}/api/sugerencias/${id}`, {
+      method: 'PATCH', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: '{}',
+    }).catch((e) => salir(`No se puede conectar con ${url}: ${e.message}`));
+    if (prueba.status === 401) salir('Error 401: la clave FORO_TOKEN no coincide con ADMIN_TOKEN de Cloudflare. No se ha publicado nada.');
     const { id: comentario } = await api(`/sugerencias/${id}/comentarios`, {
       metodo: 'POST', datos: { texto, anclar: !opciones['sin-anclar'] }, admin: true,
     });
