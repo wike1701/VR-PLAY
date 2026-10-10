@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2f3a"/>
+      <stop offset="1" stop-color="#171a22"/>
+    </linearGradient>
+    <linearGradient id="cobre" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0b27a"/>
+      <stop offset="1" stop-color="#a0612b"/>
+    </linearGradient>
+    <radialGradient id="brillo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff59d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffab00" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Mesa -->
+  <rect x="0" y="318" width="400" height="82" fill="#6d4c41"/>
+  <rect x="0" y="318" width="400" height="8" fill="#8d6e63"/>
+  <!-- Postes -->
+  <rect x="44" y="236" width="12" height="86" fill="#37474f"/>
+  <rect x="344" y="176" width="12" height="146" fill="#37474f"/>
+  <!-- Cable -->
+  <path d="M50 240 L84 240 C110 240 112 170 140 170 C168 170 170 262 200 262 C226 262 232 150 262 150 C292 150 290 210 316 196 L350 180"
+        fill="none" stroke="url(#cobre)" stroke-width="7" stroke-linecap="round"/>
+  <!-- Zonas de salida y llegada -->
+  <path d="M50 240 L84 240" stroke="#2e7d32" stroke-width="16" stroke-linecap="round"/>
+  <path d="M318 195 L350 180" stroke="#ffc400" stroke-width="16" stroke-linecap="round"/>
+  <!-- Chispa -->
+  <circle cx="200" cy="262" r="40" fill="url(#brillo)"/>
+  <g stroke="#ffe082" stroke-width="4" stroke-linecap="round">
+    <line x1="200" y1="262" x2="186" y2="232"/>
+    <line x1="200" y1="262" x2="222" y2="236"/>
+    <line x1="200" y1="262" x2="232" y2="270"/>
+    <line x1="200" y1="262" x2="172" y2="282"/>
+  </g>
+  <!-- Aro con su mango -->
+  <g transform="translate(200 262)">
+    <ellipse rx="16" ry="30" fill="none" stroke="#eceff1" stroke-width="6"/>
+    <rect x="-5" y="30" width="10" height="34" fill="#cfd8dc"/>
+    <rect x="-11" y="62" width="22" height="58" rx="8" fill="#d32f2f"/>
+  </g>
+</svg>

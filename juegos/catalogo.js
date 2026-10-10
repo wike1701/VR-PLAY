@@ -291,4 +291,23 @@ export const JUEGOS = [
     miniatura: 'juegos/voleibol/miniatura.svg',
     modulo: 'juegos/voleibol/juego.js',
   },
+  {
+    id: 'pulso',
+    titulo: 'Pulso Firme',
+    genero: 'Habilidad',
+    etiquetas: [
+      'pulso', 'cable', 'aro', 'precisión', 'calambre', 'habilidad',
+      'alambre', 'electricidad', 'eléctrico', 'chispas', 'zumbido', 'descarga', 'no tocar', 'buzz wire',
+      'nervios', 'concentración', 'paciencia', 'calma', 'tranquilo', 'puntería', 'coordinación',
+      'muñeca', 'mano', 'brazos', 'recorrido', 'laberinto', 'circuito', 'feria', 'clásico',
+      'taller', 'contrarreloj', 'tiempo', 'cronómetro', 'niveles', 'difícil', 'reto', 'desafío',
+      'sin moverse', 'casual', 'familia', 'niños', 'puntos', 'récord', 'steady hand',
+    ],
+    descripcion: 'El juego del alambre: lleva el aro de un extremo a otro del cable sin tocarlo o te llevas un calambrazo. 10 cables distintos por ronda, cada vez más difíciles, y el último se mueve.',
+    controlesVR: 'Aro en la mano derecha: mételo en la zona verde y llévalo hasta la dorada girando la muñeca en las curvas. Antes de empezar, el gatillo de la otra mano cambia el aro de mano.',
+    controlesEscritorio: 'Mueve el ratón para llevar el aro por el cable, desde la zona verde hasta la dorada. El aro se orienta solo.',
+    controlesTactil: 'Arrastra el dedo para llevar el aro por el cable (va un poco por encima del dedo), desde la zona verde hasta la dorada.',
+    miniatura: 'juegos/pulso/miniatura.svg',
+    modulo: 'juegos/pulso/juego.js',
+  },
 ];

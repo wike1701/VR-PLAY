@@ -77,6 +77,7 @@ const SONIDOS = {
   bate: () => { tono(1500, 700, 0.07, 'triangle', 0.4); ruido(0.09, 2800, 0.7, 0.9); tono(220, 90, 0.1, 'sine', 0.35); },
   zas: () => ruido(0.18, 900, 0.25, 0.9),
   ovacion: () => { ruido(1.4, 1400, 0.35, 0.35); ruido(1.2, 700, 0.25, 0.5); },
+  calambre: () => { tono(95, 80, 0.45, 'sawtooth', 0.35); tono(190, 160, 0.45, 'square', 0.12); ruido(0.35, 3500, 0.45, 0.6); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
@@ -139,6 +140,42 @@ const CONTINUOS = {
         salida.gain.setTargetAtTime(0, t, 0.05);
         for (const { o } of oscs) o.stop(t + 0.3);
         lfo.stop(t + 0.3);
+      },
+    };
+  },
+  // Zumbido eléctrico (Pulso Firme): red de 100 Hz con su armónico. El filtro se abre
+  // y sube de tono cuanto mayor es el valor (más cerca del cable).
+  zumbido() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'bandpass';
+    filtro.Q.value = 2;
+    filtro.frequency.value = 300;
+    const o1 = ac.createOscillator();
+    o1.type = 'sawtooth';
+    o1.frequency.value = 100;
+    const o2 = ac.createOscillator();
+    o2.type = 'square';
+    o2.frequency.value = 200;
+    const g2 = ac.createGain();
+    g2.gain.value = 0.3;
+    o1.connect(filtro);
+    o2.connect(g2).connect(filtro);
+    filtro.connect(salida).connect(maestro);
+    o1.start();
+    o2.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        filtro.frequency.setTargetAtTime(300 + valor * 1500, t, 0.05);
+        salida.gain.setTargetAtTime(volumen, t, 0.05);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        o1.stop(t + 0.3);
+        o2.stop(t + 0.3);
       },
     };
   },
