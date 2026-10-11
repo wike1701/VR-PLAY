@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Aviso legal y privacidad · VR Play</title>
+<meta name="description" content="Aviso legal, política de privacidad y cookies de VR Play.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="theme-color" content="#0f0f14">
+<style>
+  /* Página de texto legal: mismos colores que el catálogo, sin fuentes externas. */
+  :root {
+    --bg: #0e0d16;
+    --surface: #1a1828;
+    --line: #34304f;
+    --fg: #f1effa;
+    --muted: #a19cbd;
+    --accent: #8f6bff;
+    --accent-2: #00e5ff;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  a { color: var(--accent-2); }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+  .contenedor { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
+
+  header { border-bottom: 1px solid var(--line); }
+  .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+  .logo { font-weight: 800; font-size: 1.3rem; letter-spacing: 0.04em; text-decoration: none; color: var(--fg); }
+  .logo span { color: var(--accent); }
+  .cabecera nav { margin-left: auto; display: flex; gap: 16px; font-size: 0.9rem; }
+  .cabecera nav a { color: var(--muted); text-decoration: none; }
+  .cabecera nav a:hover { color: var(--fg); }
+
+  main { padding-block: 32px 48px; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.15; margin: 0 0 8px; }
+  h2 { font-size: 1.35rem; margin: 48px 0 12px; padding-top: 8px; scroll-margin-top: 16px; }
+  h3 { font-size: 1.05rem; margin: 28px 0 8px; }
+  p, li { color: var(--fg); }
+  .nota { color: var(--muted); font-size: 0.9rem; }
+  ul { padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  .indice { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 0; padding: 0; list-style: none; }
+  .indice a {
+    display: inline-block; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--fg); text-decoration: none; font-size: 0.9rem;
+  }
+  .indice a:hover { border-color: var(--accent); }
+
+  dl.datos { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0; }
+  dl.datos dt { color: var(--muted); }
+  dl.datos dd { margin: 0; }
+  /* Datos del titular aún sin rellenar */
+  .pendiente { display: inline-block; min-width: 14em; border-bottom: 1px dashed var(--muted); }
+
+  .tabla { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+
+  footer { padding-block: 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+
+  @media (max-width: 520px) {
+    dl.datos { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    dl.datos dd { margin-bottom: 10px; }
+    .pendiente { min-width: 10em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <nav aria-label="Secciones">
+      <a href="index.html">Juegos</a>
+      <a href="foro.html">Sugerencias</a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor">
+  <h1>Aviso legal y privacidad</h1>
+  <p class="nota">Última actualización: 11 de octubre de 2026.</p>
+  <ul class="indice">
+    <li><a href="#aviso-legal">Aviso legal</a></li>
+    <li><a href="#privacidad">Privacidad</a></li>
+    <li><a href="#cookies">Cookies</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+
+  <!-- ─────────────────────────────── Aviso legal ─────────────────────────────── -->
+  <h2 id="aviso-legal">Aviso legal</h2>
+  <p>En cumplimiento de la Ley 34/2002, de servicios de la sociedad de la información y de comercio electrónico (LSSI), estos son los datos del titular de VR Play:</p>
+  <!-- PENDIENTE: datos del titular (persona o empresa). Si es una empresa, añadir también los datos del Registro Mercantil. -->
+  <dl class="datos">
+    <dt>Titular</dt><dd><span class="pendiente"></span></dd>
+    <dt>NIF</dt><dd><span class="pendiente"></span></dd>
+    <dt>Domicilio</dt><dd><span class="pendiente"></span></dd>
+    <dt>Correo</dt><dd><span class="pendiente"></span></dd>
+  </dl>
+
+  <h3>Uso de la web</h3>
+  <p>VR Play es una web gratuita de juegos que se juegan en el navegador, con gafas de realidad virtual, con el ratón o en el móvil. Al usarla te comprometes a hacerlo de forma lícita y a no publicar en el foro contenido ofensivo, ilegal, publicidad ni datos personales de otras personas. El titular puede ocultar cualquier sugerencia o comentario que no cumpla estas normas.</p>
+
+  <h3>Seguridad al jugar en realidad virtual</h3>
+  <p>Juega en un espacio despejado, sin muebles, personas ni mascotas al alcance de los brazos, y configura el límite de seguridad de tus gafas. Los juegos se juegan de pie y sin desplazarte, pero exigen mover los brazos con rapidez. Haz descansos y deja de jugar si notas mareo o malestar. Juegas bajo tu responsabilidad.</p>
+
+  <h3>Propiedad intelectual</h3>
+  <p>Los juegos, textos, gráficos y el código de VR Play pertenecen a su titular, salvo las bibliotecas de terceros que se usan con su licencia (por ejemplo, three.js, con licencia MIT). Las ideas que la gente envía al foro pueden servir de inspiración para crear juegos nuevos. Al enviarlas aceptas que se usen así, sin que eso dé derecho a ninguna compensación.</p>
+
+  <h3>Responsabilidad</h3>
+  <p>La web se ofrece tal cual. Se procura que funcione bien, pero no se garantiza que esté siempre disponible ni libre de errores. Las sugerencias y los comentarios del foro son responsabilidad de quien los escribe.</p>
+
+  <!-- ─────────────────────────────── Privacidad ─────────────────────────────── -->
+  <h2 id="privacidad">Política de privacidad</h2>
+
+  <h3>Quién es el responsable</h3>
+  <p>El responsable de los datos es el titular indicado en el <a href="#aviso-legal">aviso legal</a>. Para cualquier cuestión sobre tus datos, escribe a la dirección de <a href="#contacto">contacto</a>.</p>
+
+  <h3>Lo esencial</h3>
+  <ul>
+    <li><strong>Para jugar no hace falta registrarse</strong> ni dar ningún dato.</li>
+    <li>Lo que haces en los juegos (posición de las gafas y los mandos, récords, favoritos) se queda en tu navegador. Los movimientos de las gafas y de los mandos no se envían a ningún sitio.</li>
+    <li>Lo que escribes en el foro es <strong>público</strong>.</li>
+    <li>No guardamos tu dirección IP: solo una huella cifrada que sirve para frenar el spam.</li>
+    <li>No hay publicidad ni se venden datos.</li>
+  </ul>
+
+  <h3>Qué datos se tratan y para qué</h3>
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr><th>Qué</th><th>Para qué</th><th>Base legal</th><th>Cuánto tiempo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sugerencias y comentarios del foro, con el nombre que elijas escribir</td>
+          <td>Publicarlos en el foro y valorar qué juegos crear</td>
+          <td>Tu consentimiento, al enviarlos</td>
+          <td>Mientras exista el foro, o hasta que pidas que se borren</td>
+        </tr>
+        <tr>
+          <td>Huella de tu IP (un hash con una clave secreta; la IP no se guarda)</td>
+          <td>Limitar cuántas sugerencias, comentarios y «me gusta» se envían por hora, contra el spam</td>
+          <td>Interés legítimo en proteger el foro</td>
+          <td>Junto con la sugerencia, comentario o «me gusta» al que acompaña</td>
+        </tr>
+        <tr>
+          <td>Identificador aleatorio de tu navegador (se guarda cifrado)</td>
+          <td>Contar un solo «me gusta» por navegador en cada juego y sugerencia</td>
+          <td>Interés legítimo en que los votos sean fiables</td>
+          <td>Mientras exista el «me gusta»</td>
+        </tr>
+        <tr>
+          <td>Estadísticas de visitas (Cloudflare Web Analytics)</td>
+          <td>Saber cuántas visitas tiene cada página. No usa cookies ni identifica a nadie</td>
+          <td>Interés legítimo en mejorar la web</td>
+          <td>Datos agregados, sin identificarte</td>
+        </tr>
+        <tr>
+          <td>Registros técnicos del servidor (dirección pedida, hora, errores)</td>
+          <td>Que la web funcione y detectar fallos y abusos</td>
+          <td>Interés legítimo en la seguridad de la web</td>
+          <td>Los que conserva Cloudflare, normalmente unos días</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cuentas de usuario</h3>
+  <p>Crear una cuenta es opcional. Si la creas, además se tratan:</p>
+  <ul>
+    <li><strong>Tu correo</strong>, para que puedas entrar y para avisarte de lo relacionado con tu cuenta (por ejemplo, que tu idea se ha convertido en un juego). Nunca se muestra. Los avisos por correo se pueden desactivar.</li>
+    <li><strong>Tu año de nacimiento</strong>, para comprobar la edad mínima y proteger a los menores. Nunca se muestra.</li>
+    <li><strong>Tu alias y tu avatar</strong>, que son públicos.</li>
+    <li>Tus <strong>favoritos, «me gusta», récords, sugerencias, comentarios y los perfiles que sigues</strong>. Lo que sale en tu perfil público lo eliges en los ajustes de privacidad.</li>
+    <li>Las <strong>sesiones abiertas</strong> en tus dispositivos.</li>
+  </ul>
+  <p>Base legal: el contrato de uso de la cuenta que aceptas al crearla. Los datos se conservan mientras tengas la cuenta. Si la borras, se eliminan tu correo, tus sesiones, tus favoritos, tus récords y tus ajustes. Tus sugerencias y comentarios se quedan en el foro, firmados como «Usuario eliminado», porque forman parte de conversaciones de otras personas. Desde «Mi cuenta» puedes descargar todos tus datos.</p>
+  <p>Si entras con Google, Google nos facilita tu correo y un identificador de tu cuenta de Google. No recibimos tu contraseña.</p>
+
+  <h3>Menores de edad</h3>
+  <p>Cualquiera puede jugar sin dar datos. Para crear una cuenta o publicar en el foro hay que tener <strong>14 años o más</strong>. Las cuentas de menores de 18 años tienen sus listas de seguidores ocultas por defecto y no reciben avisos de seguidores desconocidos.</p>
+
+  <h3>Con quién se comparten</h3>
+  <p>No se venden ni se ceden datos a nadie. Solo los tratan los proveedores que hacen funcionar la web, y solo para eso:</p>
+  <ul>
+    <li><strong>Cloudflare</strong>: aloja la web, la base de datos del foro y las estadísticas de visitas, y da el captcha contra el spam (Turnstile).</li>
+    <li><strong>jsDelivr</strong>: sirve la biblioteca three.js con la que funcionan los juegos. Al cargarla, recibe tu IP como cualquier servidor web.</li>
+    <li><strong>Google Fonts</strong>: sirve las tipografías de la portada. Al cargarlas, recibe tu IP.</li>
+    <li><strong>Google</strong>, solo si eliges entrar con tu cuenta de Google.</li>
+    <!-- PENDIENTE: el servicio de envío de correos (Resend, Cloudflare Email…) cuando se elija -->
+    <li><strong>Servicio de envío de correos</strong>: <span class="pendiente"></span>, para enviarte los enlaces de acceso y los avisos de tu cuenta.</li>
+  </ul>
+  <p>Algunos de estos proveedores tienen servidores fuera del Espacio Económico Europeo, sobre todo en Estados Unidos. Las transferencias se amparan en el Marco de Privacidad de Datos UE-EE. UU. o en las cláusulas contractuales tipo de la Comisión Europea.</p>
+
+  <h3>Tus derechos</h3>
+  <p>Puedes pedir acceder a tus datos, corregirlos, borrarlos, llevártelos a otro servicio, limitar su uso u oponerte a él. Escribe a la dirección de <a href="#contacto">contacto</a> indicando qué quieres. Si publicaste en el foro sin cuenta, di qué sugerencia o comentario era, porque sin cuenta no hay otra forma de saber que es tuyo.</p>
+  <p>Si crees que no se han tratado bien tus datos, puedes reclamar ante la <a href="https://www.aepd.es" rel="noopener">Agencia Española de Protección de Datos</a>.</p>
+
+  <!-- ─────────────────────────────── Cookies ─────────────────────────────── -->
+  <h2 id="cookies">Cookies y almacenamiento del navegador</h2>
+  <p><strong>VR Play no usa cookies de publicidad ni de seguimiento</strong>, así que no hace falta pedirte permiso.</p>
+  <p>La web guarda en el almacenamiento de tu navegador lo imprescindible para funcionar:</p>
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr><th>Qué</th><th>Para qué</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Récords y ajustes de cada juego</td><td>Recordar tu mejor puntuación</td></tr>
+        <tr><td>Favoritos y «me gusta»</td><td>Marcarlos en el catálogo</td></tr>
+        <tr><td>Identificador aleatorio del navegador</td><td>Que cada «me gusta» cuente una sola vez</td></tr>
+        <tr><td>El nombre que usas en el foro</td><td>No tener que escribirlo cada vez</td></tr>
+        <tr><td>Cookie de sesión (solo si tienes cuenta y has entrado)</td><td>Mantener tu sesión iniciada. Es técnica y caduca a los 90 días sin uso</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Puedes borrarlo todo desde los ajustes de tu navegador. Perderás los récords y los favoritos que no estén guardados en una cuenta.</p>
+
+  <!-- ─────────────────────────────── Contacto ─────────────────────────────── -->
+  <h2 id="contacto">Contacto</h2>
+  <!-- PENDIENTE: correo de contacto del titular -->
+  <p>Para cualquier duda, para ejercer tus derechos o para avisar de un contenido del foro: <span class="pendiente"></span></p>
+  <p>Para proponer juegos o comentarlos, usa el <a href="foro.html">foro de sugerencias</a>.</p>
+</main>
+
+<footer>
+  <div class="contenedor">© 2026 VR Play</div>
+</footer>
+
+</body>
+</html>

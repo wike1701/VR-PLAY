@@ -4,18 +4,18 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 
 ## 1. Legal (antes de anunciar la web)
 
-- [ ] Decidir el titular de la web (persona o empresa) y un correo de contacto
-- [ ] Página de **aviso legal** con los datos del titular (LSSI)
-- [ ] Página de **política de privacidad** (RGPD): qué se guarda (foro, huella de IP, almacenamiento del navegador), para qué, cuánto tiempo y cómo pedir que se borre
-- [ ] Página de **cookies**, o una nota que diga que no se usan, si sigue sin haberlas
-- [ ] Página de **contacto**
-- [ ] Enlazar las cuatro páginas en el pie de `index.html`, `foro.html` y `play.html` (ahora apuntan a `#`)
+- [ ] Decidir el titular de la web (persona o empresa) y un correo de contacto, y rellenar los huecos de `legal.html` (titular, NIF, domicilio, correo y servicio de correo)
+- [x] Página de **aviso legal** con los datos del titular (LSSI)
+- [x] Página de **política de privacidad** (RGPD): qué se guarda (foro, huella de IP, almacenamiento del navegador), para qué, cuánto tiempo y cómo pedir que se borre
+- [x] Página de **cookies**, o una nota que diga que no se usan, si sigue sin haberlas
+- [x] Página de **contacto**
+- [x] Enlazar las páginas legales en el pie de `index.html` y `foro.html` (todo está en `legal.html`)
 - [ ] Servir las fuentes desde la propia web, en vez de cargarlas desde Google Fonts (envía la IP a Google)
 - [ ] Quitar el hueco «Espacio publicitario» o decidir el sistema de anuncios (en ese caso, banner de consentimiento)
 - [ ] **Normas del foro** visibles junto al formulario
 - [ ] Botón **«Denunciar»** en sugerencias y comentarios (con su tabla y una sección en `admin.html`)
 - [ ] Edad mínima indicada (14 años en España para dar el consentimiento uno mismo)
-- [ ] Aviso de seguridad en VR antes de jugar: espacio libre a tu alrededor y bajo tu responsabilidad
+- [ ] Aviso de seguridad en VR antes de jugar: espacio libre a tu alrededor y bajo tu responsabilidad (el texto ya está en `legal.html`; falta mostrarlo al entrar en VR)
 
 ## 2. Estabilidad (que no se rompa)
 

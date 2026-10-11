@@ -260,7 +260,7 @@ Para más adelante, si funciona:
 
 ## 15. Cambios técnicos (resumen)
 
-- **Se programa en `main`**, que se publica sola con cada subida. Para que el trabajo a medias no se vea, todo lo nuevo (botón «Entrar», feed, perfiles) está **apagado** hasta que se active la variable `PERFILES_ACTIVOS` en Cloudflare. Mientras tanto, se prueba en la web publicada añadiendo `?perfiles=1` a la dirección, como pasa con los juegos en pruebas.
+- **Se programa en `main`** y cada parte sale visible en la web en cuanto se sube, sin interruptor para ocultarla. Si más adelante, con usuarios, hace falta publicar algo oculto mientras se termina, se puede añadir un interruptor (una variable en Cloudflare y `?perfiles=1` para probarlo).
 - **Los cambios en la base de datos solo añaden**, nunca borran ni renombran. Así, la versión anterior (rama `version-1`) sigue funcionando con la base de datos nueva si hay que volver a ella.
 
 - **Tablas nuevas:** `usuarios`, `sesiones`, `enlaces_acceso`, `codigos_vinculacion`, `favoritos`, `records`, `partidas`, `insignias`, `seguidores`, `bloqueos`, `actividad` (una fila por cada suceso que puede salir en un feed) y `avisos`.
