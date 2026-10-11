@@ -28,7 +28,17 @@ const GROSOR_PALA = 0.012;
 const AYUDA = 0.7;                     // cuánto se corrige un golpe VR hacia la mesa (0 = nada)
 const Z_MAQUINA = Z_LEJOS - 0.3;       // plano donde golpea la máquina
 const VELOCIDAD_MAQUINA = 2.6;         // m/s que mueve la máquina su pala (si no llega, falla)
-const FALLOS_MAQUINA = 0.07;           // probabilidad de que la máquina la mande fuera
+// Fallos de la máquina (probabilidad en cada bola que le mandas): no llegar, darle a la
+// red, mandarla larga o abierta. Unos 11 % en total, repartidos para que parezca de verdad.
+const FALLOS = [['noLlega', 0.035], ['red', 0.035], ['largo', 0.02], ['ancho', 0.02]];
+function decidirFallo(factor = 1) {
+  let r = Math.random();
+  for (const [tipo, p] of FALLOS) {
+    if (r < p * factor) return tipo;
+    r -= p * factor;
+  }
+  return null;
+}
 const Z_PALA_RATON = Z_CERCA + 0.2;    // plano en el que se mueve la pala con ratón
 const R_CONTACTO_RATON = 0.15;
 
@@ -278,6 +288,8 @@ export function iniciar(ctx) {
   let tiempoPunto = 0;
   let enfriamiento = 0;       // evita contar dos veces el mismo golpe
   let golpesSeguidos = 0;
+  let falloMaquina = null; // 'noLlega' | 'red' | 'largo' | 'ancho' | null
+  let ladoFallo = 1;
   let mensaje = '';
   let colorMensaje = '#ffffff';
   let ganadas = ctx.leer('ganadas', 0);
@@ -371,6 +383,7 @@ export function iniciar(ctx) {
 
   // ─── Reglas ────────────────────────────────────────────────────────────
   function prepararSaque() {
+    falloMaquina = null;
     estado = 'saque';
     reloj = sacador === 'maquina' ? 1.3 : 0;
     golpeador = null;
@@ -443,6 +456,11 @@ export function iniciar(ctx) {
       return false; // segundo toque del mismo jugador
     }
     golpeador = quien;
+    // Al mandarle tú la bola se decide si la máquina fallará la siguiente (y cómo)
+    if (quien === 'jugador') {
+      falloMaquina = decidirFallo();
+      ladoFallo = Math.random() < 0.5 ? -1 : 1;
+    }
     debeBotar = otro(quien);
     botes = 0;
     golpesSeguidos += 1;
@@ -600,6 +618,8 @@ export function iniciar(ctx) {
     if (estado === 'saque' && sacador === 'maquina') destino = tmp.copy(bola.position).setZ(Z_MAQUINA);
     if (destino) objetivoMaquina.set(destino.x, Math.max(MESA_Y + 0.05, destino.y), Z_MAQUINA);
     else objetivoMaquina.set(0, MESA_Y + 0.25, Z_MAQUINA);
+    // Si no va a llegar, la pala se queda corta y la bola pasa de largo
+    if (destino && falloMaquina === 'noLlega' && estado === 'vivo') objetivoMaquina.x += ladoFallo * 0.4;
     const paso = tmp2.subVectors(objetivoMaquina, pivoteMaquina.position);
     const maximo = VELOCIDAD_MAQUINA * dt;
     if (paso.length() > maximo) paso.setLength(maximo);
@@ -616,15 +636,23 @@ export function iniciar(ctx) {
 
     // Devolución: solo si ya ha botado en su lado y la pala llega a la bola
     const p = bola.position;
+    if (falloMaquina === 'noLlega') return; // ni la toca
     if (estado === 'vivo' && debeBotar === 'maquina' && botes === 1 && vel.z < 0 &&
         p.distanceTo(pivoteMaquina.position) < 0.17 && golpe('maquina')) {
-      const falla = Math.random() < FALLOS_MAQUINA;
-      const destinoGolpe = new THREE.Vector3(
-        falla ? (Math.random() < 0.5 ? -1 : 1) * (ANCHO / 2 + 0.25) : (Math.random() - 0.5) * (ANCHO - 0.3),
-        MESA_Y + R_BOLA,
-        falla ? Z_CERCA + 0.4 : Z_RED + 0.35 + Math.random() * (LARGO / 2 - 0.55),
-      );
+      const fallo = falloMaquina;
+      falloMaquina = null;
       const rapidez = 4.2 + Math.min(golpesSeguidos, 12) * 0.12 + Math.random() * 1.2;
+      if (fallo === 'red') {
+        // Golpe plano y bajo directo a la red (sin la corrección que la haría pasar)
+        const objetivo = tmp.set(p.x * 0.6 + (Math.random() - 0.5) * 0.4, MESA_Y + ALTO_RED * 0.5, Z_RED);
+        const t = Math.max(0.12, objetivo.distanceTo(p) / rapidez);
+        vel.set((objetivo.x - p.x) / t, (objetivo.y - p.y) / t + 0.5 * G * t, (objetivo.z - p.z) / t);
+        return;
+      }
+      let destinoGolpe;
+      if (fallo === 'largo') destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_CERCA + 0.3 + Math.random() * 0.5);
+      else if (fallo === 'ancho') destinoGolpe = new THREE.Vector3(ladoFallo * (ANCHO / 2 + 0.15 + Math.random() * 0.3), MESA_Y + R_BOLA, Z_RED + 0.4 + Math.random() * 0.8);
+      else destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_RED + 0.35 + Math.random() * (LARGO / 2 - 0.55));
       vel.copy(trayectoria(p, destinoGolpe, rapidez));
     }
   }

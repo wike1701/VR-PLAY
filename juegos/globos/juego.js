@@ -21,7 +21,7 @@ const RX = 0.13;              // radios del globo (horizontal y vertical)
 const RY = 0.16;
 const LARGO_PUNTA = 0.135;    // del centro del dardo a la punta
 const ALCANCE_AGARRE = 0.22;
-const FUERZA_VR = 1.25;       // los lanzamientos en VR suelen quedarse cortos
+const FUERZA_VR = 1.6;        // los lanzamientos en VR se quedan cortos (sin el peso del dardo): más potencia
 const AYUDA = 0.55;           // cuánto se corrige un buen lanzamiento en VR hacia el globo
 const ANGULO_AYUDA = THREE.MathUtils.degToRad(14);
 const V_RATON = 10;           // velocidad del dardo con ratón
@@ -40,6 +40,7 @@ const SUBEN_Z = -2.85;
 const COLORES = [0xe53935, 0x1e88e5, 0x43a047, 0xfdd835, 0x8e24aa, 0xfb8c00, 0xec407a, 0x00acc1];
 const DORADO = 0xffc107;
 const MENOS_Z = new THREE.Vector3(0, 0, -1);
+const GIRO_DARDO = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2); // dardo en la mano: al frente
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -772,10 +773,12 @@ export function iniciar(ctx) {
       }
 
       if (m.dardo) {
-        // El dardo apunta hacia delante del mando
-        mano.grip.localToWorld(m.dardo.position.set(0, -0.01, -0.06));
+        // El dardo apunta al frente, hacia los globos, como se coge uno de verdad: el -Z del
+        // mando va a lo largo del mango (hacia arriba con el puño cerrado), así que se gira
+        // 90° hacia abajo para que la punta salga por delante de los dedos (-Y del mando)
+        mano.grip.localToWorld(m.dardo.position.set(0, -0.06, -0.03));
         mano.grip.getWorldQuaternion(quatTmp);
-        m.dardo.quaternion.copy(quatTmp);
+        m.dardo.quaternion.copy(quatTmp).multiply(GIRO_DARDO);
         if (!mano.gatillo && !mano.apreton) {
           const vel = velocidadMano(m).multiplyScalar(FUERZA_VR);
           lanzar(m.dardo, ayudar(m.dardo.position, vel));

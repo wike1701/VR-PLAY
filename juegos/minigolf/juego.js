@@ -27,7 +27,7 @@ const GROSOR_PARED = 0.06;
 const POS_BOLA = new THREE.Vector3(0, 0, -0.45); // dónde queda la bola respecto al jugador
 // Palo
 const LARGO_MIN = 0.4;
-const LARGO_MAX = 1.3;
+const LARGO_MAX = 0.95;           // como un putter: más largo resultaba incómodo
 const RADIO_CABEZA = 0.06;       // tamaño de la cabeza del palo para el choque
 
 export function iniciar(ctx) {
@@ -526,8 +526,10 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara sigue la dirección del mando; la cabeza, donde esa línea toca el suelo
-    direccion.set(0, 0, -1).transformDirection(mano.grip.matrixWorld);
+    // La vara sale del puño por el lado del meñique, a lo largo del mango (el -Z del mando
+    // va hacia el pulgar, así que la vara va por +Z), como un palo de golf de verdad;
+    // la cabeza, donde esa línea toca el suelo
+    direccion.set(0, 0, 1).transformDirection(mano.grip.matrixWorld);
     derechaMando.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
     let largo = LARGO_MAX;
     if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);

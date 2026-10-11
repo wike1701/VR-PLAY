@@ -24,9 +24,12 @@ const ALTO_BOLO = 0.53;
 const MASA_BOLO = 1.5;
 const SEPARACION = 0.42;
 const PASO_PISTAS = ANCHO + 2 * CANAL + 0.5; // de una pista a la de al lado
-const QUIETOS_RECUENTO = 0.45; // segundos con todo quieto para contar (antes 1,2)
+const QUIETOS_RECUENTO = 0.3;  // segundos con todo quieto para contar
+const TRAS_BOLOS = 0.45;       // o, como mucho, este tiempo desde que la bola pasa los bolos
+const V_MIN_VR = 5.5;          // velocidad mínima de una tirada en VR (antes 1,5: tardaba 7 s en llegar)
+const V_MAX_VR = 11;
 const VELOCIDAD_CAIDA = 0.3;   // velocidad a la que un bolo empujado se cae
-const FUERZA_VR = 1.2;
+const FUERZA_VR = 1.5;
 const ALCANCE_AGARRE = 0.26;
 const SOPORTE = new THREE.Vector3(0.6, 0.85, 0.05);
 const VELOCIDAD_RATON = 8;
@@ -418,6 +421,7 @@ export function iniciar(ctx) {
   let reloj = 3;
   let tiempoTirada = 0;
   let quietos = 0;
+  let pasados = 0;      // segundos desde que la bola ha pasado los bolos
   let enPieAntes = 10;
   let mensaje = '';
   let record = ctx.leer('record', 0);
@@ -502,6 +506,7 @@ export function iniciar(ctx) {
     estado = 'rodando';
     tiempoTirada = 0;
     quietos = 0;
+    pasados = 0;
     mensaje = '';
   }
 
@@ -551,7 +556,7 @@ export function iniciar(ctx) {
       reponer = true;
     }
     estado = 'recuento';
-    reloj = anim.tipo === 'normal' ? 1.1 : 1.7; // antes 2 s siempre
+    reloj = anim.tipo === 'normal' ? 0.6 : 1.0; // como mucho 1 s hasta la siguiente tirada (la animación sigue sola)
     return { reponer, fin: marco >= 10 };
   }
 
@@ -729,7 +734,7 @@ export function iniciar(ctx) {
           const v = velocidadMano(m).multiplyScalar(FUERZA_VR);
           // Un poco de ayuda: la dirección no se abre más de 10° respecto a la pista
           const angulo = THREE.MathUtils.clamp(Math.atan2(v.x, -v.z), -0.17, 0.17);
-          const horizontal = Math.max(1.5, Math.hypot(v.x, v.z));
+          const horizontal = THREE.MathUtils.clamp(Math.hypot(v.x, v.z), V_MIN_VR, V_MAX_VR);
           lanzar(tmp.set(Math.sin(angulo) * horizontal, Math.min(v.y, 1), -Math.cos(angulo) * horizontal));
         }
       }
@@ -782,7 +787,10 @@ export function iniciar(ctx) {
         tiempoTirada += dt;
         simular(dt);
         quietos = (estadoBola === 'fuera' || (estadoBola !== 'aire' && Math.hypot(vel.x, vel.z) < 0.05)) && todoQuieto() ? quietos + dt : 0;
-        if (quietos > QUIETOS_RECUENTO || tiempoTirada > 9) trasRecuento = recontar();
+        // Se cuenta en cuanto todo se para o, como mucho, poco después de que la bola pase
+        // los bolos (los que ya se están cayendo cuentan como tirados)
+        pasados = estadoBola === 'fuera' || bola.position.z < Z_BOLO1 - 1.3 ? pasados + dt : 0;
+        if (quietos > QUIETOS_RECUENTO || pasados > TRAS_BOLOS || tiempoTirada > 6) trasRecuento = recontar();
         break;
       case 'recuento':
         if (reloj <= 0) {

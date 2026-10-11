@@ -13,7 +13,7 @@ const PUNTOS_VICTORIA = 7;
 const BOLAS = 3;
 const G = 9.8;
 const R_BOLA = 0.045;         // algo más grandes que las reales para verlas bien en VR
-const R_BOLICHE = 0.038;        // más grande que el real (~0,015) para distinguirlo bien
+const R_BOLICHE = 0.03;         // más grande que el real (~0,015) para distinguirlo bien
 const MASA_BOLA = 1;
 const MASA_BOLICHE = 0.2;
 const ANCHO = 4;              // pista: de Z_DELANTE a Z_FONDO, de -ANCHO/2 a ANCHO/2
@@ -574,7 +574,8 @@ export function iniciar(ctx) {
     // El anillo sigue al boliche y late
     latido += dt;
     anilloBoliche.visible = !!boliche && !!boliche.malla.parent && boliche.malla.visible;
-    flechaBoliche.visible = anilloBoliche.visible;
+    // La flecha solo al aparecer el boliche: hasta que se lanza la primera bola de la mano
+    flechaBoliche.visible = anilloBoliche.visible && quedan.jugador + quedan.maquina === BOLAS * 2;
     if (boliche) {
       anilloBoliche.position.set(boliche.malla.position.x, 0.008, boliche.malla.position.z);
       anilloBoliche.scale.setScalar(1 + Math.sin(latido * 4) * 0.12);

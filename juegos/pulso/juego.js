@@ -307,7 +307,7 @@ export function iniciar(ctx) {
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
-  let estado = 'intro'; // 'intro' | 'esperando' | 'listo' | 'recorrido' | 'resultado' | 'fin'
+  let estado = 'intro'; // 'intro' | 'esperando' | 'listo' | 'recorrido' | 'fin'
   let reloj = 3;
   let nivel = 0;
   let resultados = [];  // { completado, tiempo, progreso, puntos }
@@ -317,6 +317,7 @@ export function iniciar(ctx) {
   let indice = 0;       // punto del cable más cercano al aro
   let mensaje = '';
   let colorMensaje = '#ffffff';
+  let tiempoMensaje = 0; // segundos que se sigue viendo el resultado del último cable
   let modoCable = null; // true si el cable actual se generó para VR
   let cerca = 0;        // 0..1: lo cerca que está el aro del cable (para el zumbido)
   let siguienteVibracion = 0;
@@ -354,7 +355,7 @@ export function iniciar(ctx) {
         { texto: `${resultados.filter((r) => r.completado).length} de ${CABLES} cables completados`, tam: 0.75 },
         { texto: `${fila()}   ·   Récord: ${record} · otra ronda en ${Math.ceil(reloj)}`, tam: 0.75, color: '#ffe082' },
       ]);
-    } else if (estado === 'resultado') {
+    } else if (tiempoMensaje > 0 && estado === 'esperando') {
       marcador.escribir([{ texto: mensaje, tam: 1.3, color: colorMensaje }, { texto: `Cable ${nivel + 1} de ${CABLES}`, tam: 0.75 }, pie]);
     } else if (estado === 'recorrido') {
       const queda = TIEMPO_LIMITE - tiempo;
@@ -414,8 +415,7 @@ export function iniciar(ctx) {
   function terminar(completado, punto) {
     const puntosCable = completado ? PUNTOS_CABLE + Math.round(Math.max(0, TIEMPO_LIMITE - tiempo) * 2) : 0;
     resultados.push({ completado, tiempo, progreso, puntos: puntosCable });
-    estado = 'resultado';
-    reloj = 2.4;
+    tiempoMensaje = 2.4; // el mensaje se queda un rato, pero el siguiente cable sale ya
     zumbido.ajustar(0, 0);
     if (completado) {
       mensaje = `¡Completado! ${tiempo.toFixed(1)} s · +${puntosCable}`;
@@ -438,6 +438,19 @@ export function iniciar(ctx) {
       } else {
         ctx.sonido('fallo');
       }
+    }
+    // Fuera el cable actual y, al momento, el siguiente (o el final de la ronda)
+    nivel++;
+    if (nivel >= CABLES) {
+      estado = 'fin';
+      reloj = 8;
+      if (total() > record) {
+        record = total();
+        ctx.guardar('record', record);
+      }
+      ctx.sonido('fin');
+    } else {
+      prepararCable();
     }
   }
 
@@ -631,6 +644,7 @@ export function iniciar(ctx) {
 
   function actualizar(dt, t) {
     reloj -= dt;
+    tiempoMensaje = Math.max(0, tiempoMensaje - dt);
 
     // Si se entra o se sale de VR a mitad de un cable, se genera de nuevo sin penalizar
     if (modoCable !== null && modoCable !== ctx.enVR() && ['esperando', 'listo', 'recorrido'].includes(estado)) prepararCable();
@@ -654,22 +668,6 @@ export function iniciar(ctx) {
         tiempo += dt;
         if (tiempo >= TIEMPO_LIMITE) terminar(false, null);
         break;
-      case 'resultado':
-        if (reloj <= 0) {
-          nivel++;
-          if (nivel >= CABLES) {
-            estado = 'fin';
-            reloj = 8;
-            if (total() > record) {
-              record = total();
-              ctx.guardar('record', record);
-            }
-            ctx.sonido('fin');
-          } else {
-            prepararCable();
-          }
-        }
-        break;
       case 'fin':
         if (reloj <= 0) empezarRonda();
         break;
@@ -684,7 +682,7 @@ export function iniciar(ctx) {
     }
 
     // Bombilla y chispas
-    if (alarma && estado !== 'resultado') alarma = false;
+    if (alarma && tiempoMensaje <= 0) alarma = false;
     if (alarma) luzBombilla = 0.7 + 0.3 * Math.sign(Math.sin(t * 14)); // encendida, parpadeando
     else luzBombilla = Math.max(0, luzBombilla - dt * 1.2);
     matBombilla.emissive.copy(colorBombilla).multiplyScalar(luzBombilla);

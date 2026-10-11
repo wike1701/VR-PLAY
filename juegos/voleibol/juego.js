@@ -27,7 +27,17 @@ const AYUDA = 0.5;             // solo corrige altura y distancia, nunca la dire
 const Z_RATON = -0.4;
 const R_CONTACTO_RATON = 0.32;
 const VELOCIDAD_MAQUINA = 3.4;
-const FALLOS_MAQUINA = 0.07;
+// Fallos de la máquina (probabilidad en cada balón que le mandas): no llegar, darle a la
+// red, mandarla larga o abierta. Unos 11 % en total, repartidos para que parezca de verdad.
+const FALLOS = [['noLlega', 0.035], ['red', 0.035], ['largo', 0.02], ['ancho', 0.02]];
+function decidirFallo(factor = 1) {
+  let r = Math.random();
+  for (const [tipo, p] of FALLOS) {
+    if (r < p * factor) return tipo;
+    r -= p * factor;
+  }
+  return null;
+}
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -227,6 +237,8 @@ export function iniciar(ctx) {
   let golpeador = null;
   let enfriamiento = 0;
   let golpesSeguidos = 0;
+  let falloMaquina = null; // 'noLlega' | 'red' | 'largo' | 'ancho' | null
+  let ladoFallo = 1;
   let tiempoVivo = 0;
   let mensaje = '';
   let colorMensaje = '#ffffff';
@@ -322,6 +334,7 @@ export function iniciar(ctx) {
 
   // ─── Reglas ────────────────────────────────────────────────────────────
   function prepararSaque() {
+    falloMaquina = null;
     estado = 'saque';
     reloj = sacador === 'maquina' ? 1.4 : 0;
     golpeador = null;
@@ -369,6 +382,11 @@ export function iniciar(ctx) {
       return false;
     }
     golpeador = quien;
+    // Al mandarle tú el balón se decide si la máquina fallará el siguiente (y cómo)
+    if (quien === 'jugador') {
+      falloMaquina = decidirFallo();
+      ladoFallo = Math.random() < 0.5 ? -1 : 1;
+    }
     golpesSeguidos += 1;
     tiempoVivo = 0; // el seguro de "balón perdido" cuenta desde el último toque, no desde el saque
     enfriamiento = 0.25;
@@ -495,6 +513,8 @@ export function iniciar(ctx) {
     if (estado === 'vivo' && golpeador === 'jugador' && vel.z < 0) destino = predecir(1.5);
     if (destino) destinoRival.set(THREE.MathUtils.clamp(destino.x, -MEDIO_ANCHO - 0.5, MEDIO_ANCHO + 0.5), 0, THREE.MathUtils.clamp(destino.z - 0.25, Z_FONDO_MAQUINA - 0.5, Z_RED - 0.4));
     else if (estado !== 'saque') destinoRival.set(0, 0, Z_RED - 2.5);
+    // Si no va a llegar, se queda corto: va hacia un sitio desplazado y no la toca
+    if (destino && falloMaquina === 'noLlega') destinoRival.x += ladoFallo * 1.1;
     const mover = tmp2.subVectors(destinoRival, rival.position).setY(0);
     const maximo = VELOCIDAD_MAQUINA * dt;
     if (mover.length() > maximo) mover.setLength(maximo);
@@ -504,24 +524,33 @@ export function iniciar(ctx) {
     brazos.position.y = 1.45 + saltoRival * 0.4;
     ctx.colocarSombra(sombraRival, tmp.set(rival.position.x, 0, rival.position.z), 0);
 
-    const devolver = () => {
+    const devolver = (fallo) => {
       saltoRival = 1;
-      const falla = Math.random() < FALLOS_MAQUINA;
-      const destinoGolpe = new THREE.Vector3(
-        falla ? (Math.random() < 0.5 ? -1 : 1) * (MEDIO_ANCHO + 0.6) : (Math.random() - 0.5) * 1.6,
-        0,
-        falla ? Z_FONDO_JUGADOR + 0.8 : 0.1 + Math.random() * 0.6,
-      );
-      vel.copy(lanzamiento(pos, destinoGolpe, Math.random() < 0.7 ? 1.0 : 0.7));
+      let destinoGolpe;
+      let angulo = Math.random() < 0.7 ? 1.0 : 0.7;
+      if (fallo === 'red') {
+        // Golpe bajo que se queda en su campo, contra la red
+        destinoGolpe = new THREE.Vector3(pos.x * 0.5 + (Math.random() - 0.5), 0, Z_RED - 0.25);
+        angulo = 0.3;
+      } else if (fallo === 'largo') {
+        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.6, 0, Z_FONDO_JUGADOR + 0.6 + Math.random());
+      } else if (fallo === 'ancho') {
+        destinoGolpe = new THREE.Vector3(ladoFallo * (MEDIO_ANCHO + 0.5 + Math.random() * 0.6), 0, -0.5 + Math.random() * 1.5);
+      } else {
+        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.6, 0, 0.1 + Math.random() * 0.6);
+      }
+      vel.copy(lanzamiento(pos, destinoGolpe, angulo));
+      falloMaquina = null;
     };
 
     if (estado === 'saque' && sacador === 'maquina' && reloj <= 0 && golpe('maquina')) {
-      devolver();
+      devolver(decidirFallo(0.5)); // el saque falla menos
       return;
     }
+    if (falloMaquina === 'noLlega') return; // ni la toca: cae en su campo
     if (estado === 'vivo' && golpeador === 'jugador' && pos.z < Z_RED && pos.y > 0.6 && pos.y < 2.8 &&
         Math.hypot(pos.x - rival.position.x, pos.z - rival.position.z) < 0.7 && golpe('maquina')) {
-      devolver();
+      devolver(falloMaquina);
     }
   }
 

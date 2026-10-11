@@ -24,7 +24,17 @@ const AYUDA = 0.7;
 const Z_RATON = -0.35;         // plano en el que se mueve la raqueta con ratón
 const R_CONTACTO_RATON = 0.3;
 const VELOCIDAD_MAQUINA = 3.2;
-const FALLOS_MAQUINA = 0.07;
+// Fallos de la máquina (probabilidad en cada volante que le mandas): no llegar, darle a la
+// red, mandarlo largo o abierto. Unos 11 % en total, repartidos para que parezca de verdad.
+const FALLOS = [['noLlega', 0.035], ['red', 0.035], ['largo', 0.02], ['ancho', 0.02]];
+function decidirFallo(factor = 1) {
+  let r = Math.random();
+  for (const [tipo, p] of FALLOS) {
+    if (r < p * factor) return tipo;
+    r -= p * factor;
+  }
+  return null;
+}
 const ALTURA_GOLPE_MAQUINA = 1.9;
 const SAQUE_VR = new THREE.Vector3(0.38, 1.2, -0.8);
 const SAQUE_RATON = new THREE.Vector3(0.2, 1.25, -0.45);
@@ -288,6 +298,8 @@ export function iniciar(ctx) {
   let golpeador = null;
   let enfriamiento = 0;
   let golpesSeguidos = 0;
+  let falloMaquina = null; // 'noLlega' | 'red' | 'largo' | 'ancho' | null
+  let ladoFallo = 1;
   let tiempoVivo = 0;
   let mensaje = '';
   let colorMensaje = '#ffffff';
@@ -385,6 +397,7 @@ export function iniciar(ctx) {
 
   // ─── Reglas ────────────────────────────────────────────────────────────
   function prepararSaque() {
+    falloMaquina = null;
     estado = 'saque';
     reloj = sacador === 'maquina' ? 1.3 : 0;
     golpeador = null;
@@ -434,6 +447,11 @@ export function iniciar(ctx) {
       return false;
     }
     golpeador = quien;
+    // Al mandarle tú el volante se decide si la máquina fallará el siguiente (y cómo)
+    if (quien === 'jugador') {
+      falloMaquina = decidirFallo();
+      ladoFallo = Math.random() < 0.5 ? -1 : 1;
+    }
     golpesSeguidos += 1;
     tiempoVivo = 0; // el seguro de "volante perdido" cuenta desde el último toque
     enfriamiento = 0.2;
@@ -554,6 +572,8 @@ export function iniciar(ctx) {
     if (estado === 'vivo' && golpeador === 'jugador' && vel.z < 0) destino = predecir(ALTURA_GOLPE_MAQUINA) || predecir(1.0);
     if (destino) destinoRival.set(THREE.MathUtils.clamp(destino.x + 0.3, -MEDIO_ANCHO - 0.5, MEDIO_ANCHO + 0.5), 0, THREE.MathUtils.clamp(destino.z - 0.3, Z_FONDO_MAQUINA - 0.5, Z_RED - 0.4));
     else if (estado !== 'saque') destinoRival.set(0, 0, Z_RED - 2.3);
+    // Si no va a llegar, se queda corto: va hacia un sitio desplazado y no lo toca
+    if (destino && falloMaquina === 'noLlega') destinoRival.x += ladoFallo * 1.0;
     const mover = tmp2.subVectors(destinoRival, rival.position).setY(0);
     const maximo = VELOCIDAD_MAQUINA * dt;
     if (mover.length() > maximo) mover.setLength(maximo);
@@ -562,26 +582,34 @@ export function iniciar(ctx) {
     golpeRival = Math.max(0, golpeRival - dt * 4);
     raquetaRival.rotation.x = Math.PI / 2 + 0.3 - Math.sin(golpeRival * Math.PI) * 1.2;
 
-    const devolver = () => {
+    const devolver = (fallo) => {
       golpeRival = 1;
-      const falla = Math.random() < FALLOS_MAQUINA;
-      // Siempre a tu alcance: cae junto a ti, a tu izquierda o derecha
-      const destinoGolpe = new THREE.Vector3(
-        falla ? (Math.random() < 0.5 ? -1 : 1) * (MEDIO_ANCHO + 0.4) : (Math.random() - 0.5) * 1.4,
-        0,
-        falla ? Z_FONDO_JUGADOR + 0.6 : 0.15 + Math.random() * 0.6,
-      );
-      const angulo = Math.random() < 0.6 ? 0.9 : 0.55; // globo o golpe más tenso
+      let angulo = Math.random() < 0.6 ? 0.9 : 0.55; // globo o golpe más tenso
+      let destinoGolpe;
+      if (fallo === 'red') {
+        // Golpe bajo que se queda en su campo, contra la red
+        destinoGolpe = new THREE.Vector3(pos.x * 0.5 + (Math.random() - 0.5) * 0.8, 0, Z_RED - 0.2);
+        angulo = 0.25;
+      } else if (fallo === 'largo') {
+        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.4, 0, Z_FONDO_JUGADOR + 0.4 + Math.random() * 0.8);
+      } else if (fallo === 'ancho') {
+        destinoGolpe = new THREE.Vector3(ladoFallo * (MEDIO_ANCHO + 0.3 + Math.random() * 0.5), 0, -0.6 + Math.random() * 1.4);
+      } else {
+        // Siempre a tu alcance: cae junto a ti, a tu izquierda o derecha
+        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.4, 0, 0.15 + Math.random() * 0.6);
+      }
       vel.copy(lanzamiento(pos, destinoGolpe, angulo));
+      falloMaquina = null;
     };
 
     if (estado === 'saque' && sacador === 'maquina' && reloj <= 0 && golpe('maquina')) {
-      devolver();
+      devolver(decidirFallo(0.5)); // el saque falla menos
       return;
     }
+    if (falloMaquina === 'noLlega') return; // ni lo toca: cae en su campo
     if (estado === 'vivo' && golpeador === 'jugador' && pos.z < Z_RED && pos.y > 0.5 && pos.y < 2.7 &&
         Math.hypot(pos.x - (rival.position.x - 0.3), pos.z - rival.position.z) < 0.6 && golpe('maquina')) {
-      devolver();
+      devolver(falloMaquina);
     }
   }
 
