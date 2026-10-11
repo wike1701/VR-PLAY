@@ -57,7 +57,8 @@ La especificación completa está en `PERFILES.md`.
 
 ## 4. Producto (que la gente llegue y vuelva)
 
-- [ ] Dominio propio, con el Worker conectado
+- [x] Dominio propio, con el Worker conectado (`vrplaygame.com`)
+- [ ] Que `www.vrplaygame.com` y la dirección antigua `…workers.dev` lleven a `vrplaygame.com`
 - [ ] `meta description` y Open Graph (imagen al compartir) en todas las páginas
 - [ ] `sitemap.xml` y `robots.txt` (con `admin.html` excluido)
 - [ ] Tutorial la primera vez que se entra en VR: cómo cambiar de juego y cómo pausar
