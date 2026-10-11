@@ -13,7 +13,16 @@ const Y_ARRIBA = SUPERFICIE;            // base del topo cuando asoma
 const Y_ESCONDIDO = SUPERFICIE - 0.23;  // base del topo escondido dentro de la mesa
 const ALTURA_CABEZA = 0.15;             // centro de la cabeza respecto a la base
 const CABEZA_MARTILLO = -0.32;          // posición de la cabeza del martillo delante del puño
-const VELOCIDAD_GOLPE = 0.7;            // m/s mínimos para que cuente el golpe
+const VELOCIDAD_GOLPE = 0.7;            // m/s mínimos HACIA ABAJO para que cuente el golpe
+const VERTICALIDAD = 0.6;               // parte mínima de la velocidad que tiene que ser hacia abajo
+const RADIO_CABEZA = 0.075;             // distancia horizontal máxima al centro de la cabeza
+// Pelajes: el topo normal sale de colores variados (el dorado, aparte, vale 3)
+const PELAJES = [0x8a5d45, 0x6e6e6e, 0x3a3030, 0xa0522d, 0xd8c3a5];
+// Dificultad a lo largo de la ronda (0 al empezar, 1 al final)
+const ARRIBA_INICIO = 1.45;             // segundos que se queda fuera al principio
+const ARRIBA_FINAL = 0.5;               // y al final
+const SUBIDA_INICIO = 0.16;             // segundos en salir/esconderse al principio
+const SUBIDA_FINAL = 0.07;
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -186,8 +195,11 @@ export function iniciar(ctx) {
   const geoOjo = R(new THREE.SphereGeometry(0.009, 8, 6));
   const geoNariz = R(new THREE.SphereGeometry(0.015, 10, 8));
   const geoDientes = R(new THREE.BoxGeometry(0.022, 0.014, 0.006));
-  // Pelaje con un moteado suave
-  const matTopo = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.grano(0x8a5d45, { tam: 128, repetir: [2, 1], semilla: 21, contraste: 0.14, cantidad: 900 })) }));
+  // Pelaje con un moteado suave, de varios colores
+  const matPelajes = PELAJES.map((color, i) => R(new THREE.MeshLambertMaterial({
+    map: R(ctx.texturas.grano(color, { tam: 128, repetir: [2, 1], semilla: 21 + i, contraste: 0.14, cantidad: 900 })),
+  })));
+  const matTopo = matPelajes[0];
   // El dorado es metálico de verdad: refleja el cielo
   const matDorado = R(new THREE.MeshStandardMaterial({ color: 0xffc400, emissive: 0x3a2200, metalness: 0.85, roughness: 0.3 }));
   const matOjo = R(new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.15 }));
@@ -225,13 +237,14 @@ export function iniciar(ctx) {
       sombra.visible = false;
       raiz.add(sombra);
 
-      const topo = { grupo, cuerpo, cabeza, sombra, estado: 'abajo', t: 0, tiempoArriba: 0, dorado: false };
+      const topo = { grupo, cuerpo, cabeza, sombra, estado: 'abajo', t: 0, tiempoArriba: 0, subida: SUBIDA_INICIO, dorado: false };
       cuerpo.userData.topo = topo;
       cabeza.userData.topo = topo;
       topos.push(topo);
     }
   }
-  const mallasGolpeables = topos.flatMap((t) => [t.cuerpo, t.cabeza]);
+  // Solo cuenta darles en la cabeza
+  const mallasGolpeables = topos.map((t) => t.cabeza);
 
   // ─── Martillos ─────────────────────────────────────────────────────────
   // Mango de madera barnizada, empuñadura de goma y cabeza de plástico rojo brillante
@@ -300,7 +313,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'APLASTA TOPOS', tam: 1.3, color: '#c5e1a5' },
-        { texto: '¡Golpea los topos antes de que se escondan!', tam: 0.75 },
+        { texto: '¡Martillazo de arriba abajo en la cabeza!', tam: 0.75 },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
@@ -322,10 +335,11 @@ export function iniciar(ctx) {
     topo.estado = 'subiendo';
     topo.t = 0;
     topo.dorado = Math.random() < 0.12;
-    const material = topo.dorado ? matDorado : matTopo;
+    const material = topo.dorado ? matDorado : matPelajes[Math.floor(Math.random() * matPelajes.length)];
     topo.cuerpo.material = material;
     topo.cabeza.material = material;
-    topo.tiempoArriba = 1.3 - progreso * 0.55 + Math.random() * 0.25;
+    topo.tiempoArriba = THREE.MathUtils.lerp(ARRIBA_INICIO, ARRIBA_FINAL, progreso) * (0.85 + Math.random() * 0.3);
+    topo.subida = THREE.MathUtils.lerp(SUBIDA_INICIO, SUBIDA_FINAL, progreso);
     topo.grupo.scale.set(1, 1, 1);
   }
 
@@ -353,7 +367,7 @@ export function iniciar(ctx) {
     const g = topo.grupo;
     switch (topo.estado) {
       case 'subiendo': {
-        const f = Math.min(1, topo.t / 0.15);
+        const f = Math.min(1, topo.t / topo.subida);
         g.position.y = Y_ESCONDIDO + (Y_ARRIBA - Y_ESCONDIDO) * (1 - (1 - f) * (1 - f));
         if (f >= 1) { topo.estado = 'arriba'; topo.t = 0; }
         break;
@@ -367,7 +381,7 @@ export function iniciar(ctx) {
         if (topo.t >= 0.3) { topo.estado = 'bajando'; topo.t = 0; }
         break;
       case 'bajando': {
-        const f = Math.min(1, topo.t / 0.15);
+        const f = Math.min(1, topo.t / topo.subida);
         g.position.y = Y_ARRIBA + (Y_ESCONDIDO - Y_ARRIBA) * f;
         if (f >= 1) { topo.estado = 'abajo'; g.scale.set(1, 1, 1); }
         break;
@@ -390,12 +404,22 @@ export function iniciar(ctx) {
         continue;
       }
       m.mano.grip.localToWorld(m.cabeza.set(0, 0, CABEZA_MARTILLO));
-      if (m.listo && m.cabeza.distanceTo(m.cabezaAnterior) / dt > VELOCIDAD_GOLPE) {
+      // Solo vale un martillazo de arriba abajo: la velocidad tiene que ir sobre
+      // todo hacia abajo (un barrido de lado o un golpe desde abajo no cuenta)
+      const bajada = (m.cabezaAnterior.y - m.cabeza.y) / dt;
+      const rapidez = m.cabeza.distanceTo(m.cabezaAnterior) / dt;
+      if (m.listo && bajada > VELOCIDAD_GOLPE && bajada >= rapidez * VERTICALIDAD) {
         for (const topo of topos) {
           if (topo.estado !== 'subiendo' && topo.estado !== 'arriba') continue;
           topo.cabeza.getWorldPosition(tmp);
-          const medio = tmp2.copy(m.cabeza).lerp(m.cabezaAnterior, 0.5);
-          if (m.cabeza.distanceTo(tmp) < 0.12 || medio.distanceTo(tmp) < 0.12) golpear(topo, m.mano);
+          // ¿Baja el martillo hasta la coronilla en este fotograma, viniendo de arriba?
+          // (se sigue el centro de la cabeza del martillo, que queda unos 6 cm por
+          // encima de la cara que golpea)
+          const contacto = tmp.y + 0.12;
+          if (m.cabezaAnterior.y < tmp.y + 0.02 || m.cabeza.y > contacto + 0.02) continue;
+          const f = THREE.MathUtils.clamp((m.cabezaAnterior.y - contacto) / Math.max(1e-6, m.cabezaAnterior.y - m.cabeza.y), 0, 1);
+          const cruce = tmp2.copy(m.cabezaAnterior).lerp(m.cabeza, f);
+          if (Math.hypot(cruce.x - tmp.x, cruce.z - tmp.z) < RADIO_CABEZA + 0.06) golpear(topo, m.mano);
         }
       }
       m.cabezaAnterior.copy(m.cabeza);
@@ -437,11 +461,12 @@ export function iniciar(ctx) {
       tiempoRestante -= dt;
       const progreso = 1 - tiempoRestante / DURACION;
       proximoTopo -= dt;
-      const maxArriba = 1 + Math.floor(progreso * 2.5);
+      // Cada vez salen más a la vez y más seguidos
+      const maxArriba = 1 + Math.floor(progreso * 3.5);
       const arriba = topos.filter((t) => t.estado !== 'abajo').length;
       if (proximoTopo <= 0 && arriba < maxArriba) {
         sacarTopo(progreso);
-        proximoTopo = 0.95 - progreso * 0.5 + Math.random() * 0.2;
+        proximoTopo = THREE.MathUtils.lerp(1.0, 0.32, progreso) + Math.random() * 0.2;
       }
       if (tiempoRestante <= 0) {
         estado = 'fin';

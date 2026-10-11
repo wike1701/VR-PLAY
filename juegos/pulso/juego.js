@@ -78,11 +78,19 @@ export function iniciar(ctx) {
   const caja = new THREE.Mesh(R(new THREE.BoxGeometry(0.2, 0.09, 0.12)), R(new THREE.MeshLambertMaterial({ color: 0xc62828 })));
   caja.position.set(0, Y_MESA + 0.045, Z_CABLE - 0.17);
   raiz.add(caja);
-  const matBombilla = R(new THREE.MeshStandardMaterial({ color: 0xfff8e1, emissive: 0x000000, roughness: 0.2, transparent: true, opacity: 0.9 }));
-  const bombilla = new THREE.Mesh(R(new THREE.SphereGeometry(0.035, 16, 12)), matBombilla);
-  bombilla.position.set(0, Y_MESA + 0.125, Z_CABLE - 0.17);
-  raiz.add(bombilla);
+  // Bombilla grande con casquillo y un halo que brilla alrededor al encenderse
+  const matBombilla = R(new THREE.MeshStandardMaterial({ color: 0xfff8e1, emissive: 0x000000, emissiveIntensity: 2.5, roughness: 0.2, transparent: true, opacity: 0.92 }));
+  const bombilla = new THREE.Mesh(R(new THREE.SphereGeometry(0.05, 18, 14).scale(1, 1.2, 1)), matBombilla);
+  bombilla.position.set(0, Y_MESA + 0.16, Z_CABLE - 0.17);
+  const casquillo = new THREE.Mesh(R(new THREE.CylinderGeometry(0.026, 0.03, 0.05, 14)), R(new THREE.MeshStandardMaterial({ color: 0xb0bec5, metalness: 0.9, roughness: 0.35 })));
+  casquillo.position.set(0, Y_MESA + 0.1, Z_CABLE - 0.17);
+  const matHalo = R(new THREE.MeshBasicMaterial({ color: 0xff1744, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+  const halo = new THREE.Mesh(R(new THREE.SphereGeometry(0.13, 16, 12)), matHalo);
+  halo.position.copy(bombilla.position);
+  halo.visible = false;
+  raiz.add(bombilla, casquillo, halo);
   let luzBombilla = 0;
+  let alarma = false; // te ha dado calambre: la bombilla roja se queda encendida y parpadea
   const colorBombilla = new THREE.Color();
 
   // ─── Cable (se genera de nuevo en cada nivel) ──────────────────────────
@@ -424,6 +432,7 @@ export function iniciar(ctx) {
         ctx.destello(0xff1744, 0.45);
         soltarChispas(punto);
         luzBombilla = 1;
+        alarma = true;
         colorBombilla.setHex(0xff1744);
         if (aro.mano) ctx.vibrar(aro.mano, 1, 450);
       } else {
@@ -675,8 +684,14 @@ export function iniciar(ctx) {
     }
 
     // Bombilla y chispas
-    luzBombilla = Math.max(0, luzBombilla - dt * 1.2);
+    if (alarma && estado !== 'resultado') alarma = false;
+    if (alarma) luzBombilla = 0.7 + 0.3 * Math.sign(Math.sin(t * 14)); // encendida, parpadeando
+    else luzBombilla = Math.max(0, luzBombilla - dt * 1.2);
     matBombilla.emissive.copy(colorBombilla).multiplyScalar(luzBombilla);
+    halo.visible = luzBombilla > 0.02;
+    matHalo.color.copy(colorBombilla);
+    matHalo.opacity = luzBombilla * 0.55;
+    halo.scale.setScalar(0.85 + luzBombilla * 0.3);
     for (const ch of chispas) {
       if (ch.vida <= 0) continue;
       ch.vida -= dt;

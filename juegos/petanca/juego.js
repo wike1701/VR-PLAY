@@ -13,7 +13,7 @@ const PUNTOS_VICTORIA = 7;
 const BOLAS = 3;
 const G = 9.8;
 const R_BOLA = 0.045;         // algo más grandes que las reales para verlas bien en VR
-const R_BOLICHE = 0.022;
+const R_BOLICHE = 0.038;        // más grande que el real (~0,015) para distinguirlo bien
 const MASA_BOLA = 1;
 const MASA_BOLICHE = 0.2;
 const ANCHO = 4;              // pista: de Z_DELANTE a Z_FONDO, de -ANCHO/2 a ANCHO/2
@@ -25,7 +25,7 @@ const ROZAMIENTO = 0.5;       // frenado al rodar por la grava
 const REBOTE_BOLAS = 0.7;     // las bolas de acero rebotan bastante entre sí
 const ANGULO = THREE.MathUtils.degToRad(45);
 const FUERZA_VR = 1.1;
-const FALLO_MAQUINA = 1.6;    // cuánto falla la máquina (1 = como al principio; más alto = más fácil ganarla)
+const FALLO_MAQUINA = 2.4;    // cuánto falla la máquina (1 = como al principio; más alto = más fácil ganarla)
 const ALCANCE_AGARRE = 0.22;
 const ORIGEN = new THREE.Vector3(0.2, 1.0, -0.35);     // desde donde se lanza con ratón y la máquina
 const SOPORTE = new THREE.Vector3(0.25, 0.95, -0.28);  // donde espera tu bola en VR
@@ -129,8 +129,15 @@ export function iniciar(ctx) {
     maquina: R(new THREE.MeshStandardMaterial({ color: 0xc27a45, metalness: 0.85, roughness: 0.32 })),
   };
   const matEstria = R(new THREE.MeshStandardMaterial({ color: 0x2b3238, metalness: 0.6, roughness: 0.6 }));
-  // Boliche de madera barnizada
-  const matBoliche = R(new THREE.MeshStandardMaterial({ color: 0xffb300, emissive: 0x2a1a00, roughness: 0.4 }));
+  // Boliche amarillo fosforito, que brilla un poco: no se confunde con las bolas
+  const matBoliche = R(new THREE.MeshStandardMaterial({ color: 0xd4ff00, emissive: 0x6a8000, roughness: 0.35 }));
+  // Anillo en el suelo alrededor del boliche, que late: se ve desde lejos
+  const anilloBoliche = new THREE.Mesh(R(new THREE.RingGeometry(0.1, 0.15, 32).rotateX(-Math.PI / 2)), R(new THREE.MeshBasicMaterial({ color: 0xd4ff00, transparent: true, opacity: 0.85, depthWrite: false, toneMapped: false })));
+  anilloBoliche.visible = false;
+  // Y una flecha flotante que apunta al boliche: se ve aunque esté lejos y se mire de refilón
+  const flechaBoliche = new THREE.Mesh(R(new THREE.ConeGeometry(0.11, 0.26, 4).rotateX(Math.PI)), anilloBoliche.material);
+  flechaBoliche.visible = false;
+  raiz.add(anilloBoliche, flechaBoliche);
 
   // Sombras de mancha: una por cuerpo en la pista (6 bolas + boliche, y una de reserva)
   const sombras = [];
@@ -383,7 +390,7 @@ export function iniciar(ctx) {
     const J = boliche.malla.position;
     const mejor = masCercanas();
     let caida;
-    const tirar = mejor.jugador && (!mejor.maquina || mejor.jugador.d < mejor.maquina.d) && mejor.jugador.d < 0.25 && Math.random() < 0.3;
+    const tirar = mejor.jugador && (!mejor.maquina || mejor.jugador.d < mejor.maquina.d) && mejor.jugador.d < 0.25 && Math.random() < 0.15;
     if (tirar) {
       // "Tirar": intenta caer encima de tu bola para sacarla
       const b = mejor.jugador.c.malla.position;
@@ -560,9 +567,20 @@ export function iniciar(ctx) {
     nuevaMano();
   }
 
+  let latido = 0;
   function actualizar(dt) {
     colocarMarcador();
     reloj -= dt;
+    // El anillo sigue al boliche y late
+    latido += dt;
+    anilloBoliche.visible = !!boliche && !!boliche.malla.parent && boliche.malla.visible;
+    flechaBoliche.visible = anilloBoliche.visible;
+    if (boliche) {
+      anilloBoliche.position.set(boliche.malla.position.x, 0.008, boliche.malla.position.z);
+      anilloBoliche.scale.setScalar(1 + Math.sin(latido * 4) * 0.12);
+      flechaBoliche.position.set(boliche.malla.position.x, 0.42 + Math.sin(latido * 3) * 0.06, boliche.malla.position.z);
+      flechaBoliche.rotation.y = latido * 1.5;
+    }
     const vr = ctx.enVR();
 
     switch (estado) {

@@ -287,9 +287,12 @@ export function iniciar(ctx) {
     return { arco, tensar };
   }
 
-  // Un arco en cada mano; solo se ve el de la mano que sujeta el arco
+  // Un arco en cada mano; solo se ve el de la mano que sujeta el arco.
+  // Girado 90° en vertical: con el mando recto (el mango vertical, como el puño de
+  // un arco de verdad) las palas siguen el mango y la flecha sale hacia delante.
   const arcos = ctx.manos.map((mano) => {
     const a = crearArco();
+    a.arco.rotation.x = -Math.PI / 2;
     ctx.adjuntarAMano(mano, a.arco);
     return { ...a, mano };
   });

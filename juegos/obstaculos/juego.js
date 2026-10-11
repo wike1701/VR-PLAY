@@ -219,17 +219,35 @@ export function iniciar(ctx) {
   const lados = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.12, 0.45, 2.6)), matCarroceria, 2);
   [-1, 1].forEach((s, i) => lados.setMatrixAt(i, new THREE.Matrix4().setPosition(s * 0.82, 0.6, -0.2)));
   cabina.add(capo, salpicadero, lados); // descapotable: sin parabrisas que tape la vista
+  // Volante bajo, a la altura del pecho y bastante tumbado: así no hay que llevar
+  // los brazos levantados. Sale del salpicadero con su columna.
   const soporteVolante = new THREE.Group();
-  soporteVolante.position.set(0, 0.92, -0.42);
-  soporteVolante.rotation.x = -0.45;
+  soporteVolante.position.set(0, 0.6, -0.4);
+  soporteVolante.rotation.x = -0.85;
   const volante = new THREE.Group();
   volante.add(
     new THREE.Mesh(R(new THREE.TorusGeometry(0.17, 0.018, 8, 32)), matInterior),
     new THREE.Mesh(R(new THREE.BoxGeometry(0.32, 0.03, 0.02)), matInterior),
     new THREE.Mesh(R(new THREE.CylinderGeometry(0.04, 0.04, 0.03, 12).rotateX(Math.PI / 2)), matCarroceria),
   );
-  soporteVolante.add(volante);
+  const columna = new THREE.Mesh(R(new THREE.CylinderGeometry(0.025, 0.03, 0.3, 10).rotateX(Math.PI / 2).translate(0, 0, -0.16)), matInterior);
+  soporteVolante.add(volante, columna);
   cabina.add(soporteVolante);
+
+  // Manos agarrando el volante a las "nueve y cuarto": giran con él
+  const matPielMano = R(new THREE.MeshLambertMaterial({ color: 0xe0ac7e }));
+  const geoPuno = R(new THREE.SphereGeometry(1, 12, 9).scale(0.042, 0.05, 0.038));
+  const geoPulgar = R(new THREE.CapsuleGeometry(0.011, 0.03, 3, 8));
+  for (const lado of [-1, 1]) {
+    const mano = new THREE.Group();
+    mano.position.set(lado * 0.17, 0.0, 0.012);
+    const puno = new THREE.Mesh(geoPuno, matPielMano);
+    const pulgar = new THREE.Mesh(geoPulgar, matPielMano);
+    pulgar.position.set(-lado * 0.022, 0.028, 0.026);
+    pulgar.rotation.z = lado * 1.1;
+    mano.add(puno, pulgar);
+    volante.add(mano);
+  }
   const pantalla = ctx.crearPanel({ ancho: 0.46, alto: 0.15, resolucion: 384 });
   pantalla.mesh.position.set(0.5, 0.99, -0.62); // a la derecha del volante, para que no la tape
   pantalla.mesh.rotation.set(-0.5, -0.35, 0, 'YXZ');

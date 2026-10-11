@@ -341,16 +341,17 @@ export function iniciar(ctx) {
     return g;
   }
 
-  // En el mando (grip space de WebXR) -Z apunta hacia el pulgar, el dorso de la mano
-  // derecha mira a +X (el de la izquierda a -X) y +Y va hacia el brazo. El guante está
-  // modelado con la palma hacia -Z y los dedos hacia +Y, así que hay que girarlo:
-  // dedos → -Y, palma → hacia fuera de la palma real, ancho del guante → eje Z.
-  const CENTRO_GUANTE = new THREE.Vector3(0, -0.05, 0); // centro de la palma, hacia los dedos
+  // En el mando (grip space de WebXR) -Z va a lo largo del mango hacia el pulgar
+  // (hacia arriba con el puño cerrado) y +Y va hacia el brazo. El guante está
+  // modelado con la palma hacia -Z y los dedos hacia +Y, así que se gira para que,
+  // con el mando recto, quede como las manos de un portero: dedos hacia arriba
+  // (a lo largo del mango, → -Z) y palma hacia delante (→ -Y).
+  const CENTRO_GUANTE = new THREE.Vector3(0, -0.03, -0.06); // centro de la palma, algo por delante y por encima del puño
   function orientarGuante(objeto, lado) {
     const giro = new THREE.Matrix4().makeBasis(
-      new THREE.Vector3(0, 0, lado),
-      new THREE.Vector3(0, -1, 0),
-      new THREE.Vector3(lado, 0, 0),
+      new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Vector3(0, 1, 0),
     );
     objeto.quaternion.setFromRotationMatrix(giro);
     // El centro del guante modelado está en (0, 0.03, -0.06): llevarlo a CENTRO_GUANTE

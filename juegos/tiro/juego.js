@@ -1,6 +1,6 @@
 // GALERÍA DE TIRO
 // Muñecos de cartón se levantan por el campo. Dispara a los rojos (los de la
-// diana) y no a los azules. Pistola en cada mano (VR) o clic con el ratón.
+// diana) y no a los verdes (inocentes, con una flor). Pistola en cada mano (VR) o clic con el ratón.
 // Rondas de 60 segundos.
 import * as THREE from 'three';
 
@@ -207,16 +207,21 @@ export function iniciar(ctx) {
     }
   }, { semilla: 11 }));
   const texCuerpoBueno = R(ctx.texturaCanvas((g, tam, azar) => {
-    pintarCarton(g, tam, azar, '#42a5f5');
-    // Un corazón blanco en el pecho: "a mí no"
+    pintarCarton(g, tam, azar, '#43a047');
+    // Una flor blanca en el pecho: "a mí no" (un corazón parecía una vida extra)
     const cx = tam / 2;
     const cy = tam * 0.47;
     const s = tam * 0.0042;
     g.fillStyle = '#ffffff';
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      g.beginPath();
+      g.ellipse(cx + Math.cos(a) * 14 * s, cy + Math.sin(a) * 14 * s, 11 * s, 7 * s, a, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.fillStyle = '#ffd54f';
     g.beginPath();
-    g.moveTo(cx, cy + 22 * s);
-    g.bezierCurveTo(cx - 36 * s, cy - 2 * s, cx - 18 * s, cy - 26 * s, cx, cy - 10 * s);
-    g.bezierCurveTo(cx + 18 * s, cy - 26 * s, cx + 36 * s, cy - 2 * s, cx, cy + 22 * s);
+    g.arc(cx, cy, 8 * s, 0, Math.PI * 2);
     g.fill();
   }, { semilla: 12 }));
 
@@ -366,10 +371,16 @@ export function iniciar(ctx) {
     return { arma, laser, fogonazo };
   }
 
+  // En VR la pistola va en un soporte girado 90° hacia abajo: con el mando recto
+  // (el mango vertical, como la culata de una pistola) el cañón apunta al frente.
+  // Se apunta desde el soporte (sin el retroceso, que solo se ve).
   const pistolas = ctx.manos.map((mano) => {
     const p = crearPistola();
-    ctx.adjuntarAMano(mano, p.arma);
-    return { ...p, mano, espera: 0, retroceso: 0, flash: 0 };
+    const soporte = new THREE.Group();
+    soporte.rotation.x = -Math.PI / 2;
+    soporte.add(p.arma);
+    ctx.adjuntarAMano(mano, soporte);
+    return { ...p, soporte, mano, espera: 0, retroceso: 0, flash: 0 };
   });
 
   // Pistola que apunta al ratón en modo escritorio
@@ -409,7 +420,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'GALERÍA DE TIRO', tam: 1.3, color: '#ffab91' },
-        { texto: 'Dispara a los rojos con diana · ¡a los azules no!', tam: 0.75 },
+        { texto: 'Dispara a los rojos con diana · ¡a los verdes no!', tam: 0.75 },
       ]);
     } else if (estado === 'fin') {
       const punteria = disparos ? Math.round((aciertos / disparos) * 100) : 0;
@@ -422,7 +433,7 @@ export function iniciar(ctx) {
         { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.75, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   cabeza +${PUNTOS_CABEZA}   ·   azules −${CASTIGO_INOCENTE}`, tam: 0.75, color: '#ffab91' },
+          : { texto: `Récord: ${record}   ·   cabeza +${PUNTOS_CABEZA}   ·   verdes −${CASTIGO_INOCENTE}`, tam: 0.75, color: '#ffab91' },
       ]);
     }
   }
@@ -538,8 +549,8 @@ export function iniciar(ctx) {
       p.arma.rotation.x = p.retroceso * 0.5;
       if (!p.mano.activa) continue;
 
-      const origen = p.mano.grip.localToWorld(tmp.set(0, 0.03, CANON));
-      const direccion = tmp2.set(0, 0, -1).transformDirection(p.mano.grip.matrixWorld);
+      const origen = p.soporte.localToWorld(tmp.set(0, 0.03, CANON));
+      const direccion = tmp2.set(0, 0, -1).transformDirection(p.soporte.matrixWorld);
       const choque = apuntar(origen, direccion, mallas);
       p.laser.scale.z = choque ? choque.distance : ALCANCE;
       p.laser.material = choque && !choque.object.userData.muneco.inocente ? matLaserRojo : matLaser;

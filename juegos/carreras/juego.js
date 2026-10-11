@@ -184,7 +184,7 @@ export function iniciar(ctx) {
   meta.position.copy(puntos[0]).setY(0.03);
   meta.rotation.y = rumboDe(tangentes[0]);
   mundo.add(meta);
-  // Arco de meta y grada
+  // Arco de meta (la grada de la salida, un bloque gris de 60 m, parecía un muro: fuera)
   const matArco = R(new THREE.MeshLambertMaterial({ color: 0x263238 }));
   const geoPilar = R(caja(0.5, 6, 0.5));
   for (const s of [-1, 1]) {
@@ -196,10 +196,6 @@ export function iniciar(ctx) {
   travesano.position.copy(puntos[0]).setY(6);
   travesano.rotation.y = rumboDe(tangentes[0]);
   mundo.add(travesano);
-  const grada = new THREE.Mesh(R(caja(4, 3, 60)), R(new THREE.MeshLambertMaterial({ color: 0x546e7a })));
-  grada.position.copy(puntos[N - 20]).addScaledVector(derechas[N - 20], -(ANCHO_PISTA / 2 + 9)).setY(1.5);
-  grada.rotation.y = rumboDe(tangentes[N - 20]);
-  mundo.add(grada);
 
   // Árboles fuera de la pista (instanciados: dos llamadas)
   const geoCopa = R(new THREE.ConeGeometry(2.4, 7, 8).translate(0, 5.5, 0));
@@ -294,7 +290,7 @@ export function iniciar(ctx) {
   ]), matInterior));
   // Volante rectangular de F1
   const soporteVolante = new THREE.Group();
-  soporteVolante.position.set(0, 0.6, -0.4);
+  soporteVolante.position.set(0, 0.6, -0.55); // más adelantado: los brazos casi estirados, como en un F1
   soporteVolante.rotation.x = -0.35;
   const volante = new THREE.Group();
   volante.add(new THREE.Mesh(fusionar([
@@ -305,12 +301,31 @@ export function iniciar(ctx) {
   const luces = new THREE.Mesh(R(caja(0.16, 0.02, 0.01)), R(new THREE.MeshBasicMaterial({ color: 0x00e676 })));
   luces.position.set(0, 0.045, 0.021);
   volante.add(luces);
+  // Manos con guantes de piloto agarrando las empuñaduras: giran con el volante
+  const matGuante = R(new THREE.MeshLambertMaterial({ color: 0x212121 }));
+  const matDetalle = R(new THREE.MeshLambertMaterial({ color: 0xd32f2f }));
+  const geoPuno = R(new THREE.SphereGeometry(1, 12, 9).scale(0.04, 0.055, 0.04));
+  const geoPulgar = R(new THREE.CapsuleGeometry(0.011, 0.028, 3, 8));
+  const geoPuno2 = R(new THREE.CylinderGeometry(0.034, 0.03, 0.04, 10));
+  for (const lado of [-1, 1]) {
+    const mano = new THREE.Group();
+    mano.position.set(lado * 0.14, -0.01, 0.01);
+    const puno = new THREE.Mesh(geoPuno, matGuante);
+    const pulgar = new THREE.Mesh(geoPulgar, matGuante);
+    pulgar.position.set(-lado * 0.03, 0.03, 0.02);
+    pulgar.rotation.z = lado * 1.2;
+    const muneca = new THREE.Mesh(geoPuno2, matDetalle);
+    muneca.position.set(lado * 0.01, -0.06, 0.03);
+    muneca.rotation.x = 0.5;
+    mano.add(puno, pulgar, muneca);
+    volante.add(mano);
+  }
   soporteVolante.add(volante);
   cabina.add(soporteVolante);
   // Pantalla sobre el morro, mirando al piloto (por encima del volante en la vista)
-  const pantalla = ctx.crearPanel({ ancho: 0.6, alto: 0.2, resolucion: 384 });
-  pantalla.mesh.position.set(0, 0.53, -1.05);
-  pantalla.mesh.rotation.x = -0.95;
+  const pantalla = ctx.crearPanel({ ancho: 0.7, alto: 0.23, resolucion: 384 });
+  pantalla.mesh.position.set(0, 0.64, -1.4); // más lejos y alta: el volante (más adelantado) y las manos no la tapan al girar
+  pantalla.mesh.rotation.x = -0.75;
   cabina.add(pantalla.mesh);
   // Cartel grande (semáforo y llegada)
   const cartel = ctx.crearPanel({ ancho: 2.4, alto: 0.7 });

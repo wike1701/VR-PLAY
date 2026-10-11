@@ -19,8 +19,8 @@ const TABLERO_ANCHO = 1.8;
 const TABLERO_ABAJO = ARO.y - 0.15;
 const TABLERO_ARRIBA = ARO.y + 0.9;
 const ALCANCE_AGARRE = 0.22;
-const FUERZA_VR = 1.1;        // los lanzamientos en VR suelen quedarse cortos
-const AYUDA = 0.35;           // cuánto se corrige un buen lanzamiento en VR hacia la canasta (0 = nada)
+const FUERZA_VR = 1.45;       // los lanzamientos en VR se quedan cortos (sin el peso del balón): más fuerza
+const AYUDA = 0.45;           // cuánto se corrige un buen lanzamiento en VR hacia la canasta (0 = nada)
 const V_MIN = 5.5;            // fuerza mínima y máxima del lanzamiento con ratón
 const V_MAX = 10.5;
 const ANGULO_RATON = THREE.MathUtils.degToRad(52);
@@ -413,7 +413,7 @@ export function iniciar(ctx) {
     const angulo = Math.acos(THREE.MathUtils.clamp((vel.x * dx + vel.z * dz) / (horizontal * distancia), -1, 1));
     const t = distancia / horizontal;
     const ideal = tmp2.set(dx / t, (ARO.y - origen.y) / t + 0.5 * G * t, dz / t);
-    if (angulo < THREE.MathUtils.degToRad(20) && t > 0.3 && t < 2.5 && Math.abs(ideal.y - vel.y) < 3) {
+    if (angulo < THREE.MathUtils.degToRad(25) && t > 0.3 && t < 2.5 && Math.abs(ideal.y - vel.y) < 4) {
       vel.lerp(ideal, AYUDA);
     }
     return vel;
@@ -606,7 +606,7 @@ export function iniciar(ctx) {
     }
     let carga = 0;
     if (cargando) {
-      faseCarga += dt * 1.1;
+      faseCarga += dt * 0.85; // la barra va algo más lenta: más fácil acertar con la fuerza
       carga = 1 - Math.abs((faseCarga % 2) - 1); // sube y baja
       if (!r.pulsado) {
         cargando = false;

@@ -26,12 +26,19 @@ const R_CONTACTO_RATON = 0.3;
 const VELOCIDAD_MAQUINA = 3.2;
 const FALLOS_MAQUINA = 0.07;
 const ALTURA_GOLPE_MAQUINA = 1.9;
+const SAQUE_VR = new THREE.Vector3(0.38, 1.2, -0.8);
+const SAQUE_RATON = new THREE.Vector3(0.2, 1.25, -0.45);
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
   ctx.fondo(0x2a3550);
+  // Pabellón cerrado: la niebla de la shell (de 7 a 16 m) apagaría las paredes del fondo
+  const niebla = ctx.escena.fog;
+  const nieblaOriginal = { near: niebla.near, far: niebla.far };
+  niebla.near = 20;
+  niebla.far = 40;
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.7, 1.5), new THREE.Vector3(0, 1.3, -5));
 
   // ─── Pabellón y pista ──────────────────────────────────────────────────
@@ -95,6 +102,90 @@ export function iniciar(ctx) {
     gradas.setMatrixAt(i, new THREE.Matrix4().setPosition(s * (4 + fila * 1.2), 0.25 + fila * 0.5, -2.6));
   }
   raiz.add(gradas);
+
+  // ─── Ambiente del pabellón ─────────────────────────────────────────────
+  // Paredes: zócalo acolchado azul, pared clara y una franja de ventanales arriba
+  const texPared = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#e8e1d2';
+    g.fillRect(0, 0, tam, tam);
+    // Ventanales con montantes
+    g.fillStyle = '#9ec9ea';
+    g.fillRect(0, tam * 0.08, tam, tam * 0.2);
+    g.fillStyle = '#5c6b78';
+    for (let x = 0; x <= tam; x += tam / 4) g.fillRect(x - 3, tam * 0.08, 6, tam * 0.2);
+    g.fillRect(0, tam * 0.08, tam, 5);
+    g.fillRect(0, tam * 0.28 - 5, tam, 5);
+    // Zócalo acolchado por paneles
+    g.fillStyle = '#1e4f9c';
+    g.fillRect(0, tam * 0.66, tam, tam * 0.34);
+    g.fillStyle = 'rgba(0,0,0,0.25)';
+    for (let x = 0; x < tam; x += tam / 4) g.fillRect(x, tam * 0.66, 3, tam * 0.34);
+    g.fillStyle = '#f9a825';
+    g.fillRect(0, tam * 0.64, tam, tam * 0.025);
+    for (let i = 0; i < 600; i++) {
+      g.fillStyle = `rgba(0,0,0,${azar() * 0.04})`;
+      g.fillRect(azar() * tam, azar() * tam, 3, 3);
+    }
+  }, { tam: 512, repetir: [4, 1] }));
+  const matPared = R(new THREE.MeshLambertMaterial({ map: texPared }));
+  const geoPared = R(new THREE.PlaneGeometry(16, 6));
+  for (const [x, z, giro] of [[0, -10.6, 0], [-8, -2.6, Math.PI / 2], [8, -2.6, -Math.PI / 2], [0, 5.4, Math.PI]]) {
+    const pared = new THREE.Mesh(geoPared, matPared);
+    pared.position.set(x, 3, z);
+    pared.rotation.y = giro;
+    raiz.add(pared);
+  }
+  // Techo con vigas y focos (los focos, en una sola llamada)
+  const techo = new THREE.Mesh(R(new THREE.PlaneGeometry(16, 16).rotateX(Math.PI / 2)), R(new THREE.MeshLambertMaterial({ color: 0x5b6470 })));
+  techo.position.set(0, 6, -2.6);
+  raiz.add(techo);
+  const focos = new THREE.InstancedMesh(R(new THREE.BoxGeometry(1.4, 0.08, 0.35)), R(new THREE.MeshBasicMaterial({ color: 0xfffbe8, toneMapped: false })), 8);
+  for (let i = 0; i < 8; i++) focos.setMatrixAt(i, new THREE.Matrix4().setPosition((i % 2 ? 1 : -1) * 2.2, 5.95, 3 - Math.floor(i / 2) * 3.2));
+  raiz.add(focos);
+  // Banderines de colores colgados de lado a lado (instanciados con color propio)
+  const N_BANDERINES = 28;
+  const banderines = new THREE.InstancedMesh(R(new THREE.CircleGeometry(0.22, 3).rotateZ(-Math.PI / 2)), R(new THREE.MeshLambertMaterial({ side: THREE.DoubleSide })), N_BANDERINES);
+  const coloresBanderin = [0xe53935, 0xfdd835, 0x1e88e5, 0x43a047, 0xffffff, 0x8e24aa];
+  for (let i = 0; i < N_BANDERINES; i++) {
+    const fila = i < 14 ? 0 : 1;
+    const f = (i % 14) / 13;
+    const x = -7 + f * 14;
+    banderines.setMatrixAt(i, new THREE.Matrix4().setPosition(x, 5.2 - Math.sin(f * Math.PI) * 0.6, fila ? -6.5 : 0.5));
+    banderines.setColorAt(i, new THREE.Color(coloresBanderin[i % coloresBanderin.length]));
+  }
+  raiz.add(banderines);
+  // Público sentado en las gradas: cuerpo y cabeza en una geometría, colores variados
+  const geoPersona = R((() => {
+    const cuerpo = new THREE.CapsuleGeometry(0.17, 0.3, 3, 8).translate(0, 0.32, 0);
+    const cabeza = new THREE.SphereGeometry(0.12, 8, 6).translate(0, 0.78, 0);
+    const piezas = [cuerpo.toNonIndexed(), cabeza.toNonIndexed()];
+    const geo = new THREE.BufferGeometry();
+    for (const nombre of ['position', 'normal']) {
+      const datos = [];
+      for (const p of piezas) datos.push(...p.attributes[nombre].array);
+      geo.setAttribute(nombre, new THREE.Float32BufferAttribute(datos, 3));
+    }
+    for (const p of [cuerpo, cabeza, ...piezas]) p.dispose();
+    return geo;
+  })());
+  const coloresRopa = [0xef5350, 0x42a5f5, 0xffca28, 0x66bb6a, 0xab47bc, 0xffffff, 0xff7043, 0x26c6da];
+  const personas = [];
+  let semillaPublico = 5;
+  const azarPublico = () => ((semillaPublico = (semillaPublico * 16807) % 2147483647) / 2147483647);
+  for (const s of [-1, 1]) {
+    for (let fila = 0; fila < 3; fila++) {
+      for (let k = 0; k < 9; k++) {
+        if (azarPublico() < 0.3) continue; // huecos libres
+        personas.push([s * (4 + fila * 1.2), 0.5 + fila * 0.5, -6.4 + k * 0.95 + (azarPublico() - 0.5) * 0.3]);
+      }
+    }
+  }
+  const publico = new THREE.InstancedMesh(geoPersona, R(new THREE.MeshLambertMaterial()), personas.length);
+  personas.forEach(([x, y, z], i) => {
+    publico.setMatrixAt(i, new THREE.Matrix4().makeRotationY(x < 0 ? -Math.PI / 2 : Math.PI / 2).setPosition(x, y, z));
+    publico.setColorAt(i, new THREE.Color(coloresRopa[Math.floor(azarPublico() * coloresRopa.length)]));
+  });
+  raiz.add(publico);
 
   // ─── Volante ───────────────────────────────────────────────────────────
   // Corcho delante (+Z) y faldón de plumas detrás; se orienta hacia donde vuela
@@ -300,7 +391,9 @@ export function iniciar(ctx) {
     golpesSeguidos = 0;
     tiempoVivo = 0;
     vel.set(0, 0, 0);
-    if (sacador === 'jugador') pos.set(0.2, 1.25, -0.45);
+    // En VR el volante se sirve algo separado del cuerpo, a la altura del brazo estirado;
+    // con ratón tiene que quedar en el plano por el que se mueve la raqueta
+    if (sacador === 'jugador') pos.copy(ctx.enVR() ? SAQUE_VR : SAQUE_RATON);
     else pos.set(rival.position.x - 0.2, 1.3, rival.position.z + 0.4);
   }
 
@@ -342,6 +435,7 @@ export function iniciar(ctx) {
     }
     golpeador = quien;
     golpesSeguidos += 1;
+    tiempoVivo = 0; // el seguro de "volante perdido" cuenta desde el último toque
     enfriamiento = 0.2;
     ctx.sonido('toc');
     return true;
@@ -542,7 +636,7 @@ export function iniciar(ctx) {
         break;
       case 'saque':
         if (sacador === 'jugador') {
-          pos.y = 1.25 + Math.sin(t * 3) * 0.03;
+          pos.y = (ctx.enVR() ? SAQUE_VR.y : SAQUE_RATON.y) + Math.sin(t * 3) * 0.03;
           if (raqueta) {
             const pasos = Math.min(24, Math.max(1, Math.ceil(raqueta.centro.distanceTo(raqueta.centroAntes) / 0.02)));
             for (let i = 1; i <= pasos; i++) if (chocarRaqueta(raqueta, i / pasos, dt)) break;
@@ -552,8 +646,9 @@ export function iniciar(ctx) {
         }
         break;
       case 'vivo':
+        // Seguro por si el volante se quedara atascado: cuenta desde el último toque
         tiempoVivo += dt;
-        if (tiempoVivo > 15) tocaSuelo();
+        if (tiempoVivo > 10) tocaSuelo();
         break;
       case 'punto':
         if (reloj <= 0) prepararSaque();
@@ -580,6 +675,9 @@ export function iniciar(ctx) {
 
   return {
     actualizar,
-    liberar() {},
+    liberar() {
+      niebla.near = nieblaOriginal.near;
+      niebla.far = nieblaOriginal.far;
+    },
   };
 }

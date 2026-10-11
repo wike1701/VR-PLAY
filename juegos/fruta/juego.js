@@ -16,12 +16,16 @@ const INICIO_HOJA = -0.08;     // la hoja va de -0,08 a -0,8 m por delante del p
 const PUNTA_HOJA = -0.8;
 
 const TIPOS = [
-  { color: 0x2e7d32, interior: 0xff4060, radio: 0.13 },  // sandía
-  { color: 0xff9100, interior: 0xffcc80, radio: 0.095 }, // naranja
-  { color: 0xd50000, interior: 0xfff1c1, radio: 0.09 },  // manzana
-  { color: 0xffea00, interior: 0xfffde7, radio: 0.085 }, // limón
-  { color: 0x6d4c41, interior: 0x9ccc65, radio: 0.08 },  // kiwi
+  { nombre: 'sandia', color: 0x2e7d32, interior: 0xff4060, radio: 0.13, rugosidad: 0.4 },
+  { nombre: 'naranja', color: 0xff9100, interior: 0xffcc80, radio: 0.095, rugosidad: 0.6 },
+  { nombre: 'manzana', color: 0xd50000, interior: 0xfff1c1, radio: 0.09, rugosidad: 0.3 },
+  { nombre: 'limon', color: 0xffea00, interior: 0xfffde7, radio: 0.085, rugosidad: 0.5 },
+  { nombre: 'kiwi', color: 0x6d4c41, interior: 0x9ccc65, radio: 0.08, rugosidad: 0.95 },
 ];
+
+// Dificultad: sube por niveles cada NIVEL_SEGUNDOS y llega al máximo en DIFICULTAD_MAX segundos
+const NIVEL_SEGUNDOS = 20;
+const DIFICULTAD_MAX = 150;
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -134,15 +138,241 @@ export function iniciar(ctx) {
     raiz.add(farol);
   }
 
-  // ─── Recursos compartidos ──────────────────────────────────────────────
-  const geoFruta = TIPOS.map((t) => R(new THREE.SphereGeometry(t.radio, 24, 16)));
+  // ─── Fruta detallada ───────────────────────────────────────────────────
+  // Cada fruta tiene su forma (torneada o alargada), su piel pintada con código
+  // (rayas, poros, motas, pelusa), su interior (pepitas, gajos) y, algunas,
+  // rabito y hoja. La piel usa MeshStandardMaterial: la fruta es la protagonista.
+  const rgb = (hex) => `#${new THREE.Color(hex).getHexString()}`;
+  const PIELES = {
+    sandia: (g, tam, azar) => {
+      g.fillStyle = '#2f7d32';
+      g.fillRect(0, 0, tam, tam);
+      // Rayas oscuras irregulares de polo a polo (la textura va a lo largo de la fruta)
+      for (let i = 0; i < 12; i++) {
+        const x0 = (i / 12) * tam;
+        g.fillStyle = '#123d17';
+        g.beginPath();
+        g.moveTo(x0, 0);
+        for (let y = 0; y <= tam; y += 8) g.lineTo(x0 + Math.sin(y * 0.09 + i) * 5 + (azar() - 0.5) * 4, y);
+        for (let y = tam; y >= 0; y -= 8) g.lineTo(x0 + 12 + Math.sin(y * 0.08 + i * 2) * 5 + (azar() - 0.5) * 4, y);
+        g.fill();
+      }
+      for (let i = 0; i < 500; i++) {
+        g.fillStyle = `rgba(200,255,180,${azar() * 0.08})`;
+        g.fillRect(azar() * tam, azar() * tam, 2, 2);
+      }
+    },
+    naranja: (g, tam, azar) => {
+      g.fillStyle = '#ff8f00';
+      g.fillRect(0, 0, tam, tam);
+      // Poros de la piel
+      for (let i = 0; i < 2600; i++) {
+        g.fillStyle = azar() < 0.5 ? 'rgba(160,60,0,0.25)' : 'rgba(255,200,90,0.25)';
+        g.beginPath();
+        g.arc(azar() * tam, azar() * tam, 0.6 + azar() * 1.2, 0, Math.PI * 2);
+        g.fill();
+      }
+    },
+    manzana: (g, tam, azar) => {
+      // De amarillo verdoso abajo a rojo arriba, con vetas y motas claras
+      const grad = g.createLinearGradient(0, 0, 0, tam);
+      grad.addColorStop(0, '#9b0d0d');
+      grad.addColorStop(0.55, '#d01818');
+      grad.addColorStop(1, '#e6a42a');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, tam, tam);
+      for (let i = 0; i < 90; i++) {
+        g.strokeStyle = `rgba(120,0,0,${0.1 + azar() * 0.2})`;
+        g.lineWidth = 1 + azar() * 2;
+        const x = azar() * tam;
+        g.beginPath();
+        g.moveTo(x, 0);
+        g.lineTo(x + (azar() - 0.5) * 10, tam * (0.4 + azar() * 0.5));
+        g.stroke();
+      }
+      for (let i = 0; i < 300; i++) {
+        g.fillStyle = 'rgba(255,230,160,0.35)';
+        g.fillRect(azar() * tam, azar() * tam, 1.5, 1.5);
+      }
+    },
+    limon: (g, tam, azar) => {
+      g.fillStyle = '#ffe41a';
+      g.fillRect(0, 0, tam, tam);
+      for (let i = 0; i < 2200; i++) {
+        g.fillStyle = azar() < 0.5 ? 'rgba(170,140,0,0.22)' : 'rgba(255,255,190,0.3)';
+        g.beginPath();
+        g.arc(azar() * tam, azar() * tam, 0.5 + azar(), 0, Math.PI * 2);
+        g.fill();
+      }
+    },
+    kiwi: (g, tam, azar) => {
+      g.fillStyle = '#7a5434';
+      g.fillRect(0, 0, tam, tam);
+      // Pelusa: miles de pelitos cortos
+      for (let i = 0; i < 4000; i++) {
+        g.strokeStyle = azar() < 0.5 ? 'rgba(60,35,15,0.35)' : 'rgba(170,130,80,0.3)';
+        const x = azar() * tam;
+        const y = azar() * tam;
+        g.beginPath();
+        g.moveTo(x, y);
+        g.lineTo(x + (azar() - 0.5) * 4, y + (azar() - 0.5) * 4);
+        g.stroke();
+      }
+    },
+  };
+  // Interiores: se pintan centrados (la cara del corte es un círculo)
+  const INTERIORES = {
+    sandia: (g, tam, azar) => {
+      const c = tam / 2;
+      g.fillStyle = '#1b5e20'; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#e8f5c8'; g.beginPath(); g.arc(c, c, c * 0.92, 0, Math.PI * 2); g.fill();
+      const grad = g.createRadialGradient(c, c, 0, c, c, c * 0.86);
+      grad.addColorStop(0, '#ff3355');
+      grad.addColorStop(1, '#ff5a6e');
+      g.fillStyle = grad; g.beginPath(); g.arc(c, c, c * 0.86, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#1a1010';
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2 + azar() * 0.2;
+        const r = c * (0.45 + (i % 2) * 0.12);
+        g.save(); g.translate(c + Math.cos(a) * r, c + Math.sin(a) * r); g.rotate(a);
+        g.beginPath(); g.ellipse(0, 0, 5, 2.6, 0, 0, Math.PI * 2); g.fill(); g.restore();
+      }
+    },
+    naranja: (g, tam) => {
+      const c = tam / 2;
+      g.fillStyle = '#ff8f00'; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff3d6'; g.beginPath(); g.arc(c, c, c * 0.9, 0, Math.PI * 2); g.fill();
+      // Gajos
+      for (let i = 0; i < 10; i++) {
+        const a0 = (i / 10) * Math.PI * 2 + 0.04;
+        const a1 = ((i + 1) / 10) * Math.PI * 2 - 0.04;
+        g.fillStyle = i % 2 ? '#ffb340' : '#ffa726';
+        g.beginPath(); g.moveTo(c, c); g.arc(c, c, c * 0.84, a0, a1); g.closePath(); g.fill();
+      }
+      g.fillStyle = '#fff3d6'; g.beginPath(); g.arc(c, c, c * 0.1, 0, Math.PI * 2); g.fill();
+    },
+    manzana: (g, tam) => {
+      const c = tam / 2;
+      g.fillStyle = '#c62828'; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff4cf'; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
+      // Corazón en estrella con pepitas
+      g.strokeStyle = 'rgba(200,170,90,0.6)';
+      g.lineWidth = 2;
+      g.beginPath();
+      for (let i = 0; i <= 10; i++) {
+        const a = (i / 10) * Math.PI * 2;
+        const r = c * (i % 2 ? 0.16 : 0.32);
+        g.lineTo(c + Math.cos(a) * r, c + Math.sin(a) * r);
+      }
+      g.stroke();
+      g.fillStyle = '#4e2a12';
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        g.save(); g.translate(c + Math.cos(a) * c * 0.2, c + Math.sin(a) * c * 0.2); g.rotate(a);
+        g.beginPath(); g.ellipse(0, 0, 6, 3, 0, 0, Math.PI * 2); g.fill(); g.restore();
+      }
+    },
+    limon: (g, tam) => {
+      const c = tam / 2;
+      g.fillStyle = '#ffe41a'; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fffbe0'; g.beginPath(); g.arc(c, c, c * 0.88, 0, Math.PI * 2); g.fill();
+      for (let i = 0; i < 9; i++) {
+        const a0 = (i / 9) * Math.PI * 2 + 0.05;
+        const a1 = ((i + 1) / 9) * Math.PI * 2 - 0.05;
+        g.fillStyle = i % 2 ? '#fff59d' : '#fff176';
+        g.beginPath(); g.moveTo(c, c); g.arc(c, c, c * 0.8, a0, a1); g.closePath(); g.fill();
+      }
+    },
+    kiwi: (g, tam, azar) => {
+      const c = tam / 2;
+      g.fillStyle = '#6d4c41'; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+      const grad = g.createRadialGradient(c, c, 0, c, c, c * 0.95);
+      grad.addColorStop(0, '#f1f8c8');
+      grad.addColorStop(0.3, '#c5e17a');
+      grad.addColorStop(1, '#7cb342');
+      g.fillStyle = grad; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
+      // Rayos claros y el anillo de pepitas negras
+      g.strokeStyle = 'rgba(240,250,210,0.45)';
+      for (let i = 0; i < 40; i++) {
+        const a = (i / 40) * Math.PI * 2;
+        g.beginPath(); g.moveTo(c + Math.cos(a) * c * 0.3, c + Math.sin(a) * c * 0.3);
+        g.lineTo(c + Math.cos(a) * c * 0.85, c + Math.sin(a) * c * 0.85); g.stroke();
+      }
+      g.fillStyle = '#111';
+      for (let i = 0; i < 46; i++) {
+        const a = (i / 46) * Math.PI * 2 + azar() * 0.1;
+        const r = c * (0.36 + azar() * 0.08);
+        g.beginPath(); g.ellipse(c + Math.cos(a) * r, c + Math.sin(a) * r, 2.6, 1.5, a, 0, Math.PI * 2); g.fill();
+      }
+    },
+  };
+
+  // Formas: perfil torneado (manzana, limón) o esfera estirada (sandía, kiwi)
+  function geometriaFruta(t, segmentos = 28) {
+    const r = t.radio;
+    if (t.nombre === 'manzana') {
+      const perfil = [];
+      for (let i = 0; i <= 16; i++) {
+        const a = (i / 16) * Math.PI;
+        // Hoyuelos arriba y abajo, más ancha por arriba
+        const radio = Math.sin(a) * r * (1 + 0.08 * Math.cos(a));
+        const y = -Math.cos(a) * r * 0.92 + (i === 0 ? r * 0.12 : 0) - (i === 16 ? r * 0.16 : 0);
+        perfil.push(new THREE.Vector2(Math.max(0.0005, radio), y));
+      }
+      return new THREE.LatheGeometry(perfil, segmentos);
+    }
+    if (t.nombre === 'limon') {
+      const perfil = [];
+      for (let i = 0; i <= 18; i++) {
+        const a = (i / 18) * Math.PI;
+        // Puntas en los dos extremos (el limón va tumbado)
+        const punta = Math.pow(Math.sin(a), 0.75);
+        perfil.push(new THREE.Vector2(Math.max(0.0005, punta * r * 0.88), -Math.cos(a) * r * 1.3));
+      }
+      return new THREE.LatheGeometry(perfil, segmentos).rotateZ(Math.PI / 2);
+    }
+    const esfera = new THREE.SphereGeometry(r, segmentos, Math.round(segmentos * 0.7));
+    if (t.nombre === 'sandia') return esfera.rotateZ(Math.PI / 2).scale(1.25, 0.95, 0.95);
+    if (t.nombre === 'kiwi') return esfera.rotateZ(Math.PI / 2).scale(1.2, 0.9, 0.9);
+    return esfera;
+  }
+  const geoFruta = TIPOS.map((t) => R(geometriaFruta(t)));
   const geoMitad = TIPOS.map((t) => R(new THREE.SphereGeometry(t.radio, 20, 8, 0, Math.PI * 2, 0, Math.PI / 2)));
-  const geoCara = TIPOS.map((t) => R(new THREE.CircleGeometry(t.radio * 0.97, 20)));
-  // Piel con un poco de brillo (la fruta es la protagonista)
-  const RUGOSIDAD = [0.4, 0.55, 0.3, 0.45, 0.85];
-  const matPiel = TIPOS.map((t, i) => R(new THREE.MeshStandardMaterial({ color: t.color, roughness: RUGOSIDAD[i], metalness: 0 })));
-  const matInterior = TIPOS.map((t) => R(new THREE.MeshLambertMaterial({ color: t.interior, side: THREE.DoubleSide })));
+  const geoCara = TIPOS.map((t) => R(new THREE.CircleGeometry(t.radio * 0.97, 24)));
+  const matPiel = TIPOS.map((t, i) => R(new THREE.MeshStandardMaterial({
+    map: R(ctx.texturaCanvas(PIELES[t.nombre], { tam: 256, semilla: 60 + i })), roughness: t.rugosidad, metalness: 0,
+  })));
+  const matInterior = TIPOS.map((t, i) => R(new THREE.MeshLambertMaterial({
+    map: R(ctx.texturaCanvas(INTERIORES[t.nombre], { tam: 256, semilla: 70 + i })), side: THREE.DoubleSide,
+  })));
   const matGota = TIPOS.map((t) => R(new THREE.MeshBasicMaterial({ color: t.interior })));
+
+  // Rabitos y hojas (una malla fusionada por fruta, que va como hija de la fruta)
+  const matRabito = R(new THREE.MeshLambertMaterial({ color: 0x5d4037 }));
+  const matHoja = R(new THREE.MeshLambertMaterial({ color: 0x43a047, side: THREE.DoubleSide }));
+  const geoHoja = R(new THREE.CircleGeometry(1, 10).scale(0.5, 1, 1));
+  const geoRabito = R(new THREE.CylinderGeometry(0.004, 0.006, 1, 5));
+  // Para cada tipo: [rabito {largo, y, inclinación}, hoja {tamaño, y}] o null
+  const ADORNOS = {
+    manzana: { rabito: [0.045, 0.082, 0.25], hoja: [0.035, 0.09] },
+    naranja: { rabito: [0.012, 0.095, 0], hoja: [0.022, 0.098] },
+    sandia: null,
+    limon: null,
+    kiwi: null,
+  };
+  function adornar(malla, t) {
+    const a = ADORNOS[t.nombre];
+    if (!a) return;
+    const rabito = new THREE.Mesh(geoRabito, matRabito);
+    rabito.scale.y = a.rabito[0];
+    rabito.position.y = a.rabito[1] + a.rabito[0] / 2 - 0.01;
+    rabito.rotation.z = a.rabito[2];
+    const hoja = new THREE.Mesh(geoHoja, matHoja);
+    hoja.scale.setScalar(a.hoja[0]);
+    hoja.position.set(a.hoja[0] * 0.9, a.hoja[1], 0);
+    hoja.rotation.set(-1.1, 0, -0.5);
+    malla.add(rabito, hoja);
+  }
   const geoGota = R(new THREE.SphereGeometry(0.015, 6, 4));
 
   const geoBomba = R(new THREE.SphereGeometry(0.1, 18, 12));
@@ -238,7 +468,7 @@ export function iniciar(ctx) {
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}`, tam: 1.3 },
+        { texto: `Puntos: ${puntos}  ·  Nivel ${nivelActual()}`, tam: 1.3 },
         { texto: `Vidas: ${'●'.repeat(vidas)}${'○'.repeat(VIDAS - vidas)}   Récord: ${record}`, tam: 0.8, color: '#ffd6e0' },
       ]);
     }
@@ -262,33 +492,44 @@ export function iniciar(ctx) {
     } else {
       tipo = Math.floor(Math.random() * TIPOS.length);
       malla = new THREE.Mesh(geoFruta[tipo], matPiel[tipo]);
+      adornar(malla, TIPOS[tipo]);
       colision = malla;
-      radio = TIPOS[tipo].radio;
+      radio = TIPOS[tipo].radio * (TIPOS[tipo].nombre === 'sandia' ? 1.1 : 1);
     }
-    malla.position.set(x, 0.15, -1.1 - Math.random() * 0.3);
+    // Más dificultad: más repartida a lo ancho y más rápida (sube y baja antes,
+    // a la misma altura, porque la gravedad y el impulso crecen a la vez)
+    const d = dificultad();
+    const ancho = 0.6 + d * 0.35;
+    malla.position.set(x * (ancho / 0.6), 0.15, -1.1 - Math.random() * 0.3);
     malla.rotation.set(Math.random() * 3, Math.random() * 3, 0);
     raiz.add(malla);
+    const rapidez = 1 + d * 0.7;
     const objeto = {
       malla, colision, radio, tipo,
       sombra: sombrasLibres.pop() || null,
       bomba: esBomba,
       cortado: false,
-      vel: new THREE.Vector3(-x * 0.35 + (Math.random() * 2 - 1) * 0.25, 3.4 + Math.random() * 0.7, 0.1),
-      giro: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(4),
+      gravedad: GRAVEDAD * rapidez,
+      vel: new THREE.Vector3(-x * 0.35 + (Math.random() * 2 - 1) * 0.25, (3.4 + Math.random() * 0.7) * Math.sqrt(rapidez), 0.1),
+      giro: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(4 * rapidez),
     };
     colision.userData.objeto = objeto;
     objetos.push(objeto);
   }
 
+  // 0 al empezar, 1 a los DIFICULTAD_MAX segundos
+  const dificultad = () => Math.min(1, tiempoJugado / DIFICULTAD_MAX);
+  const nivelActual = () => 1 + Math.floor(tiempoJugado / NIVEL_SEGUNDOS);
+
   function lanzar() {
-    const progreso = Math.min(1, tiempoJugado / 90);
+    const d = dificultad();
     let cantidad = 1;
-    if (Math.random() < 0.25 + progreso * 0.4) cantidad++;
-    if (Math.random() < progreso * 0.35) cantidad++;
-    for (let i = 0; i < cantidad; i++) {
-      crearObjeto(tiempoJugado > 8 && Math.random() < 0.15);
-    }
-    proximoLanzamiento = 1.5 - progreso * 0.6 + Math.random() * 0.4;
+    if (Math.random() < 0.2 + d * 0.55) cantidad++;
+    if (Math.random() < d * 0.45) cantidad++;
+    if (Math.random() < d * 0.25) cantidad++;
+    const probBomba = tiempoJugado > 8 ? 0.12 + d * 0.16 : 0;
+    for (let i = 0; i < cantidad; i++) crearObjeto(Math.random() < probBomba);
+    proximoLanzamiento = 1.6 - d * 0.95 + Math.random() * 0.4;
   }
 
   function quitar(objeto) {
@@ -468,7 +709,9 @@ export function iniciar(ctx) {
     }
 
     if (estado === 'jugando') {
+      const nivelAntes = nivelActual();
       tiempoJugado += dt;
+      if (nivelActual() > nivelAntes) ctx.sonido('punto'); // aviso de subida de nivel
       proximoLanzamiento -= dt;
       if (proximoLanzamiento <= 0) lanzar();
     }
@@ -477,7 +720,7 @@ export function iniciar(ctx) {
     const parpadeo = Math.sin(performance.now() / 90) > 0;
     matBomba.emissive.setHex(parpadeo ? 0x5a0000 : 0x000000);
     for (const objeto of objetos.slice()) {
-      objeto.vel.y -= GRAVEDAD * dt;
+      objeto.vel.y -= objeto.gravedad * dt;
       objeto.malla.position.addScaledVector(objeto.vel, dt);
       objeto.malla.rotation.x += objeto.giro.x * dt;
       objeto.malla.rotation.y += objeto.giro.y * dt;

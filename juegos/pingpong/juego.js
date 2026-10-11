@@ -21,7 +21,8 @@ const Z_RED = Z_CERCA - LARGO / 2;
 const ALTO_RED = 0.1525;
 const R_BOLA = 0.022;                  // un poco más grande que la real (0,02) para verla bien
 const REBOTE_MESA = 0.88;
-const REBOTE_PALA = 0.85;
+const REBOTE_PALA = 0.65;
+const FUERZA_PALA = 0.7;               // parte de la velocidad de tu pala que pasa a la bola (iba demasiado fuerte)
 const R_PALA = 0.08;
 const GROSOR_PALA = 0.012;
 const AYUDA = 0.7;                     // cuánto se corrige un golpe VR hacia la mesa (0 = nada)
@@ -57,6 +58,77 @@ export function iniciar(ctx) {
   const vallas = new THREE.InstancedMesh(geoValla, R(new THREE.MeshLambertMaterial({ color: 0x1565c0 })), piezas.length);
   piezas.forEach((m, i) => vallas.setMatrixAt(i, m));
   raiz.add(vallas);
+
+  // ─── Ambiente: sala de club de tenis de mesa ───────────────────────────
+  // Niebla más lejos para que se vean las paredes (la de la shell empieza a 7 m)
+  const niebla = ctx.escena.fog;
+  const nieblaOriginal = { near: niebla.near, far: niebla.far };
+  niebla.near = 18;
+  niebla.far = 35;
+  // Paredes con zócalo oscuro, pared azulada, carteles y un friso con el nombre del club
+  const texPared = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#3d5a80';
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 500; i++) {
+      g.fillStyle = `rgba(255,255,255,${azar() * 0.03})`;
+      g.fillRect(azar() * tam, azar() * tam, 4, 4);
+    }
+    g.fillStyle = '#1d2d44';
+    g.fillRect(0, tam * 0.72, tam, tam * 0.28);
+    g.fillStyle = '#ee6c4d';
+    g.fillRect(0, tam * 0.7, tam, tam * 0.02);
+    // Carteles de torneos
+    const colores = ['#e0fbfc', '#ee6c4d', '#98c1d9', '#ffd166'];
+    for (let i = 0; i < 2; i++) {
+      const x = tam * (0.12 + i * 0.5);
+      g.fillStyle = colores[(i * 2) % 4];
+      g.fillRect(x, tam * 0.25, tam * 0.26, tam * 0.34);
+      g.fillStyle = colores[(i * 2 + 1) % 4];
+      g.beginPath();
+      g.arc(x + tam * 0.13, tam * 0.38, tam * 0.07, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#1d2d44';
+      g.fillRect(x + tam * 0.03, tam * 0.5, tam * 0.2, tam * 0.025);
+      g.fillRect(x + tam * 0.06, tam * 0.54, tam * 0.14, tam * 0.018);
+    }
+    g.fillStyle = '#e0fbfc';
+    g.font = `bold ${tam * 0.07}px sans-serif`;
+    g.textAlign = 'center';
+    g.fillText('CLUB VR PLAY · TENIS DE MESA', tam / 2, tam * 0.13);
+  }, { tam: 512, repetir: [2, 1] }));
+  const matPared = R(new THREE.MeshLambertMaterial({ map: texPared }));
+  const geoPared = R(new THREE.PlaneGeometry(14, 5));
+  for (const [x, z, giro] of [[0, -9, 0], [-7, -2, Math.PI / 2], [7, -2, -Math.PI / 2], [0, 5, Math.PI]]) {
+    const pared = new THREE.Mesh(geoPared, matPared);
+    pared.position.set(x, 2.5, z);
+    pared.rotation.y = giro;
+    raiz.add(pared);
+  }
+  // Techo con lámparas colgantes sobre la mesa (las pantallas, en una sola llamada)
+  const techo = new THREE.Mesh(R(new THREE.PlaneGeometry(14, 14).rotateX(Math.PI / 2)), R(new THREE.MeshLambertMaterial({ color: 0x24324a })));
+  techo.position.set(0, 5, -2);
+  raiz.add(techo);
+  const lamparas = new THREE.InstancedMesh(R(new THREE.CylinderGeometry(0.05, 0.32, 0.22, 16, 1, true)), R(new THREE.MeshLambertMaterial({ color: 0x2b2b2b, side: THREE.DoubleSide })), 3);
+  const bombillas = new THREE.InstancedMesh(R(new THREE.CircleGeometry(0.26, 16).rotateX(Math.PI / 2)), R(new THREE.MeshBasicMaterial({ color: 0xfff6dc, toneMapped: false })), 3);
+  const cables = new THREE.InstancedMesh(R(new THREE.CylinderGeometry(0.006, 0.006, 2.2, 4)), lamparas.material, 3);
+  [-0.6, -1.7, -2.8].forEach((z, i) => {
+    lamparas.setMatrixAt(i, new THREE.Matrix4().setPosition(0, 2.7, z));
+    bombillas.setMatrixAt(i, new THREE.Matrix4().setPosition(0, 2.6, z));
+    cables.setMatrixAt(i, new THREE.Matrix4().setPosition(0, 3.9, z));
+  });
+  raiz.add(lamparas, bombillas, cables);
+  // Una mesa vecina al fondo, en otra pista, y un banco con toallas y una botella
+  const vecina = new THREE.Mesh(R(new THREE.BoxGeometry(1.525, 0.04, 2.74)), R(new THREE.MeshLambertMaterial({ color: 0x1b5e9e })));
+  vecina.position.set(-5.2, 0.76, -6.5);
+  vecina.rotation.y = Math.PI / 2;
+  const banco = new THREE.Mesh(R(new THREE.BoxGeometry(2.2, 0.08, 0.4)), R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0xb07b4a, { semilla: 3 })) })));
+  banco.position.set(3.2, 0.45, 0.6);
+  banco.rotation.y = Math.PI / 2;
+  const toalla = new THREE.Mesh(R(new THREE.BoxGeometry(0.35, 0.05, 0.5)), R(new THREE.MeshLambertMaterial({ color: 0xee6c4d })));
+  toalla.position.set(3.2, 0.51, 0.2);
+  const botella = new THREE.Mesh(R(new THREE.CylinderGeometry(0.035, 0.035, 0.24, 10)), R(new THREE.MeshStandardMaterial({ color: 0x4fc3f7, roughness: 0.2, transparent: true, opacity: 0.8 })));
+  botella.position.set(3.2, 0.61, 1.0);
+  raiz.add(vecina, banco, toalla, botella);
 
   // ─── Mesa ──────────────────────────────────────────────────────────────
   // Tablero azul con las líneas blancas pintadas en la textura (una sola malla)
@@ -273,7 +345,7 @@ export function iniciar(ctx) {
       MESA_Y + R_BOLA,
       THREE.MathUtils.clamp(caida.z, Z_LEJOS + 0.15, Z_RED - 0.25),
     );
-    const rapidez = THREE.MathUtils.clamp(Math.hypot(v.x, v.z), 3, 9);
+    const rapidez = THREE.MathUtils.clamp(Math.hypot(v.x, v.z), 3, 7);
     return v.lerp(trayectoria(p, destino, rapidez), AYUDA);
   }
 
@@ -404,7 +476,7 @@ export function iniciar(ctx) {
     const d = relativa.subVectors(bola.position, centro).dot(normal);
     const enPlano = relativa.addScaledVector(normal, -d).length();
     if (enPlano > R_PALA + R_BOLA * 0.5 || Math.abs(d) > R_BOLA + GROSOR_PALA / 2) return false;
-    const velPala = new THREE.Vector3().subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4));
+    const velPala = new THREE.Vector3().subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4)).multiplyScalar(FUERZA_PALA);
     relativa.subVectors(vel, velPala);
     const vn = relativa.dot(normal);
     if (vn * Math.sign(d || 1) >= 0) return false; // ya se aleja de la pala
@@ -516,7 +588,7 @@ export function iniciar(ctx) {
         Z_LEJOS + 0.25 + Math.random() * 0.8,
       );
       p.z = Math.min(p.z, Z_PALA_RATON - 0.03);
-      vel.copy(trayectoria(p, destino, 4.2 + remate * 3.5));
+      vel.copy(trayectoria(p, destino, 3.8 + remate * 2.6)); // algo más suave que antes (4,2 + 3,5)
     }
   }
 
@@ -626,6 +698,9 @@ export function iniciar(ctx) {
 
   return {
     actualizar,
-    liberar() {},
+    liberar() {
+      niebla.near = nieblaOriginal.near;
+      niebla.far = nieblaOriginal.far;
+    },
   };
 }

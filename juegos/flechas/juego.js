@@ -149,7 +149,7 @@ export function iniciar(ctx) {
         if (!torre.cargando) continue;
         enPantalla.copy(torre.salida).setY(1.5).project(ctx.camara);
         if (Math.abs(enPantalla.x) < 0.95 && enPantalla.z < 1) continue; // ya se ve
-        const f = torre.t / TIEMPO_CARGA;
+        const f = torre.t / torre.duracion;
         if (enPantalla.x < 0) izquierda = Math.max(izquierda, f);
         else derecha = Math.max(derecha, f);
       }
@@ -298,6 +298,7 @@ export function iniciar(ctx) {
     torre.cargando = true;
     torre.t = 0;
     torre.apuntaTorso = Math.random() < 0.15 + progreso * 0.25;
+    torre.duracion = TIEMPO_CARGA * (1 - 0.35 * progreso); // cada vez avisan con menos tiempo
     torre.salida.y = 0.9 + Math.random() * 1.4;
     torre.carga.position.copy(torre.salida);
     torre.carga.visible = true;
@@ -311,7 +312,9 @@ export function iniciar(ctx) {
     if (torre.apuntaTorso) objetivo.y -= 0.45;
     objetivo.x += (Math.random() - 0.5) * 0.15;
     objetivo.y += (Math.random() - 0.5) * 0.1;
-    const velocidad = 7 + progreso * 7 + Math.random() * 1.5;
+    // Cada vez más rápidas: suben durante la partida y, pasado el máximo, siguen subiendo poco a poco
+    const extra = Math.min(4, Math.max(0, tiempoJuego - 75) * 0.04);
+    const velocidad = 7 + progreso * 9 + extra + Math.random() * 1.5;
     // Apunta un poco más alto para compensar la caída durante el vuelo
     const vuelo = objetivo.distanceTo(torre.salida) / velocidad;
     objetivo.y += 0.5 * GRAVEDAD * vuelo * vuelo;
@@ -445,17 +448,17 @@ export function iniciar(ctx) {
       empezar();
     } else if (estado === 'jugando') {
       tiempoJuego += dt;
-      const progreso = Math.min(1, tiempoJuego / 90);
+      const progreso = Math.min(1, tiempoJuego / 75);
       proximoDisparo -= dt;
-      const maxCargando = 1 + Math.floor(progreso * 2.5);
+      const maxCargando = 1 + Math.floor(progreso * 3);
       if (proximoDisparo <= 0 && torres.filter((x) => x.cargando).length < maxCargando) {
         cargarTorre(progreso);
-        proximoDisparo = 1.6 - progreso * 1.0 + Math.random() * 0.4;
+        proximoDisparo = 1.6 - progreso * 1.15 + Math.random() * 0.4;
       }
       for (const torre of torres) {
         if (!torre.cargando) continue;
         torre.t += dt;
-        const f = torre.t / TIEMPO_CARGA;
+        const f = torre.t / torre.duracion;
         const pulso = Math.sin(t * 30);
         torre.carga.scale.setScalar(0.4 + f * 1.0 + pulso * 0.1);
         // La torre entera se enciende en rojo, cada vez más fuerte

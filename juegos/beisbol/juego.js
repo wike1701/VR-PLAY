@@ -18,12 +18,13 @@ const RED_TRASERA = 4;          // red detrás del bateador
 const DESVIO_VR = 0.75;         // la bola pasa a esta distancia a la derecha del jugador (diestro)
 const DESVIO_RATON = 0.6;
 const RADIO_BOLA = 0.045;       // algo más grande que la real (0,037) para verla bien
-const INICIO_BATE = -0.15;      // parte del bate que golpea, medida desde el puño
-const PUNTA_BATE = -0.82;
-const MANOS_JUNTAS = 0.22;      // a menos de esta distancia, las dos manos agarran el bate
-const MANOS_SEPARADAS = 0.32;   // y a más de esta, se suelta la mano izquierda
-const CHOQUE_VR = 0.04;         // grosor del bate para el choque (con un poco de margen)
-const CHOQUE_RATON = 0.07;      // con ratón hay más margen: solo se elige la altura
+const INICIO_BATE = -0.08;      // parte del bate que golpea, medida desde el puño
+const PUNTA_BATE = -0.88;
+const MANOS_JUNTAS = 0.3;       // a menos de esta distancia, las dos manos agarran el bate
+const ALCANCE_APRETON = 0.45;   // o, apretando el botón de agarre, desde esta distancia
+const MANOS_SEPARADAS = 0.42;   // y a más de esta, se suelta la mano izquierda (con el agarre apretado, a más de ALCANCE_APRETON + 0.1)
+const CHOQUE_VR = 0.08;         // grosor del bate para el choque: mucho margen para que sea fácil darle
+const CHOQUE_RATON = 0.1;       // con ratón aún más: solo se elige la altura
 const REBOTE = 0.55;            // cuánto rebota la bola en el bate
 const VELOCIDAD_MAXIMA = 55;    // m/s de salida como mucho
 const ANGULO_BUENO = 45;        // la bola es buena si sale a menos de 45° del centro
@@ -413,7 +414,7 @@ export function iniciar(ctx) {
     if (estado === 'intro') {
       marcador.escribir([
         { texto: 'BATEA BOLAS', tam: 1.3, color: '#ffd740' },
-        { texto: ctx.enVR() ? 'Ponte de lado como un diestro · bate con las dos manos, la izquierda abajo' : (ctx.tactil ? 'Toca a la altura de la bola para batear' : 'Elige la altura con el ratón y haz clic para batear'), tam: 0.7 },
+        { texto: ctx.enVR() ? 'De lado como un diestro · junta las manos (o aprieta el agarre izquierdo) para coger el bate con las dos' : (ctx.tactil ? 'Toca a la altura de la bola para batear' : 'Elige la altura con el ratón y haz clic para batear'), tam: 0.7 },
         { texto: `${LANZAMIENTOS} lanzamientos · Récord: ${record} puntos`, tam: 0.7, color: '#ffe57f' },
       ]);
     } else if (estado === 'fin') {
@@ -525,9 +526,14 @@ export function iniciar(ctx) {
         bate.manos = [];
         return;
       }
-      // ¿Agarra el bate con las dos manos? (con margen para que no parpadee)
+      // ¿Agarra el bate con las dos manos? Basta con juntarlas, o con apretar el botón
+      // de agarre de la mano izquierda cerca del bate (con margen para que no parpadee)
       const distancia = izquierda && derecha ? izquierda.posicion.distanceTo(derecha.posicion) : Infinity;
-      const dosManos = bate.dosManos ? distancia < MANOS_SEPARADAS : distancia < MANOS_JUNTAS;
+      const apreton = !!izquierda?.apreton;
+      const dosManos = bate.dosManos
+        ? distancia < (apreton ? ALCANCE_APRETON + 0.1 : MANOS_SEPARADAS)
+        : distancia < (apreton ? ALCANCE_APRETON : MANOS_JUNTAS);
+      if (dosManos && !bate.dosManos) for (const m of [izquierda, derecha]) ctx.vibrar(m, 0.4, 40); // "clic" al agarrarlo
       if (dosManos !== bate.dosManos) bate.lista = false; // el bate salta: no cuenta como golpe
       bate.dosManos = dosManos;
 
