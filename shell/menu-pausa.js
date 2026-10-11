@@ -1,15 +1,10 @@
 import * as THREE from 'three';
 
 // ─── Menú de pausa en VR ────────────────────────────────────────────────
-// Se abre al dejar la mano IZQUIERDA sobre el hombro izquierdo un momento.
+// Se abre con el botón de pausa que flota detrás del hombro izquierdo (shell/boton-cambio.js).
 // El juego se congela y aparece un menú flotante delante de ti: se elige
 // apuntando con cualquier mando y apretando el gatillo, o tocando el botón con la mano.
 
-// Hombro izquierdo respecto a la cabeza: x = derecha, y = arriba, z = detrás
-const HOMBRO = new THREE.Vector3(-0.17, -0.2, 0.03);
-const RADIO_HOMBRO = 0.14;     // a esta distancia la mano "está" en el hombro
-const TIEMPO_GESTO = 0.7;      // segundos con la mano ahí para abrir el menú
-const ENFRIAMIENTO = 1.2;      // segundos sin poder repetir el gesto
 const DISTANCIA_MENU = 0.75;   // metros delante de los ojos
 const ANCHO_BOTON = 0.5;
 const ALTO_BOTON = 0.085;
@@ -25,8 +20,6 @@ export class MenuPausa {
     this.grupo.name = 'menu-pausa';
     this.grupo.visible = false;
     this.abierto = false;
-    this.tiempoGesto = 0;
-    this.enfriamiento = 0;
 
     this.titulo = crearPanel({ ancho: ANCHO_BOTON, alto: 0.12 });
     this.titulo.mesh.position.y = SEPARACION * 1.6;
@@ -94,33 +87,6 @@ export class MenuPausa {
     this.derecha.set(-this.delante.z, 0, this.delante.x);
   }
 
-  // Gesto de la mano izquierda en el hombro izquierdo. Devuelve:
-  //   { abrir: true } al completarlo, { cargando: 0..1, mano } mientras se mantiene
-  gesto(dt, cabezaPos, cabezaDir, manos) {
-    this.enfriamiento = Math.max(0, this.enfriamiento - dt);
-    const izquierda = manos.find((m) => m.activa && (m.lado ? m.lado === 'left' : m.indice === 0));
-    if (!izquierda || this.enfriamiento > 0) {
-      this.tiempoGesto = 0;
-      return {};
-    }
-    this.base(cabezaDir);
-    const hombro = this.tmp.copy(cabezaPos)
-      .addScaledVector(this.derecha, HOMBRO.x)
-      .addScaledVector(this.delante, -HOMBRO.z);
-    hombro.y += HOMBRO.y;
-    if (izquierda.posicion.distanceTo(hombro) > RADIO_HOMBRO) {
-      this.tiempoGesto = 0;
-      return {};
-    }
-    this.tiempoGesto += dt;
-    if (this.tiempoGesto >= TIEMPO_GESTO) {
-      this.tiempoGesto = 0;
-      this.enfriamiento = ENFRIAMIENTO;
-      return { abrir: true, mano: izquierda };
-    }
-    return { cargando: this.tiempoGesto / TIEMPO_GESTO, mano: izquierda };
-  }
-
   abrir(cabezaPos, cabezaDir) {
     this.base(cabezaDir);
     this.grupo.position.copy(cabezaPos).addScaledVector(this.delante, DISTANCIA_MENU);
@@ -134,7 +100,6 @@ export class MenuPausa {
   cerrar() {
     this.grupo.visible = false;
     this.abierto = false;
-    this.enfriamiento = ENFRIAMIENTO;
     for (const p of this.punteros) p.laser.visible = false;
   }
 

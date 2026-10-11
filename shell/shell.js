@@ -476,6 +476,7 @@ async function cambiarA(indice) {
 function anunciarSiguiente() {
   const siguiente = siguienteIndice();
   boton.setSiguiente(JUEGOS[siguiente].titulo);
+  botonPausa.ayuda = boton.ayuda; // las dos flechas guía salen al empezar cada juego
   actualizarInterfaz();
   if (!actual) $titulo.textContent = `${JUEGOS[indiceActual].titulo} (no se pudo cargar)`;
   precargar(siguiente).then(
@@ -493,6 +494,12 @@ function siguienteJuego() {
 // ─── Botón de cambio detrás del hombro derecho ───────────────────────────
 const boton = new BotonCambio(crearPanel, camara);
 escena.add(boton.grupo);
+// Su gemelo detrás del hombro izquierdo: pausa y menú
+const botonPausa = new BotonCambio(crearPanel, camara, 'pausa');
+botonPausa.setEtiqueta([{ texto: 'PAUSA', tam: 1.2, color: '#80e8dc' }, { texto: 'y menú', tam: 0.8 }]);
+escena.add(botonPausa.grupo);
+// Cada botón responde solo a la mano de su lado (si aún no se sabe, el mando 0 es el izquierdo)
+const esIzquierda = (m) => (m.lado ? m.lado === 'left' : m.indice === 0);
 const cabezaPos = new THREE.Vector3();
 const cabezaDir = new THREE.Vector3();
 
@@ -529,7 +536,7 @@ function actualizarAviso(dt) {
 }
 
 // ─── Pausa: me gusta, favoritos y volver al catálogo ─────────────────────
-// En VR se abre dejando la mano izquierda en el hombro izquierdo (menú flotante);
+// En VR se abre con el botón de pausa detrás del hombro izquierdo (menú flotante);
 // con ratón o en el móvil, con el botón ⏸ o la tecla Esc (menú HTML). El juego
 // no recibe actualizar() mientras está en pausa, así que se queda congelado.
 const menuPausa = new MenuPausa(crearPanel, renderer, escena);
@@ -685,10 +692,12 @@ function alEntrarVR() {
   document.body.classList.add('en-vr');
   reanudar();
   boton.reiniciar();
+  botonPausa.reiniciar();
   mostrarAviso([
-    { texto: 'Para cambiar de juego', tam: 1.1, color: '#b9a8ff' },
-    { texto: 'lleva la mano por encima de tu hombro derecho, hacia atrás,', tam: 0.75 },
-    { texto: 'y déjala medio segundo en el botón (o aprieta el gatillo)', tam: 0.75 },
+    { texto: 'Botones detrás de tus hombros', tam: 1.1, color: '#b9a8ff' },
+    { texto: 'Mano derecha atrás del hombro derecho: siguiente juego', tam: 0.75 },
+    { texto: 'Mano izquierda atrás del hombro izquierdo: pausa y menú', tam: 0.75 },
+    { texto: 'Déjala medio segundo en el botón (o aprieta el gatillo)', tam: 0.65 },
   ], 9);
 }
 
@@ -741,18 +750,25 @@ renderer.setAnimationLoop(() => {
 
   boton.grupo.visible = enVR && !pausado;
   if (!enVR || pausado) boton.ocultarGuia();
+  botonPausa.grupo.visible = enVR && !pausado;
+  if (!enVR || pausado) botonPausa.ocultarGuia();
   if (enVR && pausado) {
     const accion = menuPausa.actualizar(manos);
     if (accion) accionPausa(accion);
   } else if (enVR) {
-    // Mano izquierda en el hombro izquierdo: pausa (el mando vibra mientras se carga)
-    const g = menuPausa.gesto(dt, cabezaPos, cabezaDir, manos);
-    if (g.cargando > 0.3) vibrar(g.mano, 0.1 + g.cargando * 0.3, 20);
-    if (g.abrir) {
-      vibrar(g.mano, 0.8, 80);
+    // Detrás del hombro izquierdo, con la mano izquierda: pausa y menú
+    const p = botonPausa.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa && esIzquierda(m)));
+    if (p.aviso) vibrar(p.aviso.mano, p.aviso.fuerza, 25);
+    if (p.entro) {
+      vibrar(p.entro, 0.3, 30);
+      sonido('tic');
+    }
+    if (p.activado) {
+      vibrar(p.mano, 1, 120);
       pausar();
     }
-    const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa));
+    // Detrás del hombro derecho, con la mano derecha: siguiente juego
+    const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa && !esIzquierda(m)));
     if (r.aviso) vibrar(r.aviso.mano, r.aviso.fuerza, 25); // guía para encontrar el botón
     if (r.entro) {
       vibrar(r.entro, 0.3, 30);

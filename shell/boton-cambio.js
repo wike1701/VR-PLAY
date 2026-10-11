@@ -3,6 +3,7 @@ import * as THREE from 'three';
 // ─── Ajustes del botón de cambio de juego ───────────────────────────────
 // Posición respecto a la cabeza, en metros, en el "cuerpo" del jugador:
 // x = derecha, y = arriba, z = detrás (el jugador mira hacia -z).
+// Es la del botón derecho; el de pausa usa la misma con x en negativo.
 // Un poco separado del hombro para que la mano que tensa un arco
 // (que llega a la mejilla) no lo toque sin querer.
 const DESPLAZAMIENTO = new THREE.Vector3(0.32, 0.14, 0.3);
@@ -47,13 +48,32 @@ function normalizarAngulo(a) {
   return a;
 }
 
-// Botón virtual que flota detrás del hombro derecho del jugador.
+// Aspecto de cada botón: el de cambio de juego (hombro derecho) y el de pausa
+// (hombro izquierdo) funcionan igual, solo cambian el lado, el icono y el color.
+const ESTILOS = {
+  siguiente: {
+    lado: 1, nombre: 'boton-cambio', tapa: 0x7c5cff, brillo: 0x2a1a70, brilloEncima: 0x6a50ff,
+    halo: 0x9d82ff, zona: 0x8f6bff, guia: 0xb9a8ff, textoGuia: '#b9a8ff', tituloGuia: 'SIGUIENTE JUEGO',
+  },
+  pausa: {
+    lado: -1, nombre: 'boton-pausa', tapa: 0x00a896, brillo: 0x003d36, brilloEncima: 0x00bfa5,
+    halo: 0x4dd0c4, zona: 0x26c6b5, guia: 0x80e8dc, textoGuia: '#80e8dc', tituloGuia: 'PAUSA Y MENÚ',
+  },
+};
+
+// Botón virtual que flota detrás de un hombro del jugador (el derecho para cambiar
+// de juego, el izquierdo para pausar). Solo responde a la mano de ese lado.
 // Se activa al dejar la mano dentro medio segundo o al apretar el gatillo tocándolo.
 // Al acercar la mano, el mando vibra cada vez más rápido ("frío, caliente").
 export class BotonCambio {
-  constructor(crearPanel, camara) {
+  constructor(crearPanel, camara, tipo = 'siguiente') {
+    const estilo = ESTILOS[tipo];
+    this.estilo = estilo;
+    this.lado = estilo.lado;
+    this.desplazamiento = DESPLAZAMIENTO.clone();
+    this.desplazamiento.x *= estilo.lado;
     this.grupo = new THREE.Group();
-    this.grupo.name = 'boton-cambio';
+    this.grupo.name = estilo.nombre;
 
     // Todo lo visible va en "visual" para poder escalarlo de una vez
     this.visual = new THREE.Group();
@@ -67,20 +87,26 @@ export class BotonCambio {
 
     this.tapa = new THREE.Mesh(
       new THREE.CylinderGeometry(0.07, 0.07, 0.03, 32),
-      new THREE.MeshLambertMaterial({ color: 0x7c5cff, emissive: 0x2a1a70 }),
+      new THREE.MeshLambertMaterial({ color: estilo.tapa, emissive: estilo.brillo }),
     );
     this.tapa.rotation.x = Math.PI / 2;
     this.tapa.position.z = 0.02;
 
-    // Flecha "siguiente" dibujada sobre la tapa
-    const flecha = new THREE.Mesh(
-      new THREE.CircleGeometry(0.035, 3),
-      new THREE.MeshBasicMaterial({ color: 0xffffff }),
-    );
-    // La tapa está girada: su eje +Y local apunta hacia el jugador
-    flecha.rotation.x = -Math.PI / 2;
-    flecha.position.y = 0.016;
-    this.tapa.add(flecha);
+    // Icono dibujado sobre la tapa: flecha "siguiente" o las dos barras de pausa.
+    // La tapa está girada: su eje +Y local apunta hacia el jugador.
+    const blanco = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const iconos = tipo === 'pausa'
+      ? [-1, 1].map((s) => {
+        const barra = new THREE.Mesh(new THREE.PlaneGeometry(0.018, 0.055), blanco);
+        barra.position.x = s * 0.017;
+        return barra;
+      })
+      : [new THREE.Mesh(new THREE.CircleGeometry(0.035, 3), blanco)];
+    for (const icono of iconos) {
+      icono.rotation.x = -Math.PI / 2;
+      icono.position.y = 0.016;
+      this.tapa.add(icono);
+    }
 
     // Anillo que se rellena mientras mantienes la mano dentro
     this.anillo = new THREE.Mesh(
@@ -98,14 +124,14 @@ export class BotonCambio {
     // Burbuja translúcida que marca la zona activa (más visible al acercarse)
     this.zona = new THREE.Mesh(
       new THREE.SphereGeometry(RADIO_ZONA, 24, 16),
-      new THREE.MeshBasicMaterial({ color: 0x8f6bff, transparent: true, opacity: 0.06, depthWrite: false }),
+      new THREE.MeshBasicMaterial({ color: estilo.zona, transparent: true, opacity: 0.06, depthWrite: false }),
     );
 
     // Halo que late detrás del botón: se ve de reojo al girar la cabeza
     this.halo = new THREE.Mesh(
       new THREE.RingGeometry(0.11, 0.2, SEGMENTOS, 1),
       new THREE.MeshBasicMaterial({
-        color: 0x9d82ff, transparent: true, opacity: 0.5, side: THREE.DoubleSide,
+        color: estilo.halo, transparent: true, opacity: 0.5, side: THREE.DoubleSide,
         depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
       }),
     );
@@ -122,11 +148,11 @@ export class BotonCambio {
     this.indicador = new THREE.Group();
     this.indicador.position.z = -DISTANCIA_GUIA;
     this.indicador.renderOrder = 998;
-    this.flecha = new THREE.Mesh(geometriaFlecha(), materialEncima(0xb9a8ff));
+    this.flecha = new THREE.Mesh(geometriaFlecha(), materialEncima(estilo.guia));
     this.flecha.renderOrder = 998;
     this.guiaTexto = crearPanel({ ancho: 0.17, alto: 0.05, resolucion: 320 });
     this.guiaTexto.escribir([
-      { texto: 'SIGUIENTE JUEGO', tam: 1, color: '#b9a8ff' },
+      { texto: estilo.tituloGuia, tam: 1, color: estilo.textoGuia },
       { texto: 'detrás de tu hombro', tam: 0.8 },
     ]);
     const matTexto = this.guiaTexto.mesh.material;
@@ -162,6 +188,12 @@ export class BotonCambio {
     ]);
   }
 
+  // Texto fijo encima del botón (el de pausa). Se llama al empezar cada juego.
+  setEtiqueta(lineas) {
+    this.ayuda = TIEMPO_AYUDA;
+    this.etiqueta.escribir(lineas);
+  }
+
   // Al entrar en VR: recalcular la orientación del cuerpo desde cero.
   reiniciar() {
     this.colocado = false;
@@ -193,7 +225,7 @@ export class BotonCambio {
     if (diferencia > MARGEN_GIRO) this.yawCuerpo += diferencia - MARGEN_GIRO;
     else if (diferencia < -MARGEN_GIRO) this.yawCuerpo += diferencia + MARGEN_GIRO;
 
-    this._objetivo.copy(DESPLAZAMIENTO).applyAxisAngle(EJE_Y, this.yawCuerpo).add(cabezaPos);
+    this._objetivo.copy(this.desplazamiento).applyAxisAngle(EJE_Y, this.yawCuerpo).add(cabezaPos);
     if (!this.colocado) {
       this.grupo.position.copy(this._objetivo);
       this.colocado = true;
@@ -248,7 +280,7 @@ export class BotonCambio {
     // Aspecto: crece un poco y brilla al acercar la mano
     const segmentos = Math.floor(Math.min(1, this.progreso) * SEGMENTOS);
     this.anillo.geometry.setDrawRange(0, segmentos * 6);
-    this.tapa.material.emissive.setHex(manoDentro ? 0x6a50ff : 0x2a1a70);
+    this.tapa.material.emissive.setHex(manoDentro ? this.estilo.brilloEncima : this.estilo.brillo);
     this.tapa.position.z = manoDentro ? 0.008 : 0.02;
     this.visual.scale.setScalar(ESCALA * (1 + cerca * 0.15));
     this.zona.material.opacity = 0.06 + cerca * 0.14;
@@ -280,7 +312,7 @@ export class BotonCambio {
     let dy = local.y;
     const largo = Math.hypot(dx, dy);
     if (largo < 0.05) {
-      dx = 1;
+      dx = this.lado;
       dy = 0.3;
     } else {
       dx /= largo;
