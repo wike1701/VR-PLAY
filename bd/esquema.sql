@@ -46,3 +46,13 @@ CREATE TABLE IF NOT EXISTS me_gusta (
 );
 CREATE INDEX IF NOT EXISTS me_gusta_votante ON me_gusta (votante);
 CREATE INDEX IF NOT EXISTS me_gusta_ip ON me_gusta (ip, creada);
+
+-- Un "me gusta" por navegador y juego (desde el menú de pausa). El Worker la crea solo si falta.
+CREATE TABLE IF NOT EXISTS juegos_me_gusta (
+  juego         TEXT NOT NULL,                   -- id del juego del catálogo
+  votante       TEXT NOT NULL,                   -- hash del identificador anónimo del navegador
+  ip            TEXT NOT NULL DEFAULT '',
+  creada        TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (juego, votante)
+);
+CREATE INDEX IF NOT EXISTS juegos_me_gusta_ip ON juegos_me_gusta (ip, creada);

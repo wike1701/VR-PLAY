@@ -177,7 +177,10 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
   }
+  .insignia.gustos { right: auto; left: 8px; }
+  .insignia.gustos.mio { color: #ff7aa2; }
   .tarjeta h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+  .tarjeta h3 .favorito { color: #ffd54f; }
   .meta { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
   .etiquetas { margin: 4px 0 0; font-size: 0.8rem; color: var(--accent-2); }
   .etiquetas:empty { display: none; }
@@ -269,12 +272,19 @@
 <script type="module">
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
+  const meGusta = meGustaMios();
 
   // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
   const enPruebas = await juegosEnPruebas();
   const JUEGOS = TODOS.filter((j) => !enPruebas.has(j.id));
 
-  const generos = ['Todos', ...new Set(JUEGOS.map((j) => j.genero))];
+  // Favoritos y "me gusta" (se marcan desde el menú de pausa del juego)
+  const FAVORITOS = '★ Favoritos';
+  const misFavoritos = favoritos();
+  let totales = {};
+
+  const generos = ['Todos', ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.genero))];
   let generoActivo = 'Todos';
   let busqueda = '';
 
@@ -310,7 +320,8 @@
   function pintarRejilla() {
     const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
     const lista = JUEGOS.filter((j) =>
-      (generoActivo === 'Todos' || j.genero === generoActivo) && coincide(j, palabras));
+      (generoActivo === 'Todos' || j.genero === generoActivo || (generoActivo === FAVORITOS && misFavoritos.has(j.id))) &&
+      coincide(j, palabras));
 
     if (lista.length === 0) {
       const p = document.createElement('p');
@@ -336,6 +347,12 @@
         </div>`;
       a.querySelector('img').src = j.miniatura;
       a.querySelector('h3').textContent = j.titulo;
+      if (misFavoritos.has(j.id)) a.querySelector('h3').append(Object.assign(document.createElement('span'), { className: 'favorito', textContent: ' ★', title: 'En tus favoritos' }));
+      if (totales[j.id]) {
+        a.querySelector('.miniatura').append(Object.assign(document.createElement('span'), {
+          className: `insignia gustos${meGusta.has(j.id) ? ' mio' : ''}`, textContent: `♥ ${totales[j.id]}`,
+        }));
+      }
       a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
       // Solo las primeras: el resto sirven para buscar pero saturarían la tarjeta
       a.querySelector('.etiquetas').textContent = (j.etiquetas || []).slice(0, 6).map((e) => '#' + e).join(' ');
@@ -351,6 +368,11 @@
 
   pintarFiltros();
   pintarRejilla();
+  // El recuento de "me gusta" llega después: no retrasa la primera vista
+  totalesMeGusta().then((t) => {
+    totales = t;
+    if (Object.keys(t).length) pintarRejilla();
+  });
 </script>
 <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->
 <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "458b790a4dac4877a454029b58b3bd49"}'></script>

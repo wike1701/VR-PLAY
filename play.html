@@ -72,6 +72,21 @@
 
     body.en-vr .barra, body.en-vr .pie { display: none; }
 
+    .pausa {
+      position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+      padding: 16px; background: rgba(8, 8, 14, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    }
+    .pausa[hidden] { display: none; }
+    .pausa-caja {
+      display: grid; gap: 10px; width: min(340px, 100%); padding: 20px;
+      border-radius: 16px; background: var(--panel); border: 1px solid var(--accent);
+    }
+    .pausa-sello { margin: 0; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #b9a8ff; }
+    .pausa h2 { margin: 0 0 6px; font-size: 1.3rem; }
+    .pausa button { width: 100%; padding: 12px 16px; font-size: 1rem; text-align: left; border-radius: 12px; }
+    .pausa button.activo-megusta { color: #ff7aa2; border-color: #ff7aa2; }
+    .pausa button.activo-favorito { color: #ffd54f; border-color: #ffd54f; }
+
     /* Pantalla completa (o app instalada): solo el juego y dos botones flotantes */
     body.inmersivo .barra, body.inmersivo .pie { display: none; }
     .flotantes {
@@ -117,6 +132,7 @@
     <a class="volver" href="index.html" aria-label="Volver al catálogo">←<span class="largo"> Catálogo</span></a>
     <div class="titulo" id="titulo">Cargando…</div>
     <button id="btn-completa" type="button" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> Pantalla completa</span></button>
+    <button id="btn-pausa" type="button" title="Pausa y menú" aria-label="Pausa">⏸<span class="largo"> Pausa</span> <kbd>Esc</kbd></button>
     <button id="btn-siguiente" type="button">Siguiente<span class="largo"> juego</span> <kbd>N</kbd></button>
     <button id="btn-vr" class="principal" type="button" disabled>Comprobando VR…</button>
   </div>
@@ -127,12 +143,25 @@
   </div>
 
   <div class="flotantes" id="flotantes" hidden>
+    <button id="flotante-pausa" type="button" title="Pausa" aria-label="Pausa">⏸</button>
     <button id="flotante-siguiente" type="button" title="Siguiente juego" aria-label="Siguiente juego">⏭</button>
     <button id="flotante-salir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">✕</button>
   </div>
   <p class="aviso-completa" id="aviso-completa" hidden></p>
 
   <div class="carga" id="carga" hidden>Cargando…</div>
+
+  <!-- Menú de pausa (ratón y móvil; en VR hay uno flotante igual) -->
+  <div class="pausa" id="pausa" hidden>
+    <div class="pausa-caja" role="dialog" aria-modal="true" aria-labelledby="pausa-titulo">
+      <p class="pausa-sello">Pausa</p>
+      <h2 id="pausa-titulo"></h2>
+      <button type="button" class="principal" data-accion="continuar">▶ Continuar</button>
+      <button type="button" data-accion="megusta"></button>
+      <button type="button" data-accion="favorito"></button>
+      <button type="button" data-accion="catalogo">← Volver al catálogo</button>
+    </div>
+  </div>
 
   <script type="module" src="shell/shell.js"></script>
   <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->

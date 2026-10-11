@@ -21,6 +21,8 @@ play.html               Página de juego (la "shell" VR)
 shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
   boton-cambio.js       Botón virtual detrás del hombro derecho
+  menu-pausa.js         Menú de pausa en VR (mano izquierda en el hombro izquierdo)
+  valoraciones.js       Favoritos (en el navegador) y "me gusta" de los juegos (en el servidor)
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   sonido.js             Efectos de sonido sintetizados
@@ -57,6 +59,8 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - Mientras juegas, la shell descarga en segundo plano el siguiente juego de la lista. Así el cambio es casi instantáneo.
 - En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego aparece unos segundos en la vista una flecha que señala dónde está (solo entonces, para que no moleste mientras juegas). Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
+- **Pausa.** En VR, deja la mano izquierda sobre el hombro izquierdo unos 0,7 s; el mando vibra mientras se carga. Sin gafas, usa el botón ⏸ o la tecla **Esc** (o **P**). El juego se congela, porque la shell deja de llamar a `actualizar()`, y los motores se silencian. Aparece un menú con: Continuar, ♥ Me gusta, ★ Guardar en favoritos y Volver al catálogo. En VR se elige apuntando con el mando y apretando el gatillo, o tocando el botón con la mano. Los juegos no tienen que hacer nada para tenerlo.
+- **Favoritos y me gusta.** Los favoritos se guardan en el navegador y salen en el catálogo como filtro «★ Favoritos» y con una ★ en la tarjeta. Los «me gusta» se cuentan en el servidor (`/api/juegos/:id/me-gusta`, tabla `juegos_me_gusta`, que el Worker crea solo) y salen como ♥ en la miniatura.
 - En el móvil se juega con el dedo, también en vertical: la shell abre el campo de visión para que quepa lo importante a lo ancho, y cada juego del catálogo tiene su texto `controlesTactil`. En los juegos, `ctx.tactil` indica si la pantalla es táctil (para decir «toca» en vez de «haz clic»).
 - Pantalla completa en el móvil: en Android el primer toque en el juego la activa (o el botón ⛶); solo quedan el juego y dos botones flotantes (⏭ siguiente, ✕ salir). En iPhone Safari no lo permite: hay que usar Compartir → «Añadir a pantalla de inicio», y desde ese icono se abre sin barras.
 

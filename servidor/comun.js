@@ -13,7 +13,7 @@ export const CAMPOS = 'id, titulo, descripcion, manos, accion, tipo, autor, esta
 export const ESTADOS = ['nueva', 'estudio', 'desarrollo', 'hecha', 'existe', 'descartada'];
 
 // Límites por IP y por hora, para frenar el spam
-export const LIMITES = { sugerencias: 5, comentarios: 20, me_gusta: 120 };
+export const LIMITES = { sugerencias: 5, comentarios: 20, me_gusta: 120, juegos_me_gusta: 120 };
 
 export function json(datos, estado = 200) {
   return new Response(JSON.stringify(datos), {

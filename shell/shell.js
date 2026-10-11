@@ -12,6 +12,8 @@ import * as THREE from 'three';
 import { JUEGOS } from '../juegos/catalogo.js';
 import { juegosEnPruebas } from '../juegos/en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
+import { MenuPausa } from './menu-pausa.js';
+import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta } from './valoraciones.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
@@ -431,6 +433,7 @@ async function cambiarA(indice) {
   if (cambiando) return;
   cambiando = true;
   ocultarAviso();
+  reanudar();
   try {
     if (actual) await fundido.a(1, 0.3);
     desmontar();
@@ -525,6 +528,87 @@ function actualizarAviso(dt) {
   aviso.mesh.visible = true;
 }
 
+// ─── Pausa: me gusta, favoritos y volver al catálogo ─────────────────────
+// En VR se abre dejando la mano izquierda en el hombro izquierdo (menú flotante);
+// con ratón o en el móvil, con el botón ⏸ o la tecla Esc (menú HTML). El juego
+// no recibe actualizar() mientras está en pausa, así que se queda congelado.
+const menuPausa = new MenuPausa(crearPanel, renderer, escena);
+const $pausa = document.getElementById('pausa');
+const $pausaTitulo = document.getElementById('pausa-titulo');
+const $pausaMeGusta = $pausa.querySelector('[data-accion="megusta"]');
+const $pausaFavorito = $pausa.querySelector('[data-accion="favorito"]');
+let pausado = false;
+let totalMeGusta = null;
+
+function textosPausa() {
+  const juego = JUEGOS[indiceActual];
+  const datos = { titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id) };
+  menuPausa.escribir(datos);
+  $pausaTitulo.textContent = datos.titulo;
+  $pausaMeGusta.textContent = `${datos.meGusta ? '♥ Te gusta' : '♡ Me gusta'}${datos.total ? ` · ${datos.total}` : ''}`;
+  $pausaMeGusta.classList.toggle('activo-megusta', datos.meGusta);
+  $pausaFavorito.textContent = datos.favorito ? '★ En favoritos' : '☆ Guardar en favoritos';
+  $pausaFavorito.classList.toggle('activo-favorito', datos.favorito);
+}
+
+function pausar() {
+  if (pausado || cambiando || !actual) return;
+  pausado = true;
+  for (const s of actual.continuos) s.ajustar(0, 0); // silencia motores mientras tanto
+  const id = JUEGOS[indiceActual].id;
+  totalMeGusta = null;
+  textosPausa();
+  totalesMeGusta().then((totales) => {
+    if (pausado && JUEGOS[indiceActual].id === id) {
+      totalMeGusta = totales[id] ?? null;
+      textosPausa();
+    }
+  });
+  if (renderer.xr.isPresenting) menuPausa.abrir(cabezaPos, cabezaDir);
+  else $pausa.hidden = false;
+  sonido('tic');
+}
+
+function reanudar() {
+  if (!pausado) return;
+  pausado = false;
+  menuPausa.cerrar();
+  $pausa.hidden = true;
+}
+
+async function accionPausa(accion) {
+  const id = JUEGOS[indiceActual].id;
+  if (accion === 'continuar') {
+    sonido('boton');
+    reanudar();
+  } else if (accion === 'megusta') {
+    const r = await alternarMeGusta(id);
+    if (r.total !== null) totalMeGusta = r.total;
+    sonido(r.meGusta ? 'punto' : 'tic');
+    textosPausa();
+  } else if (accion === 'favorito') {
+    sonido(alternarFavorito(id) ? 'punto' : 'tic');
+    textosPausa();
+  } else if (accion === 'catalogo') {
+    sonido('boton');
+    const sesion = renderer.xr.getSession();
+    if (sesion) sesion.end().catch(() => {}).finally(() => { location.href = 'index.html'; });
+    else location.href = 'index.html';
+  }
+}
+
+$pausa.addEventListener('click', (e) => {
+  const accion = e.target.closest('[data-accion]')?.dataset.accion;
+  if (accion) accionPausa(accion);
+  else if (e.target === $pausa) reanudar(); // clic fuera del menú
+});
+for (const id of ['btn-pausa', 'flotante-pausa']) {
+  document.getElementById(id).addEventListener('click', () => {
+    activarAudio();
+    pausar();
+  });
+}
+
 // ─── Interfaz HTML (modo escritorio) ─────────────────────────────────────
 const $titulo = document.getElementById('titulo');
 const $controles = document.getElementById('controles');
@@ -551,7 +635,11 @@ $btnSiguiente.addEventListener('click', () => {
 });
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
-  if (e.key === 'n' || e.key === 'N') {
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+    activarAudio();
+    if (pausado) reanudar();
+    else pausar();
+  } else if (e.key === 'n' || e.key === 'N') {
     activarAudio();
     siguienteJuego();
   }
@@ -595,6 +683,7 @@ $btnVR.addEventListener('click', async () => {
 
 function alEntrarVR() {
   document.body.classList.add('en-vr');
+  reanudar();
   boton.reiniciar();
   mostrarAviso([
     { texto: 'Para cambiar de juego', tam: 1.1, color: '#b9a8ff' },
@@ -605,6 +694,11 @@ function alEntrarVR() {
 
 function alSalirVR() {
   document.body.classList.remove('en-vr');
+  // Si sales de VR con el juego en pausa, el menú pasa a la pantalla
+  if (pausado) {
+    menuPausa.cerrar();
+    $pausa.hidden = false;
+  }
   // Al salir de VR la cámara conserva el campo de visión de las gafas: lo restauramos.
   alRedimensionar();
   aplicarVista();
@@ -634,7 +728,7 @@ renderer.setAnimationLoop(() => {
   camara.getWorldDirection(cabezaDir);
 
   // Un error dentro de un juego no debe bloquear la shell (ni el botón de cambio)
-  if (actual && !errorJuego) {
+  if (actual && !errorJuego && !pausado) {
     try {
       actual.instancia.actualizar?.(dt, tiempo);
     } catch (e) {
@@ -645,9 +739,19 @@ renderer.setAnimationLoop(() => {
   }
   guardarRatonAnterior();
 
-  boton.grupo.visible = enVR;
-  if (!enVR) boton.ocultarGuia();
-  if (enVR) {
+  boton.grupo.visible = enVR && !pausado;
+  if (!enVR || pausado) boton.ocultarGuia();
+  if (enVR && pausado) {
+    const accion = menuPausa.actualizar(manos);
+    if (accion) accionPausa(accion);
+  } else if (enVR) {
+    // Mano izquierda en el hombro izquierdo: pausa (el mando vibra mientras se carga)
+    const g = menuPausa.gesto(dt, cabezaPos, cabezaDir, manos);
+    if (g.cargando > 0.3) vibrar(g.mano, 0.1 + g.cargando * 0.3, 20);
+    if (g.abrir) {
+      vibrar(g.mano, 0.8, 80);
+      pausar();
+    }
     const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa));
     if (r.aviso) vibrar(r.aviso.mano, r.aviso.fuerza, 25); // guía para encontrar el botón
     if (r.entro) {

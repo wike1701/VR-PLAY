@@ -21,7 +21,9 @@ const MEDIO_ANCHO = 3;
 const Z_FONDO_JUGADOR = 1.5;
 const Z_FONDO_MAQUINA = Z_RED - 4.5;
 const REBOTE_MANO = 0.6;
-const AYUDA = 0.75;
+const AGARRE_PIEL = 0.7;       // parte de la velocidad tangencial que conserva el balón al rozar la mano
+const EMPUJE = 0.65;           // cuánto manda la dirección en la que mueves la mano sobre la del punto de contacto
+const AYUDA = 0.5;             // solo corrige altura y distancia, nunca la dirección
 const Z_RATON = -0.4;
 const R_CONTACTO_RATON = 0.32;
 const VELOCIDAD_MAQUINA = 3.4;
@@ -177,7 +179,7 @@ export function iniciar(ctx) {
     // Se crean las dos versiones y se enseña la que toca cuando se sabe qué mando es
     const izquierda = ctx.adjuntarAMano(mano, new THREE.Mesh(geoManos.izquierda, matMano));
     const derecha = ctx.adjuntarAMano(mano, new THREE.Mesh(geoManos.derecha, matMano));
-    return { mano, izquierda, derecha, centro: new THREE.Vector3(), centroAntes: new THREE.Vector3(), lista: false };
+    return { mano, izquierda, derecha, centro: new THREE.Vector3(), centroAntes: new THREE.Vector3(), vel: new THREE.Vector3(), lista: false };
   });
 
   // Ratón / dedo: un par de manos juntas, palmas enfrentadas y dedos hacia arriba, que siguen al puntero
@@ -368,6 +370,7 @@ export function iniciar(ctx) {
     }
     golpeador = quien;
     golpesSeguidos += 1;
+    tiempoVivo = 0; // el seguro de "balón perdido" cuenta desde el último toque, no desde el saque
     enfriamiento = 0.25;
     ctx.sonido('bote');
     return true;
@@ -384,7 +387,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  function manosVRActualizar() {
+  function manosVRActualizar(dt) {
     const activas = [];
     for (const m of manosVR) {
       // Mano izquierda o derecha según el mando (si aún no se sabe, el primero es el izquierdo)
@@ -399,40 +402,63 @@ export function iniciar(ctx) {
       m.mano.grip.localToWorld(m.centro.copy(OFFSET_MANO));
       if (!m.lista) {
         m.centroAntes.copy(m.centro);
+        m.vel.set(0, 0, 0);
         m.lista = true;
       }
+      // Velocidad de la mano suavizada: la de un solo fotograma tiembla mucho y
+      // mandaba el balón hacia donde no ibas
+      tmp.subVectors(m.centro, m.centroAntes).divideScalar(Math.max(dt, 1e-4));
+      m.vel.lerp(tmp, 0.6);
       activas.push(m);
     }
     return activas;
   }
 
-  function chocarMano(m, f, dt) {
+  function chocarMano(m, f) {
     const centro = tmp.lerpVectors(m.centroAntes, m.centro, f);
     normal.subVectors(pos, centro);
     const d = normal.length();
     if (d > R_BALON + R_MANO || d < 1e-6) return false;
     normal.divideScalar(d);
-    velMano.subVectors(m.centro, m.centroAntes).divideScalar(Math.max(dt, 1e-4));
+    const contacto = tmp2.copy(normal); // normal geométrica (desde el centro de la mano)
+    velMano.copy(m.vel);
+    // La mano es plana, no una bola: si la mueves con decisión, el balón sale
+    // hacia donde empujas aunque le des un poco de refilón
+    const rapidezMano = velMano.length();
+    if (rapidezMano > 1.2) {
+      normal.multiplyScalar(1 - EMPUJE).addScaledVector(velMano, EMPUJE / rapidezMano).normalize();
+      if (normal.dot(contacto) < 0.2) normal.copy(contacto);
+    }
     relativa.subVectors(vel, velMano);
     const vn = relativa.dot(normal);
     if (vn >= 0) return false;
     if (!golpe('jugador')) return false;
-    vel.copy(velMano).add(relativa.addScaledVector(normal, -(1 + REBOTE_MANO) * vn));
-    pos.copy(centro).addScaledVector(normal, R_BALON + R_MANO + 0.005);
+    // Choque contra una mano mucho más pesada que el balón: la parte normal rebota
+    // y la tangencial se frena un poco por el roce con la piel
+    relativa.addScaledVector(normal, -vn);                         // solo tangencial
+    relativa.multiplyScalar(AGARRE_PIEL).addScaledVector(normal, -REBOTE_MANO * vn);
+    vel.copy(velMano).add(relativa);
+    pos.copy(centro).addScaledVector(contacto, R_BALON + R_MANO + 0.005);
     ayudar();
-    ctx.vibrar(m.mano, 0.6, 50);
+    ctx.vibrar(m.mano, THREE.MathUtils.clamp(0.3 + rapidezMano * 0.08, 0.3, 1), 50);
     return true;
   }
 
-  // Corrige un poco el golpe para que vaya alto y caiga en el campo rival
+  // Ayuda suave: respeta la DIRECCIÓN en la que has golpeado y solo corrige la
+  // altura y la distancia para que pase la red y caiga dentro de fondo.
+  // Si tu golpe ya iba a caer bien, no se toca nada.
   function ayudar() {
-    if (vel.z > -0.3 && vel.y < 2) return; // lo ha tirado hacia atrás o hacia abajo: sin ayuda
-    const angulo = THREE.MathUtils.clamp(Math.atan2(vel.y, Math.max(0.1, Math.hypot(vel.x, vel.z))), 0.5, 1.25);
-    const destino = new THREE.Vector3(
-      THREE.MathUtils.clamp(pos.x + vel.x * 0.6, -MEDIO_ANCHO + 0.4, MEDIO_ANCHO - 0.4),
-      0,
-      THREE.MathUtils.clamp(Z_RED - 0.8 - Math.max(0, -vel.z) * 0.35, Z_FONDO_MAQUINA + 0.5, Z_RED - 0.8),
-    );
+    if (vel.z > -0.3) return; // hacia atrás o de lado: tal cual
+    const natural = simular(pos, vel);
+    if (natural.pasaRed && simPos.z < Z_RED && dentro(simPos)) return;
+    const dirX = vel.x;
+    const dirZ = vel.z;
+    const horizontal = Math.hypot(dirX, dirZ);
+    // Distancia a lo largo de tu dirección para caer en la zona buena del fondo rival
+    const zObjetivo = THREE.MathUtils.clamp(Z_RED - 1 - Math.max(0, -vel.z) * 0.3, Z_FONDO_MAQUINA + 0.6, Z_RED - 0.9);
+    const t = (zObjetivo - pos.z) / (dirZ / horizontal);
+    const destino = new THREE.Vector3(THREE.MathUtils.clamp(pos.x + (dirX / horizontal) * t, -MEDIO_ANCHO - 1.5, MEDIO_ANCHO + 1.5), 0, zObjetivo);
+    const angulo = THREE.MathUtils.clamp(Math.atan2(vel.y, Math.max(0.1, horizontal)), 0.45, 1.25);
     vel.lerp(lanzamiento(pos, destino, angulo), AYUDA);
   }
 
@@ -514,7 +540,7 @@ export function iniciar(ctx) {
         ctx.sonido('zas');
       }
       let golpeado = false;
-      for (const m of manos) if (chocarMano(m, i / pasos, dt)) golpeado = true;
+      for (const m of manos) if (chocarMano(m, i / pasos)) golpeado = true;
       if (golpeado) continue;
       if (pos.y <= R_BALON) {
         pos.y = R_BALON;
@@ -542,7 +568,7 @@ export function iniciar(ctx) {
     let manos = [];
     if (vr) {
       parRaton.visible = false;
-      manos = manosVRActualizar();
+      manos = manosVRActualizar(dt);
     } else {
       manosRaton(dt);
     }
@@ -557,7 +583,7 @@ export function iniciar(ctx) {
           for (const m of manos) {
             const pasos = Math.min(24, Math.max(1, Math.ceil(m.centro.distanceTo(m.centroAntes) / 0.02)));
             let golpeado = false;
-            for (let i = 1; i <= pasos && !golpeado; i++) golpeado = chocarMano(m, i / pasos, dt);
+            for (let i = 1; i <= pasos && !golpeado; i++) golpeado = chocarMano(m, i / pasos);
             if (golpeado) break;
           }
         } else {
@@ -565,8 +591,9 @@ export function iniciar(ctx) {
         }
         break;
       case 'vivo':
+        // Seguro por si el balón se quedara atascado: ningún vuelo dura tanto sin tocarlo
         tiempoVivo += dt;
-        if (tiempoVivo > 15) tocaSuelo();
+        if (tiempoVivo > 10) tocaSuelo();
         break;
       case 'punto':
         if (reloj <= 0) prepararSaque();
