@@ -49,7 +49,8 @@ La especificación completa está en `PERFILES.md`.
 - [x] Favoritos y «me gusta» guardados en la cuenta (se ven en todos los dispositivos)
 - [ ] Récords guardados en la cuenta (`ctx.record(puntos)` y adaptar los juegos uno a uno)
 - [x] Sugerencias y comentarios firmados por el usuario, y no solo con un nombre libre
-- [ ] Probar las cuentas en producción con `?perfiles=1` (Google, el correo de Resend y el Quest) y publicarlas: `CUENTAS: "1"` en `wrangler.jsonc`
+- [x] Probar las cuentas en producción con `?perfiles=1` y publicarlas (`CUENTAS: "1"` en `wrangler.jsonc`, 2026-10-12)
+- [ ] Probar entrar en el Quest con el código del correo
 - [x] Página de perfil pública (`perfil.html#alias`) y buscar jugadores con `@alias` en la portada (faltan los récords y las insignias)
 - [ ] «Idea de @alias» en la ficha del juego y en el menú de pausa
 - [ ] Ajustes de privacidad: qué se ve del perfil

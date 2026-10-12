@@ -21,6 +21,6 @@
       "database_id": "4f1328b4-ff9d-4bd9-a185-a0de54a4238c"
     }
   ],
-  "vars": { "CUENTAS": "0" },
+  "vars": { "CUENTAS": "1" },
   "observability": { "enabled": true }
 }
