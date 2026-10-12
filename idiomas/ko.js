@@ -49,6 +49,8 @@ export default {
     buscarConCuentas: '게임, #슈팅 또는 @플레이어 검색…',
     paraTi: '추천',
     seguidos: '팔로잉',
+    partidasN: '{n}회 플레이',
+    meGustaN: '좋아요 {n}개',
     jugadores: '플레이어',
     escribeAlias: '@ 뒤에 사용자 이름을 입력하세요.',
     sinJugadores: '그 사용자 이름의 플레이어가 없어요.',

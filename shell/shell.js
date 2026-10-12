@@ -14,7 +14,7 @@ import { JUEGOS } from '../juegos/catalogo.js';
 import { juegosEnPruebas } from '../juegos/en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { MenuPausa } from './menu-pausa.js';
-import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta } from './valoraciones.js';
+import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
@@ -406,7 +406,8 @@ function montar(indice, modulo) {
   };
 
   const instancia = modulo.iniciar(ctx);
-  actual = { indice, instancia, raiz, adjuntos, recursos, continuos };
+  // jugado: segundos de juego sin contar la pausa; a los SEGUNDOS_PARTIDA cuenta como una partida
+  actual = { indice, instancia, raiz, adjuntos, recursos, continuos, jugado: 0, contada: false };
   errorJuego = false;
 }
 
@@ -723,6 +724,9 @@ function alRedimensionar() {
 window.addEventListener('resize', alRedimensionar);
 
 // ─── Bucle principal ─────────────────────────────────────────────────────
+// Una partida se cuenta (para el número de partidas del catálogo) al llevar este tiempo jugando,
+// así que pasar de largo con «siguiente juego» no cuenta.
+const SEGUNDOS_PARTIDA = 15;
 const reloj = new THREE.Clock();
 let tiempo = 0;
 
@@ -741,6 +745,11 @@ renderer.setAnimationLoop(() => {
   if (actual && !errorJuego && !pausado) {
     try {
       actual.instancia.actualizar?.(dt, tiempo);
+      actual.jugado += dt;
+      if (!actual.contada && actual.jugado >= SEGUNDOS_PARTIDA) {
+        actual.contada = true;
+        contarPartida(JUEGOS[actual.indice].id);
+      }
     } catch (e) {
       errorJuego = true;
       console.error(`Error en "${JUEGOS[actual.indice].titulo}"`, e);

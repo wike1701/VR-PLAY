@@ -49,6 +49,8 @@ export default {
     buscarConCuentas: 'ゲーム、#シューティング、@プレイヤーを検索…',
     paraTi: 'おすすめ',
     seguidos: 'フォロー中',
+    partidasN: '{n} 回プレイ',
+    meGustaN: '「いいね」{n} 件',
     jugadores: 'プレイヤー',
     escribeAlias: '@ のあとにユーザー名を入力してください。',
     sinJugadores: 'そのユーザー名のプレイヤーはいません。',

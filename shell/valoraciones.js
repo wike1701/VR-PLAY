@@ -78,6 +78,22 @@ export async function alternarMeGusta(id) {
   return { meGusta, total };
 }
 
+// Cuenta una partida de un juego (la shell la envía a los 15 s de juego). Si falla, no pasa nada.
+export function contarPartida(id) {
+  fetch(`/api/juegos/${encodeURIComponent(id)}/partida`, { method: 'POST' }).catch(() => { /* sin servidor */ });
+}
+
+// «Me gusta» y partidas de todos los juegos: { topos: { meGusta: 3, partidas: 120 }, … } (vacío si no hay servidor)
+export async function estadisticasJuegos() {
+  try {
+    const r = await fetch('/api/juegos/estadisticas');
+    if (!r.ok) return {};
+    return (await r.json()).juegos || {};
+  } catch {
+    return {};
+  }
+}
+
 // Recuento de "me gusta" de todos los juegos: { topos: 3, … } (vacío si no hay servidor)
 export async function totalesMeGusta() {
   try {

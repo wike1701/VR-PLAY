@@ -48,6 +48,8 @@ export default {
     buscarConCuentas: 'Chercher des jeux, #tir ou des @joueurs…',
     paraTi: 'Pour toi',
     seguidos: 'Abonnements',
+    partidasN: { one: '{n} partie', other: '{n} parties' },
+    meGustaN: { one: '{n} « j’aime »', other: '{n} « j’aime »' },
     jugadores: 'Joueurs',
     escribeAlias: 'Écris le pseudo après le @.',
     sinJugadores: 'Aucun joueur avec ce pseudo.',

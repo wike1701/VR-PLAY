@@ -314,7 +314,9 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
   }
-  .insignia.gustos { right: auto; left: 8px; }
+  /* Partidas y «me gusta» de cada juego */
+  .cifras { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 6px; }
+  .cifras .insignia { position: static; }
   .insignia.gustos.mio { color: #ff7aa2; }
   .tarjeta h3 { margin: 0; font-size: 1rem; font-weight: 600; }
   .tarjeta h3 .favorito { color: #ffd54f; }
@@ -424,7 +426,7 @@
   import { t, hace } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
-  import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
+  import { favoritos, meGustaMios, estadisticasJuegos } from './shell/valoraciones.js';
   import { montarBotonCuenta, cuentasVisibles, avatar, apiCuenta, botonSeguir } from './shell/cuenta.js';
   let meGusta = meGustaMios();
 
@@ -437,7 +439,9 @@
   const TODOS_LOS = '*todos';
   const FAVORITOS = '*favoritos';
   let misFavoritos = favoritos();
-  let totales = {};
+  let totales = {}; // { topos: { meGusta, partidas } }
+  // Números cortos en el idioma de la página: 1234 → «1,2 mil» / «1.2K»
+  const corto = new Intl.NumberFormat(document.documentElement.lang, { notation: 'compact', maximumFractionDigits: 1 });
 
   const nombreFiltro = (g) => (g === TODOS_LOS ? t('inicio.todos') : g === FAVORITOS ? `★ ${t('inicio.favoritos')}` : t(`generos.${g}`));
   const listaGeneros = () => [TODOS_LOS, ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.generoId))];
@@ -545,10 +549,21 @@
       a.querySelector('.insignia').textContent = t('inicio.insignia');
       a.querySelector('h3').textContent = j.titulo;
       if (misFavoritos.has(j.id)) a.querySelector('h3').append(Object.assign(document.createElement('span'), { className: 'favorito', textContent: ' ★', title: t('inicio.enFavoritos') }));
-      if (totales[j.id]) {
-        a.querySelector('.miniatura').append(Object.assign(document.createElement('span'), {
-          className: `insignia gustos${meGusta.has(j.id) ? ' mio' : ''}`, textContent: `♥ ${totales[j.id]}`,
-        }));
+      // Partidas y «me gusta», abajo a la izquierda de la miniatura
+      const cifras = totales[j.id] || {};
+      if (cifras.partidas || cifras.meGusta) {
+        const $cifras = Object.assign(document.createElement('span'), { className: 'cifras' });
+        if (cifras.partidas) {
+          $cifras.append(Object.assign(document.createElement('span'), {
+            className: 'insignia partidas', textContent: `▶ ${corto.format(cifras.partidas)}`, title: t('inicio.partidasN', { n: cifras.partidas }),
+          }));
+        }
+        if (cifras.meGusta) {
+          $cifras.append(Object.assign(document.createElement('span'), {
+            className: `insignia gustos${meGusta.has(j.id) ? ' mio' : ''}`, textContent: `♥ ${corto.format(cifras.meGusta)}`, title: t('inicio.meGustaN', { n: cifras.meGusta }),
+          }));
+        }
+        a.querySelector('.miniatura').append($cifras);
       }
       a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
       // Solo las primeras: el resto sirven para buscar pero saturarían la tarjeta
@@ -659,8 +674,8 @@
 
   pintarFiltros();
   pintarRejilla();
-  // El recuento de "me gusta" llega después: no retrasa la primera vista
-  totalesMeGusta().then((t) => {
+  // Las partidas y los «me gusta» llegan después: no retrasan la primera vista
+  estadisticasJuegos().then((t) => {
     totales = t;
     if (Object.keys(t).length) pintarRejilla();
   });

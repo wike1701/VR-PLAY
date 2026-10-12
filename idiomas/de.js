@@ -48,6 +48,8 @@ export default {
     buscarConCuentas: 'Spiele, #schießen oder @Spieler suchen…',
     paraTi: 'Für dich',
     seguidos: 'Gefolgt',
+    partidasN: { one: '{n} Mal gespielt', other: '{n} Mal gespielt' },
+    meGustaN: { one: '{n} Like', other: '{n} Likes' },
     jugadores: 'Spieler',
     escribeAlias: 'Gib den Nutzernamen nach dem @ ein.',
     sinJugadores: 'Es gibt keinen Spieler mit diesem Nutzernamen.',

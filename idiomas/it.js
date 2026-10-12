@@ -48,6 +48,8 @@ export default {
     buscarConCuentas: 'Cerca giochi, #sparatutto o @giocatori…',
     paraTi: 'Per te',
     seguidos: 'Seguiti',
+    partidasN: { one: '{n} partita', other: '{n} partite' },
+    meGustaN: { one: '{n} «mi piace»', other: '{n} «mi piace»' },
     jugadores: 'Giocatori',
     escribeAlias: 'Scrivi il nome utente dopo la @.',
     sinJugadores: 'Nessun giocatore con quel nome utente.',

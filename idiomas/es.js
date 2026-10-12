@@ -55,6 +55,8 @@ export default {
     buscarConCuentas: 'Buscar juegos, #disparos o @jugadores…',
     paraTi: 'Para ti',
     seguidos: 'Seguidos',
+    partidasN: { one: '{n} partida', other: '{n} partidas' },
+    meGustaN: { one: '{n} «me gusta»', other: '{n} «me gusta»' },
     jugadores: 'Jugadores',
     escribeAlias: 'Escribe el alias después de la @.',
     sinJugadores: 'No hay ningún jugador con ese alias.',

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS sugerencias (
 );
 CREATE INDEX IF NOT EXISTS sugerencias_votos ON sugerencias (oculta, me_gusta DESC);
 CREATE INDEX IF NOT EXISTS sugerencias_ip ON sugerencias (ip, creada);
+CREATE INDEX IF NOT EXISTS sugerencias_usuario ON sugerencias (usuario_id);
 
 CREATE TABLE IF NOT EXISTS comentarios (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS comentarios (
 );
 CREATE INDEX IF NOT EXISTS comentarios_hilo ON comentarios (sugerencia_id, creada);
 CREATE INDEX IF NOT EXISTS comentarios_ip ON comentarios (ip, creada);
+CREATE INDEX IF NOT EXISTS comentarios_usuario ON comentarios (usuario_id);
 
 -- Un "me gusta" por navegador y sugerencia
 CREATE TABLE IF NOT EXISTS me_gusta (
@@ -60,6 +62,22 @@ CREATE TABLE IF NOT EXISTS juegos_me_gusta (
   PRIMARY KEY (juego, votante)
 );
 CREATE INDEX IF NOT EXISTS juegos_me_gusta_ip ON juegos_me_gusta (ip, creada);
+
+-- Totales de cada juego ya contados, para no recorrer todos los «me gusta» en cada visita a la portada.
+-- Una partida cuenta a los 15 segundos de juego (shell/shell.js).
+CREATE TABLE IF NOT EXISTS juegos_estadisticas (
+  juego     TEXT PRIMARY KEY,
+  me_gusta  INTEGER NOT NULL DEFAULT 0,
+  partidas  INTEGER NOT NULL DEFAULT 0
+);
+
+-- Para no contar dos veces la misma partida: una por conexión y juego cada 10 minutos (se borran a las 2 horas)
+CREATE TABLE IF NOT EXISTS partidas_recientes (
+  ip     TEXT NOT NULL,
+  juego  TEXT NOT NULL,
+  creada TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS partidas_recientes_ip ON partidas_recientes (ip, juego, creada);
 
 -- ─── Cuentas de usuario (ver PERFILES.md) ─────────────────────────────────
 -- Con cuenta, los "me gusta" se guardan en las mismas tablas, con votante = hash de "cuenta:<id>".

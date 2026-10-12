@@ -26,6 +26,8 @@ const RUTAS = [
   [/^\/api\/comentarios\/([^/]+)$/, comentario],
   [/^\/api\/juegos-en-pruebas$/, juegosEnPruebas],
   [/^\/api\/juegos\/me-gusta$/, { onRequestGet: juegosMeGusta.onRequestGet }],
+  [/^\/api\/juegos\/estadisticas$/, { onRequestGet: juegosMeGusta.estadisticas }],
+  [/^\/api\/juegos\/([^/]+)\/partida$/, { onRequestPost: juegosMeGusta.partida }],
   [/^\/api\/juegos\/([^/]+)\/me-gusta$/, { onRequestPost: juegosMeGusta.onRequestPost }],
   // /api/cuenta, /api/cuenta/alias, /api/cuenta/sesiones/12…
   [/^\/api\/cuenta(?:\/([a-z-]+))?(?:\/(\d+))?$/, cuenta, (c) => ({ accion: c[1], id: c[2] })],

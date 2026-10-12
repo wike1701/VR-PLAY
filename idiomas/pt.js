@@ -48,6 +48,8 @@ export default {
     buscarConCuentas: 'Buscar jogos, #tiro ou @jogadores…',
     paraTi: 'Para você',
     seguidos: 'Seguindo',
+    partidasN: { one: '{n} partida', other: '{n} partidas' },
+    meGustaN: { one: '{n} curtida', other: '{n} curtidas' },
     jugadores: 'Jogadores',
     escribeAlias: 'Digite o nome de usuário depois do @.',
     sinJugadores: 'Não há nenhum jogador com esse nome de usuário.',

@@ -49,6 +49,8 @@ export default {
     buscarConCuentas: '搜索游戏、#射击 或 @玩家…',
     paraTi: '推荐',
     seguidos: '关注',
+    partidasN: '{n} 次游玩',
+    meGustaN: '{n} 个赞',
     jugadores: '玩家',
     escribeAlias: '在 @ 后面输入用户名。',
     sinJugadores: '没有使用这个用户名的玩家。',

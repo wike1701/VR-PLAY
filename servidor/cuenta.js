@@ -332,6 +332,7 @@ async function fusionar({ request, env }, u) {
         env.DB.prepare('UPDATE OR IGNORE me_gusta SET votante = ? WHERE votante = ?').bind(deCuenta, delNavegador),
         env.DB.prepare('DELETE FROM me_gusta WHERE votante = ?').bind(delNavegador),
         env.DB.prepare('UPDATE sugerencias SET me_gusta = (SELECT COUNT(*) FROM me_gusta WHERE sugerencia_id = sugerencias.id) WHERE id IN (SELECT sugerencia_id FROM me_gusta WHERE votante = ?)').bind(deCuenta),
+        env.DB.prepare('UPDATE juegos_estadisticas SET me_gusta = (SELECT COUNT(*) FROM juegos_me_gusta m WHERE m.juego = juegos_estadisticas.juego) WHERE juego IN (SELECT juego FROM juegos_me_gusta WHERE votante = ?)').bind(deCuenta),
       );
     }
   }

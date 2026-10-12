@@ -1,4 +1,4 @@
-// Tablas de las cuentas de usuario. El Worker las crea solas la primera vez (también están en
+// Tablas de las cuentas de usuario y de las estadísticas de los juegos. El Worker las crea solas la primera vez (también están en
 // bd/esquema.sql), así no hay que ejecutar nada a mano al desplegar. Los cambios solo añaden:
 // nunca se borra ni se renombra nada, para que una versión anterior de la web siga funcionando.
 
@@ -31,10 +31,23 @@ const TABLAS = [
     seguidor_id INTEGER NOT NULL REFERENCES usuarios (id), seguido_id INTEGER NOT NULL REFERENCES usuarios (id),
     creada TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (seguidor_id, seguido_id))`,
   'CREATE INDEX IF NOT EXISTS seguidores_seguido ON seguidores (seguido_id)',
-  // La del foro que se crea sola (ver juegos-me-gusta.js): aquí también, porque al fusionar se usa
+  // «Me gusta» de los juegos (uno por navegador o cuenta)
   `CREATE TABLE IF NOT EXISTS juegos_me_gusta (
     juego TEXT NOT NULL, votante TEXT NOT NULL, ip TEXT NOT NULL DEFAULT '',
     creada TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (juego, votante))`,
+  'CREATE INDEX IF NOT EXISTS juegos_me_gusta_ip ON juegos_me_gusta (ip, creada)',
+  `CREATE TABLE IF NOT EXISTS juegos_estadisticas (
+    juego TEXT PRIMARY KEY, me_gusta INTEGER NOT NULL DEFAULT 0, partidas INTEGER NOT NULL DEFAULT 0)`,
+  // Para no contar dos veces la misma partida (se borran a las 2 horas)
+  `CREATE TABLE IF NOT EXISTS partidas_recientes (
+    ip TEXT NOT NULL, juego TEXT NOT NULL, creada TEXT NOT NULL DEFAULT (datetime('now')))`,
+  'CREATE INDEX IF NOT EXISTS partidas_recientes_ip ON partidas_recientes (ip, juego, creada)',
+];
+
+// Índices que necesitan las columnas nuevas (se crean después de añadirlas)
+const INDICES = [
+  'CREATE INDEX IF NOT EXISTS sugerencias_usuario ON sugerencias (usuario_id)',
+  'CREATE INDEX IF NOT EXISTS comentarios_usuario ON comentarios (usuario_id)',
 ];
 
 // Columnas nuevas en tablas que ya existían: [tabla, columna, definición]
@@ -47,7 +60,14 @@ const COLUMNAS = [
 let lista = null;
 
 async function preparar(env) {
+  // Totales de cada juego ya contados («me gusta» y partidas). La primera vez se rellena con los
+  // «me gusta» que ya había; después los mantienen al día servidor/juegos-me-gusta.js y cuenta.js.
+  const habiaEstadisticas = await env.DB.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'juegos_estadisticas'").first();
   await env.DB.batch(TABLAS.map((sql) => env.DB.prepare(sql)));
+  if (!habiaEstadisticas) {
+    await env.DB.prepare(`INSERT INTO juegos_estadisticas (juego, me_gusta) SELECT juego, COUNT(*) FROM juegos_me_gusta GROUP BY juego
+      ON CONFLICT (juego) DO UPDATE SET me_gusta = excluded.me_gusta`).run();
+  }
   for (const [tabla, columna, definicion] of COLUMNAS) {
     const { results } = await env.DB.prepare(`PRAGMA table_info(${tabla})`).all();
     if (!results.length || results.some((c) => c.name === columna)) continue;
@@ -58,6 +78,9 @@ async function preparar(env) {
       if (!/duplicate column/i.test(String(e?.message))) throw e;
     }
   }
+  const tablas = (await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all()).results.map((f) => f.name);
+  const indices = INDICES.filter((sql) => tablas.includes(sql.match(/ON (\w+)/)[1]));
+  if (indices.length) await env.DB.batch(indices.map((sql) => env.DB.prepare(sql)));
 }
 
 // Se ejecuta una vez por instancia del Worker (antes de atender la primera petición a la API)
