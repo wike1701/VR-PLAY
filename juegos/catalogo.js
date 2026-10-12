@@ -28,6 +28,7 @@ const LISTA = [
   { id: 'minigolf', genero: 'deportes' },
   { id: 'globos', genero: 'arcade' },
   { id: 'tirapichon', genero: 'disparos' },
+  { id: 'slot', genero: 'conduccion' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

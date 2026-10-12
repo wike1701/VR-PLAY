@@ -228,6 +228,57 @@ const CONTINUOS = {
       },
     };
   },
+  // Motor eléctrico de coche de slot (Circuito Slot): un silbido agudo que sube con
+  // la velocidad, con el roce de las escobillas (ruido) y el de la guía en la ranura.
+  electrico() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.Q.value = 4;
+    filtro.frequency.value = 800;
+    const o1 = ac.createOscillator();
+    o1.type = 'sawtooth';
+    o1.frequency.value = 180;
+    const o2 = ac.createOscillator();
+    o2.type = 'square';
+    o2.frequency.value = 362;
+    const g2 = ac.createGain();
+    g2.gain.value = 0.25;
+    const escobillas = ac.createBufferSource();
+    escobillas.buffer = obtenerRuido();
+    escobillas.loop = true;
+    const filtroRuido = ac.createBiquadFilter();
+    filtroRuido.type = 'highpass';
+    filtroRuido.frequency.value = 3000;
+    const gRuido = ac.createGain();
+    gRuido.gain.value = 0;
+    o1.connect(filtro);
+    o2.connect(g2).connect(filtro);
+    escobillas.connect(filtroRuido).connect(gRuido).connect(salida);
+    filtro.connect(salida).connect(maestro);
+    o1.start();
+    o2.start();
+    escobillas.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        const f = 160 + valor * 950;
+        o1.frequency.setTargetAtTime(f, t, 0.06);
+        o2.frequency.setTargetAtTime(f * 2.01, t, 0.06);
+        filtro.frequency.setTargetAtTime(500 + valor * 3000, t, 0.06);
+        gRuido.gain.setTargetAtTime(0.08 + valor * 0.25, t, 0.06);
+        salida.gain.setTargetAtTime(volumen, t, 0.06);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        o1.stop(t + 0.3);
+        o2.stop(t + 0.3);
+        escobillas.stop(t + 0.3);
+      },
+    };
+  },
 };
 
 export function sonidoContinuo(nombre) {

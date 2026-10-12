@@ -56,6 +56,7 @@ juegos/
   minigolf/juego.js     Minigolf
   globos/juego.js       Pincha Globos
   tirapichon/juego.js   Tirapichón
+  slot/juego.js         Circuito Slot
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
