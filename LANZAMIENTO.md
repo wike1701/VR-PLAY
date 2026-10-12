@@ -13,7 +13,7 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 - [x] Página de **contacto**
 - [x] Enlazar las páginas legales en el pie de `index.html` y `foro.html` (todo está en `legal.html`)
 - [ ] Servir las fuentes desde la propia web, en vez de cargarlas desde Google Fonts (envía la IP a Google)
-- [ ] Quitar el hueco «Espacio publicitario» o decidir el sistema de anuncios (en ese caso, banner de consentimiento)
+- [x] Ocultar el hueco «Espacio publicitario» hasta que haya anuncios (en `index.html`, con `hidden`; al poner anuncios, quitarlo y añadir el banner de consentimiento)
 - [ ] **Normas del foro** visibles junto al formulario
 - [ ] Botón **«Denunciar»** en sugerencias y comentarios (con su tabla y una sección en `admin.html`)
 - [ ] Edad mínima indicada (14 años en España para dar el consentimiento uno mismo)

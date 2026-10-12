@@ -223,6 +223,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .anuncio[hidden] { display: none; }
 
   footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
   footer nav { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -282,7 +283,8 @@
   <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
   <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
 
-  <div class="anuncio" role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
+  <!-- Oculto hasta que haya anuncios (ver LANZAMIENTO.md): para mostrarlo, quita «hidden». -->
+  <div class="anuncio" hidden role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
 </main>
 
 <footer class="contenedor">
