@@ -1,6 +1,6 @@
 # Perfiles de usuario: especificación
 
-Estado: **aprobada** (2026-10-11). Las decisiones están en la última sección: todas siguen la propuesta, y solo falta D8 (el titular), que hace falta para la política de privacidad.
+Estado: **aprobada** (2026-10-11). Las decisiones están en la última sección: todas siguen la propuesta.
 
 ## 1. Principios
 
@@ -283,7 +283,7 @@ Para más adelante, si funciona:
 | D5 | Al borrar la cuenta, ¿qué pasa con sus sugerencias y comentarios? | Se quedan como «Usuario eliminado» |
 | D6 | ¿Se envían correos de aviso (idea aceptada, juego publicado)? | Sí, desactivables, y nada más (sin boletines) |
 | D7 | ¿Favoritos públicos por defecto? | No |
-| D8 | ¿Quién es el titular para la política de privacidad? | Pendiente |
+| D8 | ¿Quién es el titular para la política de privacidad? | Rafael Ruiz Huertas y Miguel Ángel Hernicas Esquinas, como corresponsables, con el correo `contact@vrplaygame.com`. Sin NIF ni domicilio mientras no haya ingresos |
 | D9 | ¿Dónde está el feed? | En la portada, con las pestañas Para ti / Seguidos / Juegos |
 | D10 | ¿El botón «siguiente juego» usa tus gustos? | Sí, a medias: la mitad de las veces un juego de «Para ti» y la otra mitad, al azar, para que descubras otros |
 | D11 | ¿Se pueden ocultar las listas de seguidores y seguidos? | Sí, en los ajustes de privacidad |

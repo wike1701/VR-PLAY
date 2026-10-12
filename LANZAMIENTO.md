@@ -4,7 +4,9 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 
 ## 1. Legal (antes de anunciar la web)
 
-- [ ] Decidir el titular de la web (persona o empresa) y un correo de contacto, y rellenar los huecos de `legal.html` (titular, NIF, domicilio, correo y servicio de correo)
+- [x] Decidir el titular de la web y un correo de contacto: Rafael Ruiz Huertas y Miguel Ángel Hernicas Esquinas, `contact@vrplaygame.com` (Cloudflare Email Routing). Sin NIF ni domicilio mientras la web no tenga ingresos
+- [ ] **Antes de poner anuncios o tener cualquier ingreso:** añadir a `legal.html` el NIF y un domicilio (puede ser una domiciliación), un banner de consentimiento de cookies y la red de anuncios en la política de privacidad
+- [ ] Rellenar en `legal.html` el servicio de envío de correos cuando se elija
 - [x] Página de **aviso legal** con los datos del titular (LSSI)
 - [x] Página de **política de privacidad** (RGPD): qué se guarda (foro, huella de IP, almacenamiento del navegador), para qué, cuánto tiempo y cómo pedir que se borre
 - [x] Página de **cookies**, o una nota que diga que no se usan, si sigue sin haberlas
@@ -37,7 +39,7 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 
 La especificación completa está en `PERFILES.md`.
 
-- [ ] Decidir el método de inicio de sesión
+- [x] Decidir el método de inicio de sesión (enlace por correo + Google, y código para las gafas)
 - [ ] Tablas `usuarios` y `sesiones` en `bd/esquema.sql`
 - [ ] Iniciar y cerrar sesión, cookie de sesión segura (`HttpOnly`, `Secure`, `SameSite=Lax`)
 - [ ] Vincular las gafas con un código de 6 cifras (para no escribir el correo o la contraseña en VR)
