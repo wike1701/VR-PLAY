@@ -342,37 +342,34 @@ export function iniciar(ctx) {
   const fila = () => Array.from({ length: CABLES }, (_, i) => (i < resultados.length ? (resultados[i].completado ? '✔' : '✘') : '·')).join(' ');
 
   function actualizarMarcador() {
-    const pie = { texto: `${fila()}   ·   ${total()} puntos   ·   Récord: ${record}`, tam: 0.75, color: '#ffe082' };
+    const pie = { texto: ctx.t('pie', { fila: fila(), n: total(), record }), tam: 0.75, color: '#ffe082' };
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'PULSO FIRME', tam: 1.3, color: '#ffe082' },
-        { texto: 'Lleva el aro de la zona verde a la dorada sin tocar el cable', tam: 0.75 },
-        { texto: `${CABLES} cables · ${TIEMPO_LIMITE} s cada uno · Récord: ${record}`, tam: 0.75, color: '#ffe082' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffe082' },
+        { texto: ctx.t('intro'), tam: 0.75 },
+        { texto: ctx.t('reglas', { n: CABLES, s: TIEMPO_LIMITE, record }), tam: 0.75, color: '#ffe082' },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Fin! ${total()} puntos`, tam: 1.3, color: '#ffe082' },
-        { texto: `${resultados.filter((r) => r.completado).length} de ${CABLES} cables completados`, tam: 0.75 },
-        { texto: `${fila()}   ·   Récord: ${record} · otra ronda en ${Math.ceil(reloj)}`, tam: 0.75, color: '#ffe082' },
+        { texto: ctx.t('partida.finPuntos', { n: total() }), tam: 1.3, color: '#ffe082' },
+        { texto: ctx.t('completados', { n: resultados.filter((r) => r.completado).length, total: CABLES }), tam: 0.75 },
+        { texto: `${fila()}   ·   ${ctx.t('partida.recordOtraRonda', { record, n: Math.ceil(reloj) })}`, tam: 0.75, color: '#ffe082' },
       ]);
     } else if (tiempoMensaje > 0 && estado === 'esperando') {
-      marcador.escribir([{ texto: mensaje, tam: 1.3, color: colorMensaje }, { texto: `Cable ${nivel + 1} de ${CABLES}`, tam: 0.75 }, pie]);
+      marcador.escribir([{ texto: mensaje, tam: 1.3, color: colorMensaje }, { texto: ctx.t('cable', { n: nivel + 1, total: CABLES }), tam: 0.75 }, pie]);
     } else if (estado === 'recorrido') {
       const queda = TIEMPO_LIMITE - tiempo;
       marcador.escribir([
         { texto: `${tiempo.toFixed(1)} s`, tam: 1.3, color: queda < 10 ? '#ff8a80' : '#ffffff' },
-        { texto: `Cable ${nivel + 1} de ${CABLES} · ${Math.round(progreso * 100)} % · quedan ${Math.ceil(queda)} s`, tam: 0.75 },
+        { texto: ctx.t('recorrido', { n: nivel + 1, total: CABLES, progreso: Math.round(progreso * 100), s: Math.ceil(queda) }), tam: 0.75 },
         pie,
       ]);
     } else {
       let ayuda;
-      if (ctx.enVR()) {
-        ayuda = estado === 'listo' ? '¡Adelante! El tiempo empieza al salir de la zona verde' : 'Mete el aro en la zona verde · el gatillo de la otra mano cambia de mano';
-      } else {
-        ayuda = estado === 'listo' ? '¡Adelante! El tiempo empieza al salir de la zona verde' : `${ctx.tactil ? 'Arrastra' : 'Lleva'} el aro hasta la zona verde`;
-      }
+      if (estado === 'listo') ayuda = ctx.t('adelante');
+      else ayuda = ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton');
       marcador.escribir([
-        { texto: nivel === CABLES - 1 ? `Último cable: ¡se mueve!` : `Cable ${nivel + 1} de ${CABLES}`, tam: 1.3, color: nivel === CABLES - 1 ? '#ffab40' : '#ffffff' },
+        { texto: nivel === CABLES - 1 ? ctx.t('ultimo') : ctx.t('cable', { n: nivel + 1, total: CABLES }), tam: 1.3, color: nivel === CABLES - 1 ? '#ffab40' : '#ffffff' },
         { texto: ayuda, tam: 0.75 },
         pie,
       ]);
@@ -418,14 +415,14 @@ export function iniciar(ctx) {
     tiempoMensaje = 2.4; // el mensaje se queda un rato, pero el siguiente cable sale ya
     zumbido.ajustar(0, 0);
     if (completado) {
-      mensaje = `¡Completado! ${tiempo.toFixed(1)} s · +${puntosCable}`;
+      mensaje = ctx.t('completado', { s: tiempo.toFixed(1), puntos: puntosCable });
       colorMensaje = '#b9f6ca';
       ctx.sonido('boton');
       ctx.destello(0xffc400, 0.25);
       luzBombilla = 1;
       colorBombilla.setHex(0x69f0ae);
     } else {
-      mensaje = punto ? `¡Calambrazo! Al ${Math.round(progreso * 100)} %` : `¡Tiempo! Al ${Math.round(progreso * 100)} %`;
+      mensaje = ctx.t(punto ? 'calambrazo' : 'tiempo', { progreso: Math.round(progreso * 100) });
       colorMensaje = '#ff8a80';
       if (punto) {
         ctx.sonido('calambre');

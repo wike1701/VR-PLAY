@@ -333,7 +333,7 @@ export function iniciar(ctx) {
       else if (anim.tipo === 'semipleno') color = Math.floor(anim.t * 8) % 2 ? '#ffd54f' : '#ffffff';
       else color = '#b9f6ca';
     } else {
-      texto = estado === 'fin' ? `${puntuacion()} PUNTOS` : `MARCO ${Math.min(10, marco + 1)}`;
+      texto = estado === 'fin' ? ctx.t('pantallaPuntos', { n: puntuacion() }) : ctx.t('pantallaMarco', { n: Math.min(10, marco + 1) });
       color = '#b39dff';
     }
     g2.save();
@@ -475,18 +475,17 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     const lineas = [];
     if (estado === 'intro') {
-      lineas.push({ texto: 'BOLOS', tam: 1.3, color: '#b39dff' });
+      lineas.push({ texto: ctx.t('titulo'), tam: 1.3, color: '#b39dff' });
       lineas.push({
-        texto: ctx.enVR() ? 'Coge la bola del soporte de tu derecha y lánzala rodando'
-          : ctx.tactil ? 'Toca la pista donde quieres apuntar' : 'Haz clic en la pista donde quieres apuntar',
+        texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'),
         tam: 0.7,
       });
     } else {
-      lineas.push({ texto: estado === 'fin' ? `¡Partida terminada! ${puntuacion()} puntos` : `Marco ${marco + 1}  ·  ${puntuacion()} puntos`, tam: 1.2 });
+      lineas.push({ texto: estado === 'fin' ? ctx.t('fin', { n: puntuacion() }) : ctx.t('marco', { marco: marco + 1, n: puntuacion() }), tam: 1.2 });
       lineas.push({ texto: mensaje || ' ', tam: 0.75, color: '#fff59d' });
     }
     lineas.push({ texto: simbolos(), tam: 0.7, color: '#d1c4ff' });
-    lineas.push({ texto: `Récord: ${record}`, tam: 0.55, color: '#b39dff' });
+    lineas.push({ texto: ctx.t('partida.record', { record }), tam: 0.55, color: '#b39dff' });
     marcador.escribir(lineas);
   }
 
@@ -521,34 +520,33 @@ export function iniciar(ctx) {
 
     let reponer = false;
     let siguienteMarco = false;
+    let tipo = 'normal'; // 'pleno' | 'semipleno' | 'normal'
     if (marco < 9) {
-      if (m.length === 1 && derribados === 10) { mensaje = '¡PLENO!'; siguienteMarco = true; }
-      else if (m.length === 2) { mensaje = m[0] + m[1] === 10 ? '¡Semipleno!' : `${derribados} bolos`; siguienteMarco = true; }
-      else mensaje = `${derribados} bolo${derribados === 1 ? '' : 's'}`;
+      if (m.length === 1 && derribados === 10) { tipo = 'pleno'; siguienteMarco = true; }
+      else if (m.length === 2) { if (m[0] + m[1] === 10) tipo = 'semipleno'; siguienteMarco = true; }
       reponer = siguienteMarco;
     } else {
       // Décimo marco: con pleno o semipleno hay tiros extra
       if (enPie === 0) {
-        mensaje = derribados === 10 ? '¡PLENO!' : '¡Semipleno!';
+        tipo = derribados === 10 ? 'pleno' : 'semipleno';
         reponer = true;
-      } else {
-        mensaje = `${derribados} bolo${derribados === 1 ? '' : 's'}`;
       }
       const terminado = m.length === 3 || (m.length === 2 && m[0] + m[1] < 10);
       if (terminado) siguienteMarco = true;
     }
+    mensaje = tipo === 'normal' ? ctx.t('bolos', { n: derribados }) : ctx.t(tipo);
     // Animación de la pantalla, como en las boleras
-    if (mensaje.startsWith('¡PLENO')) {
+    if (tipo === 'pleno') {
       ctx.sonido('ovacion');
       ctx.destello(0x7c5cff, 0.35);
       for (const mano of ctx.manos) ctx.vibrar(mano, 0.8, 200);
-      animar('pleno', '¡STRIKE!');
-    } else if (mensaje.startsWith('¡Semi')) {
+      animar('pleno', ctx.t('animPleno'));
+    } else if (tipo === 'semipleno') {
       ctx.sonido('punto');
       ctx.sonido('ovacion');
-      animar('semipleno', '¡SEMIPLENO!');
+      animar('semipleno', ctx.t('animSemipleno'));
     } else {
-      animar('normal', derribados === 0 ? '¡CERO!' : `${derribados} BOLO${derribados === 1 ? '' : 'S'}`);
+      animar('normal', derribados === 0 ? ctx.t('animCero') : ctx.t('animBolos', { n: derribados }));
     }
 
     if (siguienteMarco) {
@@ -801,9 +799,9 @@ export function iniciar(ctx) {
             if (total > record) {
               record = total;
               ctx.guardar('record', record);
-              mensaje = '¡Nuevo récord!';
+              mensaje = ctx.t('partida.nuevoRecord');
             } else {
-              mensaje = 'Nueva partida en unos segundos';
+              mensaje = ctx.t('nuevaPartida');
             }
             ctx.sonido('fin');
           } else {

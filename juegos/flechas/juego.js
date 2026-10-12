@@ -246,21 +246,21 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'ESQUIVA FLECHAS', tam: 1.3, color: '#ffcc80' },
-        { texto: 'Cuando una torre brille en rojo, ¡apártate o agáchate!', tam: 0.75 },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffcc80' },
+        { texto: ctx.t('intro'), tam: 0.75 },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Te dieron! ${puntos} puntos`, tam: 1.3, color: '#ffcc80' },
-        { texto: `Récord: ${record} · nueva ronda en ${Math.ceil(reloj)}`, tam: 0.75 },
+        { texto: ctx.t('fin', { n: puntos }), tam: 1.3, color: '#ffcc80' },
+        { texto: ctx.t('partida.recordNuevaRonda', { record, n: Math.ceil(reloj) }), tam: 0.75 },
       ]);
     } else {
       const corazones = '♥'.repeat(vidas) + '♡'.repeat(VIDAS - vidas);
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${corazones}`, tam: 1.3 },
+        { texto: ctx.t('marcador', { puntos, corazones }), tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.75, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   ${Math.floor(tiempoJuego)} s`, tam: 0.75, color: '#ffcc80' },
+          : { texto: ctx.t('recordTiempo', { record, s: Math.floor(tiempoJuego) }), tam: 0.75, color: '#ffcc80' },
       ]);
     }
   }
@@ -411,7 +411,7 @@ export function iniciar(ctx) {
           puntos += 1;
           if (f.minimo < CASI) {
             puntos += 1;
-            avisar('¡Por los pelos! +2');
+            avisar(ctx.t('porLosPelos'));
             ctx.sonido('punto');
             for (const mano of ctx.manos) ctx.vibrar(mano, 0.3, 40);
           }

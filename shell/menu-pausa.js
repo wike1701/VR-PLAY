@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { t } from '../idiomas/idiomas.js';
 
 // ─── Menú de pausa en VR ────────────────────────────────────────────────
 // Se abre con el botón de pausa que flota detrás del hombro izquierdo (shell/boton-cambio.js).
@@ -67,14 +68,14 @@ export class MenuPausa {
   // Textos: { titulo, meGusta: bool, total: número|null, favorito: bool }
   escribir({ titulo, meGusta, total, favorito }) {
     this.titulo.escribir([
-      { texto: 'PAUSA', tam: 1, color: '#b9a8ff' },
+      { texto: t('jugar.vr.pausa'), tam: 1, color: '#b9a8ff' },
       { texto: titulo, tam: 0.75 },
     ]);
     const textos = {
-      continuar: { texto: '▶  Continuar', color: '#ffffff' },
-      megusta: { texto: `${meGusta ? '♥  Te gusta' : '♡  Me gusta'}${total ? `  ·  ${total}` : ''}`, color: meGusta ? '#ff7aa2' : '#ffffff' },
-      favorito: { texto: favorito ? '★  En favoritos' : '☆  Guardar en favoritos', color: favorito ? '#ffd54f' : '#ffffff' },
-      catalogo: { texto: '←  Volver al catálogo', color: '#ffffff' },
+      continuar: { texto: `▶  ${t('pausa.continuar')}`, color: '#ffffff' },
+      megusta: { texto: `${meGusta ? `♥  ${t('pausa.teGusta')}` : `♡  ${t('pausa.meGusta')}`}${total ? `  ·  ${total}` : ''}`, color: meGusta ? '#ff7aa2' : '#ffffff' },
+      favorito: { texto: favorito ? `★  ${t('pausa.enFavoritos')}` : `☆  ${t('pausa.guardarFavorito')}`, color: favorito ? '#ffd54f' : '#ffffff' },
+      catalogo: { texto: `←  ${t('pausa.volverCatalogo')}`, color: '#ffffff' },
     };
     for (const b of this.botones) b.panel.escribir([{ ...textos[b.accion], tam: 1 }]);
   }

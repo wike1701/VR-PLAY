@@ -9,6 +9,7 @@
 //   export function iniciar(ctx)        -> monta el juego y devuelve { actualizar(dt, t), liberar() }
 // ─────────────────────────────────────────────────────────────────────────
 import * as THREE from 'three';
+import { t } from '../idiomas/idiomas.js';
 import { JUEGOS } from '../juegos/catalogo.js';
 import { juegosEnPruebas } from '../juegos/en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
@@ -340,12 +341,16 @@ function montar(indice, modulo) {
   const recursos = [];
   const continuos = []; // sonidos continuos (motores...) que hay que parar al salir
   const prefijo = `vrplay:${JUEGOS[indice].id}:`;
+  const espacio = `juegos.${JUEGOS[indice].id}.juego.`;
 
   // Todo lo que un juego necesita de la shell pasa por aquí.
   const ctx = {
     raiz, escena, camara, renderer, manos, raton,
     enVR: () => renderer.xr.isPresenting,
     tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
+    // Textos en el idioma del jugador (idiomas/<código>.js): ctx.t('fin', { n: puntos }) busca
+    // juegos.<id>.juego.fin; las claves 'partida.…' son las compartidas por todos los juegos.
+    t: (clave, vars) => t(clave.startsWith('partida.') ? clave : espacio + clave, vars),
     // Para objetos que van en la mano (espadas, martillos...). Se retiran al cambiar de juego.
     adjuntarAMano(mano, objeto) {
       mano.grip.add(objeto);
@@ -443,7 +448,7 @@ async function cambiarA(indice) {
 
     // Si el juego ya estaba precargado esto es inmediato; si no, mostramos "Cargando…"
     const temporizador = setTimeout(() => {
-      panelCarga.escribir([`Cargando ${JUEGOS[indice].titulo}…`]);
+      panelCarga.escribir([t('jugar.cargandoJuego', { juego: JUEGOS[indice].titulo })]);
       panelCarga.mesh.visible = true;
       $carga.hidden = false;
     }, 120);
@@ -463,8 +468,8 @@ async function cambiarA(indice) {
     console.error(`No se pudo cargar "${JUEGOS[indice].titulo}"`, e);
     desmontar();
     mostrarAviso([
-      { texto: 'No se pudo cargar el juego', color: '#ff8a80' },
-      { texto: 'Pulsa el botón para pasar al siguiente', tam: 0.7 },
+      { texto: t('jugar.errorCarga'), color: '#ff8a80' },
+      { texto: t('jugar.errorCargaAyuda'), tam: 0.7 },
     ], 6);
   }
   await fundido.a(0, 0.35);
@@ -478,10 +483,10 @@ function anunciarSiguiente() {
   boton.setSiguiente(JUEGOS[siguiente].titulo);
   botonPausa.ayuda = boton.ayuda; // las dos flechas guía salen al empezar cada juego
   actualizarInterfaz();
-  if (!actual) $titulo.textContent = `${JUEGOS[indiceActual].titulo} (no se pudo cargar)`;
+  if (!actual) $titulo.textContent = t('jugar.tituloSinCargar', { juego: JUEGOS[indiceActual].titulo });
   precargar(siguiente).then(
-    () => { if (siguiente === siguienteIndice()) $estado.textContent = `Siguiente: ${JUEGOS[siguiente].titulo} (listo)`; },
-    () => { $estado.textContent = `Siguiente: ${JUEGOS[siguiente].titulo} (no se pudo precargar)`; },
+    () => { if (siguiente === siguienteIndice()) $estado.textContent = t('jugar.siguienteListo', { juego: JUEGOS[siguiente].titulo }); },
+    () => { $estado.textContent = t('jugar.siguienteError', { juego: JUEGOS[siguiente].titulo }); },
   );
 }
 
@@ -496,7 +501,7 @@ const boton = new BotonCambio(crearPanel, camara);
 escena.add(boton.grupo);
 // Su gemelo detrás del hombro izquierdo: pausa y menú
 const botonPausa = new BotonCambio(crearPanel, camara, 'pausa');
-botonPausa.setEtiqueta([{ texto: 'PAUSA', tam: 1.2, color: '#80e8dc' }, { texto: 'y menú', tam: 0.8 }]);
+botonPausa.setEtiqueta([{ texto: t('jugar.vr.pausa'), tam: 1.2, color: '#80e8dc' }, { texto: t('jugar.vr.yMenu'), tam: 0.8 }]);
 escena.add(botonPausa.grupo);
 // Cada botón responde solo a la mano de su lado (si aún no se sabe, el mando 0 es el izquierdo)
 const esIzquierda = (m) => (m.lado ? m.lado === 'left' : m.indice === 0);
@@ -552,9 +557,9 @@ function textosPausa() {
   const datos = { titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id) };
   menuPausa.escribir(datos);
   $pausaTitulo.textContent = datos.titulo;
-  $pausaMeGusta.textContent = `${datos.meGusta ? '♥ Te gusta' : '♡ Me gusta'}${datos.total ? ` · ${datos.total}` : ''}`;
+  $pausaMeGusta.textContent = `${datos.meGusta ? `♥ ${t('pausa.teGusta')}` : `♡ ${t('pausa.meGusta')}`}${datos.total ? ` · ${datos.total}` : ''}`;
   $pausaMeGusta.classList.toggle('activo-megusta', datos.meGusta);
-  $pausaFavorito.textContent = datos.favorito ? '★ En favoritos' : '☆ Guardar en favoritos';
+  $pausaFavorito.textContent = datos.favorito ? `★ ${t('pausa.enFavoritos')}` : `☆ ${t('pausa.guardarFavorito')}`;
   $pausaFavorito.classList.toggle('activo-favorito', datos.favorito);
 }
 
@@ -631,9 +636,9 @@ function actualizarInterfaz() {
   $titulo.textContent = juego.titulo;
   $controles.textContent = TACTIL
     ? juego.controlesTactil || juego.controlesEscritorio
-    : `Con ratón: ${juego.controlesEscritorio}  ·  En VR: ${juego.controlesVR}`;
-  $btnSiguiente.title = `Pasar a ${siguiente.titulo}`;
-  $estado.textContent = `Siguiente: ${siguiente.titulo} (precargando…)`;
+    : t('jugar.controles', { raton: juego.controlesEscritorio, vr: juego.controlesVR });
+  $btnSiguiente.title = t('jugar.pasarA', { juego: siguiente.titulo });
+  $estado.textContent = t('jugar.siguientePrecargando', { juego: siguiente.titulo });
 }
 
 $btnSiguiente.addEventListener('click', () => {
@@ -661,12 +666,8 @@ async function comprobarVR() {
   }
   $btnVR.disabled = !disponible;
   document.body.classList.toggle('sin-vr', !disponible); // en el móvil el botón se oculta
-  $btnVR.textContent = disponible ? 'Entrar en VR' : 'VR no disponible';
-  if (!disponible) {
-    $btnVR.title = window.isSecureContext
-      ? 'Abre esta página en el navegador de unas gafas VR (por ejemplo, Meta Quest).'
-      : 'La VR solo funciona en páginas con HTTPS.';
-  }
+  $btnVR.textContent = t(disponible ? 'jugar.entrarVR' : 'jugar.vrNoDisponible');
+  if (!disponible) $btnVR.title = t(window.isSecureContext ? 'jugar.vrAyudaGafas' : 'jugar.vrAyudaHttps');
 }
 
 $btnVR.addEventListener('click', async () => {
@@ -684,7 +685,7 @@ $btnVR.addEventListener('click', async () => {
     alEntrarVR();
   } catch (e) {
     console.error('No se pudo iniciar la VR', e);
-    $estado.textContent = 'No se pudo iniciar la VR en este navegador.';
+    $estado.textContent = t('jugar.vrError');
   }
 });
 
@@ -694,10 +695,10 @@ function alEntrarVR() {
   boton.reiniciar();
   botonPausa.reiniciar();
   mostrarAviso([
-    { texto: 'Botones detrás de tus hombros', tam: 1.1, color: '#b9a8ff' },
-    { texto: 'Mano derecha atrás del hombro derecho: siguiente juego', tam: 0.75 },
-    { texto: 'Mano izquierda atrás del hombro izquierdo: pausa y menú', tam: 0.75 },
-    { texto: 'Déjala medio segundo en el botón (o aprieta el gatillo)', tam: 0.65 },
+    { texto: t('jugar.vr.botones'), tam: 1.1, color: '#b9a8ff' },
+    { texto: t('jugar.vr.derecha'), tam: 0.75 },
+    { texto: t('jugar.vr.izquierda'), tam: 0.75 },
+    { texto: t('jugar.vr.dejala'), tam: 0.65 },
   ], 9);
 }
 
@@ -743,7 +744,7 @@ renderer.setAnimationLoop(() => {
     } catch (e) {
       errorJuego = true;
       console.error(`Error en "${JUEGOS[actual.indice].titulo}"`, e);
-      mostrarAviso([{ texto: 'El juego ha fallado', color: '#ff8a80' }, { texto: 'Pulsa el botón para cambiar', tam: 0.7 }], 6);
+      mostrarAviso([{ texto: t('jugar.errorJuego'), color: '#ff8a80' }, { texto: t('jugar.errorJuegoAyuda'), tam: 0.7 }], 6);
     }
   }
   guardarRatonAnterior();

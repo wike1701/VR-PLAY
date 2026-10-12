@@ -22,7 +22,10 @@ export function json(datos, estado = 200) {
   });
 }
 
-export const error = (mensaje, estado = 400) => json({ error: mensaje }, estado);
+// El mensaje va en español; el código (opcional) sirve para que la web lo enseñe traducido
+// (foro.errores.<código> en idiomas/). Los datos extra (por ejemplo { max }) se usan en el texto.
+export const error = (mensaje, estado = 400, codigo = null, extra = {}) =>
+  json({ error: mensaje, ...(codigo ? { codigo, ...extra } : {}) }, estado);
 
 export async function leerJson(request) {
   try {
@@ -102,5 +105,5 @@ export function idValido(valor) {
 }
 
 export function sinBaseDeDatos(env) {
-  return env.DB ? null : error('El foro no está configurado: falta la base de datos D1 (DB).', 503);
+  return env.DB ? null : error('El foro no está configurado: falta la base de datos D1 (DB).', 503, 'no_disponible');
 }

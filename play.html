@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Jugar · VR Play</title>
+  <title data-i18n="jugar.tituloPagina">Jugar · VR Play</title>
+  <script src="idiomas/detectar.js"></script>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
@@ -49,6 +50,7 @@
     button:hover:not(:disabled) { border-color: var(--accent); }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
     button.principal { background: var(--accent); border-color: var(--accent); }
+    .corto { display: none; }
     kbd {
       font: inherit; font-size: 0.75rem; padding: 1px 6px; margin-left: 4px;
       border: 1px solid #55557a; border-radius: 4px; color: var(--muted);
@@ -110,6 +112,7 @@
     @media (max-width: 600px) {
       .barra { flex-wrap: nowrap; gap: 8px; padding-inline: 12px; }
       .volver .largo, .largo, kbd { display: none; }
+      .corto { display: inline; }
       .volver { font-size: 1.3rem; line-height: 1; padding: 4px 2px; }
       .titulo { font-size: 1rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       button { padding: 8px 12px; flex-shrink: 0; }
@@ -129,12 +132,12 @@
   <div id="escena"></div>
 
   <div class="barra">
-    <a class="volver" href="index.html" aria-label="Volver al catálogo">←<span class="largo"> Catálogo</span></a>
-    <div class="titulo" id="titulo">Cargando…</div>
-    <button id="btn-completa" type="button" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> Pantalla completa</span></button>
-    <button id="btn-pausa" type="button" title="Pausa y menú" aria-label="Pausa">⏸<span class="largo"> Pausa</span> <kbd>Esc</kbd></button>
-    <button id="btn-siguiente" type="button">Siguiente<span class="largo"> juego</span> <kbd>N</kbd></button>
-    <button id="btn-vr" class="principal" type="button" disabled>Comprobando VR…</button>
+    <a class="volver" href="index.html" data-i18n-attr="aria-label:pausa.volverCatalogo" aria-label="Volver al catálogo">←<span class="largo"> <span data-i18n="jugar.catalogo">Catálogo</span></span></a>
+    <div class="titulo" id="titulo" data-i18n="comun.cargando">Cargando…</div>
+    <button id="btn-completa" type="button" data-i18n-attr="title:jugar.pantallaCompleta; aria-label:jugar.pantallaCompleta" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> <span data-i18n="jugar.pantallaCompleta">Pantalla completa</span></span></button>
+    <button id="btn-pausa" type="button" data-i18n-attr="title:jugar.pausaYMenu; aria-label:pausa.sello" title="Pausa y menú" aria-label="Pausa">⏸<span class="largo"> <span data-i18n="pausa.sello">Pausa</span></span> <kbd>Esc</kbd></button>
+    <button id="btn-siguiente" type="button"><span class="corto" data-i18n="jugar.siguiente">Siguiente</span><span class="largo" data-i18n="jugar.siguienteJuego">Siguiente juego</span> <kbd>N</kbd></button>
+    <button id="btn-vr" class="principal" type="button" data-i18n="jugar.comprobandoVR" disabled>Comprobando VR…</button>
   </div>
 
   <div class="pie">
@@ -143,23 +146,23 @@
   </div>
 
   <div class="flotantes" id="flotantes" hidden>
-    <button id="flotante-pausa" type="button" title="Pausa" aria-label="Pausa">⏸</button>
-    <button id="flotante-siguiente" type="button" title="Siguiente juego" aria-label="Siguiente juego">⏭</button>
-    <button id="flotante-salir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">✕</button>
+    <button id="flotante-pausa" type="button" data-i18n-attr="title:pausa.sello; aria-label:pausa.sello" title="Pausa" aria-label="Pausa">⏸</button>
+    <button id="flotante-siguiente" type="button" data-i18n-attr="title:jugar.siguienteJuego; aria-label:jugar.siguienteJuego" title="Siguiente juego" aria-label="Siguiente juego">⏭</button>
+    <button id="flotante-salir" type="button" data-i18n-attr="title:jugar.salirCompleta; aria-label:jugar.salirCompleta" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">✕</button>
   </div>
   <p class="aviso-completa" id="aviso-completa" hidden></p>
 
-  <div class="carga" id="carga" hidden>Cargando…</div>
+  <div class="carga" id="carga" data-i18n="comun.cargando" hidden>Cargando…</div>
 
   <!-- Menú de pausa (ratón y móvil; en VR hay uno flotante igual) -->
   <div class="pausa" id="pausa" hidden>
     <div class="pausa-caja" role="dialog" aria-modal="true" aria-labelledby="pausa-titulo">
-      <p class="pausa-sello">Pausa</p>
+      <p class="pausa-sello" data-i18n="pausa.sello">Pausa</p>
       <h2 id="pausa-titulo"></h2>
-      <button type="button" class="principal" data-accion="continuar">▶ Continuar</button>
+      <button type="button" class="principal" data-accion="continuar">▶ <span data-i18n="pausa.continuar">Continuar</span></button>
       <button type="button" data-accion="megusta"></button>
       <button type="button" data-accion="favorito"></button>
-      <button type="button" data-accion="catalogo">← Volver al catálogo</button>
+      <button type="button" data-accion="catalogo">← <span data-i18n="pausa.volverCatalogo">Volver al catálogo</span></button>
     </div>
   </div>
 

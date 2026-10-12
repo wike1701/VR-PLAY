@@ -472,7 +472,7 @@ export function iniciar(ctx) {
       explosion(tmp.copy(posNave).add(tmp3.set(0, 0, -1.5)), 2.2, 0xff6d00);
       ctx.destello(0xff6d00, 0.6);
       viva = false;
-      terminarMision('Nave derribada', '#ff8a80', false);
+      terminarMision(ctx.t('derribada'), '#ff8a80', false);
     }
   }
 
@@ -675,11 +675,11 @@ export function iniciar(ctx) {
     // Pantalla del salpicadero: siempre los datos del vuelo
     const barra = '▮'.repeat(Math.round(escudo / 10)) + '▯'.repeat(10 - Math.round(escudo / 10));
     const segunda = estado === 'jefe'
-      ? { texto: `Nodriza ${'▮'.repeat(Math.ceil((jefe.vida / VIDA_JEFE) * 10)).padEnd(10, '▯')} · ${Math.max(0, Math.ceil(TIEMPO_JEFE - jefe.tiempo))} s`, tam: 0.8, color: '#ff8a80' }
-      : { texto: `Nodriza en ${Math.max(0, Math.ceil(DURACION_MISION - tiempoMision))} s · Récord ${record}`, tam: 0.8, color: '#ffe082' };
+      ? { texto: ctx.t('nodriza', { vida: '▮'.repeat(Math.ceil((jefe.vida / VIDA_JEFE) * 10)).padEnd(10, '▯'), s: Math.max(0, Math.ceil(TIEMPO_JEFE - jefe.tiempo)) }), tam: 0.8, color: '#ff8a80' }
+      : { texto: ctx.t('nodrizaEn', { s: Math.max(0, Math.ceil(DURACION_MISION - tiempoMision)), record }), tam: 0.8, color: '#ffe082' };
     marcador.escribir([
-      { texto: `${puntos} puntos`, tam: 1.2 },
-      { texto: `Escudo ${barra}`, tam: 0.8, color: escudo <= 30 ? '#ff8a80' : '#80deea' },
+      { texto: ctx.t('partida.puntosN', { n: puntos }), tam: 1.2 },
+      { texto: ctx.t('escudo', { barra }), tam: 0.8, color: escudo <= 30 ? '#ff8a80' : '#80deea' },
       segunda,
     ]);
 
@@ -687,21 +687,21 @@ export function iniciar(ctx) {
     cartel.mesh.visible = estado === 'intro' || estado === 'cuenta' || estado === 'final' || estado === 'fin';
     if (estado === 'intro') {
       cartel.escribir([
-        { texto: 'PILOTO ESTELAR', tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Botón lateral: agarras la palanca · mueve la mano hacia donde quieras ir · suelta y se centra' : (ctx.tactil ? 'Mantén el dedo hacia donde quieras ir: la nave va y dispara' : 'Apunta con el ratón hacia donde quieras ir · mantén el clic para disparar'), tam: 0.7 },
-        { texto: ctx.enVR() ? 'También vale el joystick · gatillo: disparas a donde miras' : `Anillos dorados: escudo y puntos · Récord: ${record}`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.t('titulo'), tam: 1.2, color: '#80d8ff' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.7 },
+        { texto: ctx.enVR() ? ctx.t('joystick') : ctx.t('anillosRecord', { record }), tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'cuenta') {
       cartel.escribir([
         { texto: `${Math.ceil(reloj)}`, tam: 1.2, color: '#80d8ff' },
-        { texto: ctx.enVR() ? 'Agarra la palanca con el botón lateral y mueve la mano' : '¡Prepárate!', tam: 0.7 },
-        { texto: ctx.enVR() ? 'Anillos dorados: escudo y puntos' : `Récord: ${record}`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.t(ctx.enVR() ? 'cuentaVR' : 'preparate'), tam: 0.7 },
+        { texto: ctx.enVR() ? ctx.t('anillos') : ctx.t('partida.record', { record }), tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'fin' || estado === 'final') {
       cartel.escribir([
-        { texto: `${mensajeFinal} · ${puntos} puntos`, tam: 1.2, color: colorFinal },
-        { texto: `Anillos ${anillosPasados} · Derribos ${derribos}${escudo > 0 && colorFinal === '#b9f6ca' ? ` · Escudo +${escudo * 5}` : ''}`, tam: 0.7 },
-        { texto: estado === 'fin' ? `Récord: ${record} · nueva misión en ${Math.ceil(reloj)}` : ' ', tam: 0.7, color: '#ffe082' },
+        { texto: `${mensajeFinal} · ${ctx.t('partida.puntosN', { n: puntos })}`, tam: 1.2, color: colorFinal },
+        { texto: ctx.t('balance', { anillos: anillosPasados, derribos }) + (escudo > 0 && colorFinal === '#b9f6ca' ? ` · ${ctx.t('bonoEscudo', { n: escudo * 5 })}` : ''), tam: 0.7 },
+        { texto: estado === 'fin' ? ctx.t('nuevaMision', { record, n: Math.ceil(reloj) }) : ' ', tam: 0.7, color: '#ffe082' },
       ]);
     }
   }
@@ -826,7 +826,7 @@ export function iniciar(ctx) {
           for (let k = 0; k < 4; k++) explosion(tmp.copy(jefe.pos).add(new THREE.Vector3(azar(-3, 3), azar(-0.6, 0.6), azar(-1, 1))), 2.2, k % 2 ? 0xff6d00 : 0xffd740);
           jefe.grupo.visible = false;
           ctx.destello(0xffd740, 0.4);
-          terminarMision('¡Misión cumplida!', '#b9f6ca', true);
+          terminarMision(ctx.t('cumplida'), '#b9f6ca', true);
         }
       }
     }
@@ -939,7 +939,7 @@ export function iniciar(ctx) {
         }
         if (jefe.tiempo > TIEMPO_JEFE && estado === 'jefe') {
           jefe.escapando = true;
-          terminarMision('La nave nodriza se ha escapado', '#ffe082', false);
+          terminarMision(ctx.t('escapado'), '#ffe082', false);
         }
       }
       if (dt > 0) jefe.vel.subVectors(jefe.pos, tmp2).divideScalar(dt);

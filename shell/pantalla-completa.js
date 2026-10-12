@@ -7,6 +7,7 @@
 // En los dos casos se ocultan la barra y la ayuda: solo queda el juego y dos
 // botones flotantes pequeños (siguiente juego y salir).
 // ─────────────────────────────────────────────────────────────────────────
+import { t } from '../idiomas/idiomas.js';
 
 const documento = document.documentElement;
 const pedir = documento.requestFullscreen || documento.webkitRequestFullscreen;
@@ -37,7 +38,7 @@ export function iniciarPantallaCompleta({ lienzo, tactil, siguienteJuego }) {
     const inmersivo = INSTALADA || completa;
     document.body.classList.toggle('inmersivo', inmersivo);
     $flotantes.hidden = !inmersivo;
-    $salir.title = $salir.ariaLabel = completa ? 'Salir de pantalla completa' : 'Volver al catálogo';
+    $salir.title = $salir.ariaLabel = t(completa ? 'jugar.salirCompleta' : 'pausa.volverCatalogo');
     $boton.hidden = INSTALADA || (!SOPORTADA && !tactil);
   }
 
@@ -62,7 +63,7 @@ export function iniciarPantallaCompleta({ lienzo, tactil, siguienteJuego }) {
       rechazada = false;
       entrar();
     } else {
-      mostrarAviso('En iPhone: pulsa Compartir y luego «Añadir a pantalla de inicio». Desde ese icono se juega en pantalla completa.');
+      mostrarAviso(t('jugar.avisoIphone'));
     }
   });
 

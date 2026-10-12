@@ -316,24 +316,23 @@ export function iniciar(ctx) {
   const dentro = (p) => Math.abs(p.x) <= MEDIO_ANCHO && p.z <= Z_FONDO_JUGADOR && p.z >= Z_FONDO_MAQUINA;
 
   function actualizarMarcador() {
-    const lineas = [{ texto: `Tú ${tanteo.jugador}  –  ${tanteo.maquina} Máquina`, tam: 1.3 }];
+    const lineas = [{ texto: ctx.t('partida.tanteo', tanteo), tam: 1.3 }];
     if (estado === 'intro') {
-      lineas[0] = { texto: 'BÁDMINTON', tam: 1.3, color: '#a5d6a7' };
+      lineas[0] = { texto: ctx.t('titulo'), tam: 1.3, color: '#a5d6a7' };
       lineas.push({
-        texto: ctx.enVR() ? 'Raqueta en la mano derecha · el gatillo de la otra mano la cambia'
-          : ctx.tactil ? 'Arrastra el dedo para mover la raqueta' : 'Mueve la raqueta con el ratón',
+        texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'),
         tam: 0.7,
       });
     } else if (estado === 'saque') {
       lineas.push(sacador === 'jugador'
-        ? { texto: 'Tu saque: golpea el volante', tam: 0.75, color: '#80deea' }
-        : { texto: 'Saca la máquina…', tam: 0.75, color: '#ffab91' });
+        ? { texto: ctx.t('tuSaque'), tam: 0.75, color: '#80deea' }
+        : { texto: ctx.t('partida.sacaMaquina'), tam: 0.75, color: '#ffab91' });
     } else if (estado === 'vivo') {
-      lineas.push({ texto: golpesSeguidos > 2 ? `Peloteo: ${golpesSeguidos} golpes` : ' ', tam: 0.75, color: '#fff59d' });
+      lineas.push({ texto: golpesSeguidos > 2 ? ctx.t('partida.peloteo', { n: golpesSeguidos }) : ' ', tam: 0.75, color: '#fff59d' });
     } else {
       lineas.push({ texto: mensaje, tam: 0.75, color: colorMensaje });
     }
-    lineas.push({ texto: `A ${PUNTOS_SET} · partidos ganados: ${ganadas}`, tam: 0.6, color: '#a5d6a7' });
+    lineas.push({ texto: ctx.t('partida.aPuntos', { set: PUNTOS_SET, ganadas }), tam: 0.6, color: '#a5d6a7' });
     marcador.escribir(lineas);
   }
 
@@ -426,10 +425,10 @@ export function iniciar(ctx) {
       if (j > m) {
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
-        mensaje = '¡HAS GANADO EL PARTIDO!';
+        mensaje = ctx.t('partida.hasGanado');
         ctx.sonido('ovacion');
       } else {
-        mensaje = 'Gana la máquina. ¡A por la revancha!';
+        mensaje = ctx.t('partida.ganaMaquina');
       }
       ctx.sonido('fin');
       return;
@@ -463,9 +462,9 @@ export function iniciar(ctx) {
     // Si cae dentro, punto para el que NO es de ese lado; si cae fuera, punto contra quien lo golpeó
     if (dentro(pos)) {
       const lado = pos.z > Z_RED ? 'jugador' : 'maquina';
-      puntoPara(otro(lado), lado === 'jugador' ? 'Ha caído en tu campo' : '¡Punto!');
+      puntoPara(otro(lado), lado === 'jugador' ? ctx.t('partida.caeTuCampo') : ctx.t('partida.punto'));
     } else {
-      puntoPara(otro(golpeador), golpeador === 'jugador' ? 'Fuera' : '¡Fuera! Punto para ti');
+      puntoPara(otro(golpeador), golpeador === 'jugador' ? ctx.t('partida.fuera') : ctx.t('partida.fueraParaTi'));
     }
   }
 

@@ -292,18 +292,18 @@ export function iniciar(ctx) {
   function actualizarPantallas() {
     pantalla.escribir([
       { texto: `${Math.round(v * 3.6)} km/h`, tam: 1.2 },
-      { texto: `${'♥'.repeat(vidas)}${'♡'.repeat(VIDAS - vidas)} · ${puntos()} pts`, tam: 0.8, color: '#ffcc80' },
+      { texto: ctx.t('pantalla', { vidas: '♥'.repeat(vidas) + '♡'.repeat(VIDAS - vidas), puntos: puntos() }), tam: 0.8, color: '#ffcc80' },
     ]);
     if (estado === 'intro') {
       cartel.escribir([
-        { texto: 'RUTA DE OBSTÁCULOS', tam: 1.2, color: '#ffcc80' },
-        { texto: ctx.enVR() ? 'Gira el volante con las dos manos · salta los muros por las rampas amarillas' : (ctx.tactil ? 'Mueve el dedo a los lados para dirigir · salta los muros por las rampas' : 'Mueve el ratón a los lados para dirigir · salta los muros por las rampas'), tam: 0.6 },
+        { texto: ctx.t('titulo'), tam: 1.2, color: '#ffcc80' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.6 },
       ]);
       cartel.mesh.visible = true;
     } else if (estado === 'fin') {
       cartel.escribir([
-        { texto: `¡Fin! ${puntos()} puntos`, tam: 1.3, color: '#ffcc80' },
-        { texto: `${Math.floor(distancia)} m · ${monedas} monedas · récord ${record} · otra en ${Math.ceil(reloj)}`, tam: 0.6 },
+        { texto: ctx.t('partida.finPuntos', { n: puntos() }), tam: 1.3, color: '#ffcc80' },
+        { texto: ctx.t('resumen', { m: Math.floor(distancia), n: monedas, record, otra: Math.ceil(reloj) }), tam: 0.6 },
       ]);
       cartel.mesh.visible = true;
     } else if (tiempoMensaje > 0) {
@@ -396,7 +396,7 @@ export function iniciar(ctx) {
         v = Math.max(v, crucero * 0.9);
         velY = impulsoParaSaltar();
         ctx.sonido('zas');
-        avisar('¡Salto!');
+        avisar(ctx.t('salto'));
       }
       return;
     }
@@ -420,7 +420,7 @@ export function iniciar(ctx) {
       }
       ctx.sonido('fin');
     } else {
-      avisar(`¡Choque! Te quedan ${vidas}`);
+      avisar(ctx.t('choque', { n: vidas }));
     }
   }
 

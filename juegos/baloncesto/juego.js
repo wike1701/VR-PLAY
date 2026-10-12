@@ -371,23 +371,23 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'TIRO A CANASTA', tam: 1.3, color: '#ffab40' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffab40' },
         {
-          texto: ctx.enVR() ? 'Coge un balón con el gatillo y lánzalo' : 'Mantén pulsado y suelta en la marca verde',
+          texto: ctx.t(ctx.enVR() ? 'introVR' : 'introRaton'),
           tam: 0.7,
         },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Tiempo! ${puntos} puntos`, tam: 1.3, color: '#ffab40' },
-        { texto: `${canastas} de ${lanzamientos} · Récord: ${record} · otra en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 1.3, color: '#ffab40' },
+        { texto: ctx.t('resumen', { canastas, lanzamientos, record, n: Math.ceil(reloj) }), tam: 0.7 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
+        { texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(tiempoRestante) }), tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.7, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   limpia +3   ·   racha x2`, tam: 0.7, color: '#ffab40' },
+          : { texto: ctx.t('reglas', { record }), tam: 0.7, color: '#ffab40' },
       ]);
     }
   }
@@ -491,9 +491,9 @@ export function iniciar(ctx) {
     puntos += valor;
     ctx.sonido('punto');
     for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
-    if (racha >= 3) avisar(`¡En racha! ${racha} seguidas · +${valor}`);
-    else if (!b.toco) avisar(`¡Limpia! +${valor}`);
-    else avisar(`¡Canasta! +${valor}`);
+    if (racha >= 3) avisar(ctx.t('racha', { n: racha, valor }));
+    else if (!b.toco) avisar(ctx.t('limpia', { valor }));
+    else avisar(ctx.t('canasta', { valor }));
   }
 
   // ─── Soportes de balones ───────────────────────────────────────────────

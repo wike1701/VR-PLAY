@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Foro de sugerencias · VR Play</title>
+<title data-i18n="foro.tituloPagina">Foro de sugerencias · VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<link rel="alternate" hreflang="es" href="https://vrplaygame.com/foro?lang=es">
+<link rel="alternate" hreflang="en" href="https://vrplaygame.com/foro?lang=en">
+<link rel="alternate" hreflang="fr" href="https://vrplaygame.com/foro?lang=fr">
+<link rel="alternate" hreflang="de" href="https://vrplaygame.com/foro?lang=de">
+<link rel="alternate" hreflang="it" href="https://vrplaygame.com/foro?lang=it">
+<link rel="alternate" hreflang="pt" href="https://vrplaygame.com/foro?lang=pt">
+<link rel="alternate" hreflang="ja" href="https://vrplaygame.com/foro?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://vrplaygame.com/foro?lang=ko">
+<link rel="alternate" hreflang="zh" href="https://vrplaygame.com/foro?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://vrplaygame.com/foro">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
@@ -64,6 +75,17 @@
   .menu { display: flex; gap: 18px; margin-left: auto; font-size: 0.95rem; }
   .menu a { text-decoration: none; color: var(--muted); }
   .menu a:hover, .menu a[aria-current="page"] { color: var(--fg); }
+  .menu { align-items: center; }
+  .selector-idioma {
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
 
   h1, h2 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; text-wrap: balance; }
   h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); margin: 0 0 8px; }
@@ -260,9 +282,10 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" aria-label="Secciones">
-      <a href="index.html">Juegos</a>
-      <a href="foro.html" aria-current="page">Sugerencias</a>
+    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
+      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
+      <a href="foro.html" aria-current="page" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-selector-idioma></span>
     </nav>
   </div>
 </header>
@@ -270,24 +293,26 @@
 <main class="contenedor" id="vista" aria-live="polite"></main>
 
 <footer class="contenedor">
-  <p>© 2026 VR Play · Las sugerencias son públicas: no escribas datos personales. · <a href="legal.html#privacidad">Privacidad</a> · <a href="legal.html#aviso-legal">Aviso legal</a></p>
+  <p>© 2026 VR Play · <span data-i18n="foro.pie">Las sugerencias son públicas: no escribas datos personales.</span> · <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a> · <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a></p>
 </footer>
 
 <script type="module">
+  import { t, existe, tOriginal, hace as haceRelativo, idioma } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
 
-  const ESTADOS = {
-    nueva: 'Nueva',
-    estudio: 'En estudio',
-    desarrollo: 'En desarrollo',
-    hecha: 'Hecha',
-    existe: 'Ya existe',
-    descartada: 'Descartada',
+  const ESTADOS = Object.fromEntries(['nueva', 'estudio', 'desarrollo', 'hecha', 'existe', 'descartada'].map((e) => [e, t(`foro.estados.${e}`)]));
+  const ORDENES = ['votos', 'recientes', 'actividad'].map((o) => [o, t(`foro.ordenes.${o}`)]);
+  // Tipos de juego (géneros). En la base de datos se guarda el nombre en español,
+  // así que se traducen al enseñarlos.
+  const TIPOS = [...new Set([...JUEGOS.map((j) => j.generoId), 'deportes', 'disparos', 'reflejos', 'arcade', 'accion', 'puzle', 'ritmo', 'otro'])];
+  const nombreTipo = (guardado) => {
+    const clave = TIPOS.find((k) => tOriginal(`generos.${k}`) === guardado);
+    return clave ? t(`generos.${clave}`) : guardado;
   };
-  const ORDENES = [['votos', 'Más votadas'], ['recientes', 'Recientes'], ['actividad', 'Con actividad']];
-  const TIPOS = [...new Set([...JUEGOS.map((j) => j.genero), 'Deportes', 'Disparos', 'Reflejos', 'Arcade', 'Acción', 'Puzle', 'Ritmo', 'Otro'])];
-  const MANOS = ['Nada (manos libres)', 'Espada', 'Martillo', 'Pistola', 'Arco', 'Bate', 'Raqueta', 'Guantes', 'Balón', 'Escudo', 'Varita', 'Pala'];
-  const ACCIONES = ['Golpear', 'Lanzar', 'Disparar', 'Esquivar', 'Atrapar', 'Cortar', 'Bloquear', 'Apuntar', 'Agacharse', 'Dibujar'];
+  const MANOS = t('foro.manos');
+  const ACCIONES = t('foro.acciones');
+  // Quien no pone nombre firma como «Anónimo» (lo pone el servidor, en español)
+  const firma = (autor) => (autor === 'Anónimo' ? t('foro.anonimo') : autor);
 
   const $vista = document.getElementById('vista');
   let orden = 'votos';
@@ -330,20 +355,16 @@
     });
     let datos = null;
     try { datos = await respuesta.json(); } catch { /* respuesta sin JSON */ }
-    if (!respuesta.ok || !datos) throw new Error(datos?.error || 'El foro no está disponible ahora mismo. Prueba más tarde.');
+    if (!respuesta.ok || !datos) {
+      // El servidor manda un código de error para enseñarlo traducido (y el texto en español por si no lo conocemos)
+      const codigo = datos?.codigo && `foro.errores.${datos.codigo}`;
+      throw new Error(codigo && existe(codigo) ? t(codigo, datos) : datos?.error || t('foro.noDisponible'));
+    }
     return datos;
   }
 
-  // Fechas de SQLite en UTC ('AAAA-MM-DD HH:MM:SS') → "hace 3 h"
-  function hace(fecha) {
-    const t = Date.parse(fecha.replace(' ', 'T') + 'Z');
-    const s = Math.max(0, (Date.now() - t) / 1000);
-    if (s < 60) return 'ahora mismo';
-    if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
-    if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
-    if (s < 86400 * 30) return `hace ${Math.floor(s / 86400)} d`;
-    return new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-  }
+  // Fechas de SQLite en UTC ('AAAA-MM-DD HH:MM:SS') → "hace 3 horas", en el idioma de la página
+  const hace = (fecha) => haceRelativo(Date.parse(fecha.replace(' ', 'T') + 'Z'));
 
   const juegoDe = (id) => JUEGOS.find((j) => j.id === id);
   const insigniaEstado = (estado) => el('span', { class: `estado ${estado}` }, ESTADOS[estado] || estado);
@@ -352,7 +373,7 @@
     if (!sugerencia.juego || !['hecha', 'existe'].includes(sugerencia.estado)) return null;
     const juego = juegoDe(sugerencia.juego);
     const nombre = juego ? juego.titulo : sugerencia.juego;
-    const texto = sugerencia.estado === 'hecha' ? `Jugar a ${nombre}` : `Ver ${nombre}`;
+    const texto = t(sugerencia.estado === 'hecha' ? 'foro.jugarA' : 'foro.ver', { juego: nombre });
     return el('a', { class: 'boton jugar', href: `play.html#${sugerencia.juego}` }, '▶ ', texto);
   }
 
@@ -361,7 +382,7 @@
       type: 'button',
       class: `me-gusta${enLinea ? ' en-linea' : ''}`,
       'aria-pressed': String(leGusta),
-      'aria-label': 'Me gusta',
+      'aria-label': t('pausa.meGusta'),
     });
     const pintar = (activo, total) => {
       boton.setAttribute('aria-pressed', String(activo));
@@ -404,7 +425,8 @@
     });
     try {
       await cargaTurnstile;
-      const widget = window.turnstile.render(contenedor, { sitekey: turnstile, theme: 'dark', language: 'es' });
+      const language = { pt: 'pt-br', zh: 'zh-cn' }[idioma] || idioma;
+      const widget = window.turnstile.render(contenedor, { sitekey: turnstile, theme: 'dark', language });
       return { token: () => window.turnstile.getResponse(widget) || '', reiniciar: () => window.turnstile.reset(widget) };
     } catch {
       return { token: () => '', reiniciar() {} };
@@ -413,25 +435,25 @@
 
   // ─── Lista de sugerencias ───────────────────────────────────────────────
   async function verLista() {
-    document.title = 'Foro de sugerencias · VR Play';
-    const $lista = el('section', { class: 'lista', 'aria-label': 'Sugerencias' }, el('p', { class: 'vacio' }, 'Cargando sugerencias…'));
+    document.title = t('foro.tituloPagina');
+    const $lista = el('section', { class: 'lista', 'aria-label': t('comun.sugerencias') }, el('p', { class: 'vacio' }, t('foro.cargandoSugerencias')));
     const chips = ORDENES.map(([clave, nombre]) => el('button', {
       type: 'button', class: 'chip', 'aria-pressed': String(clave === orden),
       onclick: () => { orden = clave; verLista(); },
     }, nombre));
     const selector = el('select', {
-      class: 'selector', 'aria-label': 'Filtrar por estado',
+      class: 'selector', 'aria-label': t('foro.filtrarEstado'),
       onchange: (e) => { filtroEstado = e.target.value; verLista(); },
-    }, el('option', { value: '' }, 'Todos los estados'), Object.entries(ESTADOS).map(([clave, nombre]) =>
+    }, el('option', { value: '' }, t('foro.todosEstados')), Object.entries(ESTADOS).map(([clave, nombre]) =>
       el('option', { value: clave, selected: clave === filtroEstado }, nombre)));
 
     $vista.replaceChildren(
       el('section', { class: 'portada' },
         el('div', {},
-          el('h1', {}, 'Foro de sugerencias'),
-          el('p', { class: 'entradilla' }, '¿Qué juego te gustaría jugar en VR Play? Propónlo, vota los que más te gusten con ♥ y comenta. Los más votados tienen más papeletas para hacerse realidad.')),
-        el('a', { class: 'boton', href: '#/nueva' }, '+ Sugerir un juego')),
-      el('div', { class: 'barra', role: 'group', 'aria-label': 'Ordenar' }, chips, selector),
+          el('h1', {}, t('foro.titulo')),
+          el('p', { class: 'entradilla' }, t('foro.entradilla'))),
+        el('a', { class: 'boton', href: '#/nueva' }, `+ ${t('comun.sugerirJuego')}`)),
+      el('div', { class: 'barra', role: 'group', 'aria-label': t('foro.ordenar') }, chips, selector),
       $lista,
     );
 
@@ -440,7 +462,7 @@
       if (filtroEstado) params.set('estado', filtroEstado);
       const { sugerencias, meGusta } = await api(`/sugerencias?${params}`);
       if (!sugerencias.length) {
-        $lista.replaceChildren(el('p', { class: 'vacio' }, filtroEstado ? 'No hay sugerencias con ese estado.' : 'Todavía no hay sugerencias. ¡Sé el primero!'));
+        $lista.replaceChildren(el('p', { class: 'vacio' }, t(filtroEstado ? 'foro.sinEstado' : 'foro.vacio')));
         return;
       }
       const gustan = new Set(meGusta);
@@ -453,8 +475,8 @@
             el('p', { class: 'extracto' }, extracto),
             el('div', { class: 'detalles' },
               insigniaEstado(s.estado),
-              s.tipo && el('span', { class: 'etiqueta' }, `#${s.tipo.toLowerCase()}`),
-              el('span', {}, `${s.autor} · ${hace(s.creada)}`),
+              s.tipo && el('span', { class: 'etiqueta' }, `#${nombreTipo(s.tipo).toLowerCase()}`),
+              el('span', {}, `${firma(s.autor)} · ${hace(s.creada)}`),
               el('a', { href: `#/s/${s.id}` }, `💬 ${s.comentarios}`),
               enlaceJuego(s)),
           ));
@@ -466,29 +488,29 @@
 
   // ─── Un hilo ────────────────────────────────────────────────────────────
   async function verHilo(id) {
-    $vista.replaceChildren(el('a', { class: 'volver', href: '#/' }, '← Todas las sugerencias'), el('p', { class: 'vacio' }, 'Cargando…'));
+    $vista.replaceChildren(el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`), el('p', { class: 'vacio' }, t('comun.cargando')));
     let datos;
     try {
       datos = await api(`/sugerencias/${id}`);
     } catch (e) {
-      $vista.replaceChildren(el('a', { class: 'volver', href: '#/' }, '← Todas las sugerencias'), el('p', { class: 'vacio' }, e.message));
+      $vista.replaceChildren(el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`), el('p', { class: 'vacio' }, e.message));
       return;
     }
     const { sugerencia: s, comentarios, meGusta } = datos;
-    document.title = `${s.titulo} · Sugerencias · VR Play`;
+    document.title = `${s.titulo} · ${t('comun.sugerencias')} · VR Play`;
     const anclada = comentarios.find((c) => c.anclado);
     const resto = comentarios.filter((c) => c !== anclada);
 
-    const ficha = [['En las manos', s.manos], ['Qué haces', s.accion], ['Tipo de juego', s.tipo]].filter(([, v]) => v);
+    const ficha = [[t('foro.enLasManos'), s.manos], [t('foro.queHaces'), s.accion], [t('foro.tipo'), s.tipo && nombreTipo(s.tipo)]].filter(([, v]) => v);
 
     const $aviso = el('p', { class: 'aviso', role: 'status' });
     const $captcha = el('div');
     const $formulario = el('form', { class: 'formulario', novalidate: true },
-      el('h2', {}, 'Comentar'),
-      el('label', {}, 'Tu comentario', el('textarea', { name: 'texto', required: true, minlength: 2, maxlength: 1500, placeholder: 'Ideas, variantes, qué te ha parecido el juego…' })),
-      el('label', {}, el('span', {}, 'Tu nombre ', el('small', {}, '(opcional)')), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: 'Anónimo' })),
+      el('h2', {}, t('foro.comentar')),
+      el('label', {}, t('foro.tuComentario'), el('textarea', { name: 'texto', required: true, minlength: 2, maxlength: 1500, placeholder: t('foro.comentarioEjemplo') })),
+      el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional'))), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') })),
       $captcha,
-      el('div', { class: 'acciones' }, el('button', { class: 'boton', type: 'submit' }, 'Publicar comentario'), $aviso),
+      el('div', { class: 'acciones' }, el('button', { class: 'boton', type: 'submit' }, t('foro.publicarComentario')), $aviso),
     );
     const captcha = await montarCaptcha($captcha);
     recordarNombre($formulario);
@@ -496,7 +518,7 @@
       e.preventDefault();
       const boton = $formulario.querySelector('button[type="submit"]');
       const texto = $formulario.texto.value.trim();
-      if (texto.length < 2) return avisar($aviso, 'Escribe algo antes de publicar.', true);
+      if (texto.length < 2) return avisar($aviso, t('foro.escribeAlgo'), true);
       boton.disabled = true;
       try {
         await api(`/sugerencias/${s.id}/comentarios`, { method: 'POST', datos: { texto, autor: $formulario.autor.value, captcha: captcha.token() } });
@@ -510,64 +532,61 @@
     });
 
     $vista.replaceChildren(
-      el('a', { class: 'volver', href: '#/' }, '← Todas las sugerencias'),
+      el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`),
       el('article', { class: 'cabeza-hilo' },
-        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, `Sugerido por ${s.autor} · ${hace(s.creada)}`)),
+        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, t('foro.sugeridoPor', { autor: firma(s.autor), cuando: hace(s.creada) }))),
         el('h1', {}, s.titulo),
         el('p', { class: 'texto' }, s.descripcion),
         ficha.length ? el('dl', { class: 'ficha' }, ficha.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v)))) : null,
         el('div', { class: 'acciones' }, botonMeGusta(s, meGusta, true), anclada ? null : enlaceJuego(s)),
       ),
-      anclada ? el('section', { class: 'anclada', 'aria-label': 'Respuesta anclada' },
-        el('p', { class: 'sello' }, `📌 Respuesta ${anclada.oficial ? 'oficial de VR Play' : `de ${anclada.autor}`} · ${hace(anclada.creada)}`),
+      anclada ? el('section', { class: 'anclada', 'aria-label': t('foro.respuestaAnclada') },
+        el('p', { class: 'sello' }, `📌 ${anclada.oficial ? t('foro.respuestaOficial') : t('foro.respuestaDe', { autor: firma(anclada.autor) })} · ${hace(anclada.creada)}`),
         el('p', { class: 'texto' }, anclada.texto),
         enlaceJuego(s)) : null,
-      el('h2', {}, `Comentarios (${resto.length})`),
+      el('h2', {}, t('foro.comentarios', { n: resto.length })),
       el('section', { class: 'comentarios' }, resto.length
         ? resto.map((c) => el('article', { class: `comentario${c.oficial ? ' oficial' : ''}` },
-          el('div', {}, el('span', { class: 'autor' }, c.autor), c.oficial ? el('span', { class: 'sello-oficial' }, 'Oficial') : null, el('span', { class: 'cuando' }, hace(c.creada))),
+          el('div', {}, el('span', { class: 'autor' }, firma(c.autor)), c.oficial ? el('span', { class: 'sello-oficial' }, t('foro.oficial')) : null, el('span', { class: 'cuando' }, hace(c.creada))),
           el('p', { class: 'texto' }, c.texto)))
-        : el('p', { class: 'vacio' }, 'Aún no hay comentarios.')),
+        : el('p', { class: 'vacio' }, t('foro.sinComentarios'))),
       $formulario,
     );
   }
 
   // ─── Nueva sugerencia ───────────────────────────────────────────────────
   async function verFormulario() {
-    document.title = 'Sugerir un juego · VR Play';
+    document.title = `${t('comun.sugerirJuego')} · VR Play`;
     const lista = (id, valores) => el('datalist', { id }, valores.map((v) => el('option', { value: v })));
     const $aviso = el('p', { class: 'aviso', role: 'status' });
     const $captcha = el('div');
     const $formulario = el('form', { class: 'formulario', novalidate: true },
-      el('label', {}, 'Nombre del juego', el('input', { name: 'titulo', required: true, minlength: 4, maxlength: 80, placeholder: 'Por ejemplo: Tiro con Honda' })),
-      el('label', {}, el('span', {}, '¿De qué va? ', el('small', {}, 'Qué tienes que hacer, cómo se consiguen puntos y cuándo se acaba la partida.')),
+      el('label', {}, t('foro.nombreJuego'), el('input', { name: 'titulo', required: true, minlength: 4, maxlength: 80, placeholder: t('foro.nombreEjemplo') })),
+      el('label', {}, el('span', {}, `${t('foro.deQueVa')} `, el('small', {}, t('foro.deQueVaAyuda'))),
         el('textarea', { name: 'descripcion', required: true, minlength: 20, maxlength: 2000 })),
       el('div', { class: 'fila' },
-        el('label', {}, 'Qué llevas en las manos', el('input', { name: 'manos', maxlength: 80, list: 'lista-manos', placeholder: 'Espada, raqueta, nada…' })),
-        el('label', {}, 'Qué haces', el('input', { name: 'accion', maxlength: 80, list: 'lista-acciones', placeholder: 'Golpear, lanzar, esquivar…' })),
-        el('label', {}, 'Tipo de juego', el('select', { name: 'tipo' }, el('option', { value: '' }, 'Elige uno'), TIPOS.map((t) => el('option', { value: t }, t))))),
-      el('label', {}, el('span', {}, 'Tu nombre ', el('small', {}, '(opcional)')), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: 'Anónimo' })),
+        el('label', {}, t('foro.queLlevas'), el('input', { name: 'manos', maxlength: 80, list: 'lista-manos', placeholder: t('foro.queLlevasEjemplo') })),
+        el('label', {}, t('foro.queHaces'), el('input', { name: 'accion', maxlength: 80, list: 'lista-acciones', placeholder: t('foro.queHacesEjemplo') })),
+        el('label', {}, t('foro.tipo'), el('select', { name: 'tipo' }, el('option', { value: '' }, t('foro.eligeUno')),
+          TIPOS.map((k) => el('option', { value: tOriginal(`generos.${k}`) }, t(`generos.${k}`)))))),
+      el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional'))), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') })),
       lista('lista-manos', MANOS),
       lista('lista-acciones', ACCIONES),
       $captcha,
       el('div', { class: 'acciones' },
-        el('button', { class: 'boton', type: 'submit' }, 'Publicar sugerencia'),
-        el('a', { class: 'boton secundario', href: '#/' }, 'Cancelar'),
+        el('button', { class: 'boton', type: 'submit' }, t('foro.publicarSugerencia')),
+        el('a', { class: 'boton secundario', href: '#/' }, t('foro.cancelar')),
         $aviso),
     );
 
     $vista.replaceChildren(
-      el('a', { class: 'volver', href: '#/' }, '← Todas las sugerencias'),
+      el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`),
       el('section', { class: 'cabeza-hilo' },
-        el('h1', {}, 'Sugerir un juego'),
-        el('p', { class: 'entradilla' }, 'Antes de escribir, mira si ya lo ha sugerido alguien: si es así, dale ♥ y comenta allí.')),
+        el('h1', {}, t('comun.sugerirJuego')),
+        el('p', { class: 'entradilla' }, t('foro.antesDeEscribir'))),
       el('aside', { class: 'reglas' },
-        el('strong', {}, 'Para que encaje en VR Play'),
-        el('ul', {},
-          el('li', {}, 'Se juega de pie, sin desplazarte por la habitación (puedes agacharte o dar un paso).'),
-          el('li', {}, 'Partidas cortas, con puntos y récord.'),
-          el('li', {}, 'Un solo jugador.'),
-          el('li', {}, 'También se tiene que poder jugar con el ratón, sin gafas.'))),
+        el('strong', {}, t('foro.reglasTitulo')),
+        el('ul', {}, t('foro.reglas').map((regla) => el('li', {}, regla)))),
       $formulario,
     );
 
@@ -585,8 +604,8 @@
         autor: f.autor.value,
         captcha: captcha.token(),
       };
-      if (datos.titulo.length < 4) return avisar($aviso, 'El nombre del juego necesita al menos 4 letras.', true);
-      if (datos.descripcion.length < 20) return avisar($aviso, 'Cuenta un poco más de qué va (al menos 20 caracteres).', true);
+      if (datos.titulo.length < 4) return avisar($aviso, t('foro.tituloCorto'), true);
+      if (datos.descripcion.length < 20) return avisar($aviso, t('foro.descripcionCorta'), true);
       const boton = f.querySelector('button[type="submit"]');
       boton.disabled = true;
       try {

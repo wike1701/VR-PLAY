@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { t } from '../idiomas/idiomas.js';
 
 // ─── Ajustes del botón de cambio de juego ───────────────────────────────
 // Posición respecto a la cabeza, en metros, en el "cuerpo" del jugador:
@@ -53,11 +54,11 @@ function normalizarAngulo(a) {
 const ESTILOS = {
   siguiente: {
     lado: 1, nombre: 'boton-cambio', tapa: 0x7c5cff, brillo: 0x2a1a70, brilloEncima: 0x6a50ff,
-    halo: 0x9d82ff, zona: 0x8f6bff, guia: 0xb9a8ff, textoGuia: '#b9a8ff', tituloGuia: 'SIGUIENTE JUEGO',
+    halo: 0x9d82ff, zona: 0x8f6bff, guia: 0xb9a8ff, textoGuia: '#b9a8ff', tituloGuia: 'jugar.vr.siguienteJuego',
   },
   pausa: {
     lado: -1, nombre: 'boton-pausa', tapa: 0x00a896, brillo: 0x003d36, brilloEncima: 0x00bfa5,
-    halo: 0x4dd0c4, zona: 0x26c6b5, guia: 0x80e8dc, textoGuia: '#80e8dc', tituloGuia: 'PAUSA Y MENÚ',
+    halo: 0x4dd0c4, zona: 0x26c6b5, guia: 0x80e8dc, textoGuia: '#80e8dc', tituloGuia: 'jugar.vr.pausaYMenu',
   },
 };
 
@@ -152,8 +153,8 @@ export class BotonCambio {
     this.flecha.renderOrder = 998;
     this.guiaTexto = crearPanel({ ancho: 0.17, alto: 0.05, resolucion: 320 });
     this.guiaTexto.escribir([
-      { texto: estilo.tituloGuia, tam: 1, color: estilo.textoGuia },
-      { texto: 'detrás de tu hombro', tam: 0.8 },
+      { texto: t(estilo.tituloGuia), tam: 1, color: estilo.textoGuia },
+      { texto: t('jugar.vr.detrasHombro'), tam: 0.8 },
     ]);
     const matTexto = this.guiaTexto.mesh.material;
     matTexto.depthTest = false;
@@ -183,7 +184,7 @@ export class BotonCambio {
   setSiguiente(titulo) {
     this.ayuda = TIEMPO_AYUDA; // se llama al empezar cada juego: volver a enseñar la flecha
     this.etiqueta.escribir([
-      { texto: 'SIGUIENTE JUEGO', tam: 0.8, color: '#b9a8ff' },
+      { texto: t('jugar.vr.siguienteJuego'), tam: 0.8, color: '#b9a8ff' },
       { texto: titulo, tam: 1.2 },
     ]);
   }

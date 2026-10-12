@@ -46,7 +46,7 @@ export async function onRequestPost({ request, env }) {
   const falta = sinBaseDeDatos(env);
   if (falta) return falta;
   const datos = await leerJson(request);
-  if (!datos) return error('Datos no válidos.');
+  if (!datos) return error('Datos no válidos.', 400, 'datos');
 
   const titulo = texto(datos.titulo, 80, 4);
   const descripcion = texto(datos.descripcion, 2000, 20);
@@ -54,16 +54,16 @@ export async function onRequestPost({ request, env }) {
   const accion = texto(datos.accion, 80);
   const tipo = texto(datos.tipo, 40);
   const autor = texto(datos.autor, 40) || 'Anónimo';
-  if (titulo === null) return error('El título debe tener entre 4 y 80 caracteres.');
-  if (descripcion === null) return error('La descripción debe tener entre 20 y 2000 caracteres.');
-  if (manos === null || accion === null || tipo === null || autor === null) return error('Algún campo es demasiado largo.');
+  if (titulo === null) return error('El título debe tener entre 4 y 80 caracteres.', 400, 'titulo_longitud');
+  if (descripcion === null) return error('La descripción debe tener entre 20 y 2000 caracteres.', 400, 'descripcion_longitud');
+  if (manos === null || accion === null || tipo === null || autor === null) return error('Algún campo es demasiado largo.', 400, 'campo_largo');
 
   const admin = await esAdmin(request, env);
-  if (!admin && nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.');
-  if (!admin && !(await captchaValido(request, env, datos.captcha))) return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403);
+  if (!admin && nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.', 400, 'nombre_reservado');
+  if (!admin && !(await captchaValido(request, env, datos.captcha))) return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403, 'captcha');
 
   const ip = await huellaIp(request, env);
-  if (!admin && (await superaLimite(env, 'sugerencias', ip))) return error('Has enviado muchas sugerencias seguidas. Prueba dentro de un rato.', 429);
+  if (!admin && (await superaLimite(env, 'sugerencias', ip))) return error('Has enviado muchas sugerencias seguidas. Prueba dentro de un rato.', 429, 'limite_sugerencias');
 
   const fila = await env.DB.prepare(
     'INSERT INTO sugerencias (titulo, descripcion, manos, accion, tipo, autor, ip) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',

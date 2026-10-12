@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<meta name="description" data-i18n-attr="content:inicio.metaDescripcion" content="Juegos de realidad virtual gratis que se juegan en el navegador: con gafas Meta Quest, con el ratón o en el móvil.">
+<!-- La misma página en cada idioma (?lang=), para los buscadores -->
+<link rel="alternate" hreflang="es" href="https://vrplaygame.com/?lang=es">
+<link rel="alternate" hreflang="en" href="https://vrplaygame.com/?lang=en">
+<link rel="alternate" hreflang="fr" href="https://vrplaygame.com/?lang=fr">
+<link rel="alternate" hreflang="de" href="https://vrplaygame.com/?lang=de">
+<link rel="alternate" hreflang="it" href="https://vrplaygame.com/?lang=it">
+<link rel="alternate" hreflang="pt" href="https://vrplaygame.com/?lang=pt">
+<link rel="alternate" hreflang="ja" href="https://vrplaygame.com/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://vrplaygame.com/?lang=ko">
+<link rel="alternate" hreflang="zh" href="https://vrplaygame.com/?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://vrplaygame.com/">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
@@ -87,6 +100,17 @@
     white-space: nowrap;
   }
   .enlace-foro:hover { border-color: var(--accent); }
+  .selector-idioma {
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .selector-idioma:hover { border-color: var(--accent); }
 
   .intro {
     display: grid;
@@ -212,6 +236,7 @@
     .cabecera { flex-wrap: wrap; }
     .buscar { max-width: none; flex-basis: 100%; margin-left: 0; order: 3; }
     .enlace-foro { margin-left: auto; }
+    .enlace-foro .texto { display: none; }
     .esquema { grid-template-columns: 84px minmax(0, 1fr); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -224,53 +249,55 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <input class="buscar" id="buscar" type="search" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
-    <a class="enlace-foro" href="foro.html">💡 Sugerencias</a>
+    <input class="buscar" id="buscar" type="search" data-i18n-attr="placeholder:inicio.buscar; aria-label:inicio.buscarEtiqueta" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
+    <a class="enlace-foro" href="foro.html" data-i18n-attr="aria-label:comun.sugerencias">💡 <span class="texto" data-i18n="comun.sugerencias">Sugerencias</span></a>
+    <span data-selector-idioma></span>
   </div>
 </header>
 
 <main class="contenedor">
   <section class="intro">
     <div>
-      <h1>Juegos de realidad virtual que se juegan en el navegador</h1>
-      <p>Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
-      <a class="boton-jugar" id="jugar-ya" href="play.html#fruta">Jugar ahora</a>
+      <h1 data-i18n="inicio.titulo">Juegos de realidad virtual que se juegan en el navegador</h1>
+      <p data-i18n="inicio.entradilla">Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
+      <a class="boton-jugar" id="jugar-ya" href="play.html#fruta" data-i18n="inicio.jugarAhora">Jugar ahora</a>
     </div>
-    <aside class="esquema" aria-label="Cómo cambiar de juego">
-      <svg viewBox="0 0 120 120" role="img" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
+    <aside class="esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
+      <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
         <circle cx="60" cy="60" r="54" fill="none" stroke="#34304f" stroke-dasharray="4 5"/>
         <path d="M60 30 L52 44 H68 Z" fill="#a19cbd"/>
         <ellipse cx="60" cy="66" rx="34" ry="12" fill="#24213a" stroke="#a19cbd" stroke-width="2"/>
         <circle cx="60" cy="62" r="14" fill="#1a1828" stroke="#f1effa" stroke-width="2"/>
         <circle cx="88" cy="92" r="10" fill="#8f6bff"/>
         <circle cx="88" cy="92" r="15" fill="none" stroke="#00e5ff" stroke-width="2"/>
-        <text x="60" y="18" fill="#a19cbd" font-size="9" text-anchor="middle" font-family="sans-serif">delante</text>
+        <text x="60" y="18" fill="#a19cbd" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
       </svg>
       <div>
-        <h2>Cambiar de juego en VR</h2>
-        <p>Lleva la mano por encima de tu hombro derecho, hacia atrás. Déjala medio segundo en el botón o aprieta el gatillo y pasarás al siguiente juego sin quitarte las gafas. El mando vibra más rápido cuanto más cerca estás.</p>
+        <h2 data-i18n="inicio.cambiarTitulo">Cambiar de juego en VR</h2>
+        <p data-i18n="inicio.cambiarTexto">Lleva la mano por encima de tu hombro derecho, hacia atrás. Déjala medio segundo en el botón o aprieta el gatillo y pasarás al siguiente juego sin quitarte las gafas. El mando vibra más rápido cuanto más cerca estás.</p>
       </div>
     </aside>
   </section>
 
-  <div class="filtros" id="filtros" role="group" aria-label="Filtrar por género"></div>
-  <section class="rejilla" id="rejilla" aria-label="Juegos"></section>
+  <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
+  <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
 
-  <div class="anuncio" role="complementary" aria-label="Publicidad">Espacio publicitario</div>
+  <div class="anuncio" role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
 </main>
 
 <footer class="contenedor">
   <nav>
-    <a href="foro.html">Sugerir un juego</a>
-    <a href="legal.html#privacidad">Privacidad</a>
-    <a href="legal.html#cookies">Cookies</a>
-    <a href="legal.html#contacto">Contacto</a>
-    <a href="legal.html#aviso-legal">Aviso legal</a>
+    <a href="foro.html" data-i18n="comun.sugerirJuego">Sugerir un juego</a>
+    <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a>
+    <a href="legal.html#cookies" data-i18n="comun.cookies">Cookies</a>
+    <a href="legal.html#contacto" data-i18n="comun.contacto">Contacto</a>
+    <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
   </nav>
   <p>© 2026 VR Play</p>
 </footer>
 
 <script type="module">
+  import { t } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
   import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
@@ -281,12 +308,15 @@
   const JUEGOS = TODOS.filter((j) => !enPruebas.has(j.id));
 
   // Favoritos y "me gusta" (se marcan desde el menú de pausa del juego)
-  const FAVORITOS = '★ Favoritos';
+  // Filtros: los dos especiales y después los géneros (por su clave, igual en todos los idiomas)
+  const TODOS_LOS = '*todos';
+  const FAVORITOS = '*favoritos';
   const misFavoritos = favoritos();
   let totales = {};
 
-  const generos = ['Todos', ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.genero))];
-  let generoActivo = 'Todos';
+  const nombreFiltro = (g) => (g === TODOS_LOS ? t('inicio.todos') : g === FAVORITOS ? `★ ${t('inicio.favoritos')}` : t(`generos.${g}`));
+  const generos = [TODOS_LOS, ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.generoId))];
+  let generoActivo = TODOS_LOS;
   let busqueda = '';
 
   const $filtros = document.getElementById('filtros');
@@ -297,7 +327,7 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'chip';
-      b.textContent = g;
+      b.textContent = nombreFiltro(g);
       b.setAttribute('aria-pressed', String(g === generoActivo));
       b.addEventListener('click', () => { generoActivo = g; pintarFiltros(); pintarRejilla(); });
       return b;
@@ -310,8 +340,9 @@
   // Búsqueda: cada palabra tiene que coincidir (se pueden combinar).
   //   #disparos  -> juegos con una etiqueta (o género) que empiece por "disparos"
   //   patos      -> juegos que contengan "patos" en el título, la descripción o las etiquetas
+  // Valen las etiquetas del idioma de la página y las originales en español.
   function coincide(juego, palabras) {
-    const etiquetas = [juego.genero, ...(juego.etiquetas || [])].map(normalizar);
+    const etiquetas = [juego.genero, ...juego.busqueda].map(normalizar);
     const texto = normalizar([juego.titulo, juego.descripcion, ...etiquetas].join(' '));
     return palabras.every((p) => p.startsWith('#')
       ? p.length === 1 || etiquetas.some((e) => e.startsWith(p.slice(1)))
@@ -321,13 +352,13 @@
   function pintarRejilla() {
     const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
     const lista = JUEGOS.filter((j) =>
-      (generoActivo === 'Todos' || j.genero === generoActivo || (generoActivo === FAVORITOS && misFavoritos.has(j.id))) &&
+      (generoActivo === TODOS_LOS || j.generoId === generoActivo || (generoActivo === FAVORITOS && misFavoritos.has(j.id))) &&
       coincide(j, palabras));
 
     if (lista.length === 0) {
       const p = document.createElement('p');
       p.className = 'vacio';
-      p.textContent = 'No hay juegos que coincidan con la búsqueda.';
+      p.textContent = t('inicio.sinResultados');
       $rejilla.replaceChildren(p);
       return;
     }
@@ -339,7 +370,7 @@
       a.innerHTML = `
         <div class="miniatura">
           <img alt="" loading="lazy">
-          <span class="insignia">VR · RATÓN</span>
+          <span class="insignia"></span>
         </div>
         <div>
           <h3></h3>
@@ -347,8 +378,9 @@
           <p class="etiquetas"></p>
         </div>`;
       a.querySelector('img').src = j.miniatura;
+      a.querySelector('.insignia').textContent = t('inicio.insignia');
       a.querySelector('h3').textContent = j.titulo;
-      if (misFavoritos.has(j.id)) a.querySelector('h3').append(Object.assign(document.createElement('span'), { className: 'favorito', textContent: ' ★', title: 'En tus favoritos' }));
+      if (misFavoritos.has(j.id)) a.querySelector('h3').append(Object.assign(document.createElement('span'), { className: 'favorito', textContent: ' ★', title: t('inicio.enFavoritos') }));
       if (totales[j.id]) {
         a.querySelector('.miniatura').append(Object.assign(document.createElement('span'), {
           className: `insignia gustos${meGusta.has(j.id) ? ' mio' : ''}`, textContent: `♥ ${totales[j.id]}`,

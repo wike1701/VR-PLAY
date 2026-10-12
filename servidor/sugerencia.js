@@ -6,11 +6,11 @@ export async function onRequestGet({ request, params, env }) {
   const falta = sinBaseDeDatos(env);
   if (falta) return falta;
   const id = idValido(params.id);
-  if (!id) return error('Sugerencia no encontrada.', 404);
+  if (!id) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
   const admin = await esAdmin(request, env);
 
   const sugerencia = await env.DB.prepare(`SELECT ${CAMPOS} FROM sugerencias WHERE id = ?`).bind(id).first();
-  if (!sugerencia || (sugerencia.oculta && !admin)) return error('Sugerencia no encontrada.', 404);
+  if (!sugerencia || (sugerencia.oculta && !admin)) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
 
   const { results: comentarios } = await env.DB.prepare(
     `SELECT id, texto, autor, oficial, anclado, oculto, creada FROM comentarios
@@ -31,7 +31,7 @@ export async function onRequestPatch({ request, params, env }) {
   if (falta) return falta;
   if (!(await esAdmin(request, env))) return error('No autorizado.', 401);
   const id = idValido(params.id);
-  if (!id) return error('Sugerencia no encontrada.', 404);
+  if (!id) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
   const datos = await leerJson(request);
   if (!datos) return error('Datos no válidos.');
 

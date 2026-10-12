@@ -239,20 +239,19 @@ export function iniciar(ctx) {
   const tmp2 = new THREE.Vector3();
   const normal = new THREE.Vector3();
 
-  const nombre = (equipo) => (equipo === 'jugador' ? 'ti' : 'la máquina');
   const distanciaBoliche = (c) => Math.hypot(c.malla.position.x - boliche.malla.position.x, c.malla.position.z - boliche.malla.position.z);
 
   function actualizarMarcador() {
-    const lineas = [{ texto: `Tú ${tanteo.jugador}  –  ${tanteo.maquina} Máquina`, tam: 1.3 }];
+    const lineas = [{ texto: ctx.t('partida.tanteo', tanteo), tam: 1.3 }];
     if (estado === 'intro') {
-      lineas[0] = { texto: 'PETANCA', tam: 1.3, color: '#ffcc80' };
-      lineas.push({ texto: `Acerca tus bolas al boliche · gana quien llegue a ${PUNTOS_VICTORIA}`, tam: 0.7 });
+      lineas[0] = { texto: ctx.t('titulo'), tam: 1.3, color: '#ffcc80' };
+      lineas.push({ texto: ctx.t('intro', { n: PUNTOS_VICTORIA }), tam: 0.7 });
     } else if (estado === 'jugador') {
-      lineas.push({ texto: linea2 || (ctx.enVR() ? 'Te toca: coge la bola y lánzala' : (ctx.tactil ? 'Te toca: toca donde quieres que caiga' : 'Te toca: haz clic donde quieres que caiga')), tam: 0.75, color: color2 });
+      lineas.push({ texto: linea2 || ctx.t(ctx.enVR() ? 'teTocaVR' : ctx.tactil ? 'teTocaTactil' : 'teTocaRaton'), tam: 0.75, color: color2 });
     } else {
       lineas.push({ texto: linea2, tam: 0.75, color: color2 });
     }
-    lineas.push({ texto: `Bolas: tú ${quedan.jugador} · máquina ${quedan.maquina}   ·   Partidas ganadas: ${ganadas}`, tam: 0.6, color: '#ffcc80' });
+    lineas.push({ texto: ctx.t('pie', { jugador: quedan.jugador, maquina: quedan.maquina, ganadas }), tam: 0.6, color: '#ffcc80' });
     marcador.escribir(lineas);
   }
 
@@ -278,7 +277,7 @@ export function iniciar(ctx) {
   function darTurno(equipo) {
     estado = equipo;
     reloj = 1.4;
-    if (equipo === 'maquina') decir('Tira la máquina…', '#ffab91');
+    if (equipo === 'maquina') decir(ctx.t('tiraMaquina'), '#ffab91');
     else decir('');
   }
 
@@ -317,7 +316,7 @@ export function iniciar(ctx) {
     darTurno(siguiente);
     if (punto) {
       const cm = Math.round(mejor[punto].d * 100);
-      decir(`Punto para ${nombre(punto)} (a ${cm} cm)${siguiente === 'jugador' ? ' · te toca' : ' · tira la máquina'}`,
+      decir(`${ctx.t(punto === 'jugador' ? 'puntoTuyo' : 'puntoMaquina', { cm })} · ${ctx.t(siguiente === 'jugador' ? 'teToca' : 'tiraMaquinaCorto')}`,
         punto === 'jugador' ? '#80deea' : '#ffab91');
     }
   }
@@ -342,15 +341,15 @@ export function iniciar(ctx) {
       if (ganador === 'jugador') {
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
-        decir('¡HAS GANADO LA PARTIDA!', '#b9f6ca');
+        decir(ctx.t('hasGanado'), '#b9f6ca');
       } else {
-        decir('Gana la máquina. ¡La próxima es tuya!', '#ff8a80');
+        decir(ctx.t('ganaMaquina'), '#ff8a80');
       }
       ctx.sonido('fin');
     } else {
       estado = 'finMano';
       reloj = 3.5;
-      decir(`${ganador === 'jugador' ? 'Te llevas' : 'La máquina se lleva'} ${puntos} punto${puntos > 1 ? 's' : ''}`,
+      decir(ctx.t(ganador === 'jugador' ? 'teLlevas' : 'maquinaSeLleva', { n: puntos }),
         ganador === 'jugador' ? '#b9f6ca' : '#ff8a80');
     }
   }
@@ -395,7 +394,7 @@ export function iniciar(ctx) {
       // "Tirar": intenta caer encima de tu bola para sacarla
       const b = mejor.jugador.c.malla.position;
       caida = new THREE.Vector3(b.x + azar(0.15 * FALLO_MAQUINA), R_BOLA, b.z + azar(0.15 * FALLO_MAQUINA));
-      decir('¡La máquina tira a tu bola!', '#ffab91');
+      decir(ctx.t('tiraATuBola'), '#ffab91');
     } else {
       // "Arrimar": cae antes del boliche lo que calcula que va a rodar
       const objetivo = new THREE.Vector3(J.x, R_BOLA, J.z + 0.04);
@@ -601,7 +600,7 @@ export function iniciar(ctx) {
             cuerpos.splice(cuerpos.indexOf(lanzada), 1);
             quedan.jugador += 1;
             darTurno('jugador');
-            decir('La bola no ha pasado la línea: repite', '#fff59d');
+            decir(ctx.t('repite'), '#fff59d');
           } else {
             trasLanzamiento();
           }

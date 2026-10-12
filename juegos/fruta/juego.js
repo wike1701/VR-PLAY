@@ -458,18 +458,18 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'CORTA FRUTA', tam: 1.3, color: '#ffd180' },
-        { texto: 'Corta la fruta · evita las bombas', tam: 0.8 },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffd180' },
+        { texto: ctx.t('intro'), tam: 0.8 },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Fin! ${puntos} puntos`, tam: 1.3, color: '#ffd180' },
-        { texto: `Récord: ${record} · nueva partida en ${Math.ceil(reloj)}`, tam: 0.8 },
+        { texto: ctx.t('fin', { n: puntos }), tam: 1.3, color: '#ffd180' },
+        { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(reloj) }), tam: 0.8 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}  ·  Nivel ${nivelActual()}`, tam: 1.3 },
-        { texto: `Vidas: ${'●'.repeat(vidas)}${'○'.repeat(VIDAS - vidas)}   Récord: ${record}`, tam: 0.8, color: '#ffd6e0' },
+        { texto: ctx.t('marcador', { puntos, nivel: nivelActual() }), tam: 1.3 },
+        { texto: ctx.t('vidas', { vidas: '●'.repeat(vidas) + '○'.repeat(VIDAS - vidas), record }), tam: 0.8, color: '#ffd6e0' },
       ]);
     }
   }

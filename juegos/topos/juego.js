@@ -312,18 +312,18 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'APLASTA TOPOS', tam: 1.3, color: '#c5e1a5' },
-        { texto: '¡Martillazo de arriba abajo en la cabeza!', tam: 0.75 },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#c5e1a5' },
+        { texto: ctx.t('intro'), tam: 0.75 },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Tiempo! ${puntos} puntos`, tam: 1.3, color: '#c5e1a5' },
-        { texto: `Récord: ${record} · nueva ronda en ${Math.ceil(reloj)}`, tam: 0.75 },
+        { texto: ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 1.3, color: '#c5e1a5' },
+        { texto: ctx.t('partida.recordNuevaRonda', { record, n: Math.ceil(reloj) }), tam: 0.75 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
-        { texto: `Récord: ${record}   ·   los dorados valen 3`, tam: 0.75, color: '#fff59d' },
+        { texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(tiempoRestante) }), tam: 1.3 },
+        { texto: ctx.t('dorados', { record }), tam: 0.75, color: '#fff59d' },
       ]);
     }
   }

@@ -413,23 +413,23 @@ export function iniciar(ctx) {
     const fila = Array.from({ length: LANZAMIENTOS }, (_, i) => (i < resultados.length ? resultados[i].simbolo : '·')).join(' ');
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'BATEA BOLAS', tam: 1.3, color: '#ffd740' },
-        { texto: ctx.enVR() ? 'De lado como un diestro · junta las manos (o aprieta el agarre izquierdo) para coger el bate con las dos' : (ctx.tactil ? 'Toca a la altura de la bola para batear' : 'Elige la altura con el ratón y haz clic para batear'), tam: 0.7 },
-        { texto: `${LANZAMIENTOS} lanzamientos · Récord: ${record} puntos`, tam: 0.7, color: '#ffe57f' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffd740' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.7 },
+        { texto: ctx.t('porRonda', { n: LANZAMIENTOS, record }), tam: 0.7, color: '#ffe57f' },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Fin! ${puntos()} puntos`, tam: 1.3, color: '#ffd740' },
+        { texto: ctx.t('fin', { n: puntos() }), tam: 1.3, color: '#ffd740' },
         { texto: fila, tam: 0.8 },
-        { texto: `Récord: ${record} · otra ronda en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('partida.recordOtraRonda', { record, n: Math.ceil(reloj) }), tam: 0.7 },
       ]);
     } else {
       marcador.escribir([
         estado === 'resultado'
           ? { texto: mensaje, tam: 1.3, color: colorMensaje }
-          : { texto: `Lanzamiento ${turno + 1} de ${LANZAMIENTOS}`, tam: 1.3 },
+          : { texto: ctx.t('lanzamiento', { n: turno + 1, total: LANZAMIENTOS }), tam: 1.3 },
         { texto: fila, tam: 0.8 },
-        { texto: `Puntos: ${puntos()}   ·   Récord: ${record}   ·   ★ home run = 4`, tam: 0.7, color: '#ffe57f' },
+        { texto: ctx.t('marcador', { puntos: puntos(), record }), tam: 0.7, color: '#ffe57f' },
       ]);
     }
   }
@@ -496,17 +496,17 @@ export function iniciar(ctx) {
     const buena = bola.position.z < 0 && Math.abs(angulo) <= ANGULO_BUENO;
     const m = Math.round(distancia);
     if (!buena) {
-      terminar(0, '✘', '¡Falta!', '#fff59d');
+      terminar(0, '✘', ctx.t('falta'), '#fff59d');
       return;
     }
     marca.position.set(bola.position.x, 0.03, bola.position.z);
     marca.scale.setScalar(Math.max(1, distancia / 12));
     marca.visible = true;
-    if (contraLaValla) terminar(3, '3', '¡Triple! Contra la valla', '#b9f6ca');
-    else if (distancia < ELIMINADO) terminar(0, '✘', `Eliminado · ${m} m`, '#ffcc80');
-    else if (distancia < DOBLE) terminar(1, '1', `Sencillo · ${m} m`, '#ffffff');
-    else if (distancia < TRIPLE) terminar(2, '2', `¡Doble! · ${m} m`, '#b9f6ca');
-    else terminar(3, '3', `¡Triple! · ${m} m`, '#b9f6ca');
+    if (contraLaValla) terminar(3, '3', ctx.t('tripleValla'), '#b9f6ca');
+    else if (distancia < ELIMINADO) terminar(0, '✘', ctx.t('eliminadoMetros', { m }), '#ffcc80');
+    else if (distancia < DOBLE) terminar(1, '1', ctx.t('sencillo', { m }), '#ffffff');
+    else if (distancia < TRIPLE) terminar(2, '2', ctx.t('doble', { m }), '#b9f6ca');
+    else terminar(3, '3', ctx.t('triple', { m }), '#b9f6ca');
   }
 
   // ─── Bate: posición en este fotograma ──────────────────────────────────
@@ -645,7 +645,7 @@ export function iniciar(ctx) {
 
       if (!bateada) {
         if (bate.activo) comprobarBate(i / pasos, dt);
-        if (!bateada && !resuelto && pos.z > 0.8) terminar(0, '✘', '¡Strike!', '#ff8a80');
+        if (!bateada && !resuelto && pos.z > 0.8) terminar(0, '✘', ctx.t('strike'), '#ff8a80');
       }
 
       if (bateada) {
@@ -657,7 +657,7 @@ export function iniciar(ctx) {
           if (pos.y > ALTO_VALLA) {
             if (!resuelto) {
               marca.visible = false;
-              terminar(4, '★', '¡HOME RUN!', '#ffd740');
+              terminar(4, '★', ctx.t('homeRun'), '#ffd740');
             }
           } else {
             tmp.set(pos.x / d, 0, pos.z / d);
@@ -675,7 +675,7 @@ export function iniciar(ctx) {
         pos.z = RED_TRASERA;
         vel.z *= -0.1;
         vel.x *= 0.3;
-        if (bateada && !resuelto) terminar(0, '✘', '¡Falta!', '#fff59d');
+        if (bateada && !resuelto) terminar(0, '✘', ctx.t('falta'), '#fff59d');
       }
       // Suelo
       if (pos.y < RADIO_BOLA) {
@@ -742,8 +742,8 @@ export function iniciar(ctx) {
       case 'vuelo':
         vidaBola -= dt;
         if (vidaBola <= 0 && !resuelto) {
-          if (bateada) terminar(0, '✘', 'Eliminado', '#ffcc80');
-          else terminar(0, '✘', '¡Strike!', '#ff8a80');
+          if (bateada) terminar(0, '✘', ctx.t('eliminado'), '#ffcc80');
+          else terminar(0, '✘', ctx.t('strike'), '#ff8a80');
         }
         break;
       case 'resultado':

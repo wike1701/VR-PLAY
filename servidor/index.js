@@ -40,9 +40,9 @@ export default {
         return await manejador({ request, env, params: { id: coincide[1] } });
       } catch (e) {
         console.error('Error en la API del foro', e);
-        return error('Error del servidor. Prueba más tarde.', 500);
+        return error('Error del servidor. Prueba más tarde.', 500, 'servidor');
       }
     }
-    return error('No encontrado.', 404);
+    return error('No encontrado.', 404, 'no_encontrado');
   },
 };

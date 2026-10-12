@@ -13,11 +13,18 @@ wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del f
 servidor/               API del foro: solo atiende /api/* (index.js reparte las rutas)
 bd/esquema.sql          Tablas de la base de datos del foro (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
+herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
 iconos/                 Iconos PNG de la app (Android e iPhone)
 play.html               Página de juego (la "shell" VR)
+legal.html              Aviso legal, privacidad, cookies y contacto (el original, en español)
+idiomas/
+  detectar.js           Decide el idioma de la página (va en el <head> de cada página)
+  idiomas.js            Carga los textos del idioma, t('clave'), selector de idioma y traducción del HTML
+  es.js, en.js, …       Todos los textos de la web y de los juegos, un archivo por idioma (es.js es el original)
+  legal/<código>.html   El texto legal traducido
 shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
   boton-cambio.js       Botones virtuales detrás de los hombros (derecho: siguiente juego; izquierdo: pausa)
@@ -28,7 +35,7 @@ shell/
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
 juegos/
-  catalogo.js           Lista de juegos con sus etiquetas para buscar por # (el botón "siguiente" los recorre en orden aleatorio, sin repetir)
+  catalogo.js           Lista de juegos con su género (sus textos y etiquetas están en idiomas/; el botón "siguiente" los recorre en orden aleatorio, sin repetir)
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
   flechas/juego.js      Esquiva Flechas
@@ -103,6 +110,7 @@ export function iniciar(ctx) {
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
+  // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
     liberar() { /* limpia lo que no esté en ctx.raiz */ },
@@ -110,21 +118,28 @@ export function iniciar(ctx) {
 }
 ```
 
-2. Añade una miniatura cuadrada (`juegos/<id>/miniatura.svg`, `.png` o `.jpg`).
-3. Añade la entrada en `juegos/catalogo.js`, **con sus etiquetas** (ver abajo).
+2. Añade una miniatura cuadrada (`juegos/<id>/miniatura.svg`; si es `.png` o `.jpg`, indícalo en el catálogo con `miniatura`).
+3. Añade la entrada en `juegos/catalogo.js` con su género (una clave de `generos` en los idiomas: `arcade`, `deportes`, `disparos`…):
 
 ```js
-{
-  id: 'patos',
+{ id: 'patos', genero: 'disparos' },
+```
+
+4. Añade sus textos en **cada** archivo de `idiomas/`, en `juegos.<id>`: los del catálogo, **con sus etiquetas** (ver abajo), y en `juego` los que salen dentro del juego. Después comprueba que no falte ninguno con `node herramientas/idiomas.mjs`.
+
+```js
+patos: {
   titulo: 'Caza de Patos',
-  genero: 'Disparos',
-  etiquetas: ['disparos', 'disparar', 'arco', 'flechas', 'puntería', 'patos', 'caza'],
   descripcion: '…',
   controlesVR: '…',
   controlesEscritorio: '…',
   controlesTactil: '…',
-  miniatura: 'juegos/patos/miniatura.svg',
-  modulo: 'juegos/patos/juego.js',
+  etiquetas: ['disparos', 'disparar', 'arco', 'flechas', 'puntería', 'patos', 'caza', …],
+  juego: {
+    titulo: 'CAZA DE PATOS',
+    dorado: '¡Pato dorado! +5',
+    fin: { one: '¡Fin! {n} punto', other: '¡Fin! {n} puntos' },
+  },
 },
 ```
 
@@ -132,16 +147,32 @@ export function iniciar(ctx) {
 
 En el buscador del catálogo se puede escribir `#etiqueta` para ver los juegos de ese tipo. Por ejemplo, `#disparos` o `#disparar` muestran Galería de Tiro y Caza de Patos.
 
-- Cada juego necesita un campo `etiquetas` en `catalogo.js`. Si no lo tiene, solo se encontrará por título, descripción y género.
+- Cada juego necesita su lista `etiquetas` en cada idioma (`idiomas/<código>.js`, en `juegos.<id>`). El buscador usa las del idioma de la página más las originales en español.
 - Pon las palabras en minúsculas y sin `#`. Incluye el sustantivo y el verbo (`disparos`, `disparar`), el arma u objeto (`arco`, `pistola`) y el tipo de juego (`puntería`, `reflejos`, `esquivar`).
 - Las tildes dan igual al buscar (`#punteria` encuentra `puntería`). Una etiqueta se encuentra también por su principio: `#dispar` encuentra `disparos` y `disparar`.
 - El género cuenta como una etiqueta más.
 - Se pueden combinar palabras y todas tienen que coincidir. Por ejemplo, `#disparos arco` muestra solo Caza de Patos.
-- Pon **entre 30 y 50 etiquetas por juego**. Añade sinónimos, singular y plural, objetos y animales que aparecen, sensaciones (`intenso`, `fácil`), público (`niños`, `familia`) y nombres en inglés que la gente pueda buscar (`shooter`, `dodge`).
+- En español pon **entre 30 y 50 etiquetas por juego**. Añade sinónimos, singular y plural, objetos y animales que aparecen, sensaciones (`intenso`, `fácil`), público (`niños`, `familia`) y nombres en inglés que la gente pueda buscar (`shooter`, `dodge`). En los demás idiomas, **entre 20 y 30**, con las palabras que buscaría alguien de ese idioma (no traducciones literales: en inglés, `shooting`; en japonés, `シューティング`).
 - Las **6 primeras** se muestran en la tarjeta del catálogo y el resto solo sirven para buscar. Pon delante las más representativas.
 - Reutiliza las etiquetas que ya existen para que los juegos parecidos salgan juntos.
 
 Reglas para que el cambio sea fluido: todo lo visible va dentro de `ctx.raiz` o en las manos con `ctx.adjuntarAMano`. Las geometrías y los materiales compartidos se registran con `ctx.recurso()`. No uses `setTimeout` ni listeners propios, sino el tiempo de `actualizar`. Así la shell puede liberar todo al cambiar y la memoria del Quest no crece.
+
+## Idiomas
+
+La web está en 9 idiomas: español (el original), inglés, francés, alemán, italiano, portugués, japonés, coreano y chino simplificado. Todo se traduce: las páginas, los juegos (paneles, marcadores, carteles), el foro, los errores del servidor y el texto legal. Lo que escribe la gente en el foro se queda tal cual.
+
+- **Qué idioma se ve.** `idiomas/detectar.js` decide antes de pintar la página, por este orden: `?lang=xx` en la dirección, el idioma elegido antes (se guarda en el navegador), el idioma del navegador y, si no es ninguno de los 9, inglés. La página queda en `<html lang="…">` y, mientras se traduce, oculta para que no se vea un instante en español.
+- **Cambiar de idioma.** Con el desplegable de la cabecera (catálogo, foro y legal). La elección se recuerda. Cualquier página admite `?lang=xx` para enlazarla en un idioma concreto, y las cabeceras llevan `hreflang` para los buscadores.
+- **Los textos** están en `idiomas/<código>.js`, todos con las mismas claves que `idiomas/es.js`. En el código se piden con `t('clave', datos)` (`import { t } from './idiomas/idiomas.js'`); en el HTML, con `data-i18n="clave"`, `data-i18n-attr="placeholder:clave"` o `data-i18n-html`. En los juegos, con `ctx.t('clave')`, que busca en `juegos.<id>.juego`; las claves `partida.…` son textos compartidos (`partida.record`, `partida.tanteo`…).
+  - `{n}`, `{juego}`… se sustituyen por los datos: `ctx.t('fin', { n: puntos })`.
+  - Los plurales se escriben `{ one: '{n} punto', other: '{n} puntos' }` y se elige la forma con el dato `n`. En japonés, coreano y chino basta un texto.
+  - Nada de unir trozos de frase en el código (`'Punto para ' + nombre`): cada idioma ordena la frase a su manera. Escribe la frase entera con sus datos.
+- **Si falta un texto** en un idioma, sale en español y la consola avisa. `node herramientas/idiomas.mjs` comprueba que todos los idiomas tienen las mismas claves y los mismos datos `{…}`, y que las claves que usan los juegos existen. Pásalo siempre después de tocar textos.
+- **El foro** guarda el tipo de juego en español y lo traduce al enseñarlo. El servidor responde los errores con un `codigo` (`foro.errores.<codigo>`) para que la página los enseñe traducidos.
+- **El texto legal** original es `legal.html`. Las traducciones están en `idiomas/legal/<código>.html` y avisan de que prevalece el español. Si cambias algo del texto legal (o rellenas los datos pendientes), cámbialo también en ellas.
+- **Añadir un idioma:** su archivo `idiomas/<código>.js` (copia `en.js` y tradúcelo), su texto legal, el código en `IDIOMAS` (`idiomas.js`) y en `CODIGOS` (`detectar.js`), y los `hreflang` de las cabeceras de `index.html`, `foro.html` y `legal.html`.
+- `admin.html` y `herramientas/` siguen solo en español: son para el administrador.
 
 ## Calidad gráfica y rendimiento
 

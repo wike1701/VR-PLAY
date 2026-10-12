@@ -527,23 +527,23 @@ export function iniciar(ctx) {
     const total = rivales.length + 1;
     pantalla.escribir([
       { texto: `${Math.round(v * 3.6)} km/h`, tam: 1.2 },
-      { texto: `Vuelta ${Math.min(VUELTAS, vueltas + 1)}/${VUELTAS} · ${puesto}º de ${total} · ${formatoTiempo(tiempoCarrera)}`, tam: 0.8, color: '#ffcc80' },
+      { texto: ctx.t('pantalla', { vuelta: Math.min(VUELTAS, vueltas + 1), vueltas: VUELTAS, puesto, total, tiempo: formatoTiempo(tiempoCarrera) }), tam: 0.8, color: '#ffcc80' },
     ]);
     if (estado === 'salida') {
       const n = Math.ceil(reloj - 1);
       cartel.escribir([
-        { texto: n > 0 ? String(n) : '¡YA!', tam: 1.4, color: n > 0 ? '#ff5252' : '#69f0ae' },
-        { texto: ctx.enVR() ? 'Volante con las dos manos · gatillo derecho acelera, izquierdo frena' : (ctx.tactil ? 'Mantén el dedo para acelerar, suéltalo para frenar y muévelo para girar' : 'Mantén pulsado para acelerar, suelta para frenar · mueve el ratón para girar'), tam: 0.6 },
+        { texto: n > 0 ? String(n) : ctx.t('ya'), tam: 1.4, color: n > 0 ? '#ff5252' : '#69f0ae' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.6 },
       ]);
       cartel.mesh.visible = true;
     } else if (estado === 'fin') {
       cartel.escribir([
-        { texto: puestoFinal === 1 ? '¡HAS GANADO!' : `Has llegado ${puestoFinal}º`, tam: 1.3, color: puestoFinal === 1 ? '#69f0ae' : '#ffcc80' },
-        { texto: `Tiempo ${formatoTiempo(tiempoCarrera)} · mejor ${mejorTiempo ? formatoTiempo(mejorTiempo) : '—'} · victorias ${victorias}`, tam: 0.6 },
+        { texto: puestoFinal === 1 ? ctx.t('hasGanado') : ctx.t('hasLlegado', { puesto: puestoFinal }), tam: 1.3, color: puestoFinal === 1 ? '#69f0ae' : '#ffcc80' },
+        { texto: ctx.t('resumen', { tiempo: formatoTiempo(tiempoCarrera), mejor: mejorTiempo ? formatoTiempo(mejorTiempo) : '—', victorias }), tam: 0.6 },
       ]);
       cartel.mesh.visible = true;
     } else if (reloj > -0.5) {
-      cartel.escribir([{ texto: '¡YA!', tam: 1.4, color: '#69f0ae' }, { texto: ' ', tam: 0.6 }]);
+      cartel.escribir([{ texto: ctx.t('ya'), tam: 1.4, color: '#69f0ae' }, { texto: ' ', tam: 0.6 }]);
       cartel.mesh.visible = true; // un momento tras la salida
     } else {
       cartel.mesh.visible = false;

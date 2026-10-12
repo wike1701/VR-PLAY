@@ -6,18 +6,18 @@ export async function onRequestPost({ request, params, env }) {
   const falta = sinBaseDeDatos(env);
   if (falta) return falta;
   const id = idValido(params.id);
-  if (!id) return error('Sugerencia no encontrada.', 404);
+  if (!id) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
   const datos = await leerJson(request);
   if (!datos || typeof datos.votante !== 'string' || datos.votante.length < 8 || datos.votante.length > 64) {
-    return error('Datos no válidos.');
+    return error('Datos no válidos.', 400, 'datos');
   }
   const sugerencia = await env.DB.prepare('SELECT id FROM sugerencias WHERE id = ? AND oculta = 0').bind(id).first();
-  if (!sugerencia) return error('Sugerencia no encontrada.', 404);
+  if (!sugerencia) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
 
   const votante = await huellaVotante(datos.votante, env);
   const ip = await huellaIp(request, env);
   const yaLeGusta = await env.DB.prepare('SELECT 1 FROM me_gusta WHERE sugerencia_id = ? AND votante = ?').bind(id, votante).first();
-  if (!yaLeGusta && (await superaLimite(env, 'me_gusta', ip))) return error('Demasiados "me gusta" seguidos. Prueba dentro de un rato.', 429);
+  if (!yaLeGusta && (await superaLimite(env, 'me_gusta', ip))) return error('Demasiados "me gusta" seguidos. Prueba dentro de un rato.', 429, 'limite_me_gusta');
 
   const recuento = env.DB.prepare(
     'UPDATE sugerencias SET me_gusta = (SELECT COUNT(*) FROM me_gusta WHERE sugerencia_id = ?) WHERE id = ? RETURNING me_gusta',

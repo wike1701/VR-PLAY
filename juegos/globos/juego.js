@@ -380,26 +380,24 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'PINCHA GLOBOS', tam: 1.3, color: '#ffab40' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffab40' },
         {
-          texto: ctx.enVR()
-            ? 'Coge un dardo del mostrador y lánzalo'
-            : ctx.tactil ? 'Toca un globo para lanzarle un dardo' : 'Haz clic en un globo para lanzarle un dardo',
+          texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'),
           tam: 0.7,
         },
       ]);
     } else if (estado === 'fin') {
       const punteria = lanzamientos ? Math.round((aciertos / lanzamientos) * 100) : 0;
       marcador.escribir([
-        { texto: `¡Tiempo! ${puntos} puntos`, tam: 1.3, color: '#ffab40' },
-        { texto: `${reventados} globos · puntería ${punteria}% · Récord: ${record} · otra en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 1.3, color: '#ffab40' },
+        { texto: ctx.t('resumen', { n: reventados, punteria, record, otra: Math.ceil(reloj) }), tam: 0.7 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
+        { texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(tiempoRestante) }), tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.7, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   se mueven +2   ·   dorado +5`, tam: 0.7, color: '#ffab40' },
+          : { texto: ctx.t('reglas', { record }), tam: 0.7, color: '#ffab40' },
       ]);
     }
   }
@@ -486,9 +484,9 @@ export function iniciar(ctx) {
     puntos += valor;
     ctx.sonido('punto');
     for (const m of ctx.manos) ctx.vibrar(m, 0.35, 50);
-    if (dardo && dardo.reventados >= 2) avisar(`¡${dardo.reventados} de un dardo! +${valor}`);
-    else if (g.dorado) avisar(`¡Dorado! +${valor}`);
-    else if (g.tipo !== 'fijo') avisar(`¡En movimiento! +${valor}`);
+    if (dardo && dardo.reventados >= 2) avisar(ctx.t('variosDeUnDardo', { n: dardo.reventados, valor }));
+    else if (g.dorado) avisar(ctx.t('dorado', { valor }));
+    else if (g.tipo !== 'fijo') avisar(ctx.t('enMovimiento', { valor }));
     else avisar(`+${valor}`);
   }
 

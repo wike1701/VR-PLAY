@@ -104,7 +104,7 @@ export function iniciar(ctx) {
     g.fillStyle = '#e0fbfc';
     g.font = `bold ${tam * 0.07}px sans-serif`;
     g.textAlign = 'center';
-    g.fillText('CLUB VR PLAY · TENIS DE MESA', tam / 2, tam * 0.13);
+    g.fillText(ctx.t('club'), tam / 2, tam * 0.13);
   }, { tam: 512, repetir: [2, 1] }));
   const matPared = R(new THREE.MeshLambertMaterial({ map: texPared }));
   const geoPared = R(new THREE.PlaneGeometry(14, 5));
@@ -305,24 +305,23 @@ export function iniciar(ctx) {
   const sobreMesa = (p) => Math.abs(p.x) < ANCHO / 2 && p.z < Z_CERCA && p.z > Z_LEJOS;
 
   function actualizarMarcador() {
-    const lineas = [{ texto: `Tú ${tanteo.jugador}  –  ${tanteo.maquina} Máquina`, tam: 1.3 }];
+    const lineas = [{ texto: ctx.t('partida.tanteo', tanteo), tam: 1.3 }];
     if (estado === 'intro') {
-      lineas[0] = { texto: 'PING PONG', tam: 1.3, color: '#ffcc80' };
+      lineas[0] = { texto: ctx.t('titulo'), tam: 1.3, color: '#ffcc80' };
       lineas.push({
-        texto: ctx.enVR() ? 'Pala en la mano derecha · el gatillo de la otra mano la cambia'
-          : ctx.tactil ? 'Arrastra el dedo para mover la pala' : 'Mueve la pala con el ratón',
+        texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'),
         tam: 0.7,
       });
     } else if (estado === 'saque' && sacador === 'jugador') {
-      lineas.push({ texto: 'Tu saque: golpea la bola hacia el otro lado', tam: 0.75, color: '#80deea' });
+      lineas.push({ texto: ctx.t('tuSaque'), tam: 0.75, color: '#80deea' });
     } else if (estado === 'saque') {
-      lineas.push({ texto: 'Saca la máquina…', tam: 0.75, color: '#ffab91' });
+      lineas.push({ texto: ctx.t('partida.sacaMaquina'), tam: 0.75, color: '#ffab91' });
     } else if (estado === 'vivo') {
-      lineas.push({ texto: golpesSeguidos > 2 ? `Peloteo: ${golpesSeguidos} golpes` : ' ', tam: 0.75, color: '#fff59d' });
+      lineas.push({ texto: golpesSeguidos > 2 ? ctx.t('partida.peloteo', { n: golpesSeguidos }) : ' ', tam: 0.75, color: '#fff59d' });
     } else {
       lineas.push({ texto: mensaje, tam: 0.75, color: colorMensaje });
     }
-    lineas.push({ texto: `A ${PUNTOS_SET} · partidas ganadas: ${ganadas} · mejor peloteo: ${mejorPeloteo}`, tam: 0.6, color: '#ffcc80' });
+    lineas.push({ texto: ctx.t('pie', { set: PUNTOS_SET, ganadas, peloteo: mejorPeloteo }), tam: 0.6, color: '#ffcc80' });
     marcador.escribir(lineas);
   }
 
@@ -419,11 +418,11 @@ export function iniciar(ctx) {
       if (j > m) {
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
-        mensaje = '¡HAS GANADO EL PARTIDO!';
+        mensaje = ctx.t('partida.hasGanado');
         colorMensaje = '#b9f6ca';
         ctx.sonido('ovacion');
       } else {
-        mensaje = 'Gana la máquina. ¡La revancha es tuya!';
+        mensaje = ctx.t('ganaMaquina');
         colorMensaje = '#ff8a80';
       }
       ctx.sonido('fin');
@@ -448,8 +447,8 @@ export function iniciar(ctx) {
     } else if (debeBotar === quien) {
       if (botes === 0) {
         // Volea: si la bola estaba sobre la mesa es falta; si no, iba fuera
-        if (sobreMesa(bola.position)) puntoPara(otro(quien), quien === 'jugador' ? 'Hay que dejarla botar' : '¡La máquina ha voleado!');
-        else puntoPara(quien, quien === 'jugador' ? 'Iba fuera: punto para ti' : 'Iba fuera: punto para la máquina');
+        if (sobreMesa(bola.position)) puntoPara(otro(quien), quien === 'jugador' ? ctx.t('dejarBotar') : ctx.t('maquinaVolea'));
+        else puntoPara(quien, quien === 'jugador' ? ctx.t('ibaFueraTuyo') : ctx.t('ibaFueraMaquina'));
         return false;
       }
     } else {
@@ -474,16 +473,16 @@ export function iniciar(ctx) {
     if (estado !== 'vivo') return;
     if (lado === debeBotar) {
       botes += 1;
-      if (botes >= 2) puntoPara(golpeador, golpeador === 'jugador' ? '¡No ha llegado!' : 'Se te ha escapado');
+      if (botes >= 2) puntoPara(golpeador, golpeador === 'jugador' ? ctx.t('noHaLlegado') : ctx.t('seTeEscapa'));
     } else {
-      puntoPara(debeBotar, golpeador === 'jugador' ? 'Ha botado en tu lado' : 'La máquina ha fallado');
+      puntoPara(debeBotar, golpeador === 'jugador' ? ctx.t('botaTuLado') : ctx.t('maquinaFalla'));
     }
   }
 
   function bolaMuerta() {
     if (estado !== 'vivo') return;
-    if (botes === 0) puntoPara(debeBotar, golpeador === 'jugador' ? 'Fuera de la mesa' : '¡Fuera! Punto para ti');
-    else puntoPara(golpeador, golpeador === 'jugador' ? '¡Punto!' : 'No llegaste');
+    if (botes === 0) puntoPara(debeBotar, golpeador === 'jugador' ? ctx.t('fueraMesa') : ctx.t('partida.fueraParaTi'));
+    else puntoPara(golpeador, golpeador === 'jugador' ? ctx.t('partida.punto') : ctx.t('noLlegaste'));
   }
 
   // ─── Física de la bola ─────────────────────────────────────────────────

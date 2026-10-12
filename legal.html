@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Aviso legal y privacidad · VR Play</title>
+<title data-i18n="legal.tituloPagina">Aviso legal y privacidad · VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<link rel="alternate" hreflang="es" href="https://vrplaygame.com/legal?lang=es">
+<link rel="alternate" hreflang="en" href="https://vrplaygame.com/legal?lang=en">
+<link rel="alternate" hreflang="fr" href="https://vrplaygame.com/legal?lang=fr">
+<link rel="alternate" hreflang="de" href="https://vrplaygame.com/legal?lang=de">
+<link rel="alternate" hreflang="it" href="https://vrplaygame.com/legal?lang=it">
+<link rel="alternate" hreflang="pt" href="https://vrplaygame.com/legal?lang=pt">
+<link rel="alternate" hreflang="ja" href="https://vrplaygame.com/legal?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://vrplaygame.com/legal?lang=ko">
+<link rel="alternate" hreflang="zh" href="https://vrplaygame.com/legal?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://vrplaygame.com/legal">
 <meta name="description" content="Aviso legal, política de privacidad y cookies de VR Play.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="theme-color" content="#0f0f14">
@@ -39,6 +50,12 @@
   .cabecera nav { margin-left: auto; display: flex; gap: 16px; font-size: 0.9rem; }
   .cabecera nav a { color: var(--muted); text-decoration: none; }
   .cabecera nav a:hover { color: var(--fg); }
+  .cabecera nav { align-items: center; }
+  .selector-idioma {
+    padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--fg); font: inherit; font-size: 0.85rem; cursor: pointer;
+  }
+  .traduccion { color: var(--muted); font-size: 0.9rem; }
 
   main { padding-block: 32px 48px; }
   h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.15; margin: 0 0 8px; }
@@ -82,14 +99,17 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav aria-label="Secciones">
-      <a href="index.html">Juegos</a>
-      <a href="foro.html">Sugerencias</a>
+    <nav data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
+      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
+      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-selector-idioma></span>
     </nav>
   </div>
 </header>
 
-<main class="contenedor">
+<!-- El texto original, en español. En otros idiomas se cambia por su traducción, idiomas/legal/<código>.html:
+     cualquier cambio de aquí (también los datos PENDIENTES) hay que hacerlo en esos archivos. -->
+<main class="contenedor" id="legal" data-i18n-esperar>
   <h1>Aviso legal y privacidad</h1>
   <p class="nota">Última actualización: 11 de octubre de 2026.</p>
   <ul class="indice">
@@ -223,6 +243,7 @@
         <tr><td>Favoritos y «me gusta»</td><td>Marcarlos en el catálogo</td></tr>
         <tr><td>Identificador aleatorio del navegador</td><td>Que cada «me gusta» cuente una sola vez</td></tr>
         <tr><td>El nombre que usas en el foro</td><td>No tener que escribirlo cada vez</td></tr>
+        <tr><td>El idioma que eliges</td><td>Enseñarte la web en tu idioma</td></tr>
         <tr><td>Cookie de sesión (solo si tienes cuenta y has entrado)</td><td>Mantener tu sesión iniciada. Es técnica y caduca a los 90 días sin uso</td></tr>
       </tbody>
     </table>
@@ -239,6 +260,20 @@
 <footer>
   <div class="contenedor">© 2026 VR Play</div>
 </footer>
+
+<script type="module">
+  import { idioma, ORIGINAL, mostrarPagina } from './idiomas/idiomas.js';
+
+  // En otros idiomas, el texto legal traducido (si no carga, se queda el original en español)
+  if (idioma !== ORIGINAL) {
+    try {
+      const r = await fetch(`idiomas/legal/${idioma}.html`);
+      if (r.ok) document.getElementById('legal').innerHTML = await r.text();
+    } catch { /* se queda en español */ }
+  }
+  mostrarPagina();
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
 
 </body>
 </html>

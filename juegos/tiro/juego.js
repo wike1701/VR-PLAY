@@ -419,21 +419,21 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'GALERÍA DE TIRO', tam: 1.3, color: '#ffab91' },
-        { texto: 'Dispara a los rojos con diana · ¡a los verdes no!', tam: 0.75 },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffab91' },
+        { texto: ctx.t('intro'), tam: 0.75 },
       ]);
     } else if (estado === 'fin') {
       const punteria = disparos ? Math.round((aciertos / disparos) * 100) : 0;
       marcador.escribir([
-        { texto: `¡Tiempo! ${puntos} puntos`, tam: 1.3, color: '#ffab91' },
-        { texto: `Puntería ${punteria}% · Récord: ${record} · otra en ${Math.ceil(reloj)}`, tam: 0.75 },
+        { texto: ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 1.3, color: '#ffab91' },
+        { texto: ctx.t('partida.punteriaOtra', { punteria, record, n: Math.ceil(reloj) }), tam: 0.75 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
+        { texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(tiempoRestante) }), tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.75, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   cabeza +${PUNTOS_CABEZA}   ·   verdes −${CASTIGO_INOCENTE}`, tam: 0.75, color: '#ffab91' },
+          : { texto: ctx.t('reglas', { record, cabeza: PUNTOS_CABEZA, castigo: CASTIGO_INOCENTE }), tam: 0.75, color: '#ffab91' },
       ]);
     }
   }
@@ -484,13 +484,13 @@ export function iniciar(ctx) {
     chispas(choque.point);
     if (m.inocente) {
       puntos = Math.max(0, puntos - CASTIGO_INOCENTE);
-      avisar(`¡Era inocente! −${CASTIGO_INOCENTE}`);
+      avisar(ctx.t('inocente', { castigo: CASTIGO_INOCENTE }));
       ctx.sonido('fallo');
       ctx.destello(0x1e88e5, 0.45);
     } else {
       aciertos += 1;
       puntos += cabeza ? PUNTOS_CABEZA : PUNTOS_CUERPO;
-      if (cabeza) avisar(`¡A la cabeza! +${PUNTOS_CABEZA}`);
+      if (cabeza) avisar(ctx.t('cabeza', { puntos: PUNTOS_CABEZA }));
       ctx.sonido('golpe');
       ctx.sonido('punto');
     }

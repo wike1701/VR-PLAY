@@ -154,7 +154,7 @@ export function iniciar(ctx) {
     g.scale(1, tam / altoVirtual); // dibujamos en proporción real 4 m × 0,9 m
     const anuncios = [
       ['#5b2bd6', '#ffffff', 'VR PLAY'],
-      ['#f5f5f5', '#d32f2f', '¡PARA ESTE!'],
+      ['#f5f5f5', '#d32f2f', ctx.t('anuncio')],
     ];
     anuncios.forEach(([fondo, color, texto], i) => {
       const x = (i * tam) / 2;
@@ -413,23 +413,23 @@ export function iniciar(ctx) {
       i < resultados.length ? { gol: '✘', parada: '✔', fuera: '○' }[resultados[i]] : '·').join(' ');
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'PARA PENALTIS', tam: 1.3, color: '#b9f6ca' },
-        { texto: ctx.enVR() ? 'Para el balón con los guantes o con el cuerpo' : (ctx.tactil ? 'Mueve los guantes con el dedo' : 'Mueve los guantes con el ratón'), tam: 0.7 },
-        { texto: `${PENALTIS} penaltis por tanda · Récord: ${record} paradas`, tam: 0.7, color: '#b9f6ca' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#b9f6ca' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.7 },
+        { texto: ctx.t('porTanda', { n: PENALTIS, record }), tam: 0.7, color: '#b9f6ca' },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `${paradas()} paradas de ${PENALTIS}`, tam: 1.3, color: '#b9f6ca' },
+        { texto: ctx.t('fin', { n: paradas(), total: PENALTIS }), tam: 1.3, color: '#b9f6ca' },
         { texto: fila, tam: 0.8 },
-        { texto: `Récord: ${record} · otra tanda en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('otraTanda', { record, n: Math.ceil(reloj) }), tam: 0.7 },
       ]);
     } else {
       marcador.escribir([
         estado === 'resultado'
           ? { texto: mensaje, tam: 1.3, color: colorMensaje }
-          : { texto: `Penalti ${tiro + 1} de ${PENALTIS}`, tam: 1.3 },
+          : { texto: ctx.t('penalti', { n: tiro + 1, total: PENALTIS }), tam: 1.3 },
         { texto: fila, tam: 0.8 },
-        { texto: `Paradas: ${paradas()}   ·   Récord: ${record}`, tam: 0.7, color: '#b9f6ca' },
+        { texto: ctx.t('paradas', { n: paradas(), record }), tam: 0.7, color: '#b9f6ca' },
       ]);
     }
   }
@@ -525,22 +525,22 @@ export function iniciar(ctx) {
       for (const g of guantesVR) {
         if (g.mano.activa && punto.distanceTo(g.pos) < RADIO_GUANTE + RADIO_BALON) {
           ctx.vibrar(g.mano, 1, 150);
-          return { normal: tmp2.subVectors(punto, g.pos).normalize(), texto: '¡PARADÓN!' };
+          return { normal: tmp2.subVectors(punto, g.pos).normalize(), texto: ctx.t('paradon') };
         }
       }
       if (punto.distanceTo(cabezaJugador) < RADIO_CABEZA + RADIO_BALON) {
-        return { normal: tmp2.subVectors(punto, cabezaJugador).normalize(), texto: '¡De cabeza!' };
+        return { normal: tmp2.subVectors(punto, cabezaJugador).normalize(), texto: ctx.t('deCabeza') };
       }
       const cercano = segmentoTorso.closestPointToPoint(punto, true, tmp2);
       if (cercano.distanceTo(punto) < RADIO_TORSO + RADIO_BALON) {
         for (const g of guantesVR) ctx.vibrar(g.mano, 0.6, 120);
-        return { normal: tmp2.subVectors(punto, cercano).normalize(), texto: '¡Con el cuerpo!' };
+        return { normal: tmp2.subVectors(punto, cercano).normalize(), texto: ctx.t('conElCuerpo') };
       }
       return null;
     }
     // Con ratón el par de guantes es algo más grande: se mueve en un plano y no hay cuerpo
     if (parRaton.visible && punto.distanceTo(parRaton.position) < RADIO_GUANTE * 1.6 + RADIO_BALON) {
-      return { normal: tmp2.subVectors(punto, parRaton.position).normalize(), texto: '¡PARADÓN!' };
+      return { normal: tmp2.subVectors(punto, parRaton.position).normalize(), texto: ctx.t('paradon') };
     }
     return null;
   }
@@ -565,8 +565,8 @@ export function iniciar(ctx) {
           terminarTiro('parada', toque.texto, '#b9f6ca');
         } else if (anterior.z < LINEA_GOL && pos.z >= LINEA_GOL) {
           const dentro = Math.abs(pos.x) < ANCHO / 2 - RADIO_BALON && pos.y < ALTO - RADIO_BALON;
-          if (dentro) terminarTiro('gol', '¡GOL!', '#ff8a80');
-          else terminarTiro('fuera', '¡Fuera!', '#fff59d');
+          if (dentro) terminarTiro('gol', ctx.t('gol'), '#ff8a80');
+          else terminarTiro('fuera', ctx.t('fuera'), '#fff59d');
           efecto.set(0, -G, 0);
         }
       }
@@ -627,7 +627,7 @@ export function iniciar(ctx) {
       }
       case 'vuelo':
         vidaBalon -= dt;
-        if (vidaBalon <= 0 && !resuelto) terminarTiro('fuera', '¡Fuera!', '#fff59d');
+        if (vidaBalon <= 0 && !resuelto) terminarTiro('fuera', ctx.t('fuera'), '#fff59d');
         break;
       case 'resultado':
         if (reloj <= 0) {

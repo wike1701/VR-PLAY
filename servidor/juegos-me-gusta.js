@@ -33,17 +33,17 @@ export async function onRequestPost({ request, params, env }) {
   const falta = sinBaseDeDatos(env);
   if (falta) return falta;
   const juego = idJuego(params.id);
-  if (!juego) return error('Juego no encontrado.', 404);
+  if (!juego) return error('Juego no encontrado.', 404, 'juego_no_encontrado');
   const datos = await leerJson(request);
   if (!datos || typeof datos.votante !== 'string' || datos.votante.length < 8 || datos.votante.length > 64) {
-    return error('Datos no válidos.');
+    return error('Datos no válidos.', 400, 'datos');
   }
   await prepararTabla(env);
 
   const votante = await huellaVotante(datos.votante, env);
   const ip = await huellaIp(request, env);
   const yaLeGusta = await env.DB.prepare('SELECT 1 FROM juegos_me_gusta WHERE juego = ? AND votante = ?').bind(juego, votante).first();
-  if (!yaLeGusta && (await superaLimite(env, 'juegos_me_gusta', ip))) return error('Demasiados "me gusta" seguidos. Prueba dentro de un rato.', 429);
+  if (!yaLeGusta && (await superaLimite(env, 'juegos_me_gusta', ip))) return error('Demasiados "me gusta" seguidos. Prueba dentro de un rato.', 429, 'limite_me_gusta');
 
   const cambio = yaLeGusta
     ? env.DB.prepare('DELETE FROM juegos_me_gusta WHERE juego = ? AND votante = ?').bind(juego, votante)

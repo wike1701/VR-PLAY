@@ -481,8 +481,8 @@ export function iniciar(ctx) {
     estado = 'embocada';
     reloj = 2.8;
     const diferencia = golpes - pares[hoyo];
-    const nombres = { '-3': '¡Albatros!', '-2': '¡Eagle!', '-1': '¡Birdie!', 0: 'Par', 1: 'Bogey', 2: 'Doble bogey' };
-    mensaje = golpes === 1 ? '¡Hoyo en uno!' : (nombres[diferencia] || `+${diferencia}`);
+    const nombres = { '-3': 'albatros', '-2': 'eagle', '-1': 'birdie', 0: 'par', 1: 'bogey', 2: 'dobleBogey' };
+    mensaje = golpes === 1 ? ctx.t('hoyoEnUno') : (nombres[diferencia] ? ctx.t(nombres[diferencia]) : `+${diferencia}`);
     colorMensaje = diferencia < 0 ? '#ffe082' : diferencia === 0 ? '#b9f6ca' : '#ffffff';
     ctx.sonido('hoyo');
     if (diferencia < 0) ctx.destello(0xffd740, 0.25);
@@ -603,32 +603,32 @@ export function iniciar(ctx) {
   // ─── Marcador ──────────────────────────────────────────────────────────
   const total = () => tarjeta.reduce((s, g) => s + (g || 0), 0);
   const parJugado = () => tarjeta.reduce((s, g, i) => s + (g ? pares[i] : 0), 0);
-  const conSigno = (n) => (n > 0 ? `+${n}` : n === 0 ? 'par' : `${n}`);
+  const conSigno = (n) => (n > 0 ? `+${n}` : n === 0 ? ctx.t('parMinuscula') : `${n}`);
   function actualizarMarcador() {
     const fila = Array.from({ length: HOYOS }, (_, i) => (tarjeta[i] ? String(tarjeta[i]) : '·')).join(' ');
-    const pie = { texto: `${fila}   ·   Total ${total()} (${conSigno(total() - parJugado())})${record !== null ? `   ·   Récord ${record}` : ''}`, tam: 0.7, color: '#ffe082' };
+    const pie = { texto: `${fila}   ·   ${ctx.t('total', { n: total(), dif: conSigno(total() - parJugado()) })}${record !== null ? `   ·   ${ctx.t('partida.record', { record })}` : ''}`, tam: 0.7, color: '#ffe082' };
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'MINIGOLF', tam: 1.2, color: '#b9f6ca' },
-        { texto: ctx.enVR() ? 'El palo va en tu mano y llega solo al suelo: golpea la bola con suavidad' : (ctx.tactil ? 'Toca donde quieres que llegue la bola' : 'Haz clic donde quieres que llegue la bola: más lejos, más fuerte'), tam: 0.7 },
-        { texto: `${HOYOS} hoyos nuevos en cada ronda · máximo: par + ${GOLPES_EXTRA} golpes`, tam: 0.7, color: '#ffe082' },
+        { texto: ctx.t('titulo'), tam: 1.2, color: '#b9f6ca' },
+        { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.7 },
+        { texto: ctx.t('reglas', { hoyos: HOYOS, n: GOLPES_EXTRA }), tam: 0.7, color: '#ffe082' },
       ]);
     } else if (estado === 'fin') {
       marcador.escribir([
-        { texto: `¡Ronda terminada! ${total()} golpes (${conSigno(total() - parJugado())})`, tam: 1.2, color: '#b9f6ca' },
-        { texto: `Récord: ${record} · nueva ronda en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('fin', { n: total(), dif: conSigno(total() - parJugado()) }), tam: 1.2, color: '#b9f6ca' },
+        { texto: ctx.t('partida.recordNuevaRonda', { record, n: Math.ceil(reloj) }), tam: 0.7 },
         pie,
       ]);
     } else if (estado === 'embocada') {
       marcador.escribir([
         { texto: `${mensaje}`, tam: 1.2, color: colorMensaje },
-        { texto: `Hoyo ${hoyo + 1} en ${golpes} ${golpes === 1 ? 'golpe' : 'golpes'} · par ${pares[hoyo]}`, tam: 0.7 },
+        { texto: ctx.t('hoyoEn', { hoyo: hoyo + 1, n: golpes, par: pares[hoyo] }), tam: 0.7 },
         pie,
       ]);
     } else {
       marcador.escribir([
-        { texto: `Hoyo ${hoyo + 1} de ${HOYOS} · Par ${pares[hoyo]}`, tam: 1.2 },
-        { texto: golpes ? `Golpe ${golpes + (estado === 'apuntando' ? 1 : 0)}${golpes >= pares[hoyo] + GOLPES_EXTRA - 1 ? ' · ¡último!' : ''}` : (ctx.enVR() ? 'Golpe 1 · el gatillo de la otra mano cambia el palo de mano' : 'Golpe 1'), tam: 0.7 },
+        { texto: ctx.t('hoyo', { hoyo: hoyo + 1, hoyos: HOYOS, par: pares[hoyo] }), tam: 1.2 },
+        { texto: golpes ? ctx.t(golpes >= pares[hoyo] + GOLPES_EXTRA - 1 ? 'golpeUltimo' : 'golpe', { n: golpes + (estado === 'apuntando' ? 1 : 0) }) : ctx.t(ctx.enVR() ? 'primerGolpeVR' : 'golpe', { n: 1 }), tam: 0.7 },
         pie,
       ]);
     }
@@ -670,7 +670,7 @@ export function iniciar(ctx) {
             // Máximo de golpes: cuenta uno más y al siguiente
             golpes = pares[hoyo] + GOLPES_EXTRA + 1;
             tarjeta[hoyo] = golpes;
-            mensaje = `Máximo de golpes · ${golpes}`;
+            mensaje = ctx.t('maximo', { n: golpes });
             colorMensaje = '#ff8a80';
             estado = 'embocada';
             reloj = 2.5;

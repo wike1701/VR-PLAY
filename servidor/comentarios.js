@@ -10,26 +10,26 @@ export async function onRequestPost({ request, params, env }) {
   const falta = sinBaseDeDatos(env);
   if (falta) return falta;
   const id = idValido(params.id);
-  if (!id) return error('Sugerencia no encontrada.', 404);
+  if (!id) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
   const datos = await leerJson(request);
-  if (!datos) return error('Datos no válidos.');
+  if (!datos) return error('Datos no válidos.', 400, 'datos');
 
   const admin = await esAdmin(request, env);
   const contenido = texto(datos.texto, admin ? 4000 : 1500, 2);
-  if (contenido === null) return error(`El comentario debe tener entre 2 y ${admin ? 4000 : 1500} caracteres.`);
+  if (contenido === null) return error(`El comentario debe tener entre 2 y ${admin ? 4000 : 1500} caracteres.`, 400, 'comentario_longitud', { max: admin ? 4000 : 1500 });
   let autor = texto(datos.autor, 40) || 'Anónimo';
-  if (autor === null) return error('El nombre es demasiado largo.');
+  if (autor === null) return error('El nombre es demasiado largo.', 400, 'nombre_largo');
 
   const sugerencia = await env.DB.prepare('SELECT id, oculta FROM sugerencias WHERE id = ?').bind(id).first();
-  if (!sugerencia || (sugerencia.oculta && !admin)) return error('Sugerencia no encontrada.', 404);
+  if (!sugerencia || (sugerencia.oculta && !admin)) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
 
   const ip = await huellaIp(request, env);
   if (admin) {
     autor = 'VR Play';
   } else {
-    if (nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.');
-    if (!(await captchaValido(request, env, datos.captcha))) return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403);
-    if (await superaLimite(env, 'comentarios', ip)) return error('Has escrito muchos comentarios seguidos. Prueba dentro de un rato.', 429);
+    if (nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.', 400, 'nombre_reservado');
+    if (!(await captchaValido(request, env, datos.captcha))) return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403, 'captcha');
+    if (await superaLimite(env, 'comentarios', ip)) return error('Has escrito muchos comentarios seguidos. Prueba dentro de un rato.', 429, 'limite_comentarios');
   }
 
   // Una respuesta oficial se ancla salvo que se pida lo contrario ({ anclar: false })

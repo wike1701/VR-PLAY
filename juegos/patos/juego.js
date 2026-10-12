@@ -346,24 +346,24 @@ export function iniciar(ctx) {
   function actualizarMarcador() {
     if (estado === 'intro') {
       marcador.escribir([
-        { texto: 'CAZA DE PATOS', tam: 1.3, color: '#ffe082' },
+        { texto: ctx.t('titulo'), tam: 1.3, color: '#ffe082' },
         {
-          texto: ctx.enVR() ? 'Agarra la cuerda con el gatillo, tensa y suelta' : 'Mantén pulsado para tensar y suelta para disparar',
+          texto: ctx.t(ctx.enVR() ? 'introVR' : 'introRaton'),
           tam: 0.7,
         },
       ]);
     } else if (estado === 'fin') {
       const punteria = disparos ? Math.round((aciertos / disparos) * 100) : 0;
       marcador.escribir([
-        { texto: `¡Tiempo! ${puntos} puntos`, tam: 1.3, color: '#ffe082' },
-        { texto: `Puntería ${punteria}% · Récord: ${record} · otra en ${Math.ceil(reloj)}`, tam: 0.7 },
+        { texto: ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 1.3, color: '#ffe082' },
+        { texto: ctx.t('partida.punteriaOtra', { punteria, record, n: Math.ceil(reloj) }), tam: 0.7 },
       ]);
     } else {
       marcador.escribir([
-        { texto: `Puntos: ${puntos}   ·   ${Math.ceil(tiempoRestante)} s`, tam: 1.3 },
+        { texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(tiempoRestante) }), tam: 1.3 },
         tiempoMensaje > 0
           ? { texto: mensaje, tam: 0.7, color: '#fff59d' }
-          : { texto: `Récord: ${record}   ·   dorados +5   ·   lejanos +1`, tam: 0.7, color: '#ffe082' },
+          : { texto: ctx.t('reglas', { record }), tam: 0.7, color: '#ffe082' },
       ]);
     }
   }
@@ -396,8 +396,8 @@ export function iniciar(ctx) {
     const lejos = -pato.grupo.position.z > 15;
     const valor = pato.dorado ? 5 : 1 + (lejos ? 1 : 0);
     puntos += valor;
-    if (pato.dorado) avisar('¡Pato dorado! +5');
-    else if (lejos) avisar('¡Tiro lejano! +2');
+    if (pato.dorado) avisar(ctx.t('dorado'));
+    else if (lejos) avisar(ctx.t('lejano'));
     ctx.sonido('golpe');
     ctx.sonido('cuac');
     ctx.sonido('punto');
