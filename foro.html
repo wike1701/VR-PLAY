@@ -76,6 +76,27 @@
   .menu a { text-decoration: none; color: var(--muted); }
   .menu a:hover, .menu a[aria-current="page"] { color: var(--fg); }
   .menu { align-items: center; }
+  /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
+  .boton-cuenta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .boton-cuenta { flex: none; }
+  .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
+  .boton-cuenta:hover { border-color: var(--accent); }
+  .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
+  .verificado { color: var(--accent-2); font-size: 0.85em; margin-left: 3px; }
+  .firma-cuenta { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; color: var(--muted); }
+  .firma-cuenta strong { color: var(--fg); }
   .selector-idioma {
     padding: 5px 8px;
     border-radius: 999px;
@@ -271,6 +292,8 @@
   footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
 
   @media (max-width: 520px) {
+    .menu { gap: 12px; }
+    .boton-cuenta .texto { display: none; }
     .hilo { grid-template-columns: minmax(0, 1fr); }
     .hilo .me-gusta { justify-self: start; grid-auto-flow: column; gap: 8px; padding: 6px 12px; border-radius: 999px; }
     .selector { margin-left: 0; }
@@ -285,6 +308,7 @@
     <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
       <a href="index.html" data-i18n="comun.juegos">Juegos</a>
       <a href="foro.html" aria-current="page" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-cuenta></span>
       <span data-selector-idioma></span>
     </nav>
   </div>
@@ -299,6 +323,7 @@
 <script type="module">
   import { t, existe, tOriginal, hace as haceRelativo, idioma } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
+  import { montarBotonCuenta, cuentasVisibles, avatar } from './shell/cuenta.js';
 
   const ESTADOS = Object.fromEntries(['nueva', 'estudio', 'desarrollo', 'hecha', 'existe', 'descartada'].map((e) => [e, t(`foro.estados.${e}`)]));
   const ORDENES = ['votos', 'recientes', 'actividad'].map((o) => [o, t(`foro.ordenes.${o}`)]);
@@ -311,8 +336,13 @@
   };
   const MANOS = t('foro.manos');
   const ACCIONES = t('foro.acciones');
-  // Quien no pone nombre firma como «Anónimo» (lo pone el servidor, en español)
-  const firma = (autor) => (autor === 'Anónimo' ? t('foro.anonimo') : autor);
+  // Quien no pone nombre firma como «Anónimo» y una cuenta borrada como «Usuario eliminado» (lo pone el servidor, en español)
+  const firma = (autor) => (autor === 'Anónimo' ? t('foro.anonimo') : autor === 'Usuario eliminado' ? t('foro.usuarioEliminado') : autor);
+  // El nombre con una marca si lo firmó alguien con la sesión iniciada (no se puede suplantar)
+  const firmaCon = (x) => [firma(x.autor), x.con_cuenta ? el('span', { class: 'verificado', title: t('foro.conCuenta'), 'aria-label': t('foro.conCuenta') }, '✔') : null];
+
+  // Sesión: con cuenta se firma con el alias; sin ella, se escribe un nombre
+  const cuenta = await montarBotonCuenta() || { usuario: null, visibles: false };
 
   const $vista = document.getElementById('vista');
   let orden = 'votos';
@@ -476,7 +506,7 @@
             el('div', { class: 'detalles' },
               insigniaEstado(s.estado),
               s.tipo && el('span', { class: 'etiqueta' }, `#${nombreTipo(s.tipo).toLowerCase()}`),
-              el('span', {}, `${firma(s.autor)} · ${hace(s.creada)}`),
+              el('span', {}, ...firmaCon(s), ` · ${hace(s.creada)}`),
               el('a', { href: `#/s/${s.id}` }, `💬 ${s.comentarios}`),
               enlaceJuego(s)),
           ));
@@ -508,7 +538,7 @@
     const $formulario = el('form', { class: 'formulario', novalidate: true },
       el('h2', {}, t('foro.comentar')),
       el('label', {}, t('foro.tuComentario'), el('textarea', { name: 'texto', required: true, minlength: 2, maxlength: 1500, placeholder: t('foro.comentarioEjemplo') })),
-      el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional'))), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') })),
+      campoNombre(),
       $captcha,
       el('div', { class: 'acciones' }, el('button', { class: 'boton', type: 'submit' }, t('foro.publicarComentario')), $aviso),
     );
@@ -521,8 +551,9 @@
       if (texto.length < 2) return avisar($aviso, t('foro.escribeAlgo'), true);
       boton.disabled = true;
       try {
-        await api(`/sugerencias/${s.id}/comentarios`, { method: 'POST', datos: { texto, autor: $formulario.autor.value, captcha: captcha.token() } });
-        guardarNombre($formulario.autor.value);
+        const autor = $formulario.autor?.value || '';
+        await api(`/sugerencias/${s.id}/comentarios`, { method: 'POST', datos: { texto, autor, captcha: captcha.token() } });
+        guardarNombre(autor);
         verHilo(s.id);
       } catch (error) {
         avisar($aviso, error.message, true);
@@ -531,10 +562,11 @@
       }
     });
 
-    $vista.replaceChildren(
+    // (sin los huecos vacíos: replaceChildren escribiría «null»)
+    $vista.replaceChildren(...[
       el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`),
       el('article', { class: 'cabeza-hilo' },
-        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, t('foro.sugeridoPor', { autor: firma(s.autor), cuando: hace(s.creada) }))),
+        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, t('foro.sugeridoPor', { autor: firma(s.autor), cuando: hace(s.creada) })), s.con_cuenta ? firmaCon(s)[1] : null),
         el('h1', {}, s.titulo),
         el('p', { class: 'texto' }, s.descripcion),
         ficha.length ? el('dl', { class: 'ficha' }, ficha.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v)))) : null,
@@ -547,11 +579,11 @@
       el('h2', {}, t('foro.comentarios', { n: resto.length })),
       el('section', { class: 'comentarios' }, resto.length
         ? resto.map((c) => el('article', { class: `comentario${c.oficial ? ' oficial' : ''}` },
-          el('div', {}, el('span', { class: 'autor' }, firma(c.autor)), c.oficial ? el('span', { class: 'sello-oficial' }, t('foro.oficial')) : null, el('span', { class: 'cuando' }, hace(c.creada))),
+          el('div', {}, el('span', { class: 'autor' }, ...firmaCon(c)), c.oficial ? el('span', { class: 'sello-oficial' }, t('foro.oficial')) : null, el('span', { class: 'cuando' }, hace(c.creada))),
           el('p', { class: 'texto' }, c.texto)))
         : el('p', { class: 'vacio' }, t('foro.sinComentarios'))),
       $formulario,
-    );
+    ].filter(Boolean));
   }
 
   // ─── Nueva sugerencia ───────────────────────────────────────────────────
@@ -569,7 +601,7 @@
         el('label', {}, t('foro.queHaces'), el('input', { name: 'accion', maxlength: 80, list: 'lista-acciones', placeholder: t('foro.queHacesEjemplo') })),
         el('label', {}, t('foro.tipo'), el('select', { name: 'tipo' }, el('option', { value: '' }, t('foro.eligeUno')),
           TIPOS.map((k) => el('option', { value: tOriginal(`generos.${k}`) }, t(`generos.${k}`)))))),
-      el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional'))), el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') })),
+      campoNombre(),
       lista('lista-manos', MANOS),
       lista('lista-acciones', ACCIONES),
       $captcha,
@@ -601,7 +633,7 @@
         manos: f.manos.value,
         accion: f.accion.value,
         tipo: f.tipo.value,
-        autor: f.autor.value,
+        autor: f.autor?.value || '',
         captcha: captcha.token(),
       };
       if (datos.titulo.length < 4) return avisar($aviso, t('foro.tituloCorto'), true);
@@ -625,11 +657,24 @@
     $aviso.classList.toggle('error', esError);
   }
 
+  // Con cuenta: «Publicarás como @alias». Sin ella: el campo del nombre (y una invitación a entrar).
+  function campoNombre() {
+    const u = cuenta.usuario;
+    if (u?.alias) {
+      return el('p', { class: 'firma-cuenta' }, avatar(u.alias, u.avatar, 28), el('span', {}, t('foro.publicarasComo', { alias: u.alias })));
+    }
+    return el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional')),
+      cuentasVisibles(cuenta) ? el('small', {}, ' · ', el('a', { href: `entrar.html?volver=${encodeURIComponent(location.pathname + location.hash)}` }, t('foro.entraParaFirmar'))) : null),
+    el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') }));
+  }
+
   // El nombre se recuerda en este navegador para no tener que escribirlo cada vez
   function recordarNombre(formulario) {
+    if (!formulario.autor) return;
     try { formulario.autor.value = localStorage.getItem('vrplay:autor') || ''; } catch { /* sin almacenamiento */ }
   }
   function guardarNombre(nombre) {
+    if (cuenta.usuario?.alias) return;
     try { localStorage.setItem('vrplay:autor', nombre.trim()); } catch { /* sin almacenamiento */ }
   }
 

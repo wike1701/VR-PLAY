@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title data-i18n="cuenta.tituloCuenta">Mi cuenta · VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+<meta name="theme-color" content="#0f0f14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="cuenta.css">
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
+      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
+      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-selector-idioma></span>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor" id="vista" aria-live="polite"></main>
+
+<footer class="contenedor">
+  <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a> · <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
+</footer>
+
+<script type="module">
+  // «Mi cuenta»: alias y avatar, avisos, dispositivos con la sesión abierta, descargar los datos y
+  // borrar la cuenta (ver PERFILES.md, puntos 7 y 10).
+  import { t, hace } from './idiomas/idiomas.js';
+  import { apiCuenta, estadoCuenta, olvidarCuenta, avatar, fecha } from './shell/cuenta.js';
+
+  const $vista = document.getElementById('vista');
+
+  function el(etiqueta, atributos = {}, ...hijos) {
+    const nodo = document.createElement(etiqueta);
+    for (const [clave, valor] of Object.entries(atributos)) {
+      if (valor === false || valor === null || valor === undefined) continue;
+      if (clave.startsWith('on')) nodo.addEventListener(clave.slice(2), valor);
+      else if (clave === 'class') nodo.className = valor;
+      else nodo.setAttribute(clave, valor === true ? '' : valor);
+    }
+    for (const hijo of hijos.flat()) {
+      if (hijo === null || hijo === undefined || hijo === false) continue;
+      nodo.append(hijo instanceof Node ? hijo : String(hijo));
+    }
+    return nodo;
+  }
+  const aviso = () => el('p', { class: 'aviso', role: 'status' });
+  function avisar($aviso, mensaje, tipo = 'error') {
+    $aviso.textContent = mensaje;
+    $aviso.className = `aviso ${tipo}`;
+  }
+  async function esperando(boton, tarea) {
+    boton.disabled = true;
+    try { await tarea(); } finally { boton.disabled = false; }
+  }
+  const msDe = (f) => Date.parse(f.includes('T') ? f : f.replace(' ', 'T') + 'Z');
+
+  // ─── Perfil: alias y avatar ─────────────────────────────────────────────
+  function seccionPerfil(u) {
+    const $aviso = aviso();
+    const bloqueado = !!u.aliasCambiable;
+    const $formulario = el('form', { novalidate: true },
+      el('label', {}, el('span', {}, t('cuenta.alias')),
+        el('input', { name: 'alias', value: u.alias, required: true, minlength: 3, maxlength: 20, disabled: bloqueado, spellcheck: 'false', autocapitalize: 'off' }),
+        el('small', {}, bloqueado ? t('cuenta.aliasCambiable', { fecha: fecha(u.aliasCambiable) }) : `${t('cuenta.aliasAyuda')} ${t('cuenta.aliasUnaVez')}`)),
+      el('div', { class: 'acciones' },
+        el('button', { class: 'boton mini', type: 'submit', disabled: bloqueado }, t('cuenta.cambiarAlias')),
+        el('button', { class: 'boton mini secundario', type: 'button', onclick: (e) => esperando(e.currentTarget, async () => {
+          try {
+            const { usuario } = await apiCuenta('/avatar', { method: 'POST' });
+            pintar(usuario);
+          } catch (error) { avisar($aviso, error.message); }
+        }) }, t('cuenta.otroAvatar'))),
+      $aviso,
+    );
+    $formulario.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const alias = $formulario.alias.value.trim();
+      if (alias === u.alias) return;
+      if (!/^[\p{L}\p{N}_.]{3,20}$/u.test(alias)) return avisar($aviso, t('cuenta.errores.alias_formato'));
+      esperando($formulario.querySelector('button[type="submit"]'), async () => {
+        try {
+          const { usuario } = await apiCuenta('/alias', { method: 'POST', datos: { alias } });
+          pintar(usuario, t('cuenta.guardado'));
+        } catch (error) { avisar($aviso, error.message); }
+      });
+    });
+    return el('section', { class: 'tarjeta' }, el('h2', {}, t('cuenta.perfil')), $formulario);
+  }
+
+  // ─── Correo y avisos ────────────────────────────────────────────────────
+  function seccionCorreo(u) {
+    const $aviso = aviso();
+    const casilla = el('input', { type: 'checkbox', checked: u.avisosCorreo });
+    casilla.addEventListener('change', async () => {
+      casilla.disabled = true;
+      try {
+        await apiCuenta('/ajustes', { method: 'PATCH', datos: { avisosCorreo: casilla.checked } });
+        avisar($aviso, t('cuenta.guardado'), 'ok');
+      } catch (error) {
+        casilla.checked = !casilla.checked;
+        avisar($aviso, error.message);
+      } finally { casilla.disabled = false; }
+    });
+    return el('section', { class: 'tarjeta' },
+      el('h2', {}, t('cuenta.correoEtiqueta')),
+      el('p', {}, el('strong', {}, u.correo), ' ', el('small', { class: 'ayuda' }, t('cuenta.noPublico'))),
+      el('p', { class: 'ayuda' }, u.google ? t('cuenta.entrasConGoogle') : t('cuenta.entrasConEnlace')),
+      el('label', { class: 'casilla' }, casilla, el('span', {}, t('cuenta.avisosCorreo'))),
+      $aviso);
+  }
+
+  // ─── Dispositivos con la sesión abierta ─────────────────────────────────
+  function seccionSesiones() {
+    const $lista = el('ul', { class: 'sesiones' }, el('li', {}, t('comun.cargando')));
+    const $aviso = aviso();
+    async function cargar() {
+      try {
+        const { sesiones } = await apiCuenta('/sesiones');
+        $lista.replaceChildren(...sesiones.map((s) => el('li', {},
+          el('div', { class: 'que' },
+            el('strong', {}, s.dispositivo || t('cuenta.dispositivoDesconocido')),
+            el('small', {}, s.actual ? el('span', { class: 'marca' }, t('cuenta.esteDispositivo')) : t('cuenta.ultimoUso', { cuando: hace(msDe(s.usada)) }))),
+          s.actual ? null : el('button', { class: 'boton mini secundario', type: 'button', onclick: (e) => esperando(e.currentTarget, async () => {
+            try {
+              await apiCuenta(`/sesiones/${s.id}`, { method: 'DELETE' });
+              cargar();
+            } catch (error) { avisar($aviso, error.message); }
+          }) }, t('cuenta.cerrar')))));
+      } catch (error) {
+        $lista.replaceChildren();
+        avisar($aviso, error.message);
+      }
+    }
+    cargar();
+    return el('section', { class: 'tarjeta' },
+      el('h2', {}, t('cuenta.sesiones')),
+      $lista,
+      el('div', { class: 'acciones' },
+        el('button', { class: 'boton mini', type: 'button', onclick: (e) => salir(e.currentTarget, '/salir', $aviso) }, t('cuenta.salir')),
+        el('button', { class: 'boton mini secundario', type: 'button', onclick: (e) => salir(e.currentTarget, '/salir-todo', $aviso) }, t('cuenta.cerrarTodas'))),
+      $aviso);
+  }
+
+  function salir(boton, ruta, $aviso) {
+    return esperando(boton, async () => {
+      try {
+        await apiCuenta(ruta, { method: 'POST' });
+        olvidarCuenta();
+        location.href = 'index.html';
+      } catch (error) { avisar($aviso, error.message); }
+    });
+  }
+
+  // ─── Tus datos: descargar y borrar ──────────────────────────────────────
+  function seccionDatos(u) {
+    const $aviso = aviso();
+    const $formulario = el('form', { novalidate: true },
+      el('p', { class: 'ayuda' }, t('cuenta.borrarAyuda')),
+      el('label', {}, t('cuenta.borrarConfirmar', { alias: u.alias }),
+        el('input', { name: 'confirmar', autocomplete: 'off', spellcheck: 'false', autocapitalize: 'off' })),
+      el('div', {}, el('button', { class: 'boton peligro lleno', type: 'submit' }, t('cuenta.borrarDefinitivo'))),
+      $aviso,
+    );
+    $formulario.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const confirmar = $formulario.confirmar.value.trim();
+      if (confirmar.toLowerCase() !== u.alias.toLowerCase()) return avisar($aviso, t('cuenta.errores.confirmar'));
+      esperando($formulario.querySelector('button'), async () => {
+        try {
+          await apiCuenta('', { method: 'DELETE', datos: { confirmar } });
+          olvidarCuenta();
+          $vista.replaceChildren(el('h1', {}, t('cuenta.borrada')), el('a', { class: 'boton', href: 'index.html' }, t('cuenta.irPortada')));
+        } catch (error) { avisar($aviso, error.message); }
+      });
+    });
+    return el('section', { class: 'tarjeta' },
+      el('h2', {}, t('cuenta.tusDatos')),
+      el('p', { class: 'ayuda' }, t('cuenta.descargarAyuda')),
+      el('p', {}, el('a', { class: 'boton mini secundario', href: '/api/cuenta/datos', download: 'vrplay-mis-datos.json' }, t('cuenta.descargar'))),
+      el('details', { class: 'zona-peligro' }, el('summary', {}, t('cuenta.borrar')), $formulario));
+  }
+
+  // ─── Página ─────────────────────────────────────────────────────────────
+  function pintar(u, mensaje = '') {
+    const $aviso = aviso();
+    if (mensaje) avisar($aviso, mensaje, 'ok');
+    $vista.replaceChildren(...[
+      el('div', { class: 'perfil' }, avatar(u.alias, u.avatar, 72),
+        el('div', {}, el('h1', {}, u.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(u.creada) })))),
+      $aviso,
+      u.suspendido ? el('p', { class: 'aviso error tarjeta' }, t('cuenta.suspendida')) : null,
+      seccionPerfil(u),
+      seccionCorreo(u),
+      seccionSesiones(),
+      seccionDatos(u),
+    ].filter(Boolean));
+  }
+
+  const estado = await estadoCuenta();
+  if (estado.usuario?.alias) {
+    pintar(estado.usuario);
+  } else if (estado.usuario) {
+    location.replace('entrar.html?volver=%2Fcuenta.html');
+  } else {
+    $vista.replaceChildren(...[
+      el('h1', {}, t('cuenta.miCuenta')),
+      el('p', { class: 'entradilla' }, estado.sinServidor ? t('cuenta.errores.no_disponible') : t('cuenta.sinSesion')),
+      estado.sinServidor ? null : el('a', { class: 'boton', href: 'entrar.html?volver=%2Fcuenta.html' }, t('cuenta.entrar')),
+    ].filter(Boolean));
+  }
+</script>
+</body>
+</html>

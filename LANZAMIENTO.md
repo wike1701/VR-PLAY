@@ -40,22 +40,24 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 La especificación completa está en `PERFILES.md`.
 
 - [x] Decidir el método de inicio de sesión (enlace por correo + Google, y código para las gafas)
-- [ ] Tablas `usuarios` y `sesiones` en `bd/esquema.sql`
-- [ ] Iniciar y cerrar sesión, cookie de sesión segura (`HttpOnly`, `Secure`, `SameSite=Lax`)
-- [ ] Vincular las gafas con un código de 6 cifras (para no escribir el correo o la contraseña en VR)
-- [ ] Elegir un alias único (con las mismas reglas de nombres reservados del foro)
-- [ ] Pasar los favoritos y «me gusta» del navegador a la cuenta al registrarse
-- [ ] Favoritos y «me gusta» guardados en la cuenta (se ven en todos los dispositivos)
-- [ ] Récords guardados en la cuenta
-- [ ] Sugerencias y comentarios firmados por el usuario, y no solo con un nombre libre
+- [x] Tablas `usuarios` y `sesiones` en `bd/esquema.sql` (las crea también el Worker solo)
+- [x] Iniciar y cerrar sesión, cookie de sesión segura (`HttpOnly`, `Secure`, `SameSite=Lax`)
+- [x] Entrar con Google y con enlace por correo (Resend), con un código de 6 cifras para entrar desde otro dispositivo
+- [ ] Vincular las gafas desde el menú de pausa en VR con un código de 6 cifras (de momento, en las gafas se entra en `entrar.html` con el código del correo)
+- [x] Elegir un alias único (con las mismas reglas de nombres reservados del foro)
+- [x] Pasar los favoritos y «me gusta» del navegador a la cuenta al registrarse
+- [x] Favoritos y «me gusta» guardados en la cuenta (se ven en todos los dispositivos)
+- [ ] Récords guardados en la cuenta (`ctx.record(puntos)` y adaptar los juegos uno a uno)
+- [x] Sugerencias y comentarios firmados por el usuario, y no solo con un nombre libre
+- [ ] Probar las cuentas en producción con `?perfiles=1` (Google, el correo de Resend y el Quest) y publicarlas: `CUENTAS: "1"` en `wrangler.jsonc`
 - [ ] Página de perfil pública (`perfil.html#alias`)
 - [ ] «Idea de @alias» en la ficha del juego y en el menú de pausa
 - [ ] Ajustes de privacidad: qué se ve del perfil
-- [ ] Borrar la cuenta y descargar mis datos (RGPD)
-- [ ] Moderación de alias y perfiles en `admin.html`
+- [x] Borrar la cuenta y descargar mis datos (RGPD)
+- [x] Moderación de alias y cuentas en `admin.html` (forzar alias, otro avatar, suspender)
 - [ ] Seguir y bloquear perfiles, avisos de nuevos seguidores
 - [ ] Feed en la portada: pestañas «Para ti», «Seguidos» y «Juegos»
-- [ ] Actualizar la política de privacidad con los datos de la cuenta
+- [x] Actualizar la política de privacidad con los datos de la cuenta (Resend y la cookie de Google incluidos)
 
 ## 4. Producto (que la gente llegue y vuelva)
 

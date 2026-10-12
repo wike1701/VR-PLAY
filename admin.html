@@ -116,6 +116,11 @@
   .aviso.error { color: var(--peligro); }
   .aviso.ok { color: var(--ok); }
   .vacio { color: var(--muted); padding: 20px 0; }
+  .secciones { display: flex; gap: 8px; margin: 24px 0 4px; }
+  .buscador { display: flex; gap: 8px; max-width: 460px; margin-bottom: 16px; }
+  .usuario .detalles strong { color: var(--fg); }
+  .usuario .avatar { flex: none; }
+  .usuario h3 { display: flex; align-items: center; gap: 10px; }
   footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
 </style>
 </head>
@@ -140,6 +145,7 @@
 <script type="module">
   import { JUEGOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  import { avatar } from './shell/cuenta.js';
   const juegoDe = (id) => JUEGOS.find((j) => j.id === id);
 
   const ESTADOS = {
@@ -156,6 +162,7 @@
   const $salir = document.getElementById('salir');
   let clave = '';
   let pestana = 'desarrollo';
+  let seccion = 'sugerencias'; // o 'usuarios'
 
   // La clave se guarda en este navegador solo si lo pides (localStorage) y, si no,
   // únicamente mientras la pestaña esté abierta (sessionStorage).
@@ -262,12 +269,23 @@
   }
 
   // ─── Panel ─────────────────────────────────────────────────────────────
+  // Botones para pasar de las sugerencias a los usuarios
+  function menuSecciones() {
+    return el('div', { class: 'secciones', role: 'group', 'aria-label': 'Sección' },
+      [['sugerencias', 'Sugerencias'], ['usuarios', 'Usuarios']].map(([id, nombre]) => el('button', {
+        type: 'button', class: 'chip', 'aria-pressed': String(id === seccion),
+        onclick: () => { seccion = id; verPanel(); },
+      }, nombre)));
+  }
+
   async function verPanel() {
     $salir.hidden = false;
+    if (seccion === 'usuarios') return verUsuarios();
     const $pestanas = el('div', { class: 'pestanas', role: 'group', 'aria-label': 'Estado' });
     const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
     const $pruebas = el('p', { class: 'pruebas', hidden: true });
     $vista.replaceChildren(
+      menuSecciones(),
       el('h1', {}, 'Sugerencias'),
       el('p', { class: 'entradilla' }, 'Cambia el estado, responde como VR Play y modera. Incluye las sugerencias y comentarios ocultos. Un juego enlazado a una sugerencia que aún no está «Hecha» no sale en el catálogo: pruébalo aquí con «▶ Probar».'),
       $pruebas,
@@ -420,6 +438,63 @@
     });
 
     $hilo.replaceChildren(...(lista.length ? lista : [el('p', { class: 'aviso' }, 'Sin comentarios.')]), $formulario);
+  }
+
+  // ─── Usuarios ──────────────────────────────────────────────────────────
+  async function verUsuarios(busqueda = '') {
+    const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
+    const $total = el('p', { class: 'entradilla' });
+    const $buscador = el('form', { class: 'buscador', role: 'search' },
+      el('input', { name: 'q', type: 'search', value: busqueda, placeholder: 'Alias o correo', 'aria-label': 'Buscar usuario' }),
+      el('button', { class: 'boton mini', type: 'submit' }, 'Buscar'));
+    $buscador.addEventListener('submit', (e) => {
+      e.preventDefault();
+      verUsuarios($buscador.q.value.trim());
+    });
+    $vista.replaceChildren(menuSecciones(), el('h1', {}, 'Usuarios'), $total, $buscador, $lista);
+
+    let datos;
+    try {
+      datos = await api(`/admin/usuarios?q=${encodeURIComponent(busqueda)}`);
+    } catch (e) {
+      $lista.replaceChildren(el('p', { class: 'vacio' }, e.message));
+      return;
+    }
+    $total.textContent = `${datos.total === 1 ? '1 cuenta' : `${datos.total} cuentas`} en total. ${busqueda ? `Resultados de «${busqueda}»` : 'Las más recientes'} (como mucho 100). Suspender: puede jugar, pero no publicar en el foro.`;
+    $lista.replaceChildren(...(datos.usuarios.length
+      ? datos.usuarios.map((u) => tarjetaUsuario(u, busqueda))
+      : [el('p', { class: 'vacio' }, 'No hay ninguna cuenta.')]));
+  }
+
+  function tarjetaUsuario(u, busqueda) {
+    const $aviso = el('p', { class: 'aviso', role: 'status' });
+    const cambiar = async (boton, datos) => {
+      boton.disabled = true;
+      try {
+        await api(`/admin/usuarios/${u.id}`, { method: 'PATCH', datos });
+        verUsuarios(busqueda);
+      } catch (e) {
+        avisar($aviso, e.message, 'error');
+        boton.disabled = false;
+      }
+    };
+    const $alias = el('input', { value: u.alias || '', 'aria-label': 'Alias nuevo', maxlength: 20 });
+    const edad = u.anio_nacimiento ? new Date().getFullYear() - u.anio_nacimiento : null;
+    return el('article', { class: `tarjeta usuario${u.suspendido ? ' oculta' : ''}` },
+      el('h3', {}, avatar(u.alias || '?', u.avatar, 32), u.alias || '(sin alias todavía)', u.suspendido ? el('span', { class: 'marca-oculta' }, 'SUSPENDIDA') : null),
+      el('div', { class: 'detalles' },
+        el('span', {}, el('strong', {}, u.correo)),
+        el('span', {}, u.google ? 'Google o enlace' : 'Enlace por correo'),
+        edad !== null ? el('span', {}, `~${edad} años${edad < 18 ? ' (menor)' : ''}`) : null,
+        el('span', {}, `Alta ${hace(u.creada)}`),
+        el('span', {}, `Último acceso ${hace(u.ultimo_acceso)}`),
+        el('span', {}, `${u.sesiones} sesiones · ${u.sugerencias} sugerencias · ${u.comentarios} comentarios`)),
+      el('div', { class: 'controles' },
+        $alias,
+        el('button', { type: 'button', class: 'boton mini', onclick: (e) => cambiar(e.currentTarget, { alias: $alias.value.trim() }) }, 'Forzar alias'),
+        el('button', { type: 'button', class: 'boton mini secundario', onclick: (e) => cambiar(e.currentTarget, { avatar: true }) }, 'Otro avatar'),
+        el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => cambiar(e.currentTarget, { suspendido: !u.suspendido }) }, u.suspendido ? 'Quitar suspensión' : 'Suspender')),
+      $aviso);
   }
 
   if (clave) {

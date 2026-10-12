@@ -2,6 +2,15 @@
 
 Estado: **aprobada** (2026-10-11). Las decisiones están en la última sección: todas siguen la propuesta.
 
+**Hecho (2026-10-12):** entrar con Google o con enlace y código por correo, alias, año de nacimiento, sesiones, favoritos y «me gusta» en la cuenta, foro firmado con el alias, «Mi cuenta» (con descargar los datos y borrar la cuenta) y la pestaña «Usuarios» de `admin.html`. Está oculto hasta que se publique (`CUENTAS` en `wrangler.jsonc`; para probarlo, `?perfiles=1`). Cómo funciona: sección «Cuentas de usuario» del README. Lo que falta está en `LANZAMIENTO.md`.
+
+Diferencias con esta especificación en lo ya hecho:
+
+- **Gafas.** El correo trae, además del enlace, un código de 6 cifras que se escribe en `entrar.html`. Así se puede entrar en el navegador de las gafas leyendo el correo en el móvil. La vinculación desde el menú de pausa en VR (punto 4) queda para más adelante.
+- **«Me gusta» con cuenta.** No hay columna `usuario_id` en `me_gusta` ni en `juegos_me_gusta`: el votante es el hash de `cuenta:<id>`, igual que el del navegador es el hash de su identificador. Al borrar la cuenta quedan anónimos sin hacer nada.
+- **Ajustes de privacidad.** De momento solo está «Recibir avisos por correo». Los demás ajustes (favoritos públicos, clasificaciones, perfil público, listas de seguidores) se añadirán con el perfil público y las clasificaciones, que es donde tienen efecto.
+- **Google** solo pide el correo (`openid email`), ni el nombre ni la foto.
+
 ## 1. Principios
 
 1. **Se juega sin registrarse.** Todos los juegos, el catálogo, los favoritos, los «me gusta» y los récords funcionan sin cuenta, como ahora.

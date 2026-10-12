@@ -7,11 +7,14 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 ```
 index.html              Catálogo con la cuadrícula de juegos
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
-admin.html              Panel de administración del foro (pide la clave ADMIN_TOKEN)
+admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
+entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
+cuenta.html             «Mi cuenta»: alias, avatar, avisos, sesiones abiertas, descargar mis datos y borrar la cuenta
+cuenta.css              Estilos de entrar.html y cuenta.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
-servidor/               API del foro: solo atiende /api/* (index.js reparte las rutas)
-bd/esquema.sql          Tablas de la base de datos del foro (Cloudflare D1)
+servidor/               API del foro y de las cuentas: solo atiende /api/* (index.js reparte las rutas)
+bd/esquema.sql          Tablas de la base de datos del foro y de las cuentas (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
@@ -29,7 +32,8 @@ shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
   boton-cambio.js       Botones virtuales detrás de los hombros (derecho: siguiente juego; izquierdo: pausa)
   menu-pausa.js         Menú de pausa flotante en VR
-  valoraciones.js       Favoritos (en el navegador) y "me gusta" de los juegos (en el servidor)
+  valoraciones.js       Favoritos (en el navegador y en la cuenta) y "me gusta" de los juegos (en el servidor)
+  cuenta.js             Sesión de la cuenta en el navegador: botón «Entrar» o avatar, avatar generado y sincronización
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   sonido.js             Efectos de sonido sintetizados
@@ -225,9 +229,32 @@ node herramientas/foro.mjs responder 12 "¡Ya está! …"   # respuesta oficial 
 node herramientas/foro.mjs ocultar 12                   # o mostrar, ocultar-comentario, mostrar-comentario
 ```
 
+## Cuentas de usuario
+
+Son opcionales: se juega igual sin cuenta. La especificación completa está en `PERFILES.md`, y el código, en `servidor/cuenta.js` (rutas `/api/cuenta/*`), `servidor/sesion.js`, `servidor/google.js`, `servidor/correo.js`, `shell/cuenta.js`, `entrar.html` y `cuenta.html`.
+
+- **Entrar.** Con Google o con el correo. Al correo llega un enlace y un código de 6 cifras. Los dos caducan en 15 minutos y solo sirven una vez. El código sirve para entrar en un dispositivo distinto del que lee el correo, por ejemplo, en las gafas. No hay contraseñas. Si el correo coincide, Google y el enlace llevan a la misma cuenta.
+- **La primera vez** se elige el alias, se escribe el año de nacimiento (hay que tener 14 años o más; si no, la cuenta se borra en el acto) y se aceptan el aviso legal y la privacidad.
+- **Alias.** De 3 a 20 letras, números, `_` y `.`. Es único sin distinguir mayúsculas, tildes ni `_` y `.` (`Rafa`, `rafá` y `ra_fa` son el mismo). Hay alias reservados (VR Play, admin, moderador…) y una lista corta de palabras ofensivas. Se puede cambiar una vez cada 30 días, y el antiguo queda bloqueado 30 días.
+- **Sesión.** Va en una cookie `HttpOnly`, `Secure` y `SameSite=Lax`, que dura 90 días y se renueva al usarla. En la base de datos solo se guarda su hash. Las peticiones que cambian algo solo se aceptan desde la propia web (cabecera `Origin`).
+- **Lo del navegador pasa a la cuenta** al entrar: favoritos y «me gusta». Desde entonces, los «me gusta» son de la cuenta (el mismo en todos los dispositivos) y los favoritos se guardan en los dos sitios.
+- **Foro.** Con cuenta, se firma con el alias y sale una ✔. Sin cuenta nadie puede firmar con el alias de otra persona.
+- **«Mi cuenta»** (`cuenta.html`): cambiar el alias, otro avatar, avisos por correo, dispositivos con la sesión abierta, descargar todos los datos (JSON) y borrar la cuenta. Al borrarla, sus sugerencias y comentarios quedan como «Usuario eliminado».
+- **Moderación.** En `admin.html`, pestaña «Usuarios»: buscar por alias o correo, forzar un alias, otro avatar y suspender (puede jugar, pero no publicar en el foro).
+- **Tablas.** `usuarios`, `sesiones`, `enlaces_acceso`, `alias_bloqueados` y `favoritos`, y la columna `usuario_id` en `sugerencias` y `comentarios`. El Worker las crea solas la primera vez (`servidor/bd.js`), así que no hay que ejecutar nada en la base de datos.
+
+**Configuración en Cloudflare** (Settings → Variables and Secrets, como *Secret*):
+
+- `RESEND_API_KEY`: la clave de [Resend](https://resend.com), con el dominio `vrplaygame.com` verificado. Los correos salen de `no-reply@vrplaygame.com`, y las respuestas van a `contact@vrplaygame.com`.
+- `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`: el cliente OAuth de Google Cloud, con la dirección de vuelta `https://vrplaygame.com/api/cuenta/google`. Si faltan, no sale el botón de Google.
+
+**Publicarlas.** `CUENTAS` en `wrangler.jsonc` (`vars`) decide si se ve el botón «Entrar». Con `"0"` solo lo ve quien abre la web con `?perfiles=1`, que se recuerda en ese navegador (`?perfiles=0` lo quita): sirve para probarlas en producción antes de enseñarlas. Para publicarlas, cambia el valor a `"1"` y súbelo a main. Quien ya ha entrado ve siempre su avatar.
+
+**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, perfil público, «Idea de @alias», insignias, seguir perfiles y el feed, y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
+
 ### Probar el foro en local
 
-`python -m http.server` solo sirve archivos, así que el foro dirá que no está disponible. Para probarlo con su API hace falta `wrangler` (las herramientas de Cloudflare). La base de datos local es una copia vacía en `.wrangler/`, y la clave de prueba va en un archivo `.dev.vars` (`ADMIN_TOKEN=...`). Las dos cosas están en `.gitignore`.
+`python -m http.server` solo sirve archivos, así que el foro y las cuentas dirán que no están disponibles. Para probarlos con su API hace falta `wrangler` (las herramientas de Cloudflare). La base de datos local es una copia vacía en `.wrangler/`, y las claves de prueba van en un archivo `.dev.vars` (`ADMIN_TOKEN=...`, `RESEND_API_KEY=...`). Las dos cosas están en `.gitignore`. Las cookies de sesión necesitan HTTPS, pero los navegadores las aceptan también en `http://localhost`.
 
 ```
 npx wrangler d1 execute vrplay-foro --local --file bd/esquema.sql

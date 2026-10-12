@@ -1,4 +1,5 @@
 // Utilidades compartidas por la API del foro (las rutas están en servidor/index.js).
+import { esAliasDeCuenta } from './sesion.js';
 //
 // El Worker recibe:
 //   DB                 base de datos D1 con bd/esquema.sql (se conecta en wrangler.jsonc)
@@ -6,9 +7,12 @@
 //   ADMIN_TOKEN        clave para moderar y publicar respuestas oficiales (secreto, 16+ caracteres)
 //   SAL                texto aleatorio para las huellas de IP (secreto, opcional)
 //   TURNSTILE_SITEKEY  y TURNSTILE_SECRET: captcha de Cloudflare contra el spam (opcionales)
+//   RESEND_API_KEY     envío de los correos para entrar en la cuenta (secreto)
+//   GOOGLE_CLIENT_ID   y GOOGLE_CLIENT_SECRET: entrar con Google (secretos)
+// Y en wrangler.jsonc (vars): CUENTAS = "1" enseña el botón «Entrar» a todo el mundo
 
-// Columnas públicas de una sugerencia
-export const CAMPOS = 'id, titulo, descripcion, manos, accion, tipo, autor, estado, juego, me_gusta, comentarios, oculta, creada, actividad';
+// Columnas públicas de una sugerencia (con_cuenta: la firmó alguien con la sesión iniciada)
+export const CAMPOS = 'id, titulo, descripcion, manos, accion, tipo, autor, estado, juego, me_gusta, comentarios, oculta, creada, actividad, usuario_id IS NOT NULL AS con_cuenta';
 
 export const ESTADOS = ['nueva', 'estudio', 'desarrollo', 'hecha', 'existe', 'descartada'];
 
@@ -46,7 +50,7 @@ export function texto(valor, max, min = 0) {
   return limpio;
 }
 
-async function sha256(cadena) {
+export async function sha256(cadena) {
   const datos = new TextEncoder().encode(cadena);
   const hash = await crypto.subtle.digest('SHA-256', datos);
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -102,6 +106,20 @@ export function nombreReservado(nombre) {
 export function idValido(valor) {
   const id = Number(valor);
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+// Quién firma en el foro. Con la sesión iniciada, su alias (y no se puede cambiar); sin ella, el nombre
+// que escriba, salvo que sea el alias de una cuenta. Devuelve { autor, usuarioId } o { problema: Response }.
+export async function firmante(env, usuario, escrito) {
+  if (usuario) {
+    if (!usuario.alias) return { problema: error('Elige tu alias antes de publicar.', 403, 'sin_alias') };
+    if (usuario.suspendido) return { problema: error('Tu cuenta no puede publicar en el foro.', 403, 'suspendido') };
+    return { autor: usuario.alias, usuarioId: usuario.id };
+  }
+  if (await esAliasDeCuenta(env, escrito)) {
+    return { problema: error('Ese nombre es el alias de una cuenta. Entra en ella o elige otro.', 400, 'nombre_de_cuenta') };
+  }
+  return { autor: escrito, usuarioId: null };
 }
 
 export function sinBaseDeDatos(env) {

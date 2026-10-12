@@ -1,8 +1,10 @@
 // "Me gusta" de los juegos (desde el menú de pausa).
 //   GET  /api/juegos/me-gusta                     → { totales: { topos: 3, … } }
 //   POST /api/juegos/:id/me-gusta { votante }    → pone o quita el de este navegador → { meGusta, total }
-// "votante" es el mismo identificador anónimo del navegador que usa el foro.
+// "votante" es el mismo identificador anónimo del navegador que usa el foro. Con la sesión
+// iniciada, el "me gusta" es de la cuenta (el mismo en todos sus dispositivos).
 import { json, error, leerJson, huellaIp, huellaVotante, superaLimite, sinBaseDeDatos } from './comun.js';
+import { usuarioActual, votanteCuenta } from './sesion.js';
 
 // La tabla se crea sola la primera vez (también está en bd/esquema.sql)
 let tablaLista = null;
@@ -40,7 +42,8 @@ export async function onRequestPost({ request, params, env }) {
   }
   await prepararTabla(env);
 
-  const votante = await huellaVotante(datos.votante, env);
+  const usuario = await usuarioActual(request, env);
+  const votante = usuario ? await votanteCuenta(usuario, env) : await huellaVotante(datos.votante, env);
   const ip = await huellaIp(request, env);
   const yaLeGusta = await env.DB.prepare('SELECT 1 FROM juegos_me_gusta WHERE juego = ? AND votante = ?').bind(juego, votante).first();
   if (!yaLeGusta && (await superaLimite(env, 'juegos_me_gusta', ip))) return error('Demasiados "me gusta" seguidos. Prueba dentro de un rato.', 429, 'limite_me_gusta');

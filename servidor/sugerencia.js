@@ -1,6 +1,7 @@
 // GET   /api/sugerencias/:id → la sugerencia con sus comentarios (el anclado primero)
 // PATCH /api/sugerencias/:id { estado, juego, oculta } → solo administrador
 import { CAMPOS, ESTADOS, json, error, leerJson, texto, huellaVotante, esAdmin, idValido, sinBaseDeDatos } from './comun.js';
+import { usuarioActual, votanteCuenta } from './sesion.js';
 
 export async function onRequestGet({ request, params, env }) {
   const falta = sinBaseDeDatos(env);
@@ -13,15 +14,16 @@ export async function onRequestGet({ request, params, env }) {
   if (!sugerencia || (sugerencia.oculta && !admin)) return error('Sugerencia no encontrada.', 404, 'sugerencia_no_encontrada');
 
   const { results: comentarios } = await env.DB.prepare(
-    `SELECT id, texto, autor, oficial, anclado, oculto, creada FROM comentarios
+    `SELECT id, texto, autor, oficial, anclado, oculto, creada, usuario_id IS NOT NULL AS con_cuenta FROM comentarios
      WHERE sugerencia_id = ? ${admin ? '' : 'AND oculto = 0'} ORDER BY creada ASC, id ASC`,
   ).bind(id).all();
 
   let meGusta = false;
+  const usuario = await usuarioActual(request, env);
   const votante = request.headers.get('x-votante');
-  if (votante && votante.length <= 64) {
+  if (usuario || (votante && votante.length <= 64)) {
     meGusta = !!(await env.DB.prepare('SELECT 1 FROM me_gusta WHERE sugerencia_id = ? AND votante = ?')
-      .bind(id, await huellaVotante(votante, env)).first());
+      .bind(id, usuario ? await votanteCuenta(usuario, env) : await huellaVotante(votante, env)).first());
   }
   return json({ sugerencia, comentarios, meGusta });
 }

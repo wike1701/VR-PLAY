@@ -111,6 +111,24 @@
     cursor: pointer;
   }
   .selector-idioma:hover { border-color: var(--accent); }
+  /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
+  .boton-cuenta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .boton-cuenta { flex: none; }
+  .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
+  .boton-cuenta:hover { border-color: var(--accent); }
+  .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
 
   .intro {
     display: grid;
@@ -238,6 +256,7 @@
     .buscar { max-width: none; flex-basis: 100%; margin-left: 0; order: 3; }
     .enlace-foro { margin-left: auto; }
     .enlace-foro .texto { display: none; }
+    .boton-cuenta .texto { display: none; }
     .esquema { grid-template-columns: 84px minmax(0, 1fr); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -252,6 +271,7 @@
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
     <input class="buscar" id="buscar" type="search" data-i18n-attr="placeholder:inicio.buscar; aria-label:inicio.buscarEtiqueta" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
     <a class="enlace-foro" href="foro.html" data-i18n-attr="aria-label:comun.sugerencias">💡 <span class="texto" data-i18n="comun.sugerencias">Sugerencias</span></a>
+    <span data-cuenta></span>
     <span data-selector-idioma></span>
   </div>
 </header>
@@ -303,7 +323,8 @@
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
   import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
-  const meGusta = meGustaMios();
+  import { montarBotonCuenta } from './shell/cuenta.js';
+  let meGusta = meGustaMios();
 
   // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
   const enPruebas = await juegosEnPruebas();
@@ -313,11 +334,12 @@
   // Filtros: los dos especiales y después los géneros (por su clave, igual en todos los idiomas)
   const TODOS_LOS = '*todos';
   const FAVORITOS = '*favoritos';
-  const misFavoritos = favoritos();
+  let misFavoritos = favoritos();
   let totales = {};
 
   const nombreFiltro = (g) => (g === TODOS_LOS ? t('inicio.todos') : g === FAVORITOS ? `★ ${t('inicio.favoritos')}` : t(`generos.${g}`));
-  const generos = [TODOS_LOS, ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.generoId))];
+  const listaGeneros = () => [TODOS_LOS, ...(misFavoritos.size ? [FAVORITOS] : []), ...new Set(JUEGOS.map((j) => j.generoId))];
+  let generos = listaGeneros();
   let generoActivo = TODOS_LOS;
   let busqueda = '';
 
@@ -407,6 +429,16 @@
   totalesMeGusta().then((t) => {
     totales = t;
     if (Object.keys(t).length) pintarRejilla();
+  });
+  // Con la sesión iniciada, los favoritos y «me gusta» de la cuenta sustituyen a los del navegador
+  montarBotonCuenta().then((estado) => {
+    if (!estado?.usuario?.alias) return;
+    misFavoritos = favoritos();
+    meGusta = meGustaMios();
+    generos = listaGeneros();
+    if (!generos.includes(generoActivo)) generoActivo = TODOS_LOS;
+    pintarFiltros();
+    pintarRejilla();
   });
 </script>
 <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->

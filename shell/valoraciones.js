@@ -1,8 +1,9 @@
 // Favoritos y "me gusta" de los juegos. Lo usan el menú de pausa (shell) y el catálogo.
-// - Favoritos: solo en este navegador (localStorage).
+// - Favoritos: en este navegador (localStorage) y, con la sesión iniciada, también en la cuenta.
 // - Me gusta: se cuentan en el servidor (servidor/juegos-me-gusta.js) con el mismo
-//   identificador anónimo del navegador que el foro, y se recuerdan aquí también para
-//   saber cuáles has marcado (y para que funcione sin conexión o en local).
+//   identificador anónimo del navegador que el foro (o a nombre de la cuenta, si hay sesión),
+//   y se recuerdan aquí también para saber cuáles has marcado (y para que funcione sin conexión o en local).
+// Con la sesión iniciada, shell/cuenta.js copia aquí los de la cuenta al cargar el catálogo o el foro.
 
 const CLAVE_FAVORITOS = 'vrplay:favoritos';
 const CLAVE_ME_GUSTA = 'vrplay:megusta';
@@ -39,6 +40,16 @@ export function alternarFavorito(id) {
   if (lista.has(id)) lista.delete(id);
   else lista.add(id);
   guardarLista(CLAVE_FAVORITOS, lista);
+  // Con la sesión iniciada (lo apunta shell/cuenta.js), también en la cuenta
+  let conCuenta = false;
+  try { conCuenta = !!localStorage.getItem('vrplay:cuenta'); } catch { /* sin almacenamiento */ }
+  if (conCuenta) {
+    fetch('/api/cuenta/favoritos', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ juego: id, favorito: lista.has(id) }),
+    }).catch(() => { /* sin conexión: se queda en el navegador */ });
+  }
   return lista.has(id);
 }
 

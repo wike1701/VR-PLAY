@@ -2,8 +2,9 @@
 // POST /api/sugerencias { titulo, descripcion, manos, accion, tipo, autor, captcha } → crea una
 import {
   CAMPOS, ESTADOS, json, error, leerJson, texto, huellaIp, huellaVotante, esAdmin,
-  superaLimite, captchaValido, nombreReservado, sinBaseDeDatos,
+  superaLimite, captchaValido, nombreReservado, sinBaseDeDatos, firmante,
 } from './comun.js';
+import { usuarioActual, votanteCuenta } from './sesion.js';
 
 const ORDENES = {
   votos: 'me_gusta DESC, actividad DESC',
@@ -31,12 +32,13 @@ export async function onRequestGet({ request, env }) {
   const { results } = await env.DB.prepare(`SELECT ${CAMPOS} FROM sugerencias ${donde} ORDER BY ${orden} LIMIT 300`)
     .bind(...valores).all();
 
-  // Qué sugerencias le gustan ya a este navegador
+  // Qué sugerencias le gustan ya a esta cuenta o, sin sesión, a este navegador
   let meGusta = [];
+  const usuario = await usuarioActual(request, env);
   const votante = request.headers.get('x-votante');
-  if (votante && votante.length <= 64) {
+  if (usuario || (votante && votante.length <= 64)) {
     const filas = await env.DB.prepare('SELECT sugerencia_id FROM me_gusta WHERE votante = ?')
-      .bind(await huellaVotante(votante, env)).all();
+      .bind(usuario ? await votanteCuenta(usuario, env) : await huellaVotante(votante, env)).all();
     meGusta = filas.results.map((f) => f.sugerencia_id);
   }
   return json({ sugerencias: results, meGusta });
@@ -53,20 +55,22 @@ export async function onRequestPost({ request, env }) {
   const manos = texto(datos.manos, 80);
   const accion = texto(datos.accion, 80);
   const tipo = texto(datos.tipo, 40);
-  const autor = texto(datos.autor, 40) || 'Anónimo';
+  const escrito = texto(datos.autor, 40) || 'Anónimo';
   if (titulo === null) return error('El título debe tener entre 4 y 80 caracteres.', 400, 'titulo_longitud');
   if (descripcion === null) return error('La descripción debe tener entre 20 y 2000 caracteres.', 400, 'descripcion_longitud');
-  if (manos === null || accion === null || tipo === null || autor === null) return error('Algún campo es demasiado largo.', 400, 'campo_largo');
+  if (manos === null || accion === null || tipo === null || escrito === null) return error('Algún campo es demasiado largo.', 400, 'campo_largo');
 
   const admin = await esAdmin(request, env);
-  if (!admin && nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.', 400, 'nombre_reservado');
+  const { autor, usuarioId, problema } = await firmante(env, admin ? null : await usuarioActual(request, env), escrito);
+  if (problema) return problema;
+  if (!admin && !usuarioId && nombreReservado(autor)) return error('Ese nombre está reservado. Elige otro.', 400, 'nombre_reservado');
   if (!admin && !(await captchaValido(request, env, datos.captcha))) return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403, 'captcha');
 
   const ip = await huellaIp(request, env);
   if (!admin && (await superaLimite(env, 'sugerencias', ip))) return error('Has enviado muchas sugerencias seguidas. Prueba dentro de un rato.', 429, 'limite_sugerencias');
 
   const fila = await env.DB.prepare(
-    'INSERT INTO sugerencias (titulo, descripcion, manos, accion, tipo, autor, ip) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
-  ).bind(titulo, descripcion, manos, accion, tipo, autor, ip).first();
+    'INSERT INTO sugerencias (titulo, descripcion, manos, accion, tipo, autor, usuario_id, ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id',
+  ).bind(titulo, descripcion, manos, accion, tipo, autor, usuarioId, ip).first();
   return json({ id: fila.id }, 201);
 }
