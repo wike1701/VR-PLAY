@@ -55,6 +55,7 @@
   }
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+  [hidden] { display: none !important; }
 
   .contenedor { max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
 
@@ -100,6 +101,83 @@
     white-space: nowrap;
   }
   .enlace-foro:hover { border-color: var(--accent); }
+  /* «¡Crea tu juego!»: lleva al formulario del foro */
+  .enlace-foro.destacado { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .enlace-foro.destacado:hover { filter: brightness(1.1); }
+  .acciones-intro { display: flex; flex-wrap: wrap; gap: 12px; }
+  .boton-crear {
+    display: inline-block;
+    padding: 11px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--accent-2);
+    color: var(--accent-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .boton-crear:hover { background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+
+  /* Pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues) */
+  .pestanas { display: flex; gap: 4px; margin: 4px 0 16px; border-bottom: 1px solid var(--line); }
+  .pestanas button {
+    padding: 10px 18px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+  }
+  .pestanas button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+  .pestanas button:hover { color: var(--fg); }
+  .feed { display: grid; gap: 12px; max-width: 720px; padding-bottom: 8px; }
+  .feed h2 { margin: 16px 0 0; font-family: var(--font-display); font-size: 1.1rem; }
+  .feed .aviso-feed { color: var(--muted); margin: 0; }
+  .evento {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .evento .cabeza { margin: 0 0 6px; font-size: 0.95rem; }
+  .evento .cabeza a { text-decoration: none; font-weight: 600; }
+  .evento .cabeza a:hover { color: var(--accent-2); }
+  .evento .cuando { color: var(--muted); font-size: 0.82rem; }
+  .evento .idea { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; }
+  .evento .idea:hover { color: var(--accent-2); }
+  .evento .estado { padding: 1px 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-family: var(--font-display); }
+  .evento blockquote { margin: 6px 0 0; padding-left: 10px; border-left: 2px solid var(--line); color: var(--muted); overflow-wrap: anywhere; }
+  .evento .juego-hecho { display: flex; align-items: center; gap: 12px; margin-top: 4px; text-decoration: none; }
+  .evento .juego-hecho img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; }
+  .evento .juego-hecho strong { display: block; }
+  .evento .juego-hecho span { color: var(--ok, #69f0ae); font-size: 0.9rem; font-weight: 600; }
+  .personas { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .persona { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+  .persona a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .persona strong { display: block; overflow-wrap: anywhere; }
+  .persona small { color: var(--muted); }
+  .boton-feed, .persona .boton {
+    display: inline-flex;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .persona .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
+  .persona .boton:disabled { opacity: 0.6; cursor: wait; }
   .selector-idioma {
     padding: 8px 10px;
     border-radius: 999px;
@@ -258,7 +336,6 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .anuncio[hidden] { display: none; }
 
   footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
   footer nav { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -287,7 +364,7 @@
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
     <input class="buscar" id="buscar" type="search" data-i18n-attr="placeholder:inicio.buscar; aria-label:inicio.buscarEtiqueta" placeholder="Buscar juegos o #disparos, #esquivar…" aria-label="Buscar juegos">
-    <a class="enlace-foro" href="foro.html" data-i18n-attr="aria-label:comun.sugerencias">💡 <span class="texto" data-i18n="comun.sugerencias">Sugerencias</span></a>
+    <a class="enlace-foro destacado" href="foro.html#/nueva" data-i18n-attr="aria-label:comun.creaTuJuego">💡 <span class="texto" data-i18n="comun.creaTuJuego">¡Crea tu juego!</span></a>
     <span data-cuenta></span>
     <span data-selector-idioma></span>
   </div>
@@ -298,7 +375,10 @@
     <div>
       <h1 data-i18n="inicio.titulo">Juegos de realidad virtual que se juegan en el navegador</h1>
       <p data-i18n="inicio.entradilla">Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
-      <a class="boton-jugar" id="jugar-ya" href="play.html#fruta" data-i18n="inicio.jugarAhora">Jugar ahora</a>
+      <div class="acciones-intro">
+        <a class="boton-jugar" id="jugar-ya" href="play.html#fruta" data-i18n="inicio.jugarAhora">Jugar ahora</a>
+        <a class="boton-crear" href="foro.html#/nueva">💡 <span data-i18n="comun.creaTuJuego">¡Crea tu juego!</span></a>
+      </div>
     </div>
     <aside class="esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
       <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
@@ -317,6 +397,11 @@
     </aside>
   </section>
 
+  <div class="pestanas" id="pestanas" role="tablist" hidden>
+    <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
+    <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
+  </div>
+  <section class="feed" id="feed" hidden aria-live="polite"></section>
   <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
   <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
 
@@ -336,11 +421,11 @@
 </footer>
 
 <script type="module">
-  import { t } from './idiomas/idiomas.js';
+  import { t, hace } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
   import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
-  import { montarBotonCuenta, cuentasVisibles, avatar } from './shell/cuenta.js';
+  import { montarBotonCuenta, cuentasVisibles, avatar, apiCuenta, botonSeguir } from './shell/cuenta.js';
   let meGusta = meGustaMios();
 
   // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
@@ -474,8 +559,102 @@
 
   document.getElementById('buscar').addEventListener('input', (e) => {
     busqueda = e.target.value;
+    if (pestana !== 'paraTi') elegirPestana('paraTi');
     pintarRejilla();
   });
+
+  // ─── Pestañas «Para ti» y «Seguidos» ───────────────────────────────────
+  // «Para ti» es el catálogo de siempre; «Seguidos», lo que hacen los jugadores que sigues (/api/feed).
+  const $pestanas = document.getElementById('pestanas');
+  const $feed = document.getElementById('feed');
+  let pestana = 'paraTi';
+  let cuenta = { usuario: null };
+
+  function el(etiqueta, atributos = {}, ...hijos) {
+    const nodo = document.createElement(etiqueta);
+    for (const [clave, valor] of Object.entries(atributos)) {
+      if (valor === false || valor === null || valor === undefined) continue;
+      if (clave === 'class') nodo.className = valor;
+      else nodo.setAttribute(clave, valor === true ? '' : valor);
+    }
+    for (const hijo of hijos.flat()) {
+      if (hijo === null || hijo === undefined || hijo === false) continue;
+      nodo.append(hijo instanceof Node ? hijo : String(hijo));
+    }
+    return nodo;
+  }
+  const perfilDe = (alias) => `perfil.html#${encodeURIComponent(alias)}`;
+  const ms = (fecha) => Date.parse(fecha.replace(' ', 'T') + 'Z');
+  // Un texto con «{alias}» dentro, con el alias como enlace a su perfil
+  function conAlias(clave, alias, datos = {}) {
+    const [antes, despues = ''] = t(clave, { ...datos, alias: '\u0000' }).split('\u0000');
+    return [antes, el('a', { href: perfilDe(alias) }, alias), despues];
+  }
+
+  function elegirPestana(nueva) {
+    pestana = nueva;
+    try { localStorage.setItem('vrplay:pestana', nueva); } catch { /* sin almacenamiento */ }
+    for (const b of $pestanas.querySelectorAll('[data-pestana]')) b.setAttribute('aria-selected', String(b.dataset.pestana === nueva));
+    $filtros.hidden = $rejilla.hidden = nueva !== 'paraTi';
+    $feed.hidden = nueva !== 'seguidos';
+    if (nueva === 'seguidos') pintarFeed();
+  }
+  $pestanas.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-pestana]');
+    if (b) elegirPestana(b.dataset.pestana);
+  });
+
+  // Tarjeta de un jugador para seguir
+  const persona = (x) => el('div', { class: 'persona' },
+    el('a', { href: perfilDe(x.alias) }, avatar(x.alias, x.avatar, 40),
+      el('span', {}, el('strong', {}, x.alias), el('small', {}, t('inicio.ideasN', { n: x.ideas })))),
+    botonSeguir(x.alias, false, { mini: true }));
+
+  function evento(a) {
+    const cabeza = (clave, datos) => el('p', { class: 'cabeza' }, conAlias(clave, a.alias, datos), ' · ', el('span', { class: 'cuando' }, hace(ms(a.fecha))));
+    const enlaceIdea = () => el('a', { class: 'idea', href: `foro.html#/s/${a.id}` }, a.titulo);
+    let cuerpo;
+    if (a.tipo === 'juego') {
+      const juego = JUEGOS.find((j) => j.id === a.juego);
+      cuerpo = [cabeza('feed.esJuego'), juego
+        ? el('a', { class: 'juego-hecho', href: `play.html#${juego.id}` }, el('img', { src: juego.miniatura, alt: '' }),
+          el('span', {}, el('strong', {}, juego.titulo), `▶ ${t('feed.jugar')}`))
+        : enlaceIdea()];
+    } else if (a.tipo === 'comentario') {
+      cuerpo = [cabeza('feed.comento'), enlaceIdea(), el('blockquote', {}, a.texto)];
+    } else {
+      cuerpo = [cabeza('feed.sugirio'), el('p', { class: 'cabeza' }, enlaceIdea(), ' ', el('span', { class: 'estado' }, t(`foro.estados.${a.estado}`)), ` ♥ ${a.me_gusta}`)];
+    }
+    return el('article', { class: 'evento' }, el('a', { href: perfilDe(a.alias), 'aria-label': a.alias }, avatar(a.alias, a.avatar, 40)), el('div', {}, cuerpo));
+  }
+
+  let pedidoFeed = 0;
+  async function pintarFeed() {
+    const pedido = ++pedidoFeed;
+    if (!cuenta.usuario?.alias) {
+      $feed.replaceChildren(el('p', { class: 'aviso-feed' }, t('feed.entraParaSeguir')),
+        el('p', {}, el('a', { class: 'boton-feed', href: `entrar.html?volver=${encodeURIComponent('/index.html')}` }, t('cuenta.entrar'))));
+      return;
+    }
+    $feed.replaceChildren(el('p', { class: 'aviso-feed' }, t('comun.cargando')));
+    let datos;
+    try {
+      datos = await apiCuenta('/api/feed');
+    } catch (e) {
+      if (pedido === pedidoFeed) $feed.replaceChildren(el('p', { class: 'aviso-feed' }, e.message));
+      return;
+    }
+    if (pedido !== pedidoFeed) return;
+    const sugeridos = datos.sugeridos.length
+      ? [el('h2', {}, t(datos.actividad.length ? 'feed.masJugadores' : 'feed.prueba')), el('div', { class: 'personas' }, datos.sugeridos.map(persona))]
+      : [];
+    if (!datos.actividad.length) {
+      const aviso = datos.sigues ? 'feed.vacio' : (datos.sugeridos.length ? 'feed.nadie' : 'feed.nadieSinSugerencias');
+      $feed.replaceChildren(el('p', { class: 'aviso-feed' }, t(aviso)), ...sugeridos);
+      return;
+    }
+    $feed.replaceChildren(...datos.actividad.map(evento), ...sugeridos);
+  }
   document.getElementById('jugar-ya').href = `play.html#${JUEGOS[0].id}`;
 
   pintarFiltros();
@@ -488,6 +667,11 @@
   // Con la sesión iniciada, los favoritos y «me gusta» de la cuenta sustituyen a los del navegador
   montarBotonCuenta().then((estado) => {
     if (estado && cuentasVisibles(estado)) {
+      cuenta = estado;
+      $pestanas.hidden = false;
+      let guardada = 'paraTi';
+      try { guardada = localStorage.getItem('vrplay:pestana') || 'paraTi'; } catch { /* sin almacenamiento */ }
+      if (guardada === 'seguidos' && !busqueda) elegirPestana('seguidos');
       buscarJugadores = true;
       document.getElementById('buscar').placeholder = t('inicio.buscarConCuentas');
       if (busqueda.trim().startsWith('@')) pintarRejilla();

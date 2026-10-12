@@ -2,7 +2,7 @@
 
 Estado: **aprobada** (2026-10-11). Las decisiones están en la última sección: todas siguen la propuesta.
 
-**Hecho (2026-10-12):** entrar con Google o con enlace y código por correo, alias, año de nacimiento, sesiones, favoritos y «me gusta» en la cuenta, foro firmado con el alias, «Mi cuenta» (con descargar los datos y borrar la cuenta), la pestaña «Usuarios» de `admin.html`, el perfil público (sin récords ni insignias todavía) y buscar jugadores con `@alias` en el buscador de la portada. Publicado para todo el mundo el 2026-10-12 (`CUENTAS: "1"` en `wrangler.jsonc`). Cómo funciona: sección «Cuentas de usuario» del README. Lo que falta está en `LANZAMIENTO.md`.
+**Hecho (2026-10-12):** entrar con Google o con enlace y código por correo, alias, año de nacimiento, sesiones, favoritos y «me gusta» en la cuenta, foro firmado con el alias, «Mi cuenta» (con descargar los datos y borrar la cuenta), la pestaña «Usuarios» de `admin.html`, el perfil público (sin récords ni insignias todavía), buscar jugadores con `@alias` en el buscador de la portada, seguir cuentas y la pestaña «Seguidos» de la portada. Publicado para todo el mundo el 2026-10-12 (`CUENTAS: "1"` en `wrangler.jsonc`). Cómo funciona: sección «Cuentas de usuario» del README. Lo que falta está en `LANZAMIENTO.md`.
 
 Diferencias con esta especificación en lo ya hecho:
 
@@ -10,6 +10,9 @@ Diferencias con esta especificación en lo ya hecho:
 - **«Me gusta» con cuenta.** No hay columna `usuario_id` en `me_gusta` ni en `juegos_me_gusta`: el votante es el hash de `cuenta:<id>`, igual que el del navegador es el hash de su identificador. Al borrar la cuenta quedan anónimos sin hacer nada.
 - **Ajustes de privacidad.** De momento solo está «Recibir avisos por correo». Los demás ajustes (favoritos públicos, clasificaciones, perfil público, listas de seguidores) se añadirán con el perfil público y las clasificaciones, que es donde tienen efecto.
 - **Google** solo pide el correo (`openid email`), ni el nombre ni la foto.
+- **Portada** (D9). Dos pestañas: «Para ti», que de momento es el catálogo completo con el buscador y los filtros (sin recomendaciones todavía), y «Seguidos». No hay pestaña «Juegos» aparte. «Seguidos» se calcula con consultas sobre `sugerencias`, `comentarios` y `seguidores`, sin tabla `actividad`.
+- **Tu perfil.** El botón de la cuenta lleva a tu perfil público, y desde ahí se entra a los ajustes. En tu propio perfil ves también tus «me gusta» y tus guardados, pero nadie más los ve (D7).
+- **«Sugerir un juego»** se llama ahora «¡Crea tu juego!» y es un botón destacado en la cabecera y en la portada.
 
 ## 1. Principios
 

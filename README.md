@@ -5,12 +5,12 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 ## Estructura
 
 ```
-index.html              Catálogo con la cuadrícula de juegos
+index.html              Portada: pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues)
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
 admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
 entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
-cuenta.html             «Mi cuenta»: alias, avatar, avisos, sesiones abiertas, descargar mis datos y borrar la cuenta
-perfil.html             Perfil público de una cuenta (perfil.html#alias): sus juegos e ideas del foro
+cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
+perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
 cuenta.css              Estilos de entrar.html, cuenta.html y perfil.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
@@ -241,10 +241,14 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 - **Lo del navegador pasa a la cuenta** al entrar: favoritos y «me gusta». Desde entonces, los «me gusta» son de la cuenta (el mismo en todos los dispositivos) y los favoritos se guardan en los dos sitios.
 - **Foro.** Con cuenta, se firma con el alias y sale una ✔. Sin cuenta nadie puede firmar con el alias de otra persona. El alias y la ✔ enlazan a su perfil.
 - **Buscar jugadores.** En el buscador de la portada, `@alias` busca cuentas en vez de juegos (`/api/perfiles?q=`). No distingue mayúsculas ni tildes, y salen primero las que empiezan así y las que tienen más ideas.
-- **Perfil público** (`perfil.html#alias`, `/api/perfiles/:alias`): avatar, alias, fecha de alta, números (ideas, «me gusta» recibidos, comentarios), los juegos hechos a partir de sus ideas y sus ideas en marcha. Nunca sale el correo, el año de nacimiento, sus favoritos ni las sugerencias ocultas o descartadas. Las cuentas suspendidas no salen ni en el buscador ni en su perfil.
+- **Perfil público** (`perfil.html#alias`, `/api/perfiles/:alias`): avatar, alias, fecha de alta, números (seguidores, seguidos, ideas, «me gusta» recibidos, comentarios), los juegos hechos a partir de sus ideas y sus ideas en marcha. Nunca sale el correo, el año de nacimiento, sus favoritos ni las sugerencias ocultas o descartadas. Las cuentas suspendidas no salen ni en el buscador ni en su perfil.
+- **Tu perfil.** El botón de la cuenta de la cabecera lleva a tu perfil. Desde ahí se entra a los ajustes (`cuenta.html`). En tu perfil salen también tus juegos con «me gusta» y tus guardados, pero solo los ves tú: vienen de tu sesión, no del perfil público.
+- **Seguir** (tabla `seguidores`, `POST /api/perfiles/:alias/seguir`). En un solo sentido, sin tener que aceptar. Como mucho, 50 al día y 1000 en total. Los números de seguidores y seguidos son públicos. Las listas (`perfil.html#alias/seguidores` y `/seguidos`) también, salvo que la cuenta las oculte en los ajustes. Las de los menores de 18 años están ocultas por defecto.
+- **Pestaña «Seguidos»** de la portada (`/api/feed`): las ideas nuevas, los comentarios y las ideas convertidas en juego de los jugadores que sigues, de lo más reciente a lo más antiguo, y jugadores que puedes seguir. «Para ti» es el catálogo de siempre. La pestaña elegida se recuerda en el navegador.
+- **«¡Crea tu juego!»**: el botón destacado de la cabecera y el de la portada llevan al formulario del foro (`foro.html#/nueva`).
 - **«Mi cuenta»** (`cuenta.html`): cambiar el alias, otro avatar, avisos por correo, dispositivos con la sesión abierta, descargar todos los datos (JSON) y borrar la cuenta. Al borrarla, sus sugerencias y comentarios quedan como «Usuario eliminado».
 - **Moderación.** En `admin.html`, pestaña «Usuarios»: buscar por alias o correo, forzar un alias, otro avatar y suspender (puede jugar, pero no publicar en el foro).
-- **Tablas.** `usuarios`, `sesiones`, `enlaces_acceso`, `alias_bloqueados` y `favoritos`, y la columna `usuario_id` en `sugerencias` y `comentarios`. El Worker las crea solas la primera vez (`servidor/bd.js`), así que no hay que ejecutar nada en la base de datos.
+- **Tablas.** `usuarios`, `sesiones`, `enlaces_acceso`, `alias_bloqueados`, `favoritos` y `seguidores`, y la columna `usuario_id` en `sugerencias` y `comentarios`. El Worker las crea solas la primera vez (`servidor/bd.js`), así que no hay que ejecutar nada en la base de datos.
 
 **Configuración en Cloudflare** (Settings → Variables and Secrets, como *Secret*):
 
@@ -253,7 +257,7 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 
 **Publicarlas.** `CUENTAS` en `wrangler.jsonc` (`vars`) decide si se ve el botón «Entrar». Con `"0"` solo lo ve quien abre la web con `?perfiles=1`, que se recuerda en ese navegador (`?perfiles=0` lo quita): sirve para probarlas en producción antes de enseñarlas. Para publicarlas, cambia el valor a `"1"` y súbelo a main. Quien ya ha entrado ve siempre su avatar.
 
-**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», insignias, seguir perfiles y el feed, y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
+**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», bloquear cuentas, avisos de nuevos seguidores, recomendaciones en «Para ti», y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
 
 ### Probar el foro en local
 

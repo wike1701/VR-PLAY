@@ -1,6 +1,7 @@
 // Cuenta de usuario en el navegador (ver PERFILES.md y servidor/cuenta.js).
 // - estadoCuenta(): la sesión actual ({ visibles, google, usuario }), pedida una sola vez por página.
-// - montarBotonCuenta(): el botón «Entrar» o el avatar con el alias en la cabecera.
+// - montarBotonCuenta(): el botón «Entrar» o el avatar con el alias en la cabecera (lleva a tu perfil).
+// - botonSeguir(): el botón «Seguir» / «Siguiendo» de un perfil.
 // - avatar(): el avatar generado a partir del alias.
 // - Al entrar, los favoritos y los «me gusta» del navegador pasan a la cuenta, y desde entonces la
 //   copia del navegador se actualiza con la de la cuenta (así sale igual en todos tus dispositivos).
@@ -28,11 +29,12 @@ if (prueba === '1') escribir(CLAVE_PRUEBA, '1');
 if (prueba === '0') escribir(CLAVE_PRUEBA, null);
 
 // ─── Llamadas a la API ──────────────────────────────────────────────────
-// Lanza un Error con el mensaje ya traducido (cuenta.errores.<código> o foro.errores.<código>)
+// Lanza un Error con el mensaje ya traducido (cuenta.errores.<código> o foro.errores.<código>).
+// La ruta es relativa a /api/cuenta salvo que empiece por /api/.
 export async function apiCuenta(ruta, { method = 'GET', datos } = {}) {
   let respuesta;
   try {
-    respuesta = await fetch(`/api/cuenta${ruta}`, {
+    respuesta = await fetch(ruta.startsWith('/api/') ? ruta : `/api/cuenta${ruta}`, {
       method,
       headers: datos ? { 'content-type': 'application/json' } : {},
       body: datos ? JSON.stringify(datos) : undefined,
@@ -150,8 +152,8 @@ export async function montarBotonCuenta() {
     const a = document.createElement('a');
     a.className = 'boton-cuenta';
     if (usuario?.alias) {
-      a.href = 'cuenta.html';
-      a.title = t('cuenta.miCuenta');
+      a.href = `perfil.html#${encodeURIComponent(usuario.alias)}`;
+      a.title = t('cuenta.miPerfil');
       a.append(avatar(usuario.alias, usuario.avatar, 26), Object.assign(document.createElement('span'), { className: 'texto', textContent: usuario.alias }));
     } else {
       a.href = `entrar.html?volver=${encodeURIComponent(location.pathname + location.search + location.hash)}`;
@@ -160,4 +162,42 @@ export async function montarBotonCuenta() {
     hueco.replaceWith(a);
   }
   return { ...estado, usuario };
+}
+
+// ─── Seguir ─────────────────────────────────────────────────────────────
+// Botón «Seguir» / «Siguiendo» (al pasar por encima: «Dejar de seguir»). Sin sesión, lleva a entrar.
+// alCambiar({ loSigues, seguidores }) se llama después de cada cambio.
+export function botonSeguir(alias, loSigues, { conSesion = true, alCambiar = () => {}, mini = false } = {}) {
+  if (!conSesion) {
+    const a = document.createElement('a');
+    a.className = `boton${mini ? ' mini' : ''}`;
+    a.href = `entrar.html?volver=${encodeURIComponent(location.pathname + location.search + location.hash)}`;
+    a.textContent = t('perfil.seguir');
+    return a;
+  }
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  const pintar = () => {
+    boton.className = `boton${mini ? ' mini' : ''}${loSigues ? ' secundario siguiendo' : ''}`;
+    boton.textContent = loSigues ? t('perfil.siguiendo') : t('perfil.seguir');
+    boton.setAttribute('aria-pressed', String(loSigues));
+  };
+  boton.addEventListener('mouseenter', () => { if (loSigues) boton.textContent = t('perfil.dejarDeSeguir'); });
+  boton.addEventListener('mouseleave', pintar);
+  boton.addEventListener('click', async () => {
+    boton.disabled = true;
+    try {
+      const r = await apiCuenta(`/api/perfiles/${encodeURIComponent(alias)}/seguir`, { method: 'POST', datos: { seguir: !loSigues } });
+      loSigues = r.loSigues;
+      pintar();
+      alCambiar(r);
+    } catch (error) {
+      boton.title = error.message;
+      alert(error.message);
+    } finally {
+      boton.disabled = false;
+    }
+  });
+  pintar();
+  return boton;
 }

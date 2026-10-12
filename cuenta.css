@@ -154,6 +154,10 @@ p { margin: 0 0 12px; }
 .sesiones .que small { color: var(--muted); }
 .marca { color: var(--ok); font-size: 0.8rem; font-weight: 600; }
 
+.volver { display: inline-block; margin-bottom: 12px; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+.volver:hover { color: var(--fg); }
+.perfil h2.alias { margin: 0; font-size: 1.5rem; overflow-wrap: anywhere; }
+
 details.zona-peligro summary { cursor: pointer; color: var(--peligro); font-weight: 600; }
 details.zona-peligro[open] summary { margin-bottom: 12px; }
 

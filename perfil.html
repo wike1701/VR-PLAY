@@ -43,6 +43,28 @@
   .estado.estudio { color: #ffd740; }
   .estado.desarrollo { color: #ffab40; }
   .vacio { color: var(--muted); margin: 0; }
+  .perfil .quien { flex: 1; min-width: 0; }
+  .perfil .accion { flex: none; }
+  .numeros a { color: var(--muted); text-decoration: none; }
+  .numeros a:hover, .numeros a:hover strong { color: var(--accent-2); }
+  .privado { font-family: var(--font-body); font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+  .boton.siguiendo:hover { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 55%, transparent); }
+  .volver { display: inline-block; margin-bottom: 16px; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  .volver:hover { color: var(--fg); }
+  .personas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .personas a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
+  .personas a:hover { border-color: var(--accent); }
+  .personas strong { overflow-wrap: anywhere; }
+  /* Botón de la cuenta en la cabecera (shell/cuenta.js) */
+  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
+  .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
+  .boton-cuenta:hover { border-color: var(--accent); }
+  @media (max-width: 520px) {
+    .perfil { flex-wrap: wrap; }
+    .perfil .accion { width: 100%; }
+    .menu { gap: 12px; }
+    .boton-cuenta .texto { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -53,6 +75,7 @@
     <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
       <a href="index.html" data-i18n="comun.juegos">Juegos</a>
       <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-cuenta></span>
       <span data-selector-idioma></span>
     </nav>
   </div>
@@ -65,12 +88,18 @@
 </footer>
 
 <script type="module">
-  // Perfil público de una cuenta: perfil.html#alias (ver servidor/perfiles.js).
+  // Perfil de una cuenta (ver servidor/perfiles.js):
+  //   perfil.html#alias             → el perfil público
+  //   perfil.html#alias/seguidores  → quién le sigue (si no tiene las listas ocultas)
+  //   perfil.html#alias/seguidos    → a quién sigue
+  // En tu propio perfil salen además los ajustes de la cuenta y tus juegos con «me gusta» y guardados
+  // (solo los ves tú: vienen de tu sesión, no del perfil público).
   import { t } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
-  import { estadoCuenta, avatar, fecha } from './shell/cuenta.js';
+  import { estadoCuenta, avatar, fecha, botonSeguir, montarBotonCuenta } from './shell/cuenta.js';
 
   const $vista = document.getElementById('vista');
+  montarBotonCuenta();
 
   function el(etiqueta, atributos = {}, ...hijos) {
     const nodo = document.createElement(etiqueta);
@@ -85,11 +114,29 @@
     }
     return nodo;
   }
+  const enlacePerfil = (alias, sufijo = '') => `perfil.html#${encodeURIComponent(alias)}${sufijo}`;
+
+  // Miniaturas de juegos del catálogo (para los juegos de sus ideas, tus «me gusta» y tus guardados)
+  const rejillaJuegos = (ids, vacio) => {
+    const juegos = ids.map((id) => JUEGOS.find((j) => j.id === id)).filter(Boolean);
+    return juegos.length
+      ? el('div', { class: 'juegos' }, juegos.map((juego) => el('a', { class: 'juego', href: `play.html#${juego.id}` },
+        el('img', { src: juego.miniatura, alt: '', loading: 'lazy' }), el('strong', {}, `▶ ${juego.titulo}`))))
+      : el('p', { class: 'vacio' }, vacio);
+  };
+
+  function error(mensaje) {
+    $vista.replaceChildren(el('h1', {}, mensaje), el('a', { class: 'boton', href: 'index.html' }, t('cuenta.irPortada')));
+  }
 
   async function mostrar() {
-    let alias = '';
-    try { alias = decodeURIComponent(location.hash.slice(1)).replace(/^@/, ''); } catch { /* alias vacío */ }
+    let ruta = '';
+    try { ruta = decodeURIComponent(location.hash.slice(1)); } catch { /* vacía */ }
+    const [alias, lista] = ruta.replace(/^@/, '').split('/');
     $vista.replaceChildren(el('p', { class: 'entradilla' }, t('comun.cargando')));
+    window.scrollTo(0, 0);
+    if (!alias) return error(t('cuenta.errores.perfil_no_encontrado'));
+
     let datos = null;
     let codigo = 'no_disponible';
     try {
@@ -97,35 +144,40 @@
       if (r.ok) datos = await r.json();
       else if (r.status === 404) codigo = 'perfil_no_encontrado';
     } catch { /* sin servidor */ }
-    if (!alias || !datos) {
-      document.title = `${t('perfil.tituloPagina')}`;
-      $vista.replaceChildren(el('h1', {}, t(`cuenta.errores.${alias ? codigo : 'perfil_no_encontrado'}`)),
-        el('a', { class: 'boton', href: 'index.html' }, t('cuenta.irPortada')));
-      return;
-    }
-
+    if (!datos) return error(t(`cuenta.errores.${codigo}`));
     const p = datos.perfil;
     document.title = `${p.alias} · VR Play`;
     const { usuario } = await estadoCuenta();
-    const esMio = usuario?.alias === p.alias;
 
-    // Juegos del catálogo hechos a partir de sus ideas
-    const juegos = p.juegos.map((s) => ({ s, juego: JUEGOS.find((j) => j.id === s.juego) })).filter((x) => x.juego);
+    if (lista === 'seguidores' || lista === 'seguidos') return mostrarLista(p, lista);
+
+    const $seguidores = el('strong', {}, p.seguidores);
+    // Seguidores y seguidos: los números son públicos; las listas, si no las oculta
+    const numero = (cual, $n) => {
+      const contenido = [$n, ` ${t(`perfil.${cual}`, { n: cual === 'seguidores' ? p.seguidores : p.seguidos })}`];
+      return p.listasOcultas && !p.esMio ? el('span', {}, contenido) : el('a', { href: enlacePerfil(p.alias, `/${cual}`) }, contenido);
+    };
+    const accion = p.esMio
+      ? el('a', { class: 'boton mini secundario', href: 'cuenta.html' }, `⚙ ${t('perfil.ajustes')}`)
+      : botonSeguir(p.alias, p.loSigues, {
+        conSesion: !!usuario?.alias,
+        mini: true,
+        alCambiar: ({ seguidores }) => { $seguidores.textContent = seguidores; p.seguidores = seguidores; },
+      });
 
     $vista.replaceChildren(...[
       el('div', { class: 'perfil' }, avatar(p.alias, p.avatar, 80),
-        el('div', {}, el('h1', {}, p.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(p.creada) })))),
+        el('div', { class: 'quien' }, el('h1', {}, p.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(p.creada) }))),
+        el('div', { class: 'accion' }, accion)),
       el('p', { class: 'numeros' },
+        numero('seguidores', $seguidores),
+        numero('seguidos', el('strong', {}, p.seguidos)),
         el('span', {}, el('strong', {}, p.ideas), ` ${t('perfil.ideas', { n: p.ideas })}`),
         el('span', {}, el('strong', {}, `♥ ${p.meGusta}`), ` ${t('perfil.meGustaRecibidos', { n: p.meGusta })}`),
         el('span', {}, el('strong', {}, p.comentarios), ` ${t('perfil.comentarios', { n: p.comentarios })}`)),
-      esMio ? el('p', {}, el('a', { class: 'boton mini secundario', href: 'cuenta.html' }, t('perfil.editarCuenta'))) : null,
       el('section', { class: 'tarjeta' },
         el('h2', {}, t('perfil.juegosDeSusIdeas')),
-        juegos.length
-          ? el('div', { class: 'juegos' }, juegos.map(({ juego }) => el('a', { class: 'juego', href: `play.html#${juego.id}` },
-            el('img', { src: juego.miniatura, alt: '', loading: 'lazy' }), el('strong', {}, `▶ ${juego.titulo}`))))
-          : el('p', { class: 'vacio' }, t('perfil.sinJuegos'))),
+        rejillaJuegos(p.juegos.map((s) => s.juego), t('perfil.sinJuegos'))),
       el('section', { class: 'tarjeta' },
         el('h2', {}, t('perfil.ideasEnMarcha')),
         p.enMarcha.length
@@ -134,7 +186,31 @@
             el('span', { class: 'titulo' }, s.titulo),
             el('span', { class: 'gustos' }, `♥ ${s.me_gusta}`)))))
           : el('p', { class: 'vacio' }, t('perfil.sinIdeas'))),
+      // Solo en tu perfil: tus juegos con «me gusta» y guardados (de tu sesión)
+      p.esMio && usuario ? el('section', { class: 'tarjeta' },
+        el('h2', {}, `♥ ${t('perfil.tusMeGusta')} `, el('small', { class: 'privado' }, `🔒 ${t('perfil.soloTu')}`)),
+        rejillaJuegos(usuario.meGusta, t('perfil.sinMeGusta'))) : null,
+      p.esMio && usuario ? el('section', { class: 'tarjeta' },
+        el('h2', {}, `★ ${t('perfil.tusGuardados')} `, el('small', { class: 'privado' }, `🔒 ${t('perfil.soloTu')}`)),
+        rejillaJuegos(usuario.favoritos, t('perfil.sinGuardados'))) : null,
     ].filter(Boolean));
+  }
+
+  // Lista de seguidores o de seguidos
+  async function mostrarLista(p, cual) {
+    const volver = el('a', { class: 'volver', href: enlacePerfil(p.alias) }, `← ${t('perfil.volverPerfil', { alias: p.alias })}`);
+    const titulo = el('h1', {}, t(cual === 'seguidores' ? 'perfil.listaSeguidores' : 'perfil.listaSeguidos', { alias: p.alias }));
+    if (p.listasOcultas && !p.esMio) {
+      return $vista.replaceChildren(volver, titulo, el('p', { class: 'entradilla' }, t('perfil.listasOcultas')));
+    }
+    let perfiles = [];
+    try {
+      const r = await fetch(`/api/perfiles/${encodeURIComponent(p.alias)}/${cual}`);
+      if (r.ok) ({ perfiles } = await r.json());
+    } catch { /* lista vacía */ }
+    $vista.replaceChildren(volver, titulo, perfiles.length
+      ? el('ul', { class: 'personas' }, perfiles.map((x) => el('li', {}, el('a', { href: enlacePerfil(x.alias) }, avatar(x.alias, x.avatar, 40), el('strong', {}, x.alias)))))
+      : el('p', { class: 'entradilla' }, t('perfil.listaVacia')));
   }
 
   window.addEventListener('hashchange', mostrar);

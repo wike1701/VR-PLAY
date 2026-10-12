@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   anio_nacimiento INTEGER,                           -- edad mínima: 14 años; nunca se muestra
   avisos_correo   INTEGER NOT NULL DEFAULT 1,
   suspendido      INTEGER NOT NULL DEFAULT 0,        -- puede jugar, pero no publicar en el foro
+  listas_ocultas  INTEGER,                           -- ocultar a quién sigue y quién le sigue (NULL: sí si es menor de 18)
   creada          TEXT NOT NULL DEFAULT (datetime('now')),
   ultimo_acceso   TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -110,6 +111,15 @@ CREATE TABLE IF NOT EXISTS alias_bloqueados (
   alias_clave TEXT PRIMARY KEY,
   hasta       TEXT NOT NULL
 );
+
+-- Quién sigue a quién (en un solo sentido, sin tener que aceptar). Los números son públicos.
+CREATE TABLE IF NOT EXISTS seguidores (
+  seguidor_id INTEGER NOT NULL REFERENCES usuarios (id),
+  seguido_id  INTEGER NOT NULL REFERENCES usuarios (id),
+  creada      TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (seguidor_id, seguido_id)
+);
+CREATE INDEX IF NOT EXISTS seguidores_seguido ON seguidores (seguido_id);
 
 CREATE TABLE IF NOT EXISTS favoritos (
   usuario_id INTEGER NOT NULL REFERENCES usuarios (id),

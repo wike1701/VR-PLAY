@@ -100,25 +100,39 @@
     return el('section', { class: 'tarjeta' }, el('h2', {}, t('cuenta.perfil')), $formulario);
   }
 
-  // ─── Correo y avisos ────────────────────────────────────────────────────
-  function seccionCorreo(u) {
-    const $aviso = aviso();
-    const casilla = el('input', { type: 'checkbox', checked: u.avisosCorreo });
+  // Casilla de un ajuste que se guarda al momento (PATCH /api/cuenta/ajustes)
+  function casillaAjuste(nombre, valor, texto, $aviso) {
+    const casilla = el('input', { type: 'checkbox', checked: valor });
     casilla.addEventListener('change', async () => {
       casilla.disabled = true;
       try {
-        await apiCuenta('/ajustes', { method: 'PATCH', datos: { avisosCorreo: casilla.checked } });
+        await apiCuenta('/ajustes', { method: 'PATCH', datos: { [nombre]: casilla.checked } });
         avisar($aviso, t('cuenta.guardado'), 'ok');
       } catch (error) {
         casilla.checked = !casilla.checked;
         avisar($aviso, error.message);
       } finally { casilla.disabled = false; }
     });
+    return el('label', { class: 'casilla' }, casilla, el('span', {}, texto));
+  }
+
+  // ─── Privacidad ─────────────────────────────────────────────────────────
+  function seccionPrivacidad(u) {
+    const $aviso = aviso();
+    return el('section', { class: 'tarjeta' },
+      el('h2', {}, t('cuenta.privacidad')),
+      casillaAjuste('listasOcultas', u.listasOcultas, t('cuenta.listasOcultas'), $aviso),
+      $aviso);
+  }
+
+  // ─── Correo y avisos ────────────────────────────────────────────────────
+  function seccionCorreo(u) {
+    const $aviso = aviso();
     return el('section', { class: 'tarjeta' },
       el('h2', {}, t('cuenta.correoEtiqueta')),
       el('p', {}, el('strong', {}, u.correo), ' ', el('small', { class: 'ayuda' }, t('cuenta.noPublico'))),
       el('p', { class: 'ayuda' }, u.google ? t('cuenta.entrasConGoogle') : t('cuenta.entrasConEnlace')),
-      el('label', { class: 'casilla' }, casilla, el('span', {}, t('cuenta.avisosCorreo'))),
+      casillaAjuste('avisosCorreo', u.avisosCorreo, t('cuenta.avisosCorreo'), $aviso),
       $aviso);
   }
 
@@ -198,12 +212,14 @@
     const $aviso = aviso();
     if (mensaje) avisar($aviso, mensaje, 'ok');
     $vista.replaceChildren(...[
+      el('a', { class: 'volver', href: `perfil.html#${encodeURIComponent(u.alias)}` }, `← ${t('cuenta.miPerfil')}`),
+      el('h1', { class: 'titulo-ajustes' }, t('perfil.ajustes')),
       el('div', { class: 'perfil' }, avatar(u.alias, u.avatar, 72),
-        el('div', {}, el('h1', {}, u.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(u.creada) }), ' · ',
-          el('a', { href: `perfil.html#${encodeURIComponent(u.alias)}` }, t('perfil.verPerfil'))))),
+        el('div', {}, el('h2', { class: 'alias' }, u.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(u.creada) })))),
       $aviso,
       u.suspendido ? el('p', { class: 'aviso error tarjeta' }, t('cuenta.suspendida')) : null,
       seccionPerfil(u),
+      seccionPrivacidad(u),
       seccionCorreo(u),
       seccionSesiones(),
       seccionDatos(u),

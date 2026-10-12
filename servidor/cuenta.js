@@ -6,7 +6,7 @@
 //   GET    /api/cuenta/google                → entrar con Google (ver google.js)
 //   POST   /api/cuenta/alias { alias, anio, acepto } → elige el alias (la primera vez, con el año de nacimiento)
 //   POST   /api/cuenta/avatar                → otro avatar al azar
-//   PATCH  /api/cuenta/ajustes { avisosCorreo }
+//   PATCH  /api/cuenta/ajustes { avisosCorreo, listasOcultas }
 //   POST   /api/cuenta/salir                 → cierra esta sesión
 //   POST   /api/cuenta/salir-todo            → cierra la sesión en todos los dispositivos
 //   GET    /api/cuenta/sesiones              → dispositivos con la sesión abierta
@@ -21,6 +21,7 @@ import {
 } from './sesion.js';
 import { enviarEnlace, idiomaValido } from './correo.js';
 import { entrarConGoogle } from './google.js';
+import { listasOcultas } from './perfiles.js';
 
 const EDAD_MINIMA = 14;
 const MINUTOS_ENLACE = 15;
@@ -61,6 +62,7 @@ async function datosCuenta(env, u) {
     google: !!u.google_id,
     creada: u.creada,
     avisosCorreo: !!u.avisos_correo,
+    listasOcultas: listasOcultas(u),
     suspendido: !!u.suspendido,
     aliasCambiable,
     favoritos: favoritos.results.map((f) => f.juego),
@@ -208,8 +210,15 @@ async function otroAvatar({ env }, u) {
 
 async function ajustes({ request, env }, u) {
   const datos = await leerJson(request);
-  if (!datos || typeof datos.avisosCorreo !== 'boolean') return error('Datos no válidos.', 400, 'datos');
-  await env.DB.prepare('UPDATE usuarios SET avisos_correo = ? WHERE id = ?').bind(datos.avisosCorreo ? 1 : 0, u.id).run();
+  const consultas = [];
+  if (typeof datos?.avisosCorreo === 'boolean') {
+    consultas.push(env.DB.prepare('UPDATE usuarios SET avisos_correo = ? WHERE id = ?').bind(datos.avisosCorreo ? 1 : 0, u.id));
+  }
+  if (typeof datos?.listasOcultas === 'boolean') {
+    consultas.push(env.DB.prepare('UPDATE usuarios SET listas_ocultas = ? WHERE id = ?').bind(datos.listasOcultas ? 1 : 0, u.id));
+  }
+  if (!consultas.length) return error('Datos no válidos.', 400, 'datos');
+  await env.DB.batch(consultas);
   return json({ ok: true });
 }
 
@@ -243,20 +252,22 @@ async function cerrarSesion({ env, params }, u) {
 // ─── Mis datos y borrar la cuenta (RGPD) ────────────────────────────────
 async function misDatos({ env }, u) {
   const votante = await votanteCuenta(u, env);
-  const [sesionesAbiertas, favoritos, juegosQueTeGustan, sugerenciasQueTeGustan, sugerencias, comentarios] = await env.DB.batch([
+  const [sesionesAbiertas, favoritos, juegosQueTeGustan, sugerenciasQueTeGustan, sugerencias, comentarios, sigues, teSiguen] = await env.DB.batch([
     env.DB.prepare('SELECT dispositivo, creada, usada, caduca FROM sesiones WHERE usuario_id = ?').bind(u.id),
     env.DB.prepare('SELECT juego, creada FROM favoritos WHERE usuario_id = ?').bind(u.id),
     env.DB.prepare('SELECT juego, creada FROM juegos_me_gusta WHERE votante = ?').bind(votante),
     env.DB.prepare('SELECT sugerencia_id, creada FROM me_gusta WHERE votante = ?').bind(votante),
     env.DB.prepare('SELECT id, titulo, descripcion, manos, accion, tipo, estado, juego, creada FROM sugerencias WHERE usuario_id = ?').bind(u.id),
     env.DB.prepare('SELECT id, sugerencia_id, texto, creada FROM comentarios WHERE usuario_id = ?').bind(u.id),
+    env.DB.prepare('SELECT x.alias, f.creada FROM seguidores f JOIN usuarios x ON x.id = f.seguido_id WHERE f.seguidor_id = ?').bind(u.id),
+    env.DB.prepare('SELECT x.alias, f.creada FROM seguidores f JOIN usuarios x ON x.id = f.seguidor_id WHERE f.seguido_id = ?').bind(u.id),
   ]);
   const datos = {
     exportado: new Date().toISOString(),
     web: 'https://vrplaygame.com',
     cuenta: {
       correo: u.correo, alias: u.alias, avatar: u.avatar, anio_nacimiento: u.anio_nacimiento,
-      entrar_con_google: !!u.google_id, avisos_correo: !!u.avisos_correo, suspendida: !!u.suspendido,
+      entrar_con_google: !!u.google_id, avisos_correo: !!u.avisos_correo, listas_ocultas: listasOcultas(u), suspendida: !!u.suspendido,
       creada: u.creada, ultimo_acceso: u.ultimo_acceso, alias_cambiado: u.alias_cambiado,
     },
     sesiones: sesionesAbiertas.results,
@@ -265,6 +276,8 @@ async function misDatos({ env }, u) {
     sugerencias_que_te_gustan: sugerenciasQueTeGustan.results,
     sugerencias: sugerencias.results,
     comentarios: comentarios.results,
+    sigues_a: sigues.results,
+    te_siguen: teSiguen.results,
   };
   return new Response(JSON.stringify(datos, null, 2), {
     headers: {
@@ -282,6 +295,7 @@ export async function borrarTodo(env, u) {
     env.DB.prepare("UPDATE sugerencias SET autor = 'Usuario eliminado', usuario_id = NULL WHERE usuario_id = ?").bind(u.id),
     env.DB.prepare("UPDATE comentarios SET autor = 'Usuario eliminado', usuario_id = NULL WHERE usuario_id = ?").bind(u.id),
     env.DB.prepare('DELETE FROM favoritos WHERE usuario_id = ?').bind(u.id),
+    env.DB.prepare('DELETE FROM seguidores WHERE seguidor_id = ? OR seguido_id = ?').bind(u.id, u.id),
     env.DB.prepare('DELETE FROM sesiones WHERE usuario_id = ?').bind(u.id),
     env.DB.prepare('DELETE FROM enlaces_acceso WHERE correo = ?').bind(u.correo),
     env.DB.prepare('DELETE FROM usuarios WHERE id = ?').bind(u.id),

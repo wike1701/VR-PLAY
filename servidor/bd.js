@@ -8,7 +8,7 @@ const TABLAS = [
     correo TEXT NOT NULL UNIQUE, google_id TEXT UNIQUE,
     alias TEXT, alias_clave TEXT UNIQUE, alias_cambiado TEXT,
     avatar INTEGER NOT NULL DEFAULT 0, anio_nacimiento INTEGER,
-    avisos_correo INTEGER NOT NULL DEFAULT 1, suspendido INTEGER NOT NULL DEFAULT 0,
+    avisos_correo INTEGER NOT NULL DEFAULT 1, suspendido INTEGER NOT NULL DEFAULT 0, listas_ocultas INTEGER,
     creada TEXT NOT NULL DEFAULT (datetime('now')), ultimo_acceso TEXT NOT NULL DEFAULT (datetime('now')))`,
   `CREATE TABLE IF NOT EXISTS sesiones (
     id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
@@ -26,6 +26,11 @@ const TABLAS = [
   `CREATE TABLE IF NOT EXISTS favoritos (
     usuario_id INTEGER NOT NULL REFERENCES usuarios (id), juego TEXT NOT NULL,
     creada TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (usuario_id, juego))`,
+  // Quién sigue a quién (en un solo sentido, sin tener que aceptar)
+  `CREATE TABLE IF NOT EXISTS seguidores (
+    seguidor_id INTEGER NOT NULL REFERENCES usuarios (id), seguido_id INTEGER NOT NULL REFERENCES usuarios (id),
+    creada TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (seguidor_id, seguido_id))`,
+  'CREATE INDEX IF NOT EXISTS seguidores_seguido ON seguidores (seguido_id)',
   // La del foro que se crea sola (ver juegos-me-gusta.js): aquí también, porque al fusionar se usa
   `CREATE TABLE IF NOT EXISTS juegos_me_gusta (
     juego TEXT NOT NULL, votante TEXT NOT NULL, ip TEXT NOT NULL DEFAULT '',
@@ -36,6 +41,7 @@ const TABLAS = [
 const COLUMNAS = [
   ['sugerencias', 'usuario_id', 'INTEGER'],
   ['comentarios', 'usuario_id', 'INTEGER'],
+  ['usuarios', 'listas_ocultas', 'INTEGER'],
 ];
 
 let lista = null;

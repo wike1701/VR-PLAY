@@ -53,11 +53,13 @@ La especificación completa está en `PERFILES.md`.
 - [ ] Probar entrar en el Quest con el código del correo
 - [x] Página de perfil pública (`perfil.html#alias`) y buscar jugadores con `@alias` en la portada (faltan los récords y las insignias)
 - [ ] «Idea de @alias» en la ficha del juego y en el menú de pausa
-- [ ] Ajustes de privacidad: qué se ve del perfil
+- [x] Ajustes de privacidad: ocultar a quién sigues y quién te sigue (los demás ajustes, con lo que controlan)
 - [x] Borrar la cuenta y descargar mis datos (RGPD)
 - [x] Moderación de alias y cuentas en `admin.html` (forzar alias, otro avatar, suspender)
-- [ ] Seguir y bloquear perfiles, avisos de nuevos seguidores
-- [ ] Feed en la portada: pestañas «Para ti», «Seguidos» y «Juegos»
+- [x] Seguir perfiles (números públicos, listas que se pueden ocultar)
+- [ ] Bloquear perfiles y avisos de nuevos seguidores
+- [x] Pestañas en la portada: «Para ti» (el catálogo) y «Seguidos» (actividad de los que sigues)
+- [ ] «Para ti» con recomendaciones según lo que juegas (ahora es el catálogo completo)
 - [x] Actualizar la política de privacidad con los datos de la cuenta (Resend y la cookie de Google incluidos)
 
 ## 4. Producto (que la gente llegue y vuelva)

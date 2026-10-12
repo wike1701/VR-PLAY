@@ -30,7 +30,9 @@ const RUTAS = [
   // /api/cuenta, /api/cuenta/alias, /api/cuenta/sesiones/12…
   [/^\/api\/cuenta(?:\/([a-z-]+))?(?:\/(\d+))?$/, cuenta, (c) => ({ accion: c[1], id: c[2] })],
   [/^\/api\/admin\/usuarios(?:\/(\d+))?$/, adminUsuarios],
-  [/^\/api\/perfiles(?:\/([^/]+))?$/, perfiles],
+  // /api/perfiles?q=, /api/perfiles/Rafa, /api/perfiles/Rafa/seguir, /seguidores, /seguidos
+  [/^\/api\/perfiles(?:\/([^/]+)(?:\/(seguir|seguidores|seguidos))?)?$/, perfiles, (c) => ({ id: c[1], sub: c[2] })],
+  [/^\/api\/feed$/, { onRequestGet: perfiles.feed }],
 ];
 
 export default {
