@@ -488,12 +488,15 @@
         edad !== null ? el('span', {}, `~${edad} años${edad < 18 ? ' (menor)' : ''}`) : null,
         el('span', {}, `Alta ${hace(u.creada)}`),
         el('span', {}, `Último acceso ${hace(u.ultimo_acceso)}`),
-        el('span', {}, `${u.sesiones} sesiones · ${u.sugerencias} sugerencias · ${u.comentarios} comentarios`)),
+        el('span', {}, `${u.sesiones} sesiones · ${u.sugerencias} sugerencias · ${u.comentarios} comentarios · ${u.records} récords`),
+        u.vetado ? el('span', { class: 'marca-oculta' }, 'FUERA DE LAS CLASIFICACIONES') : null),
       el('div', { class: 'controles' },
         $alias,
         el('button', { type: 'button', class: 'boton mini', onclick: (e) => cambiar(e.currentTarget, { alias: $alias.value.trim() }) }, 'Forzar alias'),
         el('button', { type: 'button', class: 'boton mini secundario', onclick: (e) => cambiar(e.currentTarget, { avatar: true }) }, 'Otro avatar'),
-        el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => cambiar(e.currentTarget, { suspendido: !u.suspendido }) }, u.suspendido ? 'Quitar suspensión' : 'Suspender')),
+        el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => cambiar(e.currentTarget, { suspendido: !u.suspendido }) }, u.suspendido ? 'Quitar suspensión' : 'Suspender'),
+        el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => cambiar(e.currentTarget, { vetadoClasificaciones: !u.vetado }) }, u.vetado ? 'Volver a las clasificaciones' : 'Sacar de las clasificaciones'),
+        u.records ? el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => { if (confirm(`¿Borrar los ${u.records} récords de ${u.alias}?`)) cambiar(e.currentTarget, { borrarRecords: true }); } }, 'Borrar sus récords') : null),
       $aviso);
   }
 

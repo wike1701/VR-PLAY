@@ -10,6 +10,7 @@ foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
 admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
 entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
 cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
+clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o #topos/mes): el top 100 y tu puesto
 perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
 cuenta.css              Estilos de entrar.html, cuenta.html y perfil.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
@@ -18,6 +19,7 @@ servidor/               API del foro y de las cuentas: solo atiende /api/* (inde
 bd/esquema.sql          Tablas de la base de datos del foro y de las cuentas (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
+herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificación
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
@@ -40,6 +42,7 @@ shell/
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
 juegos/
+  marcadores.js         Cómo puntúa cada juego en la clasificación (orden, unidad y límites contra trampas)
   catalogo.js           Lista de juegos con su género (sus textos y etiquetas están en idiomas/; el botón "siguiente" los recorre en orden aleatorio, sin repetir)
   fruta/juego.js        Corta Fruta
   topos/juego.js        Aplasta Topos
@@ -119,6 +122,7 @@ export function iniciar(ctx) {
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
+  // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»)
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
     liberar() { /* limpia lo que no esté en ctx.raiz */ },
@@ -133,7 +137,8 @@ export function iniciar(ctx) {
 { id: 'patos', genero: 'disparos' },
 ```
 
-4. Añade sus textos en **cada** archivo de `idiomas/`, en `juegos.<id>`: los del catálogo, **con sus etiquetas** (ver abajo), y en `juego` los que salen dentro del juego. Después comprueba que no falte ninguno con `node herramientas/idiomas.mjs`.
+4. **Clasificación (obligatoria).** Todo juego tiene puntuación y clasificación. Decide qué mide mejor lo bien que se ha jugado y ponlo en `juegos/marcadores.js` (ver «Clasificaciones»). Después llama a `ctx.puntuacion(valor)` al terminar **cada** partida, también si no es récord. Compruébalo con `node herramientas/marcadores.mjs`.
+5. Añade sus textos en **cada** archivo de `idiomas/`, en `juegos.<id>`: los del catálogo, **con sus etiquetas** (ver abajo), y en `juego` los que salen dentro del juego. Después comprueba que no falte ninguno con `node herramientas/idiomas.mjs`.
 
 ```js
 patos: {
@@ -181,6 +186,22 @@ La web está en 9 idiomas: español (el original), inglés, francés, alemán, i
 - **El texto legal** original es `legal.html`. Las traducciones están en `idiomas/legal/<código>.html` y avisan de que prevalece el español. Si cambias algo del texto legal (o rellenas los datos pendientes), cámbialo también en ellas.
 - **Añadir un idioma:** su archivo `idiomas/<código>.js` (copia `en.js` y tradúcelo), su texto legal, el código en `IDIOMAS` (`idiomas.js`) y en `CODIGOS` (`detectar.js`), y los `hreflang` de las cabeceras de `index.html`, `foro.html` y `legal.html`.
 - `admin.html` y `herramientas/` siguen solo en español: son para el administrador.
+
+## Clasificaciones
+
+Cada juego tiene su clasificación: la **de siempre** y la **del mes**, con el top 100 y tu puesto. Solo salen las cuentas con la sesión iniciada. Sin cuenta, el récord se sigue guardando en el navegador, como siempre.
+
+- **Todo juego tiene que tener puntuación y clasificación**, también los que se hagan en el futuro. Lo decide quien hace el juego (normalmente, la IA): la medida que mejor diga lo bien que se ha jugado y que no dependa solo de las horas jugadas. Ejemplos actuales:
+  - **Puntos** (más es mejor): la mayoría.
+  - **Tiempo** (menos es mejor): Carreras y Circuito Slot, el tiempo de la carrera.
+  - **Golpes** (menos es mejor): Minigolf, el total de los 9 hoyos.
+  - **Diferencia** (más es mejor): los juegos contra la máquina (Ping Pong, Bádminton, Vóley Playa, Petanca). Al ganar, tus puntos menos los suyos, así que un 11-3 da +8. Si pierdes, no se envía nada.
+- **En `juegos/marcadores.js`** va el marcador de cada juego: `orden` (`mayor`/`menor`), `unidad` (`puntos`, `tiempo`, `golpes`, `diferencia`), `min` y `max` posibles, `minSegundos` (lo mínimo que dura una partida) y, en los juegos sin final fijo, `maxPorSegundo`. El servidor y el navegador usan el mismo archivo. Una unidad nueva necesita su formato en `shell/clasificacion.js` y su frase en `clasificacion.criterio` de los idiomas.
+- **En el juego**, `ctx.puntuacion(valor)` al terminar cada partida. La shell abre la partida en el servidor al montar el juego y al terminar cada una, envía el resultado y enseña el puesto («🏆 ¡Nuevo récord! Puesto 3»). En VR sale en el panel de avisos; con ratón o en el móvil, arriba de la pantalla. Sin cuenta, invita una vez a entrar.
+- **Contra trampas.** Los resultados los calcula el navegador, así que no se pueden impedir del todo, pero sí hacerlo poco rentable. El servidor solo acepta un resultado de una partida que abrió él, que haya durado al menos `minSegundos` y que esté dentro de `min`/`max`. En los juegos de tiempo, además, el tiempo no puede ser mayor que lo que ha durado la partida. Hay un límite de 300 partidas por hora. En `admin.html` (pestaña «Usuarios») se pueden borrar los récords de una cuenta y sacarla de las clasificaciones.
+- **Dónde se ve**: en el menú de pausa (las 5 primeras y tu puesto, también en VR), en `clasificacion.html#juego` (enlace «🏆 Clasificaciones» en la portada), en el perfil (récords y puesto en cada juego) y en la pestaña «Seguidos» («@ana ha conseguido 12.400 puntos en Topos»). Cada cuenta puede no salir en las listas públicas desde los ajustes de privacidad.
+- **Tablas**: `records` (el mejor de cada cuenta en cada juego), `records_mes` y `partidas_abiertas`. Las rutas son `/api/clasificacion/:juego` (y `/empezar`).
+- **Comprobarlo**: `node herramientas/marcadores.mjs`.
 
 ## Calidad gráfica y rendimiento
 

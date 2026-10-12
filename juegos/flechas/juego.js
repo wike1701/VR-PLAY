@@ -356,6 +356,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 5;
     for (const t of torres) apagarTorre(t);
+    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);

@@ -55,6 +55,13 @@
   .personas a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
   .personas a:hover { border-color: var(--accent); }
   .personas strong { overflow-wrap: anywhere; }
+  .records { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .records a { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); text-decoration: none; }
+  .records a:hover { border-color: #ffd54f; }
+  .records img { width: 40px; height: 40px; border-radius: 8px; flex: none; }
+  .records .titulo { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .records .valor { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
+  .records .puesto { color: #ffd54f; font-family: var(--font-display); font-weight: 700; min-width: 2.6em; text-align: right; }
   /* Botón de la cuenta en la cabecera (shell/cuenta.js) */
   .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
   .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
@@ -97,6 +104,7 @@
   import { t } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
   import { estadoCuenta, avatar, fecha, botonSeguir, montarBotonCuenta } from './shell/cuenta.js';
+  import { formatearValor } from './shell/clasificacion.js';
 
   const $vista = document.getElementById('vista');
   montarBotonCuenta();
@@ -175,6 +183,20 @@
         el('span', {}, el('strong', {}, p.ideas), ` ${t('perfil.ideas', { n: p.ideas })}`),
         el('span', {}, el('strong', {}, `♥ ${p.meGusta}`), ` ${t('perfil.meGustaRecibidos', { n: p.meGusta })}`),
         el('span', {}, el('strong', {}, p.comentarios), ` ${t('perfil.comentarios', { n: p.comentarios })}`)),
+      // Sus récords: el resultado y el puesto en cada clasificación
+      el('section', { class: 'tarjeta' },
+        el('h2', {}, `🏆 ${t('perfil.records')}`),
+        p.records.length
+          ? el('ul', { class: 'records' }, p.records.map((r) => {
+            const juego = JUEGOS.find((j) => j.id === r.juego);
+            if (!juego) return null;
+            return el('li', {}, el('a', { href: `clasificacion.html#${juego.id}` },
+              el('img', { src: juego.miniatura, alt: '', loading: 'lazy' }),
+              el('span', { class: 'titulo' }, juego.titulo),
+              el('span', { class: 'valor' }, formatearValor(r.juego, r.valor)),
+              r.puesto ? el('span', { class: 'puesto' }, `#${r.puesto}`) : null));
+          }))
+          : el('p', { class: 'vacio' }, t('perfil.sinRecords'))),
       el('section', { class: 'tarjeta' },
         el('h2', {}, t('perfil.juegosDeSusIdeas')),
         rejillaJuegos(p.juegos.map((s) => s.juego), t('perfil.sinJuegos'))),

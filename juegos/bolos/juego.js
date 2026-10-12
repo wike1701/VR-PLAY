@@ -796,6 +796,7 @@ export function iniciar(ctx) {
             estado = 'fin';
             reloj = 8;
             const total = puntuacion();
+            ctx.puntuacion(total); // a la clasificación (juegos/marcadores.js)
             if (total > record) {
               record = total;
               ctx.guardar('record', record);

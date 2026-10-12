@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title data-i18n="clasificacion.tituloPagina">Clasificaciones · VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+<meta name="theme-color" content="#0f0f14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="cuenta.css">
+<style>
+  /* Clasificación de un juego: elegir juego y periodo, y la tabla con tu puesto resaltado. */
+  .cabeza-juego { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .cabeza-juego img { width: 72px; height: 72px; border-radius: 14px; flex: none; background: var(--surface-2); }
+  .cabeza-juego h1 { margin: 0; }
+  .cabeza-juego p { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+  .controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .controles select { width: auto; flex: 1 1 200px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; }
+  .periodos { display: flex; gap: 6px; }
+  .chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: 0.88rem; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .tu { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid #ffd54f; background: color-mix(in srgb, #ffd54f 10%, var(--surface)); }
+  .tabla-clasificacion { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .tabla-clasificacion li { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .tabla-clasificacion li.mio { border-color: #ffd54f; }
+  .tabla-clasificacion .puesto { width: 2.6em; flex: none; font-family: var(--font-display); font-weight: 700; color: var(--muted); text-align: right; }
+  .tabla-clasificacion li:nth-child(1) .puesto { color: #ffd54f; }
+  .tabla-clasificacion li:nth-child(2) .puesto { color: #cfd8dc; }
+  .tabla-clasificacion li:nth-child(3) .puesto { color: #ffab76; }
+  .tabla-clasificacion a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .tabla-clasificacion a strong { overflow-wrap: anywhere; }
+  .tabla-clasificacion a:hover strong { color: var(--accent-2); }
+  .tabla-clasificacion .valor { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
+  .vacio { color: var(--muted); }
+  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
+  .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
+  @media (max-width: 520px) {
+    .menu { gap: 12px; }
+    .boton-cuenta .texto { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
+      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
+      <span data-cuenta></span>
+      <span data-selector-idioma></span>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor" id="vista" aria-live="polite"></main>
+
+<footer class="contenedor">
+  <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a> · <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
+</footer>
+
+<script type="module">
+  // Clasificación de un juego: clasificacion.html#topos (o #topos/mes para la del mes).
+  // Las 100 primeras cuentas y tu puesto (ver servidor/clasificacion.js).
+  import { t } from './idiomas/idiomas.js';
+  import { JUEGOS as TODOS } from './juegos/catalogo.js';
+  import { MARCADORES } from './juegos/marcadores.js';
+  import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  import { avatar, montarBotonCuenta, estadoCuenta } from './shell/cuenta.js';
+  import { formatearValor, pedirClasificacion } from './shell/clasificacion.js';
+
+  const $vista = document.getElementById('vista');
+  montarBotonCuenta();
+  const enPruebas = await juegosEnPruebas();
+  const JUEGOS = TODOS.filter((j) => MARCADORES[j.id] && !enPruebas.has(j.id))
+    .sort((a, b) => a.titulo.localeCompare(b.titulo));
+
+  function el(etiqueta, atributos = {}, ...hijos) {
+    const nodo = document.createElement(etiqueta);
+    for (const [clave, valor] of Object.entries(atributos)) {
+      if (valor === false || valor === null || valor === undefined) continue;
+      if (clave.startsWith('on')) nodo.addEventListener(clave.slice(2), valor);
+      else if (clave === 'class') nodo.className = valor;
+      else nodo.setAttribute(clave, valor === true ? '' : valor);
+    }
+    for (const hijo of hijos.flat()) {
+      if (hijo === null || hijo === undefined || hijo === false) continue;
+      nodo.append(hijo instanceof Node ? hijo : String(hijo));
+    }
+    return nodo;
+  }
+
+  async function mostrar() {
+    const [idHash, periodoHash] = decodeURIComponent(location.hash.slice(1)).split('/');
+    const juego = JUEGOS.find((j) => j.id === idHash) || JUEGOS[0];
+    const periodo = periodoHash === 'mes' ? 'mes' : 'siempre';
+    const m = MARCADORES[juego.id];
+    document.title = `${t('clasificacion.titulo')}: ${juego.titulo} · VR Play`;
+    const ir = (id, p) => { location.hash = `${id}${p === 'mes' ? '/mes' : ''}`; };
+
+    const selector = el('select', { 'aria-label': t('clasificacion.elegirJuego'), onchange: (e) => ir(e.target.value, periodo) },
+      JUEGOS.map((j) => el('option', { value: j.id, selected: j.id === juego.id }, j.titulo)));
+    const periodos = el('div', { class: 'periodos', role: 'group' }, ['siempre', 'mes'].map((p) => el('button', {
+      type: 'button', class: 'chip', 'aria-pressed': String(p === periodo), onclick: () => ir(juego.id, p),
+    }, t(`clasificacion.${p}`))));
+    const $tabla = el('section', {}, el('p', { class: 'vacio' }, t('comun.cargando')));
+    $vista.replaceChildren(
+      el('div', { class: 'cabeza-juego' }, el('img', { src: juego.miniatura, alt: '' }),
+        el('div', {}, el('h1', {}, juego.titulo), el('p', {}, `🏆 ${t('clasificacion.titulo')} · ${t(`clasificacion.criterio.${m.unidad}`)}`))),
+      el('div', { class: 'controles' }, selector, periodos, el('a', { class: 'boton mini', href: `play.html#${juego.id}` }, `▶ ${t('clasificacion.jugar')}`)),
+      $tabla,
+    );
+
+    const [datos, { usuario }] = await Promise.all([pedirClasificacion(juego.id, { periodo }), estadoCuenta()]);
+    if (!datos) return $tabla.replaceChildren(el('p', { class: 'vacio' }, t('cuenta.errores.no_disponible')));
+    const tu = datos.tu
+      ? el('p', { class: 'tu' }, t('clasificacion.tuPuesto', { puesto: datos.tu.puesto, valor: formatearValor(juego.id, datos.tu.valor) }),
+        datos.tu.visible ? null : el('small', { class: 'ayuda' }, ` · ${t('clasificacion.noSales')}`))
+      : el('p', { class: 'tu' }, usuario?.alias ? t('clasificacion.juegaParaSalir') : el('a', { href: `entrar.html?volver=${encodeURIComponent(location.pathname + location.hash)}` }, t('clasificacion.aviso.entra')));
+    $tabla.replaceChildren(tu, datos.top.length
+      ? el('ol', { class: 'tabla-clasificacion' }, datos.top.map((p) => el('li', { class: p.alias === usuario?.alias ? 'mio' : null },
+        el('span', { class: 'puesto' }, p.puesto),
+        el('a', { href: `perfil.html#${encodeURIComponent(p.alias)}` }, avatar(p.alias, p.avatar, 32), el('strong', {}, p.alias)),
+        el('span', { class: 'valor' }, formatearValor(juego.id, p.valor)))))
+      : el('p', { class: 'vacio' }, t('clasificacion.vacio')));
+  }
+
+  window.addEventListener('hashchange', mostrar);
+  mostrar();
+</script>
+</body>
+</html>

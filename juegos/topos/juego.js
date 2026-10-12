@@ -471,6 +471,7 @@ export function iniciar(ctx) {
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 5;
+        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);

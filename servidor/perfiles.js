@@ -1,7 +1,8 @@
 // Perfiles públicos y seguir a otros jugadores (ver PERFILES.md, puntos 6 y 13).
 //   GET  /api/perfiles?q=raf                 → { perfiles: [{ alias, avatar, ideas }] } (buscador de la portada, como mucho 12)
 //   GET  /api/perfiles/:alias                → { perfil: { alias, avatar, creada, ideas, meGusta, comentarios,
-//                                                 seguidores, seguidos, listasOcultas, loSigues, esMio, juegos, enMarcha } }
+//                                                 seguidores, seguidos, listasOcultas, loSigues, esMio, juegos, enMarcha,
+//                                                 records: [{ juego, valor, puesto }] } }
 //   POST /api/perfiles/:alias/seguir { seguir } → sigue o deja de seguir (con la sesión iniciada)
 //   GET  /api/perfiles/:alias/seguidores     → { perfiles: [...] }, salvo que tenga las listas ocultas
 //   GET  /api/perfiles/:alias/seguidos       → igual, a quién sigue
@@ -11,6 +12,8 @@
 // ni los «me gusta» que ha dado. Las cuentas suspendidas o sin alias no salen.
 import { json, error, leerJson } from './comun.js';
 import { claveAlias, usuarioActual } from './sesion.js';
+import { MARCADORES } from '../juegos/marcadores.js';
+import { consultaPuesto } from './clasificacion.js';
 
 const VISIBLES = "oculta = 0 AND estado != 'descartada'";
 const LIMITE_SEGUIR = { dia: 50, total: 1000 };
@@ -25,7 +28,7 @@ async function cuentaDe(env, valor) {
   let alias;
   try { alias = decodeURIComponent(valor); } catch { return null; }
   if (!alias) return null;
-  return env.DB.prepare('SELECT id, alias, avatar, creada, anio_nacimiento, listas_ocultas FROM usuarios WHERE alias_clave = ? AND alias IS NOT NULL AND suspendido = 0')
+  return env.DB.prepare('SELECT id, alias, avatar, creada, anio_nacimiento, listas_ocultas, en_clasificaciones, vetado_clasificaciones FROM usuarios WHERE alias_clave = ? AND alias IS NOT NULL AND suspendido = 0')
     .bind(claveAlias(alias.replace(/^@/, ''))).first();
 }
 const noExiste = () => error('No existe ninguna cuenta con ese alias.', 404, 'perfil_no_encontrado');
@@ -56,13 +59,24 @@ async function perfil(request, env, valor) {
   if (!u) return noExiste();
   const yo = await usuarioActual(request, env);
 
-  const [sugerencias, comentarios, numeros, loSigo] = await env.DB.batch([
+  const [sugerencias, comentarios, numeros, loSigo, susRecords] = await env.DB.batch([
     env.DB.prepare(`SELECT id, titulo, estado, juego, me_gusta, creada FROM sugerencias WHERE usuario_id = ? AND ${VISIBLES} ORDER BY actividad DESC`).bind(u.id),
     env.DB.prepare('SELECT COUNT(*) AS n FROM comentarios WHERE usuario_id = ? AND oculto = 0').bind(u.id),
     env.DB.prepare(`SELECT (SELECT COUNT(*) FROM seguidores f JOIN usuarios x ON x.id = f.seguidor_id WHERE f.seguido_id = ? AND x.suspendido = 0) AS seguidores,
       (SELECT COUNT(*) FROM seguidores f JOIN usuarios x ON x.id = f.seguido_id WHERE f.seguidor_id = ? AND x.suspendido = 0) AS seguidos`).bind(u.id, u.id),
     env.DB.prepare('SELECT 1 AS si FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?').bind(yo?.id || 0, u.id),
+    env.DB.prepare('SELECT juego, valor FROM records WHERE usuario_id = ? ORDER BY fecha DESC').bind(u.id),
   ]);
+  // Sus récords y su puesto en cada clasificación (si sale en ellas; en tu perfil, siempre)
+  const enClasificaciones = u.en_clasificaciones !== 0 && !u.vetado_clasificaciones;
+  let records = [];
+  if (enClasificaciones || yo?.id === u.id) {
+    records = susRecords.results.filter((r) => MARCADORES[r.juego]);
+    if (records.length) {
+      const puestos = await env.DB.batch(records.map((r) => consultaPuesto(env, r.juego, r.valor)));
+      records = records.map((r, i) => ({ ...r, puesto: enClasificaciones ? puestos[i].results[0].puesto : null }));
+    }
+  }
   const lista = sugerencias.results;
   return json({
     perfil: {
@@ -80,6 +94,7 @@ async function perfil(request, env, valor) {
       // Juegos hechos a partir de sus ideas, e ideas que aún no son un juego
       juegos: lista.filter((s) => s.estado === 'hecha' && s.juego),
       enMarcha: lista.filter((s) => ['nueva', 'estudio', 'desarrollo'].includes(s.estado)),
+      records,
     },
   });
 }
@@ -128,7 +143,7 @@ async function seguir(request, env, valor) {
 
 // ─── Pestaña «Seguidos» de la portada ───────────────────────────────────
 // Lo público que han hecho los que sigues, de lo más reciente a lo más antiguo: ideas nuevas,
-// comentarios e ideas convertidas en juego. Si no sigue a nadie (o hay poco), jugadores para seguir.
+// comentarios, ideas convertidas en juego y récords. Si no sigue a nadie (o hay poco), jugadores para seguir.
 export async function feed({ request, env }) {
   if (!env.DB) return error('Las cuentas no están disponibles ahora mismo.', 503, 'no_disponible');
   const yo = await usuarioActual(request, env);
@@ -138,17 +153,22 @@ export async function feed({ request, env }) {
   const [actividad, sigo, sugeridos] = await env.DB.batch([
     env.DB.prepare(`
       SELECT * FROM (
-        SELECT 'idea' AS tipo, s.id, s.titulo, s.estado, s.juego, s.me_gusta, NULL AS texto, s.creada AS fecha, u.alias, u.avatar
+        SELECT 'idea' AS tipo, s.id, s.titulo, s.estado, s.juego, s.me_gusta, NULL AS texto, s.creada AS fecha, u.alias, u.avatar, NULL AS valor
           FROM sugerencias s JOIN usuarios u ON u.id = s.usuario_id
           WHERE s.usuario_id IN (${deQuienSigo}) AND s.oculta = 0 AND s.estado != 'descartada' AND u.suspendido = 0
         UNION ALL
-        SELECT 'juego', s.id, s.titulo, s.estado, s.juego, s.me_gusta, NULL, s.actividad, u.alias, u.avatar
+        SELECT 'juego', s.id, s.titulo, s.estado, s.juego, s.me_gusta, NULL, s.actividad, u.alias, u.avatar, NULL
           FROM sugerencias s JOIN usuarios u ON u.id = s.usuario_id
           WHERE s.usuario_id IN (${deQuienSigo}) AND s.oculta = 0 AND s.estado = 'hecha' AND s.juego != '' AND u.suspendido = 0
         UNION ALL
-        SELECT 'comentario', s.id, s.titulo, s.estado, s.juego, s.me_gusta, c.texto, c.creada, u.alias, u.avatar
+        SELECT 'comentario', s.id, s.titulo, s.estado, s.juego, s.me_gusta, c.texto, c.creada, u.alias, u.avatar, NULL
           FROM comentarios c JOIN sugerencias s ON s.id = c.sugerencia_id JOIN usuarios u ON u.id = c.usuario_id
           WHERE c.usuario_id IN (${deQuienSigo}) AND c.oculto = 0 AND s.oculta = 0 AND u.suspendido = 0
+        UNION ALL
+        SELECT 'record', NULL, NULL, NULL, r.juego, NULL, NULL, r.fecha, u.alias, u.avatar, r.valor
+          FROM records r JOIN usuarios u ON u.id = r.usuario_id
+          WHERE r.usuario_id IN (${deQuienSigo}) AND u.suspendido = 0
+            AND COALESCE(u.en_clasificaciones, 1) = 1 AND COALESCE(u.vetado_clasificaciones, 0) = 0
       ) ORDER BY fecha DESC LIMIT 60`),
     env.DB.prepare(`SELECT COUNT(*) AS n FROM seguidores WHERE seguidor_id = ?`).bind(yo.id),
     // Jugadores para seguir: los que tienen más seguidores e ideas, salvo uno mismo y los que ya sigue

@@ -591,6 +591,7 @@ export function iniciar(ctx) {
     reloj = 8;
     jugador.tiempoFinal = tiempoCarrera;
     ganada = !rival.tiempoFinal;
+    ctx.puntuacion(tiempoCarrera); // tiempo de carrera: menos es mejor (juegos/marcadores.js)
     if (!record || tiempoCarrera < record) {
       record = tiempoCarrera;
       nuevoRecord = true;

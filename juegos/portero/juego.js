@@ -635,6 +635,7 @@ export function iniciar(ctx) {
           if (tiro >= PENALTIS) {
             estado = 'fin';
             reloj = 7;
+            ctx.puntuacion(paradas()); // a la clasificación (juegos/marcadores.js)
             if (paradas() > record) {
               record = paradas();
               ctx.guardar('record', record);

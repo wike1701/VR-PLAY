@@ -14,6 +14,7 @@ import * as juegosMeGusta from './juegos-me-gusta.js';
 import * as cuenta from './cuenta.js';
 import * as adminUsuarios from './admin-usuarios.js';
 import * as perfiles from './perfiles.js';
+import * as clasificacion from './clasificacion.js';
 import { error } from './comun.js';
 import { prepararBD } from './bd.js';
 
@@ -35,6 +36,8 @@ const RUTAS = [
   // /api/perfiles?q=, /api/perfiles/Rafa, /api/perfiles/Rafa/seguir, /seguidores, /seguidos
   [/^\/api\/perfiles(?:\/([^/]+)(?:\/(seguir|seguidores|seguidos))?)?$/, perfiles, (c) => ({ id: c[1], sub: c[2] })],
   [/^\/api\/feed$/, { onRequestGet: perfiles.feed }],
+  // /api/clasificacion/topos, /api/clasificacion/topos/empezar
+  [/^\/api\/clasificacion\/([a-z0-9_-]+)(?:\/(empezar))?$/, clasificacion, (c) => ({ id: c[1], sub: c[2] })],
 ];
 
 export default {

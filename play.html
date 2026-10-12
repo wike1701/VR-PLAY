@@ -88,6 +88,20 @@
     .pausa button { width: 100%; padding: 12px 16px; font-size: 1rem; text-align: left; border-radius: 12px; }
     .pausa button.activo-megusta { color: #ff7aa2; border-color: #ff7aa2; }
     .pausa button.activo-favorito { color: #ffd54f; border-color: #ffd54f; }
+    /* Clasificación en el menú de pausa y aviso del puesto al terminar una partida */
+    .pausa-clasificacion { display: grid; gap: 4px; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 0.9rem; }
+    .pausa-clasificacion:empty { display: none; }
+    .pausa-clasificacion strong { color: #ffd54f; }
+    .pausa-clasificacion ol { margin: 0; padding-left: 22px; }
+    .pausa-clasificacion p { margin: 0; color: #b9a8ff; font-size: 0.85rem; }
+    .pausa-clasificacion a { color: var(--accent-2, #00e5ff); font-size: 0.85rem; }
+    .aviso-clasificacion {
+      position: fixed; z-index: 15; left: 50%; top: max(64px, calc(env(safe-area-inset-top) + 56px)); transform: translateX(-50%);
+      max-width: calc(100% - 32px); padding: 10px 18px; border-radius: 999px;
+      background: rgba(12, 14, 28, 0.9); border: 1px solid #ffd54f; color: #ffe082; font-weight: 600; text-align: center;
+      pointer-events: none;
+    }
+    .aviso-clasificacion[hidden], body.en-vr .aviso-clasificacion { display: none; }
 
     /* Pantalla completa (o app instalada): solo el juego y dos botones flotantes */
     body.inmersivo .barra, body.inmersivo .pie { display: none; }
@@ -163,8 +177,10 @@
       <button type="button" data-accion="megusta"></button>
       <button type="button" data-accion="favorito"></button>
       <button type="button" data-accion="catalogo">← <span data-i18n="pausa.volverCatalogo">Volver al catálogo</span></button>
+      <div class="pausa-clasificacion" id="pausa-clasificacion"></div>
     </div>
   </div>
+  <div class="aviso-clasificacion" id="aviso-clasificacion" role="status" hidden></div>
 
   <script type="module" src="shell/shell.js"></script>
   <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->

@@ -752,6 +752,7 @@ export function iniciar(ctx) {
           if (turno >= LANZAMIENTOS) {
             estado = 'fin';
             reloj = 7;
+            ctx.puntuacion(puntos()); // a la clasificación (juegos/marcadores.js)
             if (puntos() > record) {
               record = puntos();
               ctx.guardar('record', record);

@@ -35,6 +35,11 @@ export class MenuPausa {
       this.grupo.add(panel.mesh);
       return { accion, panel };
     });
+    // Debajo de los botones: las 5 primeras de la clasificación y tu puesto (no se puede pulsar)
+    this.clasificacion = crearPanel({ ancho: ANCHO_BOTON, alto: 0.3, resolucion: 512 });
+    this.clasificacion.mesh.position.y = -3 * SEPARACION + SEPARACION * 0.4 - ALTO_BOTON / 2 - 0.03 - 0.15;
+    this.clasificacion.mesh.visible = false;
+    this.grupo.add(this.clasificacion.mesh);
     // Que se vea por encima del juego aunque haya algo delante
     this.grupo.traverse((o) => {
       if (o.material) {
@@ -78,6 +83,12 @@ export class MenuPausa {
       catalogo: { texto: `←  ${t('pausa.volverCatalogo')}`, color: '#ffffff' },
     };
     for (const b of this.botones) b.panel.escribir([{ ...textos[b.accion], tam: 1 }]);
+  }
+
+  // Líneas del panel de la clasificación (null: se oculta)
+  escribirClasificacion(lineas) {
+    this.clasificacion.mesh.visible = !!lineas;
+    if (lineas) this.clasificacion.escribir(lineas);
   }
 
   // Base horizontal de la cabeza (solo el giro, sin inclinar)

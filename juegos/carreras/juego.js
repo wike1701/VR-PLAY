@@ -582,6 +582,7 @@ export function iniciar(ctx) {
         estado = 'fin';
         reloj = 9;
         puestoFinal = puesto;
+        ctx.puntuacion(tiempoCarrera); // tiempo de carrera: menos es mejor (juegos/marcadores.js)
         if (!mejorTiempo || tiempoCarrera < mejorTiempo) {
           mejorTiempo = tiempoCarrera;
           ctx.guardar('mejorTiempo', mejorTiempo);

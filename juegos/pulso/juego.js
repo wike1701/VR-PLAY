@@ -441,6 +441,7 @@ export function iniciar(ctx) {
     if (nivel >= CABLES) {
       estado = 'fin';
       reloj = 8;
+      ctx.puntuacion(total()); // a la clasificación (juegos/marcadores.js)
       if (total() > record) {
         record = total();
         ctx.guardar('record', record);

@@ -753,6 +753,7 @@ export function iniciar(ctx) {
     } else if (estado === 'jugando' && balines <= 0 && recarga <= 0 && !huecos.some((h) => h.estado === 'cayendo')) {
       estado = 'fin';
       reloj = 7;
+      ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
       if (puntos > record) {
         record = puntos;
         nuevoRecord = puntos > 0;

@@ -1,13 +1,16 @@
 // Moderación de cuentas (pestaña «Usuarios» de admin.html). Solo administrador.
 //   GET   /api/admin/usuarios?q=rafa  → busca por alias o correo (las 100 más recientes si no hay q)
-//   PATCH /api/admin/usuarios/:id { alias, suspendido, avatar: true }
+//   PATCH /api/admin/usuarios/:id { alias, suspendido, avatar: true, vetadoClasificaciones, borrarRecords: true }
 //         alias: fuerza un cambio de alias (por ejemplo, si es ofensivo); no cuenta para el límite de 30 días
 //         suspendido: puede seguir jugando, pero no publicar en el foro
 //         avatar: genera otro avatar
+//         vetadoClasificaciones: lo saca de las clasificaciones (sus récords no salen)
+//         borrarRecords: borra todos sus récords (de siempre y del mes)
 import { json, error, leerJson, esAdmin, idValido } from './comun.js';
 import { problemaAlias, claveAlias, aliasLibre, semillaAvatar } from './sesion.js';
 
-const CAMPOS = `id, correo, alias, avatar, anio_nacimiento, suspendido, google_id IS NOT NULL AS google, creada, ultimo_acceso,
+const CAMPOS = `id, correo, alias, avatar, anio_nacimiento, suspendido, COALESCE(vetado_clasificaciones, 0) AS vetado, google_id IS NOT NULL AS google, creada, ultimo_acceso,
+  (SELECT COUNT(*) FROM records r WHERE r.usuario_id = usuarios.id) AS records,
   (SELECT COUNT(*) FROM sesiones s WHERE s.usuario_id = usuarios.id AND s.caduca > datetime('now')) AS sesiones,
   (SELECT COUNT(*) FROM sugerencias g WHERE g.usuario_id = usuarios.id) AS sugerencias,
   (SELECT COUNT(*) FROM comentarios c WHERE c.usuario_id = usuarios.id) AS comentarios`;
@@ -51,6 +54,15 @@ export async function onRequestPatch({ request, params, env }) {
     consultas.push(env.DB.prepare('UPDATE usuarios SET suspendido = ? WHERE id = ?').bind(datos.suspendido ? 1 : 0, id));
   }
   if (datos.avatar) consultas.push(env.DB.prepare('UPDATE usuarios SET avatar = ? WHERE id = ?').bind(semillaAvatar(), id));
+  if (datos.vetadoClasificaciones !== undefined) {
+    consultas.push(env.DB.prepare('UPDATE usuarios SET vetado_clasificaciones = ? WHERE id = ?').bind(datos.vetadoClasificaciones ? 1 : 0, id));
+  }
+  if (datos.borrarRecords) {
+    consultas.push(
+      env.DB.prepare('DELETE FROM records WHERE usuario_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM records_mes WHERE usuario_id = ?').bind(id),
+    );
+  }
   if (!consultas.length) return error('No hay nada que cambiar.');
   await env.DB.batch(consultas);
   return json({ usuario: await env.DB.prepare(`SELECT ${CAMPOS} FROM usuarios WHERE id = ?`).bind(id).first() });

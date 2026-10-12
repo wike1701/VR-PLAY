@@ -15,6 +15,7 @@ import { juegosEnPruebas } from '../juegos/en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { MenuPausa } from './menu-pausa.js';
 import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';
+import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hayCuenta } from './clasificacion.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
@@ -342,12 +343,24 @@ function montar(indice, modulo) {
   const continuos = []; // sonidos continuos (motores...) que hay que parar al salir
   const prefijo = `vrplay:${JUEGOS[indice].id}:`;
   const espacio = `juegos.${JUEGOS[indice].id}.juego.`;
+  const idJuego = JUEGOS[indice].id;
+  // Clasificación: con la sesión iniciada, la partida se abre en el servidor al montar el juego y al
+  // terminar cada una (el servidor solo acepta resultados de partidas que abrió él)
+  let partida = abrirPartida(idJuego);
 
   // Todo lo que un juego necesita de la shell pasa por aquí.
   const ctx = {
     raiz, escena, camara, renderer, manos, raton,
     enVR: () => renderer.xr.isPresenting,
     tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
+    // El juego la llama al terminar CADA partida con su resultado: puntos, segundos, golpes… según
+    // juegos/marcadores.js. Con cuenta, va a la clasificación; la shell enseña el puesto.
+    puntuacion(valor) {
+      if (!Number.isFinite(valor)) return;
+      const abierta = partida;
+      partida = abrirPartida(idJuego);
+      enviarPuntuacion(idJuego, abierta, valor).then((r) => avisarClasificacion(idJuego, r));
+    },
     // Textos en el idioma del jugador (idiomas/<código>.js): ctx.t('fin', { n: puntos }) busca
     // juegos.<id>.juego.fin; las claves 'partida.…' son las compartidas por todos los juegos.
     t: (clave, vars) => t(clave.startsWith('partida.') ? clave : espacio + clave, vars),
@@ -541,6 +554,71 @@ function actualizarAviso(dt) {
   aviso.mesh.visible = true;
 }
 
+// ─── Clasificación: aviso al terminar una partida ────────────────────────
+// En VR, en el panel de avisos; con ratón o en el móvil, en una franja arriba de la pantalla.
+const $avisoClasificacion = document.getElementById('aviso-clasificacion');
+let temporizadorClasificacion = 0;
+let invitadoAClasificacion = false; // sin cuenta, la invitación a entrar sale una vez por visita
+
+function avisarClasificacion(juego, r) {
+  if (!r || JUEGOS[indiceActual].id !== juego) return;
+  let lineas;
+  if (r.sinCuenta) {
+    if (invitadoAClasificacion) return;
+    invitadoAClasificacion = true;
+    lineas = [{ texto: t('clasificacion.aviso.entra'), tam: 0.8, color: '#b9a8ff' }];
+  } else if (r.guardada) {
+    lineas = [
+      { texto: t(r.nuevoRecord ? 'clasificacion.aviso.nuevoRecord' : 'clasificacion.aviso.puesto', { puesto: r.puesto }), color: '#ffd54f' },
+      { texto: t('clasificacion.aviso.tuMejor', { valor: formatearValor(juego, r.mejor) }), tam: 0.7 },
+    ];
+  } else {
+    return;
+  }
+  mostrarAviso(lineas, 5);
+  $avisoClasificacion.textContent = lineas.map((l) => l.texto).join(' · ');
+  $avisoClasificacion.hidden = false;
+  clearTimeout(temporizadorClasificacion);
+  temporizadorClasificacion = setTimeout(() => { $avisoClasificacion.hidden = true; }, 5000);
+}
+
+// Las 5 primeras y tu puesto, para el menú de pausa (en VR y en la página)
+const $pausaClasificacion = document.getElementById('pausa-clasificacion');
+async function clasificacionPausa(juego) {
+  const titulo = `🏆 ${t('clasificacion.titulo')}`;
+  menuPausa.escribirClasificacion([{ texto: titulo, color: '#ffd54f' }, { texto: t('comun.cargando'), tam: 0.7 }]);
+  $pausaClasificacion.replaceChildren();
+  const datos = await pedirClasificacion(juego, { limite: 5 });
+  if (!pausado || JUEGOS[indiceActual].id !== juego) return;
+  if (!datos) {
+    menuPausa.escribirClasificacion(null);
+    return;
+  }
+  const filas = datos.top.map((p) => `${p.puesto}. ${p.alias} · ${formatearValor(juego, p.valor)}`);
+  const pie = datos.tu
+    ? t('clasificacion.tuPuesto', { puesto: datos.tu.puesto, valor: formatearValor(juego, datos.tu.valor) })
+    : (hayCuenta() ? t('clasificacion.juegaParaSalir') : t('clasificacion.aviso.entra'));
+  menuPausa.escribirClasificacion([
+    { texto: titulo, color: '#ffd54f' },
+    ...(filas.length ? filas : [t('clasificacion.vacio')]).map((texto) => ({ texto, tam: 0.62, peso: 'normal' })),
+    { texto: pie, tam: 0.6, color: '#b9a8ff' },
+  ]);
+  const enlace = Object.assign(document.createElement('a'), { href: `clasificacion.html#${juego}`, textContent: t('clasificacion.verCompleta') });
+  const lista = document.createElement('ol');
+  for (const p of datos.top) {
+    const li = document.createElement('li');
+    li.value = p.puesto;
+    li.textContent = `${p.alias} · ${formatearValor(juego, p.valor)}`;
+    lista.append(li);
+  }
+  $pausaClasificacion.append(
+    Object.assign(document.createElement('strong'), { textContent: titulo }),
+    datos.top.length ? lista : Object.assign(document.createElement('p'), { textContent: t('clasificacion.vacio') }),
+    Object.assign(document.createElement('p'), { textContent: pie }),
+    enlace,
+  );
+}
+
 // ─── Pausa: me gusta, favoritos y volver al catálogo ─────────────────────
 // En VR se abre con el botón de pausa detrás del hombro izquierdo (menú flotante);
 // con ratón o en el móvil, con el botón ⏸ o la tecla Esc (menú HTML). El juego
@@ -577,6 +655,7 @@ function pausar() {
       textosPausa();
     }
   });
+  clasificacionPausa(id);
   if (renderer.xr.isPresenting) menuPausa.abrir(cabezaPos, cabezaDir);
   else $pausa.hidden = false;
   sonido('tic');

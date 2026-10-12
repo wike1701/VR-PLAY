@@ -94,6 +94,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
   avisos_correo   INTEGER NOT NULL DEFAULT 1,
   suspendido      INTEGER NOT NULL DEFAULT 0,        -- puede jugar, pero no publicar en el foro
   listas_ocultas  INTEGER,                           -- ocultar a quién sigue y quién le sigue (NULL: sí si es menor de 18)
+  en_clasificaciones     INTEGER,                    -- 0: no sale en las clasificaciones (ajuste de privacidad)
+  vetado_clasificaciones INTEGER,                    -- 1: el administrador lo ha sacado de las clasificaciones
   creada          TEXT NOT NULL DEFAULT (datetime('now')),
   ultimo_acceso   TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -138,6 +140,35 @@ CREATE TABLE IF NOT EXISTS seguidores (
   PRIMARY KEY (seguidor_id, seguido_id)
 );
 CREATE INDEX IF NOT EXISTS seguidores_seguido ON seguidores (seguido_id);
+
+-- Clasificaciones (ver juegos/marcadores.js): el mejor resultado de cada cuenta en cada juego, de siempre y del mes
+CREATE TABLE IF NOT EXISTS records (
+  usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
+  juego      TEXT NOT NULL,
+  valor      REAL NOT NULL,                          -- puntos, segundos, golpes o diferencia, según el juego
+  fecha      TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (usuario_id, juego)
+);
+CREATE INDEX IF NOT EXISTS records_juego ON records (juego, valor);
+
+CREATE TABLE IF NOT EXISTS records_mes (
+  usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
+  juego      TEXT NOT NULL,
+  mes        TEXT NOT NULL,                          -- 'AAAA-MM'
+  valor      REAL NOT NULL,
+  fecha      TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (usuario_id, juego, mes)
+);
+CREATE INDEX IF NOT EXISTS records_mes_juego ON records_mes (juego, mes, valor);
+
+-- Partidas abiertas por el servidor: solo se acepta un resultado de una de ellas (contra trampas)
+CREATE TABLE IF NOT EXISTS partidas_abiertas (
+  token      TEXT PRIMARY KEY,                       -- hash del token que tiene el navegador
+  usuario_id INTEGER NOT NULL,
+  juego      TEXT NOT NULL,
+  creada     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS partidas_abiertas_usuario ON partidas_abiertas (usuario_id, creada);
 
 CREATE TABLE IF NOT EXISTS favoritos (
   usuario_id INTEGER NOT NULL REFERENCES usuarios (id),

@@ -339,6 +339,7 @@ export function iniciar(ctx) {
       estado = 'finPartida';
       reloj = 7;
       if (ganador === 'jugador') {
+        ctx.puntuacion(tanteo.jugador - tanteo.maquina); // diferencia al ganar (juegos/marcadores.js)
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
         decir(ctx.t('hasGanado'), '#b9f6ca');

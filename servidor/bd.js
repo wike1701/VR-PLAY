@@ -9,6 +9,7 @@ const TABLAS = [
     alias TEXT, alias_clave TEXT UNIQUE, alias_cambiado TEXT,
     avatar INTEGER NOT NULL DEFAULT 0, anio_nacimiento INTEGER,
     avisos_correo INTEGER NOT NULL DEFAULT 1, suspendido INTEGER NOT NULL DEFAULT 0, listas_ocultas INTEGER,
+    en_clasificaciones INTEGER, vetado_clasificaciones INTEGER,
     creada TEXT NOT NULL DEFAULT (datetime('now')), ultimo_acceso TEXT NOT NULL DEFAULT (datetime('now')))`,
   `CREATE TABLE IF NOT EXISTS sesiones (
     id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
@@ -31,6 +32,19 @@ const TABLAS = [
     seguidor_id INTEGER NOT NULL REFERENCES usuarios (id), seguido_id INTEGER NOT NULL REFERENCES usuarios (id),
     creada TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (seguidor_id, seguido_id))`,
   'CREATE INDEX IF NOT EXISTS seguidores_seguido ON seguidores (seguido_id)',
+  // Clasificaciones: el mejor resultado de cada cuenta en cada juego, de siempre y de cada mes
+  `CREATE TABLE IF NOT EXISTS records (
+    usuario_id INTEGER NOT NULL REFERENCES usuarios (id), juego TEXT NOT NULL, valor REAL NOT NULL,
+    fecha TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (usuario_id, juego))`,
+  'CREATE INDEX IF NOT EXISTS records_juego ON records (juego, valor)',
+  `CREATE TABLE IF NOT EXISTS records_mes (
+    usuario_id INTEGER NOT NULL REFERENCES usuarios (id), juego TEXT NOT NULL, mes TEXT NOT NULL, valor REAL NOT NULL,
+    fecha TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (usuario_id, juego, mes))`,
+  'CREATE INDEX IF NOT EXISTS records_mes_juego ON records_mes (juego, mes, valor)',
+  // Partidas abiertas: el servidor solo acepta una puntuación de una partida que abrió él (contra trampas)
+  `CREATE TABLE IF NOT EXISTS partidas_abiertas (
+    token TEXT PRIMARY KEY, usuario_id INTEGER NOT NULL, juego TEXT NOT NULL, creada TEXT NOT NULL DEFAULT (datetime('now')))`,
+  'CREATE INDEX IF NOT EXISTS partidas_abiertas_usuario ON partidas_abiertas (usuario_id, creada)',
   // «Me gusta» de los juegos (uno por navegador o cuenta)
   `CREATE TABLE IF NOT EXISTS juegos_me_gusta (
     juego TEXT NOT NULL, votante TEXT NOT NULL, ip TEXT NOT NULL DEFAULT '',
@@ -55,6 +69,8 @@ const COLUMNAS = [
   ['sugerencias', 'usuario_id', 'INTEGER'],
   ['comentarios', 'usuario_id', 'INTEGER'],
   ['usuarios', 'listas_ocultas', 'INTEGER'],
+  ['usuarios', 'en_clasificaciones', 'INTEGER'],    // NULL o 1: sale en las clasificaciones; 0: no (ajuste de privacidad)
+  ['usuarios', 'vetado_clasificaciones', 'INTEGER'], // 1: el administrador lo ha sacado de las clasificaciones
 ];
 
 let lista = null;

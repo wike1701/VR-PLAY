@@ -688,6 +688,7 @@ export function iniciar(ctx) {
           } else {
             estado = 'fin';
             reloj = 9;
+            ctx.puntuacion(total()); // golpes: menos es mejor (juegos/marcadores.js)
             if (record === null || total() < record) {
               record = total();
               ctx.guardar('record', record);

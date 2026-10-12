@@ -133,6 +133,8 @@
   }
   .pestanas button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
   .pestanas button:hover { color: var(--fg); }
+  .enlace-clasificaciones { margin-left: auto; align-self: center; color: #ffd54f; font-weight: 600; font-size: 0.9rem; text-decoration: none; white-space: nowrap; }
+  .enlace-clasificaciones:hover { text-decoration: underline; }
   .feed { display: grid; gap: 12px; max-width: 720px; padding-bottom: 8px; }
   .feed h2 { margin: 16px 0 0; font-family: var(--font-display); font-size: 1.1rem; }
   .feed .aviso-feed { color: var(--muted); margin: 0; }
@@ -402,6 +404,7 @@
   <div class="pestanas" id="pestanas" role="tablist" hidden>
     <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
     <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
+    <a class="enlace-clasificaciones" href="clasificacion.html">🏆 <span data-i18n="clasificacion.titulos">Clasificaciones</span></a>
   </div>
   <section class="feed" id="feed" hidden aria-live="polite"></section>
   <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
@@ -428,6 +431,7 @@
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
   import { favoritos, meGustaMios, estadisticasJuegos } from './shell/valoraciones.js';
   import { montarBotonCuenta, cuentasVisibles, avatar, apiCuenta, botonSeguir } from './shell/cuenta.js';
+  import { formatearValor } from './shell/clasificacion.js';
   let meGusta = meGustaMios();
 
   // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
@@ -629,7 +633,13 @@
     const cabeza = (clave, datos) => el('p', { class: 'cabeza' }, conAlias(clave, a.alias, datos), ' · ', el('span', { class: 'cuando' }, hace(ms(a.fecha))));
     const enlaceIdea = () => el('a', { class: 'idea', href: `foro.html#/s/${a.id}` }, a.titulo);
     let cuerpo;
-    if (a.tipo === 'juego') {
+    if (a.tipo === 'record') {
+      const juego = JUEGOS.find((j) => j.id === a.juego);
+      if (!juego) return null;
+      cuerpo = [cabeza('feed.record', { juego: juego.titulo, valor: formatearValor(a.juego, a.valor) }),
+        el('a', { class: 'juego-hecho', href: `clasificacion.html#${juego.id}` }, el('img', { src: juego.miniatura, alt: '' }),
+          el('span', {}, el('strong', {}, juego.titulo), `🏆 ${t('feed.verClasificacion')}`))];
+    } else if (a.tipo === 'juego') {
       const juego = JUEGOS.find((j) => j.id === a.juego);
       cuerpo = [cabeza('feed.esJuego'), juego
         ? el('a', { class: 'juego-hecho', href: `play.html#${juego.id}` }, el('img', { src: juego.miniatura, alt: '' }),
@@ -668,7 +678,7 @@
       $feed.replaceChildren(el('p', { class: 'aviso-feed' }, t(aviso)), ...sugeridos);
       return;
     }
-    $feed.replaceChildren(...datos.actividad.map(evento), ...sugeridos);
+    $feed.replaceChildren(...datos.actividad.map(evento).filter(Boolean), ...sugeridos);
   }
   document.getElementById('jugar-ya').href = `play.html#${JUEGOS[0].id}`;
 

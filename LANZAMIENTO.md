@@ -47,7 +47,7 @@ La especificación completa está en `PERFILES.md`.
 - [x] Elegir un alias único (con las mismas reglas de nombres reservados del foro)
 - [x] Pasar los favoritos y «me gusta» del navegador a la cuenta al registrarse
 - [x] Favoritos y «me gusta» guardados en la cuenta (se ven en todos los dispositivos)
-- [ ] Récords guardados en la cuenta (`ctx.record(puntos)` y adaptar los juegos uno a uno)
+- [x] Récords guardados en la cuenta y clasificaciones de siempre y del mes en los 21 juegos (`ctx.puntuacion(valor)` y `juegos/marcadores.js`)
 - [x] Sugerencias y comentarios firmados por el usuario, y no solo con un nombre libre
 - [x] Probar las cuentas en producción con `?perfiles=1` y publicarlas (`CUENTAS: "1"` en `wrangler.jsonc`, 2026-10-12)
 - [ ] Probar entrar en el Quest con el código del correo
@@ -70,7 +70,8 @@ La especificación completa está en `PERFILES.md`.
 - [ ] `sitemap.xml` y `robots.txt` (con `admin.html` excluido)
 - [ ] Tutorial la primera vez que se entra en VR: cómo cambiar de juego y cómo pausar
 - [ ] Ajustes: altura, mano dominante (zurdos), jugar sentado, volumen
-- [ ] Clasificaciones por juego (necesita los perfiles)
+- [x] Clasificaciones por juego (`clasificacion.html`, menú de pausa y perfil)
+- [ ] Insignias (Podio, Explorador…)
 - [ ] Inglés: textos de la web, catálogo y paneles 3D
 - [ ] Service worker para que cargue rápido y la app instalada funcione sin conexión
 - [ ] Publicar en Meta Horizon Store como PWA
