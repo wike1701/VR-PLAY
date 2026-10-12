@@ -13,6 +13,7 @@ import * as juegosEnPruebas from './juegos-en-pruebas.js';
 import * as juegosMeGusta from './juegos-me-gusta.js';
 import * as cuenta from './cuenta.js';
 import * as adminUsuarios from './admin-usuarios.js';
+import * as perfiles from './perfiles.js';
 import { error } from './comun.js';
 import { prepararBD } from './bd.js';
 
@@ -29,6 +30,7 @@ const RUTAS = [
   // /api/cuenta, /api/cuenta/alias, /api/cuenta/sesiones/12…
   [/^\/api\/cuenta(?:\/([a-z-]+))?(?:\/(\d+))?$/, cuenta, (c) => ({ accion: c[1], id: c[2] })],
   [/^\/api\/admin\/usuarios(?:\/(\d+))?$/, adminUsuarios],
+  [/^\/api\/perfiles(?:\/([^/]+))?$/, perfiles],
 ];
 
 export default {

@@ -50,7 +50,7 @@ La especificación completa está en `PERFILES.md`.
 - [ ] Récords guardados en la cuenta (`ctx.record(puntos)` y adaptar los juegos uno a uno)
 - [x] Sugerencias y comentarios firmados por el usuario, y no solo con un nombre libre
 - [ ] Probar las cuentas en producción con `?perfiles=1` (Google, el correo de Resend y el Quest) y publicarlas: `CUENTAS: "1"` en `wrangler.jsonc`
-- [ ] Página de perfil pública (`perfil.html#alias`)
+- [x] Página de perfil pública (`perfil.html#alias`) y buscar jugadores con `@alias` en la portada (faltan los récords y las insignias)
 - [ ] «Idea de @alias» en la ficha del juego y en el menú de pausa
 - [ ] Ajustes de privacidad: qué se ve del perfil
 - [x] Borrar la cuenta y descargar mis datos (RGPD)

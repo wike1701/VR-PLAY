@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title data-i18n="perfil.tituloPagina">Perfil · VR Play</title>
+<script src="idiomas/detectar.js"></script>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+<meta name="theme-color" content="#0f0f14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="cuenta.css">
+<style>
+  /* Perfil público: cabecera, números, juegos creados a partir de sus ideas e ideas en marcha. */
+  .numeros { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 24px; color: var(--muted); font-size: 0.92rem; }
+  .numeros strong { color: var(--fg); }
+  .juegos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .juego { display: grid; gap: 8px; text-decoration: none; }
+  .juego img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; background: var(--surface-2); }
+  .juego strong { font-size: 0.95rem; }
+  .juego:hover strong { color: var(--accent-2); }
+  .ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .ideas a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); text-decoration: none; }
+  .ideas a:hover { border-color: var(--accent); }
+  .ideas .titulo { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .ideas .gustos { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+  .estado {
+    flex: none;
+    padding: 1px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .estado.nueva { color: var(--accent-2); }
+  .estado.estudio { color: #ffd740; }
+  .estado.desarrollo { color: #ffab40; }
+  .vacio { color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor cabecera">
+    <a class="logo" href="index.html">VR<span>·</span>Play</a>
+    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
+      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
+      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
+      <span data-selector-idioma></span>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor" id="vista" aria-live="polite"></main>
+
+<footer class="contenedor">
+  <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a> · <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
+</footer>
+
+<script type="module">
+  // Perfil público de una cuenta: perfil.html#alias (ver servidor/perfiles.js).
+  import { t } from './idiomas/idiomas.js';
+  import { JUEGOS } from './juegos/catalogo.js';
+  import { estadoCuenta, avatar, fecha } from './shell/cuenta.js';
+
+  const $vista = document.getElementById('vista');
+
+  function el(etiqueta, atributos = {}, ...hijos) {
+    const nodo = document.createElement(etiqueta);
+    for (const [clave, valor] of Object.entries(atributos)) {
+      if (valor === false || valor === null || valor === undefined) continue;
+      if (clave === 'class') nodo.className = valor;
+      else nodo.setAttribute(clave, valor === true ? '' : valor);
+    }
+    for (const hijo of hijos.flat()) {
+      if (hijo === null || hijo === undefined || hijo === false) continue;
+      nodo.append(hijo instanceof Node ? hijo : String(hijo));
+    }
+    return nodo;
+  }
+
+  async function mostrar() {
+    let alias = '';
+    try { alias = decodeURIComponent(location.hash.slice(1)).replace(/^@/, ''); } catch { /* alias vacío */ }
+    $vista.replaceChildren(el('p', { class: 'entradilla' }, t('comun.cargando')));
+    let datos = null;
+    let codigo = 'no_disponible';
+    try {
+      const r = await fetch(`/api/perfiles/${encodeURIComponent(alias)}`);
+      if (r.ok) datos = await r.json();
+      else if (r.status === 404) codigo = 'perfil_no_encontrado';
+    } catch { /* sin servidor */ }
+    if (!alias || !datos) {
+      document.title = `${t('perfil.tituloPagina')}`;
+      $vista.replaceChildren(el('h1', {}, t(`cuenta.errores.${alias ? codigo : 'perfil_no_encontrado'}`)),
+        el('a', { class: 'boton', href: 'index.html' }, t('cuenta.irPortada')));
+      return;
+    }
+
+    const p = datos.perfil;
+    document.title = `${p.alias} · VR Play`;
+    const { usuario } = await estadoCuenta();
+    const esMio = usuario?.alias === p.alias;
+
+    // Juegos del catálogo hechos a partir de sus ideas
+    const juegos = p.juegos.map((s) => ({ s, juego: JUEGOS.find((j) => j.id === s.juego) })).filter((x) => x.juego);
+
+    $vista.replaceChildren(...[
+      el('div', { class: 'perfil' }, avatar(p.alias, p.avatar, 80),
+        el('div', {}, el('h1', {}, p.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(p.creada) })))),
+      el('p', { class: 'numeros' },
+        el('span', {}, el('strong', {}, p.ideas), ` ${t('perfil.ideas', { n: p.ideas })}`),
+        el('span', {}, el('strong', {}, `♥ ${p.meGusta}`), ` ${t('perfil.meGustaRecibidos', { n: p.meGusta })}`),
+        el('span', {}, el('strong', {}, p.comentarios), ` ${t('perfil.comentarios', { n: p.comentarios })}`)),
+      esMio ? el('p', {}, el('a', { class: 'boton mini secundario', href: 'cuenta.html' }, t('perfil.editarCuenta'))) : null,
+      el('section', { class: 'tarjeta' },
+        el('h2', {}, t('perfil.juegosDeSusIdeas')),
+        juegos.length
+          ? el('div', { class: 'juegos' }, juegos.map(({ juego }) => el('a', { class: 'juego', href: `play.html#${juego.id}` },
+            el('img', { src: juego.miniatura, alt: '', loading: 'lazy' }), el('strong', {}, `▶ ${juego.titulo}`))))
+          : el('p', { class: 'vacio' }, t('perfil.sinJuegos'))),
+      el('section', { class: 'tarjeta' },
+        el('h2', {}, t('perfil.ideasEnMarcha')),
+        p.enMarcha.length
+          ? el('ul', { class: 'ideas' }, p.enMarcha.map((s) => el('li', {}, el('a', { href: `foro.html#/s/${s.id}` },
+            el('span', { class: `estado ${s.estado}` }, t(`foro.estados.${s.estado}`)),
+            el('span', { class: 'titulo' }, s.titulo),
+            el('span', { class: 'gustos' }, `♥ ${s.me_gusta}`)))))
+          : el('p', { class: 'vacio' }, t('perfil.sinIdeas'))),
+    ].filter(Boolean));
+  }
+
+  window.addEventListener('hashchange', mostrar);
+  mostrar();
+</script>
+</body>
+</html>

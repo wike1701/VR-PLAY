@@ -197,6 +197,23 @@
     gap: 24px 16px;
   }
   .tarjeta { text-decoration: none; display: grid; gap: 10px; }
+  /* Jugadores encontrados con @alias en el buscador */
+  .jugadores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .jugadores h2 { grid-column: 1 / -1; margin: 0; font-family: var(--font-display); font-size: 1.1rem; }
+  .jugador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .jugador:hover { border-color: var(--accent); }
+  .jugador strong { display: block; overflow-wrap: anywhere; }
+  .jugador small { color: var(--muted); }
+  .avatar { flex: none; }
   .miniatura {
     position: relative;
     aspect-ratio: 1 / 1;
@@ -323,7 +340,7 @@
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { juegosEnPruebas } from './juegos/en-pruebas.js';
   import { favoritos, meGustaMios, totalesMeGusta } from './shell/valoraciones.js';
-  import { montarBotonCuenta } from './shell/cuenta.js';
+  import { montarBotonCuenta, cuentasVisibles, avatar } from './shell/cuenta.js';
   let meGusta = meGustaMios();
 
   // Los juegos en pruebas (su sugerencia del foro aún no está hecha) no se enseñan
@@ -373,7 +390,45 @@
       : texto.includes(p));
   }
 
+  // Con las cuentas visibles, «@alias» en el buscador busca jugadores en vez de juegos
+  let buscarJugadores = false;
+  let pedidoJugadores = 0;
+  async function pintarJugadores() {
+    const q = busqueda.trim().slice(1);
+    const pedido = ++pedidoJugadores;
+    const $seccion = document.createElement('section');
+    $seccion.className = 'jugadores';
+    const titulo = Object.assign(document.createElement('h2'), { textContent: t('inicio.jugadores') });
+    const mensaje = (texto) => Object.assign(document.createElement('p'), { className: 'vacio', textContent: texto });
+    if (!q) {
+      $seccion.append(titulo, mensaje(t('inicio.escribeAlias')));
+      return $rejilla.replaceChildren($seccion);
+    }
+    // Espera a que se deje de escribir un momento
+    await new Promise((listo) => setTimeout(listo, 200));
+    if (pedido !== pedidoJugadores) return;
+    let perfiles = [];
+    try {
+      const r = await fetch(`/api/perfiles?q=${encodeURIComponent(q)}`);
+      if (r.ok) ({ perfiles } = await r.json());
+    } catch { /* sin servidor: ninguno */ }
+    if (pedido !== pedidoJugadores) return;
+    $seccion.append(titulo, ...(perfiles.length ? perfiles.map((p) => {
+      const a = document.createElement('a');
+      a.className = 'jugador';
+      a.href = `perfil.html#${encodeURIComponent(p.alias)}`;
+      const datos = document.createElement('span');
+      datos.append(Object.assign(document.createElement('strong'), { textContent: p.alias }),
+        Object.assign(document.createElement('small'), { textContent: t('inicio.ideasN', { n: p.ideas }) }));
+      a.append(avatar(p.alias, p.avatar, 44), datos);
+      return a;
+    }) : [mensaje(t('inicio.sinJugadores'))]));
+    $rejilla.replaceChildren($seccion);
+  }
+
   function pintarRejilla() {
+    if (buscarJugadores && busqueda.trim().startsWith('@')) return pintarJugadores();
+    pedidoJugadores++;
     const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
     const lista = JUEGOS.filter((j) =>
       (generoActivo === TODOS_LOS || j.generoId === generoActivo || (generoActivo === FAVORITOS && misFavoritos.has(j.id))) &&
@@ -432,6 +487,11 @@
   });
   // Con la sesión iniciada, los favoritos y «me gusta» de la cuenta sustituyen a los del navegador
   montarBotonCuenta().then((estado) => {
+    if (estado && cuentasVisibles(estado)) {
+      buscarJugadores = true;
+      document.getElementById('buscar').placeholder = t('inicio.buscarConCuentas');
+      if (busqueda.trim().startsWith('@')) pintarRejilla();
+    }
     if (!estado?.usuario?.alias) return;
     misFavoritos = favoritos();
     meGusta = meGustaMios();

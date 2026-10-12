@@ -199,7 +199,8 @@
     if (mensaje) avisar($aviso, mensaje, 'ok');
     $vista.replaceChildren(...[
       el('div', { class: 'perfil' }, avatar(u.alias, u.avatar, 72),
-        el('div', {}, el('h1', {}, u.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(u.creada) })))),
+        el('div', {}, el('h1', {}, u.alias), el('p', {}, t('cuenta.miembroDesde', { fecha: fecha(u.creada) }), ' · ',
+          el('a', { href: `perfil.html#${encodeURIComponent(u.alias)}` }, t('perfil.verPerfil'))))),
       $aviso,
       u.suspendido ? el('p', { class: 'aviso error tarjeta' }, t('cuenta.suspendida')) : null,
       seccionPerfil(u),

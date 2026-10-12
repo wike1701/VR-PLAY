@@ -94,7 +94,9 @@
   .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
   .boton-cuenta:hover { border-color: var(--accent); }
   .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
-  .verificado { color: var(--accent-2); font-size: 0.85em; margin-left: 3px; }
+  .verificado { color: var(--accent-2); font-size: 0.85em; margin-left: 3px; text-decoration: none; }
+  .enlace-perfil { text-decoration: none; }
+  .enlace-perfil:hover { color: var(--accent-2); }
   .firma-cuenta { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; color: var(--muted); }
   .firma-cuenta strong { color: var(--fg); }
   .selector-idioma {
@@ -338,8 +340,13 @@
   const ACCIONES = t('foro.acciones');
   // Quien no pone nombre firma como «Anónimo» y una cuenta borrada como «Usuario eliminado» (lo pone el servidor, en español)
   const firma = (autor) => (autor === 'Anónimo' ? t('foro.anonimo') : autor === 'Usuario eliminado' ? t('foro.usuarioEliminado') : autor);
-  // El nombre con una marca si lo firmó alguien con la sesión iniciada (no se puede suplantar)
-  const firmaCon = (x) => [firma(x.autor), x.con_cuenta ? el('span', { class: 'verificado', title: t('foro.conCuenta'), 'aria-label': t('foro.conCuenta') }, '✔') : null];
+  // El nombre con una marca si lo firmó alguien con la sesión iniciada (no se puede suplantar).
+  // Su nombre y la marca enlazan a su perfil público.
+  const perfilDe = (autor) => `perfil.html#${encodeURIComponent(autor)}`;
+  const marca = (x) => (x.con_cuenta
+    ? el('a', { class: 'verificado', href: perfilDe(x.autor), title: `${t('foro.conCuenta')} · ${t('foro.verPerfil', { autor: x.autor })}`, 'aria-label': t('foro.verPerfil', { autor: x.autor }) }, '✔')
+    : null);
+  const firmaCon = (x) => [x.con_cuenta ? el('a', { class: 'enlace-perfil', href: perfilDe(x.autor) }, firma(x.autor)) : firma(x.autor), marca(x)];
 
   // Sesión: con cuenta se firma con el alias; sin ella, se escribe un nombre
   const cuenta = await montarBotonCuenta() || { usuario: null, visibles: false };
@@ -566,7 +573,7 @@
     $vista.replaceChildren(...[
       el('a', { class: 'volver', href: '#/' }, `← ${t('foro.todas')}`),
       el('article', { class: 'cabeza-hilo' },
-        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, t('foro.sugeridoPor', { autor: firma(s.autor), cuando: hace(s.creada) })), s.con_cuenta ? firmaCon(s)[1] : null),
+        el('div', { class: 'detalles' }, insigniaEstado(s.estado), el('span', {}, t('foro.sugeridoPor', { autor: firma(s.autor), cuando: hace(s.creada) })), marca(s)),
         el('h1', {}, s.titulo),
         el('p', { class: 'texto' }, s.descripcion),
         ficha.length ? el('dl', { class: 'ficha' }, ficha.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v)))) : null,

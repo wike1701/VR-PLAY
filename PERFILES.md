@@ -2,7 +2,7 @@
 
 Estado: **aprobada** (2026-10-11). Las decisiones están en la última sección: todas siguen la propuesta.
 
-**Hecho (2026-10-12):** entrar con Google o con enlace y código por correo, alias, año de nacimiento, sesiones, favoritos y «me gusta» en la cuenta, foro firmado con el alias, «Mi cuenta» (con descargar los datos y borrar la cuenta) y la pestaña «Usuarios» de `admin.html`. Está oculto hasta que se publique (`CUENTAS` en `wrangler.jsonc`; para probarlo, `?perfiles=1`). Cómo funciona: sección «Cuentas de usuario» del README. Lo que falta está en `LANZAMIENTO.md`.
+**Hecho (2026-10-12):** entrar con Google o con enlace y código por correo, alias, año de nacimiento, sesiones, favoritos y «me gusta» en la cuenta, foro firmado con el alias, «Mi cuenta» (con descargar los datos y borrar la cuenta), la pestaña «Usuarios» de `admin.html`, el perfil público (sin récords ni insignias todavía) y buscar jugadores con `@alias` en el buscador de la portada. Está oculto hasta que se publique (`CUENTAS` en `wrangler.jsonc`; para probarlo, `?perfiles=1`). Cómo funciona: sección «Cuentas de usuario» del README. Lo que falta está en `LANZAMIENTO.md`.
 
 Diferencias con esta especificación en lo ya hecho:
 

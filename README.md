@@ -10,7 +10,8 @@ foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
 admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
 entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
 cuenta.html             «Mi cuenta»: alias, avatar, avisos, sesiones abiertas, descargar mis datos y borrar la cuenta
-cuenta.css              Estilos de entrar.html y cuenta.html
+perfil.html             Perfil público de una cuenta (perfil.html#alias): sus juegos e ideas del foro
+cuenta.css              Estilos de entrar.html, cuenta.html y perfil.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
 servidor/               API del foro y de las cuentas: solo atiende /api/* (index.js reparte las rutas)
@@ -238,7 +239,9 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 - **Alias.** De 3 a 20 letras, números, `_` y `.`. Es único sin distinguir mayúsculas, tildes ni `_` y `.` (`Rafa`, `rafá` y `ra_fa` son el mismo). Hay alias reservados (VR Play, admin, moderador…) y una lista corta de palabras ofensivas. Se puede cambiar una vez cada 30 días, y el antiguo queda bloqueado 30 días.
 - **Sesión.** Va en una cookie `HttpOnly`, `Secure` y `SameSite=Lax`, que dura 90 días y se renueva al usarla. En la base de datos solo se guarda su hash. Las peticiones que cambian algo solo se aceptan desde la propia web (cabecera `Origin`).
 - **Lo del navegador pasa a la cuenta** al entrar: favoritos y «me gusta». Desde entonces, los «me gusta» son de la cuenta (el mismo en todos los dispositivos) y los favoritos se guardan en los dos sitios.
-- **Foro.** Con cuenta, se firma con el alias y sale una ✔. Sin cuenta nadie puede firmar con el alias de otra persona.
+- **Foro.** Con cuenta, se firma con el alias y sale una ✔. Sin cuenta nadie puede firmar con el alias de otra persona. El alias y la ✔ enlazan a su perfil.
+- **Buscar jugadores.** En el buscador de la portada, `@alias` busca cuentas en vez de juegos (`/api/perfiles?q=`). No distingue mayúsculas ni tildes, y salen primero las que empiezan así y las que tienen más ideas.
+- **Perfil público** (`perfil.html#alias`, `/api/perfiles/:alias`): avatar, alias, fecha de alta, números (ideas, «me gusta» recibidos, comentarios), los juegos hechos a partir de sus ideas y sus ideas en marcha. Nunca sale el correo, el año de nacimiento, sus favoritos ni las sugerencias ocultas o descartadas. Las cuentas suspendidas no salen ni en el buscador ni en su perfil.
 - **«Mi cuenta»** (`cuenta.html`): cambiar el alias, otro avatar, avisos por correo, dispositivos con la sesión abierta, descargar todos los datos (JSON) y borrar la cuenta. Al borrarla, sus sugerencias y comentarios quedan como «Usuario eliminado».
 - **Moderación.** En `admin.html`, pestaña «Usuarios»: buscar por alias o correo, forzar un alias, otro avatar y suspender (puede jugar, pero no publicar en el foro).
 - **Tablas.** `usuarios`, `sesiones`, `enlaces_acceso`, `alias_bloqueados` y `favoritos`, y la columna `usuario_id` en `sugerencias` y `comentarios`. El Worker las crea solas la primera vez (`servidor/bd.js`), así que no hay que ejecutar nada en la base de datos.
@@ -250,7 +253,7 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 
 **Publicarlas.** `CUENTAS` en `wrangler.jsonc` (`vars`) decide si se ve el botón «Entrar». Con `"0"` solo lo ve quien abre la web con `?perfiles=1`, que se recuerda en ese navegador (`?perfiles=0` lo quita): sirve para probarlas en producción antes de enseñarlas. Para publicarlas, cambia el valor a `"1"` y súbelo a main. Quien ya ha entrado ve siempre su avatar.
 
-**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, perfil público, «Idea de @alias», insignias, seguir perfiles y el feed, y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
+**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», insignias, seguir perfiles y el feed, y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
 
 ### Probar el foro en local
 
