@@ -192,7 +192,6 @@ export function iniciar(ctx) {
   const geoOjo = R(new THREE.SphereGeometry(0.018, 6, 4));
   const geoAla = R(new THREE.BoxGeometry(0.34, 0.025, 0.2));
   geoAla.translate(0.17, 0, 0);
-  const geoPluma = R(new THREE.PlaneGeometry(0.06, 0.03));
 
   const matPato = R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 }));
   // El pato dorado es metálico de verdad (MeshStandard: brilla con el cielo)
@@ -201,7 +200,6 @@ export function iniciar(ctx) {
   const matPico = R(new THREE.MeshLambertMaterial({ color: 0xffa000 }));
   const matOjo = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
   const matAla = R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 }));
-  const matPluma = R(new THREE.MeshBasicMaterial({ color: 0xfafafa, side: THREE.DoubleSide }));
 
   function crearPato(dorado) {
     const grupo = new THREE.Group();
@@ -326,7 +324,6 @@ export function iniciar(ctx) {
   // ─── Estado ────────────────────────────────────────────────────────────
   const patos = [];
   const flechas = [];
-  const particulas = [];
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
@@ -401,13 +398,13 @@ export function iniciar(ctx) {
     ctx.sonido('golpe');
     ctx.sonido('cuac');
     ctx.sonido('punto');
-    for (let i = 0; i < 12; i++) {
-      const p = new THREE.Mesh(geoPluma, matPluma);
-      p.position.copy(pato.grupo.position);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.6, Math.random() - 0.5).multiplyScalar(3);
-      raiz.add(p);
-      particulas.push({ malla: p, vel, vida: 1.2, giro: (Math.random() - 0.5) * 12 });
-    }
+    // Plumas que caen despacio (partículas de la shell, sin crear mallas) y el número que salta,
+    // más grande cuanto más lejos esté el pato para que se lea
+    const pos = pato.grupo.position;
+    const distancia = Math.max(1, -pos.z);
+    ctx.efectos.impacto(pato.dorado ? 'grande' : lejos ? 'medio' : 'pequeño', { pos, color: pato.dorado ? 0xffd54f : 0xf5f0e6 });
+    ctx.efectos.estallido(pos, { color: 0x8d6e4a, cantidad: 10, fuerza: 2.2, tam: 0.05, gravedad: 1.2, vida: 1.3 });
+    ctx.efectos.texto(pos, `+${valor}`, { color: pato.dorado ? '#ffd54f' : '#ffffff', tam: 1 + distancia * 0.11 });
   }
 
   function actualizarPatos(dt, t) {
@@ -637,20 +634,6 @@ export function iniciar(ctx) {
     actualizarPatos(dt, t);
     actualizarFlechas(dt);
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      p.vida -= dt;
-      p.vel.y -= 2 * dt;
-      p.vel.multiplyScalar(1 - dt * 1.5);
-      p.malla.position.addScaledVector(p.vel, dt);
-      p.malla.rotation.x += p.giro * dt;
-      p.malla.rotation.y += p.giro * dt;
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
-    }
-
     if (ctx.enVR()) {
       pivote.visible = false;
       arcoVR(dt);
@@ -673,7 +656,6 @@ export function iniciar(ctx) {
       niebla.far = nieblaOriginal.far;
       patos.length = 0;
       flechas.length = 0;
-      particulas.length = 0;
     },
   };
 }

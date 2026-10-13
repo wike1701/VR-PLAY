@@ -426,6 +426,7 @@ export default {
         'famille', 'enfants', 'facile', 'classique', 'amusant', 'slice', 'fruit',
       ],
       juego: {
+        combo: 'Combo x{n} !',
         titulo: 'TRANCHE-FRUITS',
         intro: 'Tranche les fruits · évite les bombes',
         fin: { one: 'Terminé ! {n} point', other: 'Terminé ! {n} points' },

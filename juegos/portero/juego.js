@@ -485,6 +485,9 @@ export function iniciar(ctx) {
       ctx.destello(0xff1744, 0.35);
     } else if (resultado === 'parada') {
       ctx.sonido('punto');
+      // La parada es el momento grande del juego: estallido en el balón y micro-pausa
+      ctx.efectos.impacto('grande', { pos: balon.position, color: 0xb9f6ca });
+      ctx.efectos.texto(balon.position, '+1', { color: '#b9f6ca', tam: 1.3 });
     }
   }
 

@@ -245,6 +245,7 @@ export function iniciar(ctx) {
   let ganadas = ctx.leer('ganadas', 0);
 
   const tmp = new THREE.Vector3();
+  const destino = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
   const relativa = new THREE.Vector3();
   const velMano = new THREE.Vector3();
@@ -351,6 +352,10 @@ export function iniciar(ctx) {
     colorMensaje = quien === 'jugador' ? '#b9f6ca' : '#ff8a80';
     ctx.sonido(quien === 'jugador' ? 'punto' : 'fallo');
     if (quien === 'jugador') for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
+    if (quien === 'jugador') {
+      ctx.efectos.impacto('medio', { pos, color: 0xb9f6ca });
+      ctx.efectos.texto(pos, '+1', { color: '#b9f6ca' });
+    }
     sacador = quien;
     const j = tanteo.jugador;
     const m = tanteo.maquina;
@@ -391,6 +396,7 @@ export function iniciar(ctx) {
     tiempoVivo = 0; // el seguro de "balón perdido" cuenta desde el último toque, no desde el saque
     enfriamiento = 0.25;
     ctx.sonido('bote');
+    if (quien === 'jugador') ctx.efectos.impacto('pequeño', { pos, color: 0xffffff });
     return true;
   }
 
@@ -475,7 +481,7 @@ export function iniciar(ctx) {
     // Distancia a lo largo de tu dirección para caer en la zona buena del fondo rival
     const zObjetivo = THREE.MathUtils.clamp(Z_RED - 1 - Math.max(0, -vel.z) * 0.3, Z_FONDO_MAQUINA + 0.6, Z_RED - 0.9);
     const t = (zObjetivo - pos.z) / (dirZ / horizontal);
-    const destino = new THREE.Vector3(THREE.MathUtils.clamp(pos.x + (dirX / horizontal) * t, -MEDIO_ANCHO - 1.5, MEDIO_ANCHO + 1.5), 0, zObjetivo);
+    destino.set(THREE.MathUtils.clamp(pos.x + (dirX / horizontal) * t, -MEDIO_ANCHO - 1.5, MEDIO_ANCHO + 1.5), 0, zObjetivo);
     const angulo = THREE.MathUtils.clamp(Math.atan2(vel.y, Math.max(0.1, horizontal)), 0.45, 1.25);
     vel.lerp(lanzamiento(pos, destino, angulo), AYUDA);
   }
@@ -497,7 +503,7 @@ export function iniciar(ctx) {
       // La dirección depende de dónde da en las manos; moverlas rápido es remate (más tenso)
       const desvio = (pos.x - parRaton.position.x) / R_CONTACTO_RATON;
       const remate = THREE.MathUtils.clamp(r.velocidadPx / 2500, 0, 1);
-      const destino = new THREE.Vector3(
+      destino.set(
         THREE.MathUtils.clamp(desvio * 2 + velRaton.x * 0.2, -MEDIO_ANCHO + 0.3, MEDIO_ANCHO - 0.3),
         0,
         remate > 0.5 ? Z_RED - 1 - Math.random() * 1.5 : Z_RED - 1.5 - Math.random() * 2.5,

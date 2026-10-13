@@ -345,7 +345,6 @@ export function iniciar(ctx) {
   const matInterior = TIPOS.map((t, i) => R(new THREE.MeshLambertMaterial({
     map: R(ctx.texturaCanvas(INTERIORES[t.nombre], { tam: 256, semilla: 70 + i })), side: THREE.DoubleSide,
   })));
-  const matGota = TIPOS.map((t) => R(new THREE.MeshBasicMaterial({ color: t.interior })));
 
   // Rabitos y hojas (una malla fusionada por fruta, que va como hija de la fruta)
   const matRabito = R(new THREE.MeshLambertMaterial({ color: 0x5d4037 }));
@@ -373,7 +372,6 @@ export function iniciar(ctx) {
     hoja.rotation.set(-1.1, 0, -0.5);
     malla.add(rabito, hoja);
   }
-  const geoGota = R(new THREE.SphereGeometry(0.015, 6, 4));
 
   const geoBomba = R(new THREE.SphereGeometry(0.1, 18, 12));
   const matBomba = R(new THREE.MeshStandardMaterial({ color: 0x26262b, roughness: 0.35, metalness: 0.6, emissive: 0x000000 }));
@@ -381,7 +379,6 @@ export function iniciar(ctx) {
   const matMecha = R(new THREE.MeshLambertMaterial({ color: 0xa1887f }));
   const geoChispa = R(new THREE.SphereGeometry(0.022, 6, 4));
   const matChispa = R(new THREE.MeshBasicMaterial({ color: 0xffab00 }));
-  const matHumo = R(new THREE.MeshBasicMaterial({ color: 0x424242 }));
 
   // Sombras de mancha para la fruta en el aire (se reutilizan)
   const Y_TATAMI = 0.005;
@@ -448,11 +445,15 @@ export function iniciar(ctx) {
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
   let reloj = 2.5;      // cuenta atrás del estado actual
   let tiempoJugado = 0;
+  let combo = 0;              // frutas cortadas seguidas (cada una a menos de 0,45 s de la anterior)
+  let tiempoDesdeCorte = 9;
   let proximoLanzamiento = 0;
 
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
   const tmp3 = new THREE.Vector3();
+  const direccionHoja = new THREE.Vector3();
+  const movimientoRaton = new THREE.Vector3();
   const segmento = new THREE.Line3();
 
   function actualizarMarcador() {
@@ -571,23 +572,25 @@ export function iniciar(ctx) {
     const centro = objeto.malla.position;
 
     if (objeto.bomba) {
-      ctx.sonido('bomba');
       ctx.destello(0xff3d00, 0.55);
-      if (mano) ctx.vibrar(mano, 1, 250);
-      for (let i = 0; i < 14; i++) {
-        const humo = new THREE.Mesh(geoGota, i % 2 ? matHumo : matChispa);
-        humo.scale.setScalar(2 + Math.random() * 2);
-        humo.position.copy(centro);
-        const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.2, Math.random() - 0.5).normalize().multiplyScalar(1.5 + Math.random());
-        agregarPieza(humo, vel, 0.6, null, true);
-      }
+      // Explosión: el impacto grande y humo oscuro (partículas de la shell, sin crear mallas)
+      ctx.efectos.impacto('grande', { pos: centro, mano, color: 0xffab00, sonido: 'bomba' });
+      ctx.efectos.estallido(centro, { color: 0x424242, cantidad: 16, fuerza: 1.6, tam: 0.04, gravedad: -0.5, vida: 0.9 });
+      combo = 0;
       perderVida();
       return;
     }
 
     if (estado === 'jugando') puntos++;
     ctx.sonido('corte');
-    if (mano) ctx.vibrar(mano, 0.6, 40);
+    // Zumo del color de la pulpa, el +1 y, si se cortan varias seguidas, el combo
+    const pulpa = TIPOS[objeto.tipo].interior;
+    ctx.efectos.impacto('pequeño', { pos: centro, mano, color: pulpa });
+    ctx.efectos.estallido(centro, { color: pulpa, cantidad: 10, fuerza: 1.8, tam: 0.016 });
+    combo = tiempoDesdeCorte < 0.45 ? combo + 1 : 1;
+    tiempoDesdeCorte = 0;
+    if (combo >= 3) ctx.efectos.texto(centro, ctx.t('combo', { n: combo }), { color: '#ffd54f', tam: 1.2 });
+    else ctx.efectos.texto(centro, '+1', { color: '#ffffff' });
 
     // Dos mitades que se separan a lo largo de la normal del corte
     for (const signo of [1, -1]) {
@@ -602,13 +605,6 @@ export function iniciar(ctx) {
       const vel = objeto.vel.clone().multiplyScalar(0.5).addScaledVector(dir, 1.2);
       const giro = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(6);
       agregarPieza(mitad, vel, 3, giro);
-    }
-    // Zumo
-    for (let i = 0; i < 8; i++) {
-      const gota = new THREE.Mesh(geoGota, matGota[objeto.tipo]);
-      gota.position.copy(centro);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.6, Math.random() - 0.5).normalize().multiplyScalar(1 + Math.random() * 1.5);
-      agregarPieza(gota, vel, 0.7, null, true);
     }
   }
 
@@ -626,7 +622,7 @@ export function iniciar(ctx) {
       segmento.closestPointToPoint(objeto.malla.position, true, tmp);
       if (tmp.distanceTo(objeto.malla.position) < objeto.radio + 0.03) {
         const movimiento = tmp2.subVectors(espada.punta, espada.puntaAnterior);
-        const direccion = new THREE.Vector3().subVectors(espada.punta, espada.inicio);
+        const direccion = direccionHoja.subVectors(espada.punta, espada.inicio);
         cortar(objeto, normalDeCorte(direccion, movimiento), espada.mano);
       }
     }
@@ -680,7 +676,7 @@ export function iniciar(ctx) {
     // Dirección del movimiento en el mundo, para orientar el corte
     const derecha = tmp.setFromMatrixColumn(ctx.camara.matrixWorld, 0);
     const arriba = tmp2.setFromMatrixColumn(ctx.camara.matrixWorld, 1);
-    const movimiento = new THREE.Vector3().addScaledVector(derecha, raton.mov.x).addScaledVector(arriba, -raton.mov.y);
+    const movimiento = movimientoRaton.set(0, 0, 0).addScaledVector(derecha, raton.mov.x).addScaledVector(arriba, -raton.mov.y);
     const normal = normalDeCorte(raton.rayo.ray.direction, movimiento);
 
     // Muestreamos varios rayos entre la posición anterior y la actual del ratón
@@ -712,6 +708,7 @@ export function iniciar(ctx) {
     if (estado === 'jugando') {
       const nivelAntes = nivelActual();
       tiempoJugado += dt;
+      tiempoDesdeCorte += dt;
       if (nivelActual() > nivelAntes) ctx.sonido('punto'); // aviso de subida de nivel
       proximoLanzamiento -= dt;
       if (proximoLanzamiento <= 0) lanzar();

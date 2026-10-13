@@ -236,6 +236,7 @@ export function iniciar(ctx) {
   let ganadas = ctx.leer('ganadas', 0);
 
   const tmp = new THREE.Vector3();
+  const puntoCaida = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
   const normal = new THREE.Vector3();
 
@@ -331,6 +332,11 @@ export function iniciar(ctx) {
     if (ganador === 'jugador') {
       ctx.sonido('punto');
       for (const m of ctx.manos) ctx.vibrar(m, 0.4, 80);
+      if (mejor.jugador && puntos > 0) {
+        const bola = mejor.jugador.c.malla.position;
+        ctx.efectos.impacto(puntos >= 3 ? 'grande' : 'medio', { pos: bola, color: 0xd4ff00 });
+        ctx.efectos.texto(bola, `+${puntos}`, { color: '#d4ff00', tam: 1.2 + puntos * 0.15 });
+      }
     } else {
       ctx.sonido('fallo');
     }
@@ -552,7 +558,7 @@ export function iniciar(ctx) {
     if (r.clic) {
       // Cae donde has hecho clic, con un pequeño error que crece con la distancia
       const d = Math.hypot(punto.x - ORIGEN.x, punto.z - ORIGEN.z);
-      const caida = new THREE.Vector3(punto.x + azar(0.025 * d), R_BOLA, punto.z + azar(0.03 * d));
+      const caida = puntoCaida.set(punto.x + azar(0.025 * d), R_BOLA, punto.z + azar(0.03 * d));
       const malla = crearBola('jugador');
       malla.position.copy(ORIGEN);
       lanzar('jugador', malla, velocidadPara(ORIGEN, caida));

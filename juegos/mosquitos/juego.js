@@ -400,6 +400,8 @@ export function iniciar(ctx) {
     if (estado === 'jugando') puntos++;
     ctx.sonido('plaf');
     if (mano) ctx.vibrar(mano, 0.8, 60);
+    ctx.efectos.impacto(atacando ? 'medio' : 'pequeño');
+    if (estado === 'jugando') ctx.efectos.texto(m.grupo.position, '+1', { color: atacando ? '#b9f6ca' : '#ffffff' });
     if (atacando && estado === 'jugando') avisar(ctx.t('porLosPelos'), '#b9f6ca', 1);
     // Restos
     let n = 0;
@@ -421,6 +423,7 @@ export function iniciar(ctx) {
     vidas--;
     ctx.sonido('picadura');
     ctx.destello(0xff1744, 0.45);
+    ctx.efectos.impacto('medio');
     for (const mano of ctx.manos) ctx.vibrar(mano, 1, 180);
     if (vidas <= 0) {
       terminar();

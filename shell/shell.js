@@ -17,6 +17,7 @@ import { MenuPausa } from './menu-pausa.js';
 import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';
 import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hayCuenta } from './clasificacion.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
+import { crearEfectos } from './efectos.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
@@ -275,6 +276,11 @@ function guardarRatonAnterior() {
 }
 
 // ─── Carga, montaje y desmontaje de juegos ───────────────────────────────
+// Kit de efectos común (ctx.efectos): impactos, estallidos y puntos que saltan (shell/efectos.js)
+const efectos = crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR: () => renderer.xr.isPresenting });
+// Los paneles 3D se pintan con Geist: hay que pedirla, porque un canvas no la descarga solo
+document.fonts?.load('700 40px Geist').catch(() => {});
+
 const modulos = new Map(); // índice -> Promise<módulo>
 let actual = null;         // { indice, instancia, raiz, adjuntos, recursos }
 // El juego inicial llega en la URL: play.html#topos (o play.html?juego=topos)
@@ -377,6 +383,9 @@ function montar(indice, modulo) {
     },
     crearPanel,
     sonido,
+    // Sensación de juego común (docs/CALIDAD.md): ctx.efectos.impacto('pequeño'|'medio'|'grande', { pos, mano, color, sonido }),
+    // ctx.efectos.estallido(pos, { color, cantidad }), ctx.efectos.texto(pos, '+3', { color })
+    efectos: efectos.api,
     // Sonido que dura (por ejemplo 'motor'): devuelve { ajustar(valor 0-1, volumen), parar() }.
     // La shell lo para sola al cambiar de juego.
     sonidoContinuo(nombre) {
@@ -440,6 +449,7 @@ function desmontar() {
   for (const r of actual.recursos) liberarRecurso(r);
   for (const s of actual.continuos) s.parar();
   actual = null;
+  efectos.limpiar();
 
   // Volver al estado base de la shell
   aplicarFondo(COLOR_FONDO);
@@ -476,6 +486,9 @@ async function cambiarA(indice) {
     }
 
     montar(indice, modulo);
+    // Compilar ya los materiales del juego (con la pantalla en negro): si no, la GPU los compila
+    // al verlos por primera vez y el juego da tirones en los primeros segundos
+    renderer.compile(escena, camara);
     history.replaceState(null, '', `#${JUEGOS[indice].id}`);
     aplicarVista();
   } catch (e) {
@@ -821,9 +834,11 @@ renderer.setAnimationLoop(() => {
   camara.getWorldDirection(cabezaDir);
 
   // Un error dentro de un juego no debe bloquear la shell (ni el botón de cambio)
+  efectos.antes(); // quitar la sacudida del fotograma anterior antes de que el juego mueva nada
   if (actual && !errorJuego && !pausado) {
     try {
-      actual.instancia.actualizar?.(dt, tiempo);
+      // Durante la micro-pausa de un impacto el juego recibe un dt casi nulo
+      actual.instancia.actualizar?.(efectos.escalaTiempo(dt), tiempo);
       actual.jugado += dt;
       if (!actual.contada && actual.jugado >= SEGUNDOS_PARTIDA) {
         actual.contada = true;
@@ -869,6 +884,7 @@ renderer.setAnimationLoop(() => {
     }
   }
 
+  efectos.actualizar(pausado ? 0 : dt);
   fundido.actualizar(dt);
   actualizarAviso(dt);
   renderer.render(escena, camara);

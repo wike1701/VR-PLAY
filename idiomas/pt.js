@@ -426,6 +426,7 @@ export default {
         'família', 'crianças', 'fácil', 'clássico', 'divertido', 'slice', 'fruit',
       ],
       juego: {
+        combo: 'Combo x{n}!',
         titulo: 'CORTA FRUTA',
         intro: 'Corte as frutas · evite as bombas',
         fin: { one: 'Fim! {n} ponto', other: 'Fim! {n} pontos' },

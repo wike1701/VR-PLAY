@@ -172,7 +172,6 @@ export function iniciar(ctx) {
     (x, y, z, nz) => (nz > 0.9 ? [x / (RADIO_CABEZA * 2) + 0.5, y / (RADIO_CABEZA * 2) + 0.5] : [0.5, 0.01]),
   ));
   const geoBase = R(new THREE.BoxGeometry(0.7, 0.08, 0.3));
-  const geoChispa = R(new THREE.TetrahedronGeometry(0.03));
 
   // Cartón pintado: color, grano, borde oscuro y el poste de madera en una esquina
   function pintarCarton(g, tam, azar, color) {
@@ -298,7 +297,6 @@ export function iniciar(ctx) {
   const matCabezaMalo = materialCarton(texCabezaMalo);
   const matCabezaBueno = materialCarton(texCabezaBueno);
   const matBase = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x4a3a30, { semilla: 9 })) }));
-  const matChispa = R(new THREE.MeshBasicMaterial({ color: 0xffe082 }));
 
   // Las bases no se mueven: todas en una malla instanciada
   const bases = new THREE.InstancedMesh(geoBase, matBase, HUECOS.length);
@@ -399,7 +397,6 @@ export function iniciar(ctx) {
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
-  const particulas = [];
   const rayo = new THREE.Raycaster();
   rayo.far = ALCANCE;
   let puntos = 0;
@@ -486,24 +483,24 @@ export function iniciar(ctx) {
       puntos = Math.max(0, puntos - CASTIGO_INOCENTE);
       avisar(ctx.t('inocente', { castigo: CASTIGO_INOCENTE }));
       ctx.sonido('fallo');
-      ctx.destello(0x1e88e5, 0.45);
+      ctx.destello(0xff1744, 0.45);
+      ctx.efectos.texto(choque.point, `−${CASTIGO_INOCENTE}`, { color: '#ff5d5d' });
     } else {
       aciertos += 1;
-      puntos += cabeza ? PUNTOS_CABEZA : PUNTOS_CUERPO;
+      const valor = cabeza ? PUNTOS_CABEZA : PUNTOS_CUERPO;
+      puntos += valor;
       if (cabeza) avisar(ctx.t('cabeza', { puntos: PUNTOS_CABEZA }));
       ctx.sonido('golpe');
       ctx.sonido('punto');
+      // A la cabeza, impacto medio; al cuerpo, pequeño (la vibración del disparo ya la da arriba)
+      ctx.efectos.impacto(cabeza ? 'medio' : 'pequeño', { pos: choque.point, color: 0xffcc80 });
+      ctx.efectos.texto(choque.point, `+${valor}`, { color: cabeza ? '#ffd54f' : '#ffffff', tam: cabeza ? 1.3 : 1 });
     }
   }
 
+  // Astillas de cartón donde da el disparo (partículas de la shell, sin crear mallas)
   function chispas(punto) {
-    for (let i = 0; i < 8; i++) {
-      const c = new THREE.Mesh(geoChispa, matChispa);
-      c.position.copy(punto);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.8 + 0.2, Math.random() - 0.5).multiplyScalar(3);
-      raiz.add(c);
-      particulas.push({ malla: c, vel, vida: 0.5 });
-    }
+    ctx.efectos.estallido(punto, { color: 0xffe082, cantidad: 9, fuerza: 2.6, tam: 0.014 });
   }
 
   function actualizarMuneco(m, dt, t) {
@@ -626,18 +623,6 @@ export function iniciar(ctx) {
     for (const m of munecos) actualizarMuneco(m, dt, t);
     raiz.updateMatrixWorld();
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      p.vida -= dt;
-      p.vel.y -= 6 * dt;
-      p.malla.position.addScaledVector(p.vel, dt);
-      p.malla.scale.setScalar(Math.max(0.01, p.vida / 0.5));
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
-    }
-
     const mallas = mallasActivas();
     if (ctx.enVR()) {
       pivote.visible = false;
@@ -654,7 +639,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      particulas.length = 0;
       bases.dispose();
       bombillas.dispose();
     },

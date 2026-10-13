@@ -416,6 +416,10 @@ export function iniciar(ctx) {
     colorMensaje = quien === 'jugador' ? '#b9f6ca' : '#ff8a80';
     ctx.sonido(quien === 'jugador' ? 'punto' : 'fallo');
     if (quien === 'jugador') for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
+    if (quien === 'jugador') {
+      ctx.efectos.impacto('medio', { pos, color: 0xb9f6ca });
+      ctx.efectos.texto(pos, '+1', { color: '#b9f6ca' });
+    }
     sacador = quien;
     const j = tanteo.jugador;
     const m = tanteo.maquina;
@@ -456,6 +460,7 @@ export function iniciar(ctx) {
     tiempoVivo = 0; // el seguro de "volante perdido" cuenta desde el último toque
     enfriamiento = 0.2;
     ctx.sonido('toc');
+    if (quien === 'jugador') ctx.efectos.impacto('pequeño', { pos, color: 0xffffff });
     return true;
   }
 

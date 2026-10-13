@@ -427,6 +427,7 @@ export default {
         '클래식', '재미', 'slice', 'fruit',
       ],
       juego: {
+        combo: '{n}콤보!',
         titulo: '과일 베기',
         intro: '과일을 베세요 · 폭탄은 피하세요',
         fin: '끝! {n}점',

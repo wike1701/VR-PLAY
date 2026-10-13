@@ -555,6 +555,8 @@ export function iniciar(ctx) {
     trozos(punto, matPalillo, 7, 1.2);
     ctx.sonido('clac');
     ctx.sonido('punto');
+    ctx.efectos.impacto(h.tipo.puntos >= 3 ? 'grande' : 'medio', { pos: punto, color: 0xffd54f });
+    ctx.efectos.texto(punto, `+${h.tipo.puntos}`, { color: '#b9f6ca', tam: 1.2 });
     avisar(ctx.t('premio', { n: h.tipo.puntos }), '#b9f6ca');
   }
 

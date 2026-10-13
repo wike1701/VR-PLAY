@@ -788,6 +788,7 @@ export function iniciar(ctx) {
       ctx.sonido('golpe');
       avisar(ctx.t('fuera'), '#ff8a80');
       for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.9, 120);
+      ctx.efectos.impacto('grande');
     } else {
       avisar(ctx.t('rivalFuera'), '#b9f6ca');
       rival.factor = 0.74 + Math.random() * 0.1;
@@ -807,6 +808,7 @@ export function iniciar(ctx) {
     if (!recordVuelta || t < recordVuelta) {
       recordVuelta = t;
       avisar(ctx.t('vueltaRapida', { tiempo: segundos(t) }), '#b9f6ca');
+      ctx.efectos.impacto('medio');
       ctx.sonido('anillo');
     } else {
       ctx.sonido('punto');

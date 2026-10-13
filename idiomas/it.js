@@ -426,6 +426,7 @@ export default {
         'famiglia', 'bambini', 'facile', 'classico', 'divertente', 'slice', 'fruit',
       ],
       juego: {
+        combo: 'Combo x{n}!',
         titulo: 'TAGLIA FRUTTA',
         intro: 'Taglia la frutta · evita le bombe',
         fin: { one: 'Fine! {n} punto', other: 'Fine! {n} punti' },

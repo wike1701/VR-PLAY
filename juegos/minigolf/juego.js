@@ -145,6 +145,9 @@ export function iniciar(ctx) {
   let postes = [];      // { x, z, r }
   let molinoDatos = null; // { x, z, angulo, vel, medio }
   const hoyoPos = new THREE.Vector2();
+  const puntoHoyo = new THREE.Vector3();
+  const CERO2 = new THREE.Vector2();
+  const ARRIBA = new THREE.Vector3(0, 1, 0);
   const posBola = new THREE.Vector2();   // en el campo
   const velBola = new THREE.Vector2();
   const ultimaQuieta = new THREE.Vector2();
@@ -453,7 +456,7 @@ export function iniciar(ctx) {
           return;
         }
         // Demasiado rápida: roza el borde y sigue (se frena y se desvía un poco)
-        velBola.multiplyScalar(0.75).rotateAround(new THREE.Vector2(), azar(-0.25, 0.25));
+        velBola.multiplyScalar(0.75).rotateAround(CERO2, azar(-0.25, 0.25));
       }
     }
     if (velBola.length() > VEL_MAXIMA) velBola.setLength(VEL_MAXIMA);
@@ -489,6 +492,9 @@ export function iniciar(ctx) {
     ctx.sonido('hoyo');
     if (diferencia < 0) ctx.destello(0xffd740, 0.25);
     for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.5, 120);
+    // Embocar: confeti del color del resultado (más cuanto mejor) y el nombre del golpe saltando
+    ctx.efectos.impacto(golpes === 1 || diferencia < 0 ? 'grande' : diferencia === 0 ? 'medio' : 'pequeño', { pos: bola.getWorldPosition(puntoHoyo), color: diferencia < 0 ? 0xffd740 : 0xb9f6ca });
+    ctx.efectos.texto(puntoHoyo.setY(puntoHoyo.y + 0.25), mensaje, { color: colorMensaje, tam: 1.1, vida: 1.4 });
   }
 
   // Distancia que recorre la bola si sale a velocidad v (con el rozamiento de arriba)
@@ -547,7 +553,7 @@ export function iniciar(ctx) {
     palo.position.copy(mano.posicion);
     tmp2.subVectors(tmp, mano.posicion);
     varaPalo.scale.y = tmp2.length();
-    palo.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tmp2.normalize());
+    palo.quaternion.setFromUnitVectors(ARRIBA, tmp2.normalize());
 
     // Choque con la bola (en coordenadas del campo, por subpasos)
     inversa.copy(campo.matrixWorld).invert();

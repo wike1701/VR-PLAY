@@ -480,6 +480,7 @@ export function iniciar(ctx) {
     b.malla.rotation.z += b.vel.x * dt * 4;
   }
 
+  const puntoTexto = new THREE.Vector3();
   function canasta(b) {
     meneoRed = 1;
     ctx.sonido('red');
@@ -491,6 +492,10 @@ export function iniciar(ctx) {
     puntos += valor;
     ctx.sonido('punto');
     for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
+    // Confeti en el aro y el valor saltando: más grande cuanto mejor la canasta
+    ctx.efectos.impacto(racha >= 3 || !b.toco ? 'grande' : 'medio', { pos: ARO, color: racha >= 3 ? 0xffd54f : 0xff8a3d });
+    puntoTexto.copy(ARO).y += 0.35;
+    ctx.efectos.texto(puntoTexto, `+${valor}`, { color: racha >= 3 ? '#ffd54f' : '#ffffff', tam: 1 + valor * 0.1 });
     if (racha >= 3) avisar(ctx.t('racha', { n: racha, valor }));
     else if (!b.toco) avisar(ctx.t('limpia', { valor }));
     else avisar(ctx.t('canasta', { valor }));

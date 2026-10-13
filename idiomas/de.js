@@ -426,6 +426,7 @@ export default {
         'geschwindigkeit', 'combo', 'casual', 'familie', 'kinder', 'einfach', 'klassiker', 'spaß', 'slice', 'fruit',
       ],
       juego: {
+        combo: 'Combo x{n}!',
         titulo: 'OBST-NINJA',
         intro: 'Zerschneide das Obst · weiche den Bomben aus',
         fin: { one: 'Ende! {n} Punkt', other: 'Ende! {n} Punkte' },

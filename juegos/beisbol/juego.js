@@ -482,8 +482,11 @@ export function iniciar(ctx) {
       ctx.sonido('ovacion');
       ctx.destello(0xffd740, 0.3);
       for (const m of bate.manos) ctx.vibrar(m, 1, 300);
+      ctx.efectos.estallido(bola.position, { color: 0xffd740, cantidad: 30, fuerza: 4, vida: 1.2, gravedad: 3 });
+      ctx.efectos.texto(bola.position, `+${puntosGolpe}`, { color: '#ffd740', tam: 2.5, vida: 1.6 });
     } else if (puntosGolpe > 0) {
       ctx.sonido('punto');
+      ctx.efectos.texto(bola.position, `+${puntosGolpe}`, { color: '#ffffff', tam: 1.6 + puntosGolpe * 0.3 });
     } else {
       ctx.sonido('fallo');
     }
@@ -631,6 +634,8 @@ export function iniciar(ctx) {
     estela.visible = true;
     ctx.sonido('bate');
     for (const m of bate.manos) ctx.vibrar(m, 1, 120);
+    // Batazo: micro-pausa y astillas blancas; más fuerte cuanto más rápida sale la bola
+    ctx.efectos.impacto(vel.length() > VELOCIDAD_MAXIMA * 0.6 ? 'grande' : 'medio', { pos, color: 0xfff8e1 });
   }
 
   function moverBola(dt) {

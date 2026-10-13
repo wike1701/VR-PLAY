@@ -24,6 +24,7 @@ herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificación
 herramientas/estructura.mjs  Comprobar la estructura: juegos completos, raíz limpia y ninguna ruta rota
+herramientas/calidad.mjs  Comprobar el estándar de calidad y rendimiento de cada juego (docs/CALIDAD.md)
 docs/                   ESTRUCTURA.md (dónde va cada cosa), PERFILES.md (cuentas) y LANZAMIENTO.md (lista de lanzamiento)
 .claude/skills/         Skills de Claude Code del proyecto (ver su README)
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
@@ -45,6 +46,7 @@ shell/
   cuenta.js             Sesión de la cuenta en el navegador: botón «Entrar» o avatar, avatar generado y sincronización
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
+  efectos.js            Sensación de juego (ctx.efectos): partículas, números que saltan, micro-pausa y sacudida
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
   clasificacion.js      Clasificaciones en el navegador (formato de cada unidad, enviar resultados)
@@ -131,6 +133,8 @@ export function iniciar(ctx) {
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
+  // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
+  // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
   // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»)
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
@@ -214,6 +218,8 @@ Cada juego tiene su clasificación: la **de siempre** y la **del mes**, con el t
 - **Comprobarlo**: `node herramientas/marcadores.mjs`.
 
 ## Calidad gráfica y rendimiento
+
+**El estándar completo está en [`docs/CALIDAD.md`](docs/CALIDAD.md)** (rendimiento, sensación de juego, HUD y lista antes de subir) y se comprueba con `node herramientas/calidad.mjs` (`--avisos` para ver también las recomendaciones). Ningún juego se sube con errores.
 
 El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los fotogramas del Quest. La shell ya pone tone mapping, un cielo con degradado (`ctx.fondo(color)`) y un mapa de entorno sacado de ese cielo, así que los `MeshStandardMaterial` tienen reflejos sin coste extra. El estándar para cada juego:
 

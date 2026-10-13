@@ -205,8 +205,6 @@ export function iniciar(ctx) {
   const matOjo = R(new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.15 }));
   const matNariz = R(new THREE.MeshLambertMaterial({ color: 0xf48fb1 }));
   const matDientes = R(new THREE.MeshLambertMaterial({ color: 0xfffbea }));
-  const geoEstrella = R(new THREE.OctahedronGeometry(0.018));
-  const matEstrella = R(new THREE.MeshBasicMaterial({ color: 0xffeb3b }));
 
   const topos = [];
   for (const z of [-0.34, -0.58, -0.82]) {
@@ -298,7 +296,6 @@ export function iniciar(ctx) {
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
-  const particulas = [];
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
@@ -347,19 +344,14 @@ export function iniciar(ctx) {
     if (topo.estado !== 'subiendo' && topo.estado !== 'arriba') return;
     topo.estado = 'golpeado';
     topo.t = 0;
-    puntos += topo.dorado ? 3 : 1;
+    const valor = topo.dorado ? 3 : 1;
+    puntos += valor;
     ctx.sonido('golpe');
     ctx.sonido('punto');
-    if (mano) ctx.vibrar(mano, 0.9, 70);
+    // Estrellas y el número que salta (el dorado, más fuerte): partículas de la shell, sin crear mallas
     topo.cabeza.getWorldPosition(tmp);
-    for (let i = 0; i < 7; i++) {
-      const estrella = new THREE.Mesh(geoEstrella, matEstrella);
-      estrella.position.copy(tmp);
-      const angulo = (i / 7) * Math.PI * 2;
-      const vel = new THREE.Vector3(Math.cos(angulo) * 0.6, 1.2 + Math.random() * 0.5, Math.sin(angulo) * 0.6);
-      raiz.add(estrella);
-      particulas.push({ malla: estrella, vel, vida: 0.6 });
-    }
+    ctx.efectos.impacto(topo.dorado ? 'grande' : 'medio', { pos: tmp, mano, color: 0xffeb3b });
+    ctx.efectos.texto(tmp, `+${valor}`, { color: topo.dorado ? '#ffd54f' : '#ffffff', tam: topo.dorado ? 1.3 : 1 });
   }
 
   function actualizarTopo(topo, dt) {
@@ -487,19 +479,6 @@ export function iniciar(ctx) {
 
     for (const topo of topos) actualizarTopo(topo, dt);
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      p.vida -= dt;
-      p.vel.y -= 4 * dt;
-      p.malla.position.addScaledVector(p.vel, dt);
-      p.malla.rotation.y += 8 * dt;
-      p.malla.scale.setScalar(Math.max(0.01, p.vida / 0.6));
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
-    }
-
     if (ctx.enVR()) {
       pivote.visible = false;
       golpesVR(dt);
@@ -514,8 +493,6 @@ export function iniciar(ctx) {
 
   return {
     actualizar,
-    liberar() {
-      particulas.length = 0;
-    },
+    liberar() {},
   };
 }

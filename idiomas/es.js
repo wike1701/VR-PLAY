@@ -440,6 +440,7 @@ export default {
         'fácil', 'clásico', 'divertido', 'puntos', 'récord', 'slice', 'fruit',
       ],
       juego: {
+        combo: '¡Combo x{n}!',
         titulo: 'CORTA FRUTA',
         intro: 'Corta la fruta · evita las bombas',
         fin: { one: '¡Fin! {n} punto', other: '¡Fin! {n} puntos' },

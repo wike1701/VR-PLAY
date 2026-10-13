@@ -516,6 +516,7 @@ export function iniciar(ctx) {
           enfriamientoChoque = 0.6;
           ctx.sonido('golpe');
           for (const m of ctx.manos) ctx.vibrar(m, 0.8, 120);
+          ctx.efectos.impacto('medio');
         }
       }
     }

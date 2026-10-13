@@ -241,6 +241,7 @@ export function iniciar(ctx) {
   const vistaObjetivo = new THREE.Vector3();
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
+  const frente = new THREE.Vector3();
   const segmento = new THREE.Line3();
 
   function actualizarMarcador() {
@@ -346,6 +347,7 @@ export function iniciar(ctx) {
     ctx.sonido('golpe');
     ctx.sonido('fallo');
     for (const mano of ctx.manos) ctx.vibrar(mano, 1, 200);
+    ctx.efectos.impacto('grande'); // micro-pausa y, con ratón, sacudida (en VR, la vibración de arriba)
     flecha.clavada = 1.5;
     flecha.malla.visible = false;
     if (flecha.sombra) flecha.sombra.visible = false;
@@ -415,6 +417,11 @@ export function iniciar(ctx) {
             avisar(ctx.t('porLosPelos'));
             ctx.sonido('punto');
             for (const mano of ctx.manos) ctx.vibrar(mano, 0.3, 40);
+            // La flecha ya ha pasado por detrás: el +2 sale delante de la cara
+            ctx.camara.getWorldDirection(frente);
+            frente.multiplyScalar(0.8).add(cabeza);
+            frente.y -= 0.12;
+            ctx.efectos.texto(frente, '+2', { color: '#ffd54f' });
           }
         }
       }

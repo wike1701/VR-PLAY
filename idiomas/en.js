@@ -426,6 +426,7 @@ export default {
         'family', 'kids', 'easy', 'classic', 'fun', 'score',
       ],
       juego: {
+        combo: 'Combo x{n}!',
         titulo: 'FRUIT SLICER',
         intro: 'Slice the fruit · avoid the bombs',
         fin: { one: 'Game over! {n} point', other: 'Game over! {n} points' },

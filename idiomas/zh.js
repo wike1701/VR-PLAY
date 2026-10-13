@@ -427,6 +427,7 @@ export default {
         'fruit',
       ],
       juego: {
+        combo: '{n}连击！',
         titulo: '水果忍者',
         intro: '切水果 · 躲开炸弹',
         fin: '结束！{n} 分',

@@ -387,6 +387,8 @@ export function iniciar(ctx) {
       o.malla.visible = false;
       monedas += 1;
       ctx.sonido('punto');
+      ctx.efectos.estallido(o.malla.position, { color: 0xffd54f, cantidad: 10, fuerza: 1.8 });
+      ctx.efectos.texto(o.malla.position, '+1', { color: '#ffd54f' });
       return;
     }
     if (o.tipo === 'rampa') {
@@ -410,6 +412,7 @@ export function iniciar(ctx) {
     ctx.sonido('golpe');
     ctx.sonido('fallo');
     ctx.destello(0xff1744, 0.5);
+    ctx.efectos.impacto('grande');
     for (const m of ctx.manos) ctx.vibrar(m, 1, 250);
     if (vidas <= 0) {
       estado = 'fin';

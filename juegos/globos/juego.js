@@ -484,6 +484,8 @@ export function iniciar(ctx) {
     puntos += valor;
     ctx.sonido('punto');
     for (const m of ctx.manos) ctx.vibrar(m, 0.35, 50);
+    ctx.efectos.impacto(valor >= 3 ? 'medio' : 'pequeño');
+    ctx.efectos.texto(g.pos, `+${valor}`, { color: g.dorado || valor >= 3 ? '#ffd54f' : '#ffffff', tam: 1 + valor * 0.1 });
     if (dardo && dardo.reventados >= 2) avisar(ctx.t('variosDeUnDardo', { n: dardo.reventados, valor }));
     else if (g.dorado) avisar(ctx.t('dorado', { valor }));
     else if (g.tipo !== 'fijo') avisar(ctx.t('enMovimiento', { valor }));
