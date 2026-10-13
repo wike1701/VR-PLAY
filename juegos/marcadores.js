@@ -34,7 +34,8 @@ export const MARCADORES = {
   globos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 50 },
   tirapichon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 36, minSegundos: 10 },
   mosquitos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 3, minSegundos: 3 },
-  slot: { orden: 'menor', unidad: 'tiempo', min: 10, max: 3600, minSegundos: 10 },
+  // Slot: el circuito cambia en cada carrera, así que no se comparan tiempos sino puntos (1000 = la carrera perfecta)
+  slot: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1300, minSegundos: 10 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

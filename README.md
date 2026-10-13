@@ -194,7 +194,8 @@ Cada juego tiene su clasificación: la **de siempre** y la **del mes**, con el t
 
 - **Todo juego tiene que tener puntuación y clasificación**, también los que se hagan en el futuro. Lo decide quien hace el juego (normalmente, la IA): la medida que mejor diga lo bien que se ha jugado y que no dependa solo de las horas jugadas. Ejemplos actuales:
   - **Puntos** (más es mejor): la mayoría.
-  - **Tiempo** (menos es mejor): Carreras y Circuito Slot, el tiempo de la carrera.
+  - **Tiempo** (menos es mejor): Carreras, el tiempo de la carrera.
+  - **Puntos de una carrera** (Circuito Slot): como el circuito cambia en cada carrera, no se comparan tiempos; se dan 1000 puntos por igualar la carrera perfecta de ese circuito (acelerar a tope y frenar justo antes de cada curva) y menos cuanto más se tarda.
   - **Golpes** (menos es mejor): Minigolf, el total de los 9 hoyos.
   - **Diferencia** (más es mejor): los juegos contra la máquina (Ping Pong, Bádminton, Vóley Playa, Petanca). Al ganar, tus puntos menos los suyos, así que un 11-3 da +8. Si pierdes, no se envía nada.
 - **En `juegos/marcadores.js`** va el marcador de cada juego: `orden` (`mayor`/`menor`), `unidad` (`puntos`, `tiempo`, `golpes`, `diferencia`), `min` y `max` posibles, `minSegundos` (lo mínimo que dura una partida) y, en los juegos sin final fijo, `maxPorSegundo`. El servidor y el navegador usan el mismo archivo. Una unidad nueva necesita su formato en `shell/clasificacion.js` y su frase en `clasificacion.criterio` de los idiomas.
