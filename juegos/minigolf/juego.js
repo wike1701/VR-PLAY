@@ -526,10 +526,9 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara sale del puño por el lado del meñique, a lo largo del mango (el -Z del mando
-    // va hacia el pulgar, así que la vara va por +Z), como un palo de golf de verdad;
-    // la cabeza, donde esa línea toca el suelo
-    direccion.set(0, 0, 1).transformDirection(mano.grip.matrixWorld);
+    // La vara sale del puño por el lado del pulgar, por el -Z del mando (con +Z apuntaba hacia
+    // arriba al sujetar el mando de forma natural); la cabeza, donde esa línea toca el suelo
+    direccion.set(0, 0, -1).transformDirection(mano.grip.matrixWorld);
     derechaMando.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
     let largo = LARGO_MAX;
     if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);
