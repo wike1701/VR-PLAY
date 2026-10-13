@@ -527,11 +527,14 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara sale del puño por el lado del pulgar (el -Z del mando), girada 60° hacia abajo
-    // (hacia el -Y del mando) para que con la muñeca natural llegue al suelo; la cabeza, donde
-    // esa línea toca el suelo
-    direccion.set(0, -Math.sin(INCLINACION), -Math.cos(INCLINACION)).transformDirection(mano.grip.matrixWorld);
-    derechaMando.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
+    // La vara sale del puño hacia dentro (90° a la izquierda en la mano derecha: el -X del mando;
+    // en la izquierda, al revés, el +X) y 60° hacia abajo (el -Y del mando), como se coge un putter;
+    // la cabeza, donde esa línea toca el suelo
+    const haciaDentro = mano.lado === 'left' ? 1 : -1;
+    direccion.set(haciaDentro * Math.cos(INCLINACION), -Math.sin(INCLINACION), 0).transformDirection(mano.grip.matrixWorld);
+    // La cabeza va a lo largo de la vara vista desde arriba (punta y talón), con la cara hacia el golpe
+    derechaMando.set(direccion.x, 0, direccion.z);
+    if (derechaMando.lengthSq() < 1e-6) derechaMando.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
     let largo = LARGO_MAX;
     if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);
     tmp.copy(mano.posicion).addScaledVector(direccion, largo);
