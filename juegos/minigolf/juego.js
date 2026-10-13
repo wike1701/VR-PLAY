@@ -26,9 +26,12 @@ const ALTO_PARED = 0.08;
 const GROSOR_PARED = 0.06;
 const POS_BOLA = new THREE.Vector3(0, 0, -0.45); // dónde queda la bola respecto al jugador
 // Palo
-const LARGO_MIN = 0.35;
-const LARGO_MAX = 0.8;            // como un putter corto: más largo resultaba incómodo
-const INCLINACION = THREE.MathUtils.degToRad(60); // la vara sale del mando inclinada 60° hacia abajo
+// El palo no depende de cómo se sujete el mando (cada persona lo coge distinto): la cabeza va en el
+// suelo, por delante de la mano en dirección a la bola, y la vara une la mano con la cabeza.
+const ADELANTE = 0.28;            // de la mano a la cabeza, en horizontal
+const LARGO_TOPE = 1.15;          // si la mano sube más, la cabeza se levanta del suelo
+const SEGUIR_BOLA = 2;            // lo rápido que el palo se gira hacia la bola (1/s): despacio,
+                                  // para que en el golpe la cabeza se mueva con la mano
 const RADIO_CABEZA = 0.06;       // tamaño de la cabeza del palo para el choque
 
 export function iniciar(ctx) {
@@ -508,8 +511,8 @@ export function iniciar(ctx) {
   const cabezaAnterior = new THREE.Vector3();
   let cabezaLista = false;
   let manoPalo = null;
-  const direccion = new THREE.Vector3();
-  const derechaMando = new THREE.Vector3();
+  const apunte = new THREE.Vector3(0, 0, -1);   // hacia dónde apunta el palo (horizontal)
+  const haciaBola = new THREE.Vector3();
 
   function actualizarPalo(dt) {
     const activas = ctx.manos.filter((m) => m.activa);
@@ -527,21 +530,19 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara sale del puño hacia dentro (90° a la izquierda en la mano derecha: el -X del mando;
-    // en la izquierda, al revés, el +X) y 60° hacia abajo (el -Y del mando), como se coge un putter;
-    // la cabeza, donde esa línea toca el suelo
-    const haciaDentro = mano.lado === 'left' ? 1 : -1;
-    direccion.set(haciaDentro * Math.cos(INCLINACION), -Math.sin(INCLINACION), 0).transformDirection(mano.grip.matrixWorld);
-    // La cabeza va a lo largo de la vara vista desde arriba (punta y talón), con la cara hacia el golpe
-    derechaMando.set(direccion.x, 0, direccion.z);
-    if (derechaMando.lengthSq() < 1e-6) derechaMando.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
-    let largo = LARGO_MAX;
-    if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);
-    tmp.copy(mano.posicion).addScaledVector(direccion, largo);
-    if (tmp.y < 0.018) tmp.y = 0.018;
+    // El palo apunta a la bola: la dirección sigue a la bola poco a poco, así que durante un golpe
+    // (rápido) casi no cambia y la cabeza se mueve igual que la mano
+    bola.getWorldPosition(haciaBola).sub(mano.posicion).setY(0);
+    if (haciaBola.lengthSq() > 0.0025) {
+      apunte.lerp(haciaBola.normalize(), 1 - Math.exp(-SEGUIR_BOLA * dt)).normalize();
+    }
+    // La cabeza, en el suelo y por delante de la mano; si la mano sube mucho, se levanta
+    tmp.set(mano.posicion.x + apunte.x * ADELANTE, 0.018, mano.posicion.z + apunte.z * ADELANTE);
+    tmp2.subVectors(tmp, mano.posicion);
+    if (tmp2.length() > LARGO_TOPE) tmp.copy(mano.posicion).addScaledVector(tmp2.normalize(), LARGO_TOPE);
     cabezaPalo.position.copy(tmp);
-    // Cabeza horizontal, con la cara mirando hacia delante del golpe
-    cabezaPalo.rotation.set(0, Math.atan2(-derechaMando.z, derechaMando.x), 0);
+    // Cabeza horizontal y atravesada, con la cara mirando a la bola
+    cabezaPalo.rotation.set(0, Math.atan2(apunte.x, apunte.z), 0);
     palo.position.copy(mano.posicion);
     tmp2.subVectors(tmp, mano.posicion);
     varaPalo.scale.y = tmp2.length();
