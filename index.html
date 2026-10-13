@@ -410,7 +410,7 @@
   <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
   <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
 
-  <!-- Oculto hasta que haya anuncios (ver LANZAMIENTO.md): para mostrarlo, quita «hidden». -->
+  <!-- Oculto hasta que haya anuncios (ver docs/LANZAMIENTO.md): para mostrarlo, quita «hidden». -->
   <div class="anuncio" hidden role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
 </main>
 
@@ -428,7 +428,7 @@
 <script type="module">
   import { t, hace } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
-  import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  import { juegosEnPruebas } from './shell/en-pruebas.js';
   import { favoritos, meGustaMios, estadisticasJuegos } from './shell/valoraciones.js';
   import { montarBotonCuenta, cuentasVisibles, avatar, apiCuenta, botonSeguir } from './shell/cuenta.js';
   import { formatearValor } from './shell/clasificacion.js';

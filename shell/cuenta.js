@@ -1,4 +1,4 @@
-// Cuenta de usuario en el navegador (ver PERFILES.md y servidor/cuenta.js).
+// Cuenta de usuario en el navegador (ver docs/PERFILES.md y servidor/cuenta.js).
 // - estadoCuenta(): la sesión actual ({ visibles, google, usuario }), pedida una sola vez por página.
 // - montarBotonCuenta(): el botón «Entrar» o el avatar con el alias en la cabecera (lleva a tu perfil).
 // - botonSeguir(): el botón «Seguir» / «Siguiendo» de un perfil.

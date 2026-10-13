@@ -1,4 +1,4 @@
-// Cuentas de usuario (ver PERFILES.md). Todas las rutas empiezan por /api/cuenta:
+// Cuentas de usuario (ver docs/PERFILES.md). Todas las rutas empiezan por /api/cuenta:
 //   GET    /api/cuenta                      → { visibles, google, usuario|null }
 //   DELETE /api/cuenta { confirmar }         → borra la cuenta (confirmar = el alias, o el correo si aún no tiene)
 //   POST   /api/cuenta/enlace { correo, idioma, volver } → envía el correo con el enlace y el código

@@ -29,7 +29,7 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 - [ ] Servir three.js desde la propia web, sin depender de jsDelivr
 - [ ] Versión en las URLs de los módulos (`juego.js?v=…`) o cabeceras de caché adecuadas, para que nadie se quede con una versión vieja
 - [ ] Archivo `_headers` con CSP, `X-Content-Type-Options`, `Referrer-Policy` y `Permissions-Policy` (permitiendo `xr-spatial-tracking`)
-- [ ] Que `README.md` y `LANZAMIENTO.md` no se publiquen (`.assetsignore`)
+- [ ] Que `README.md` y `docs/` no se publiquen (`.assetsignore`)
 - [ ] Copia de seguridad periódica de D1 (`wrangler d1 export`) además del historial de 30 días
 - [ ] Registro de errores del navegador: `window.onerror` y `unhandledrejection` que envíen a `/api/errores` (con límite por IP)
 - [ ] Página de error 404 propia
@@ -37,7 +37,7 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 
 ## 3. Perfiles de usuario
 
-La especificación completa está en `PERFILES.md`.
+La especificación completa está en `docs/PERFILES.md`.
 
 - [x] Decidir el método de inicio de sesión (enlace por correo + Google, y código para las gafas)
 - [x] Tablas `usuarios` y `sesiones` en `bd/esquema.sql` (las crea también el Worker solo)

@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS partidas_recientes (
 );
 CREATE INDEX IF NOT EXISTS partidas_recientes_ip ON partidas_recientes (ip, juego, creada);
 
--- ─── Cuentas de usuario (ver PERFILES.md) ─────────────────────────────────
+-- ─── Cuentas de usuario (ver docs/PERFILES.md) ─────────────────────────────────
 -- Con cuenta, los "me gusta" se guardan en las mismas tablas, con votante = hash de "cuenta:<id>".
 
 CREATE TABLE IF NOT EXISTS usuarios (

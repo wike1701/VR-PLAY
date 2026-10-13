@@ -1,4 +1,4 @@
-// Perfiles públicos y seguir a otros jugadores (ver PERFILES.md, puntos 6 y 13).
+// Perfiles públicos y seguir a otros jugadores (ver docs/PERFILES.md, puntos 6 y 13).
 //   GET  /api/perfiles?q=raf                 → { perfiles: [{ alias, avatar, ideas }] } (buscador de la portada, como mucho 12)
 //   GET  /api/perfiles/:alias                → { perfil: { alias, avatar, creada, ideas, meGusta, comentarios,
 //                                                 seguidores, seguidos, listasOcultas, loSigues, esMio, juegos, enMarcha,

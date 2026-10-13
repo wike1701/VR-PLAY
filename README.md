@@ -4,6 +4,8 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 
 ## Estructura
 
+Resumen de los archivos. Las normas de dónde va cada cosa nueva están en [`docs/ESTRUCTURA.md`](docs/ESTRUCTURA.md), y se comprueban con `node herramientas/estructura.mjs`.
+
 ```
 index.html              Portada: pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues)
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
@@ -12,7 +14,7 @@ entrar.html             Entrar en la cuenta: con Google o con un enlace y un có
 cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
 clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o #topos/mes): el top 100 y tu puesto
 perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
-cuenta.css              Estilos de entrar.html, cuenta.html y perfil.html
+estilos/cuenta.css      Estilos de entrar.html, cuenta.html, perfil.html y clasificacion.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
 servidor/               API del foro y de las cuentas: solo atiende /api/* (index.js reparte las rutas)
@@ -20,6 +22,9 @@ bd/esquema.sql          Tablas de la base de datos del foro y de las cuentas (Cl
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificación
+herramientas/estructura.mjs  Comprobar la estructura: juegos completos, raíz limpia y ninguna ruta rota
+docs/                   ESTRUCTURA.md (dónde va cada cosa), PERFILES.md (cuentas) y LANZAMIENTO.md (lista de lanzamiento)
+.claude/skills/         Skills de Claude Code del proyecto (ver su README)
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
@@ -41,6 +46,8 @@ shell/
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
+  clasificacion.js      Clasificaciones en el navegador (formato de cada unidad, enviar resultados)
+  en-pruebas.js         Qué juegos están en pruebas (no salen en el catálogo ni en la rotación)
 juegos/
   marcadores.js         Cómo puntúa cada juego en la clasificación (orden, unidad y límites contra trampas)
   catalogo.js           Lista de juegos con su género (sus textos y etiquetas están en idiomas/; el botón "siguiente" los recorre en orden aleatorio, sin repetir)
@@ -256,7 +263,7 @@ node herramientas/foro.mjs ocultar 12                   # o mostrar, ocultar-com
 
 ## Cuentas de usuario
 
-Son opcionales: se juega igual sin cuenta. La especificación completa está en `PERFILES.md`, y el código, en `servidor/cuenta.js` (rutas `/api/cuenta/*`), `servidor/sesion.js`, `servidor/google.js`, `servidor/correo.js`, `shell/cuenta.js`, `entrar.html` y `cuenta.html`.
+Son opcionales: se juega igual sin cuenta. La especificación completa está en `docs/PERFILES.md`, y el código, en `servidor/cuenta.js` (rutas `/api/cuenta/*`), `servidor/sesion.js`, `servidor/google.js`, `servidor/correo.js`, `shell/cuenta.js`, `entrar.html` y `cuenta.html`.
 
 - **Entrar.** Con Google o con el correo. Al correo llega un enlace y un código de 6 cifras. Los dos caducan en 15 minutos y solo sirven una vez. El código sirve para entrar en un dispositivo distinto del que lee el correo, por ejemplo, en las gafas. No hay contraseñas. Si el correo coincide, Google y el enlace llevan a la misma cuenta.
 - **La primera vez** se elige el alias, se escribe el año de nacimiento (hay que tener 14 años o más; si no, la cuenta se borra en el acto) y se aceptan el aviso legal y la privacidad.
@@ -281,7 +288,7 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 
 **Publicarlas.** `CUENTAS` en `wrangler.jsonc` (`vars`) decide si se ve el botón «Entrar». Con `"0"` solo lo ve quien abre la web con `?perfiles=1`, que se recuerda en ese navegador (`?perfiles=0` lo quita): sirve para probarlas en producción antes de enseñarlas. Para publicarlas, cambia el valor a `"1"` y súbelo a main. Quien ya ha entrado ve siempre su avatar.
 
-**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», bloquear cuentas, avisos de nuevos seguidores, recomendaciones en «Para ti», y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
+**Aún no están hechos** (ver `docs/LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», bloquear cuentas, avisos de nuevos seguidores, recomendaciones en «Para ti», y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
 
 ### Probar el foro en local
 

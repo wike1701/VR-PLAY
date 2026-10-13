@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { t } from '../idiomas/idiomas.js';
 import { JUEGOS } from '../juegos/catalogo.js';
-import { juegosEnPruebas } from '../juegos/en-pruebas.js';
+import { juegosEnPruebas } from './en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { MenuPausa } from './menu-pausa.js';
 import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';

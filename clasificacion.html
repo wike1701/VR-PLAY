@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="cuenta.css">
+<link rel="stylesheet" href="estilos/cuenta.css">
 <style>
   /* Clasificación de un juego: elegir juego y periodo, y la tabla con tu puesto resaltado. */
   .cabeza-juego { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
@@ -70,7 +70,7 @@
   import { t } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { MARCADORES } from './juegos/marcadores.js';
-  import { juegosEnPruebas } from './juegos/en-pruebas.js';
+  import { juegosEnPruebas } from './shell/en-pruebas.js';
   import { avatar, montarBotonCuenta, estadoCuenta } from './shell/cuenta.js';
   import { formatearValor, pedirClasificacion } from './shell/clasificacion.js';
 
