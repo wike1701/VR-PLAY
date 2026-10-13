@@ -773,8 +773,10 @@ export function iniciar(ctx) {
       if (m.dardo) {
         // El dardo apunta al frente, hacia los globos, como se coge uno de verdad: el -Z del
         // mando va a lo largo del mango (hacia arriba con el puño cerrado), así que se gira
-        // 90° hacia abajo para que la punta salga por delante de los dedos (-Y del mando)
-        mano.grip.localToWorld(m.dardo.position.set(0, -0.06, -0.03));
+        // 90° hacia abajo para que la punta salga por delante de los dedos (-Y del mando).
+        // Se coge por el medio: el cuerpo del dardo (5 cm por delante de su origen) queda en las
+        // yemas de los dedos, a 6 cm del puño, así que el origen va a 1 cm.
+        mano.grip.localToWorld(m.dardo.position.set(0, -0.01, -0.03));
         mano.grip.getWorldQuaternion(quatTmp);
         m.dardo.quaternion.copy(quatTmp).multiply(GIRO_DARDO);
         if (!mano.gatillo && !mano.apreton) {
