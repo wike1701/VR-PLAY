@@ -28,48 +28,74 @@
 <meta name="apple-mobile-web-app-title" content="VR Play">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Chakra+Petch:wght@700&family=Figtree:wght@400;500;600&display=swap">
 <style>
-  /* Portal nocturno de salón recreativo: cabecera fija, explicación del cambio de juego y rejilla de miniaturas cuadradas. */
+  /* Salón recreativo nocturno: portada a pantalla completa con un muro de juegos que se desliza,
+     un solo acento (el morado de la marca), grano fino y tarjetas que se iluminan bajo el cursor. */
   :root {
-    --bg: #0e0d16;
-    --surface: #1a1828;
-    --surface-2: #24213a;
-    --line: #34304f;
-    --fg: #f1effa;
-    --muted: #a19cbd;
-    --accent: #8f6bff;
-    --accent-2: #00e5ff;
-    --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+    --bg: #0b0a12;
+    --bg-2: #12101c;
+    --surface: #17152400;
+    --surface-1: #161423;
+    --surface-2: #1f1c30;
+    --line: #2c2843;
+    --line-suave: #221f35;
+    --fg: #f3f1fb;
+    --muted: #9d98b8;
+    --accent: #9b7bff;
+    --accent-fuerte: #7f5bff;
+    --accent-tinta: rgba(155, 123, 255, 0.16);
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-logo: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
     --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --radio: 18px;
+    --radio-chico: 10px;
+    --sombra: 0 24px 60px -24px rgba(40, 18, 110, 0.55);
+    --z-cabecera: 20;
+    --z-grano: 30;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-body);
     font-size: 1rem;
-    line-height: 1.5;
+    line-height: 1.55;
+    overflow-x: clip; /* nada puede ensanchar la página en el móvil */
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Grano fino encima de todo: quita el aspecto plano del digital */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grano);
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
   [hidden] { display: none !important; }
+  .contenedor { width: min(1240px, 100%); margin-inline: auto; padding-inline: clamp(16px, 4vw, 32px); }
 
-  .contenedor { max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
-
+  /* ─── Cabecera ─────────────────────────────────────────────────────── */
   header {
     position: sticky;
-    top: env(safe-area-inset-top, 0px);
-    z-index: 10;
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--line);
+    top: 0;
+    z-index: var(--z-cabecera);
+    padding-top: env(safe-area-inset-top, 0px);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
   }
-  .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; }
+  .cabecera { display: flex; align-items: center; gap: 12px; padding-block: 12px; min-width: 0; }
   .logo {
-    font-family: var(--font-display);
+    font-family: var(--font-logo);
     font-weight: 700;
     font-size: 1.35rem;
     letter-spacing: 0.04em;
@@ -79,47 +105,229 @@
   .logo span { color: var(--accent); }
   .buscar {
     flex: 1;
-    max-width: 480px;
+    min-width: 0;
+    max-width: 460px;
     margin-left: auto;
-    padding: 10px 16px;
-    border-radius: 999px;
+    padding: 10px 16px 10px 40px;
+    border-radius: 12px;
     border: 1px solid var(--line);
-    background: var(--surface);
+    background: var(--surface-1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239d98b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 14px 50%;
     color: var(--fg);
     font: inherit;
     font-size: 0.95rem;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
   }
   .buscar::placeholder { color: var(--muted); }
+  .buscar:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-tinta); }
   .enlace-foro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 9px 16px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--line);
     color: var(--fg);
     font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
   }
   .enlace-foro:hover { border-color: var(--accent); }
+  .enlace-foro:active { transform: translateY(1px); }
   /* «¡Crea tu juego!»: lleva al formulario del foro */
-  .enlace-foro.destacado { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .enlace-foro.destacado:hover { filter: brightness(1.1); }
-  .acciones-intro { display: flex; flex-wrap: wrap; gap: 12px; }
-  .boton-crear {
-    display: inline-block;
-    padding: 11px 22px;
-    border-radius: 999px;
-    border: 1px solid var(--accent-2);
-    color: var(--accent-2);
+  .enlace-foro.destacado { background: var(--accent-fuerte); border-color: var(--accent-fuerte); color: #fff; }
+  .enlace-foro.destacado:hover { background: var(--accent); border-color: var(--accent); }
+  .selector-idioma {
+    max-width: 120px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface-1);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .selector-idioma:hover { border-color: var(--accent); }
+  /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
+  .boton-cuenta {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
+    transition: border-color 0.2s;
   }
-  .boton-crear:hover { background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+  .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
+  .boton-cuenta:hover { border-color: var(--accent); }
+  .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
+  .avatar { flex: none; border-radius: 10px; }
+
+  /* ─── Portada: texto a un lado y el muro de juegos al otro ─────────── */
+  .portada {
+    position: relative;
+    isolation: isolate;
+    min-height: min(92dvh, 860px);
+    display: grid;
+    align-items: center;
+    overflow: hidden;
+  }
+  /* Brillos de ambiente detrás de todo (degradados radiales, no uno lineal plano) */
+  .portada::before {
+    content: "";
+    position: absolute;
+    inset: -10% -10% 0;
+    z-index: -1;
+    background:
+      radial-gradient(42% 52% at 78% 42%, rgba(127, 91, 255, 0.34), transparent 70%),
+      radial-gradient(30% 40% at 12% 18%, rgba(127, 91, 255, 0.14), transparent 70%),
+      radial-gradient(60% 50% at 50% 110%, rgba(255, 110, 180, 0.08), transparent 70%);
+  }
+  .portada .contenedor {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+    padding-block: clamp(36px, 7vh, 80px) clamp(48px, 9vh, 96px);
+  }
+  .antetitulo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0 0 22px;
+    padding: 6px 14px 6px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface-1) 70%, transparent);
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .antetitulo strong {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--accent-tinta);
+    color: #d9ccff;
+    font-weight: 600;
+  }
+  .portada h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5.6vw, 4.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  /* Japonés, coreano y chino: sus caracteres ya son anchos; sin espaciado negativo, algo más pequeño
+     y sin partir las palabras coreanas por la mitad */
+  :lang(ja) .portada h1, :lang(ko) .portada h1, :lang(zh) .portada h1 {
+    font-size: clamp(2rem, 4.2vw, 3.5rem);
+    line-height: 1.18;
+    letter-spacing: 0;
+    line-break: strict;
+  }
+  /* Solo el coreano separa las palabras con espacios: allí no se parten. En japonés y chino
+     keep-all impediría cualquier salto de línea */
+  :lang(ko) .portada h1 { word-break: keep-all; }
+  :lang(ja) .cabeza-seccion h2, :lang(ko) .cabeza-seccion h2, :lang(zh) .cabeza-seccion h2,
+  :lang(ja) .seccion-titulo, :lang(ko) .seccion-titulo, :lang(zh) .seccion-titulo { letter-spacing: 0; }
+  /* La última palabra del titular, con el acento (la pone el script) */
+  .portada h1 .resalte {
+    background: linear-gradient(100deg, #c9b8ff 0%, var(--accent) 45%, #ff8bc4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .portada .entradilla { margin: 0 0 32px; color: var(--muted); font-size: clamp(1rem, 1.3vw, 1.15rem); max-width: 50ch; text-wrap: pretty; }
+  .acciones-portada { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+  .boton-jugar {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px 16px 22px;
+    border-radius: 14px;
+    background: var(--accent-fuerte);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 18px 40px -12px rgba(127, 91, 255, 0.75);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background-color 0.2s;
+  }
+  .boton-jugar svg { width: 22px; height: 22px; }
+  .boton-jugar:hover { transform: translateY(-2px); background: var(--accent); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset, 0 24px 48px -12px rgba(127, 91, 255, 0.9); }
+  .boton-jugar:active { transform: translateY(0) scale(0.98); }
+  .enlace-texto {
+    color: var(--fg);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    text-underline-offset: 5px;
+    text-decoration-thickness: 2px;
+    transition: text-decoration-color 0.2s;
+  }
+  .enlace-texto:hover { text-decoration-color: var(--accent); }
+  .dispositivos { margin: 28px 0 0; color: var(--muted); font-size: 0.85rem; letter-spacing: 0.02em; }
+
+  /* El muro: columnas de miniaturas inclinadas que se deslizan sin parar */
+  .muro {
+    position: relative;
+    height: min(78dvh, 700px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    transform: perspective(1400px) rotateX(14deg) rotateY(-18deg) rotateZ(5deg);
+    transform-origin: 60% 50%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  }
+  .muro .columna { display: grid; gap: 14px; align-content: start; animation: subir var(--duracion, 46s) linear infinite; will-change: transform; }
+  .muro .columna:nth-child(2) { animation-direction: reverse; --duracion: 54s; }
+  .muro .columna:nth-child(3) { --duracion: 40s; }
+  .muro:hover .columna { animation-play-state: paused; }
+  @keyframes subir { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+  .baldosa {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: var(--radio);
+    overflow: hidden;
+    background: var(--surface-2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--sombra);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  }
+  .baldosa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .baldosa:hover { transform: scale(1.05); box-shadow: 0 0 0 2px var(--accent), 0 30px 60px -20px rgba(127, 91, 255, 0.8); }
+
+  /* ─── Catálogo ─────────────────────────────────────────────────────── */
+  .catalogo { padding-block: 12px 24px; scroll-margin-top: 80px; }
+  .cabeza-seccion { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 18px; }
+  .cabeza-seccion h2, .seccion-titulo {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .cabeza-seccion .contador { color: var(--muted); font-variant-numeric: tabular-nums; }
 
   /* Pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues) */
-  .pestanas { display: flex; gap: 4px; margin: 4px 0 16px; border-bottom: 1px solid var(--line); }
+  .pestanas { display: flex; align-items: center; gap: 4px; margin: 0 0 18px; border-bottom: 1px solid var(--line-suave); }
   .pestanas button {
-    padding: 10px 18px;
+    padding: 10px 16px;
     border: 0;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -130,46 +338,164 @@
     font-weight: 700;
     font-size: 1.05rem;
     cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
   }
   .pestanas button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
   .pestanas button:hover { color: var(--fg); }
-  .enlace-clasificaciones { margin-left: auto; align-self: center; color: #ffd54f; font-weight: 600; font-size: 0.9rem; text-decoration: none; white-space: nowrap; }
-  .enlace-clasificaciones:hover { text-decoration: underline; }
-  .feed { display: grid; gap: 12px; max-width: 720px; padding-bottom: 8px; }
-  .feed h2 { margin: 16px 0 0; font-family: var(--font-display); font-size: 1.1rem; }
-  .feed .aviso-feed { color: var(--muted); margin: 0; }
-  .evento {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 12px;
-    padding: 14px;
-    border-radius: 14px;
+  .enlace-clasificaciones { margin-left: auto; color: var(--fg); font-weight: 600; font-size: 0.9rem; text-decoration: none; white-space: nowrap; opacity: 0.85; }
+  .enlace-clasificaciones:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; padding-block: 0 26px; }
+  .chip {
+    padding: 7px 15px;
+    border-radius: 10px;
     border: 1px solid var(--line);
-    background: var(--surface);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
   }
+  .chip:hover { color: var(--fg); border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  .chip:active { transform: scale(0.97); }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+    gap: 28px 20px;
+  }
+  /* Tarjeta: se eleva al pasar el ratón y su borde se ilumina donde está el cursor (--x, --y) */
+  .tarjeta {
+    --x: 50%;
+    --y: 50%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    animation: aparecer 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(min(var(--i, 0), 12) * 45ms);
+  }
+  @keyframes aparecer { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .miniatura {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radio);
+    overflow: hidden;
+    background: var(--surface-2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s;
+  }
+  .miniatura::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(240px circle at var(--x) var(--y), rgba(201, 184, 255, 0.28), transparent 60%);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent) inset;
+    transition: opacity 0.3s;
+  }
+  .miniatura img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  .tarjeta:hover .miniatura, .tarjeta:focus-visible .miniatura { transform: translateY(-6px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, var(--sombra); }
+  .tarjeta:hover .miniatura::after, .tarjeta:focus-visible .miniatura::after { opacity: 1; }
+  .tarjeta:hover .miniatura img, .tarjeta:focus-visible .miniatura img { transform: scale(1.06); }
+  /* «▶ Jugar» que aparece al pasar el ratón */
+  .pastilla-jugar {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: #fff;
+    color: #120f1f;
+    font-weight: 700;
+    font-size: 0.85rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .tarjeta:hover .pastilla-jugar, .tarjeta:focus-visible .pastilla-jugar { opacity: 1; transform: none; }
+  /* Partidas y «me gusta» de cada juego */
+  .cifras { position: absolute; left: 12px; top: 12px; display: flex; gap: 6px; }
+  .insignia {
+    padding: 3px 9px;
+    border-radius: 8px;
+    background: rgba(11, 10, 18, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .insignia.gustos.mio { color: #ff9cc4; }
+  .tarjeta .texto-tarjeta { display: grid; gap: 4px; padding-inline: 2px; }
+  .tarjeta .fila-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .tarjeta h3 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  .tarjeta h3 .favorito { color: #ffd54f; }
+  .tarjeta .genero { flex: none; color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+  .meta {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .etiquetas { margin: 2px 0 0; font-size: 0.8rem; color: color-mix(in srgb, var(--accent) 75%, var(--fg)); }
+  .etiquetas:empty { display: none; }
+  .vacio { color: var(--muted); }
+
+  /* Jugadores encontrados con @alias en el buscador */
+  .jugadores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 12px; }
+  .jugadores h2 { grid-column: 1 / -1; margin: 0; font-family: var(--font-display); font-size: 1.2rem; }
+  .jugador, .persona, .evento {
+    border-radius: 14px;
+    border: 1px solid var(--line-suave);
+    background: var(--surface-1);
+  }
+  .jugador { display: flex; align-items: center; gap: 12px; padding: 12px; text-decoration: none; transition: border-color 0.2s; }
+  .jugador:hover { border-color: var(--accent); }
+  .jugador strong { display: block; overflow-wrap: anywhere; }
+  .jugador small { color: var(--muted); }
+
+  /* «Seguidos» */
+  .feed { display: grid; gap: 12px; max-width: 720px; padding-bottom: 8px; }
+  .feed h2 { margin: 16px 0 0; font-family: var(--font-display); font-size: 1.2rem; }
+  .feed .aviso-feed { color: var(--muted); margin: 0; }
+  .evento { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 14px; }
   .evento .cabeza { margin: 0 0 6px; font-size: 0.95rem; }
   .evento .cabeza a { text-decoration: none; font-weight: 600; }
-  .evento .cabeza a:hover { color: var(--accent-2); }
+  .evento .cabeza a:hover { color: var(--accent); }
   .evento .cuando { color: var(--muted); font-size: 0.82rem; }
   .evento .idea { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; }
-  .evento .idea:hover { color: var(--accent-2); }
-  .evento .estado { padding: 1px 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-family: var(--font-display); }
+  .evento .idea:hover { color: var(--accent); }
+  .evento .estado { padding: 1px 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 0.72rem; color: var(--muted); }
   .evento blockquote { margin: 6px 0 0; padding-left: 10px; border-left: 2px solid var(--line); color: var(--muted); overflow-wrap: anywhere; }
   .evento .juego-hecho { display: flex; align-items: center; gap: 12px; margin-top: 4px; text-decoration: none; }
-  .evento .juego-hecho img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; }
+  .evento .juego-hecho img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
   .evento .juego-hecho strong { display: block; }
-  .evento .juego-hecho span { color: var(--ok, #69f0ae); font-size: 0.9rem; font-weight: 600; }
-  .personas { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-  .persona { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+  .evento .juego-hecho span { color: #8ff0bd; font-size: 0.9rem; font-weight: 600; }
+  .personas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 10px; }
+  .persona { display: flex; align-items: center; gap: 10px; padding: 10px; }
   .persona a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .persona strong { display: block; overflow-wrap: anywhere; }
   .persona small { color: var(--muted); }
   .boton-feed, .persona .boton {
     display: inline-flex;
-    padding: 6px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--accent);
-    background: var(--accent);
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-fuerte);
+    background: var(--accent-fuerte);
     color: #fff;
     font: inherit;
     font-size: 0.85rem;
@@ -180,185 +506,110 @@
   }
   .persona .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
   .persona .boton:disabled { opacity: 0.6; cursor: wait; }
-  .selector-idioma {
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--fg);
-    font: inherit;
-    font-size: 0.85rem;
-    cursor: pointer;
+
+  /* ─── ¿Cómo se juega? ──────────────────────────────────────────────── */
+  .como { padding-block: clamp(56px, 9vw, 104px) 24px; scroll-margin-top: 80px; }
+  .como .seccion-titulo { margin-bottom: 28px; }
+  .pasos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 16px;
   }
-  .selector-idioma:hover { border-color: var(--accent); }
-  /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
-  .boton-cuenta {
+  .paso {
+    position: relative;
+    padding: 26px;
+    border-radius: var(--radio);
+    background: linear-gradient(160deg, var(--surface-2), var(--surface-1) 60%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
+  .paso .numero { display: block; margin-bottom: 14px; color: var(--accent); font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+  .paso h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
+  .paso p { margin: 0; color: var(--muted); font-size: 0.95rem; max-width: 46ch; }
+  .paso.esquema { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px 22px; align-items: start; }
+  .paso.esquema svg { width: 100%; height: auto; margin-top: 30px; }
+
+  /* ─── Franja «¿Tienes una idea de juego?» ──────────────────────────── */
+  .idea-juego {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-block: clamp(48px, 7vw, 88px) 0;
+    padding: clamp(28px, 5vw, 56px);
+    border-radius: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px 32px;
+    background: linear-gradient(120deg, #2a1d63, #1a1433 55%, #2b1530);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, var(--sombra);
+  }
+  .idea-juego::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(50% 120% at 100% 0%, rgba(155, 123, 255, 0.45), transparent 60%);
+  }
+  .idea-juego h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -0.03em; line-height: 1.05; }
+  .idea-juego p { margin: 0; color: #cfc8ea; max-width: 52ch; }
+  .boton-claro {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    color: var(--fg);
-    font-size: 0.9rem;
-    font-weight: 600;
+    padding: 14px 24px;
+    border-radius: 14px;
+    background: #fff;
+    color: #120f1f;
+    font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .boton-cuenta { flex: none; }
-  .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
-  .boton-cuenta:hover { border-color: var(--accent); }
-  .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
-
-  .intro {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: center;
-    padding-block: 40px 28px;
-  }
-  .intro h1 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    line-height: 1.1;
-    margin: 0 0 12px;
-    text-wrap: balance;
-  }
-  .intro p { margin: 0 0 20px; color: var(--muted); max-width: 58ch; }
-  .boton-jugar {
-    display: inline-block;
-    padding: 12px 22px;
-    border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .boton-jugar:hover { filter: brightness(1.1); }
-
-  .esquema {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: 120px minmax(0, 1fr);
-    gap: 16px;
-    align-items: center;
-  }
-  .esquema svg { width: 100%; height: auto; max-width: 120px; }
-  .esquema h2 {
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent-2);
-    margin: 0 0 6px;
-  }
-  .esquema p { margin: 0; font-size: 0.9rem; color: var(--muted); }
-
-  .filtros { display: flex; gap: 8px; flex-wrap: wrap; padding-block: 8px 20px; }
-  .chip {
-    padding: 6px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--muted);
-    font: inherit;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
-  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-
-  .rejilla {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 24px 16px;
-  }
-  .tarjeta { text-decoration: none; display: grid; gap: 10px; }
-  /* Jugadores encontrados con @alias en el buscador */
-  .jugadores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .jugadores h2 { grid-column: 1 / -1; margin: 0; font-family: var(--font-display); font-size: 1.1rem; }
-  .jugador {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 14px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    text-decoration: none;
-  }
-  .jugador:hover { border-color: var(--accent); }
-  .jugador strong { display: block; overflow-wrap: anywhere; }
-  .jugador small { color: var(--muted); }
-  .avatar { flex: none; }
-  .miniatura {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    max-width: 100%;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--surface-2);
-  }
-  .miniatura img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
-  .tarjeta:hover .miniatura img, .tarjeta:focus-visible .miniatura img { transform: scale(1.04); }
-  .insignia {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.72);
-    color: #fff;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-  }
-  /* Partidas y «me gusta» de cada juego */
-  .cifras { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 6px; }
-  .cifras .insignia { position: static; }
-  .insignia.gustos.mio { color: #ff7aa2; }
-  .tarjeta h3 { margin: 0; font-size: 1rem; font-weight: 600; }
-  .tarjeta h3 .favorito { color: #ffd54f; }
-  .meta { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
-  .etiquetas { margin: 4px 0 0; font-size: 0.8rem; color: var(--accent-2); }
-  .etiquetas:empty { display: none; }
-  .vacio { color: var(--muted); }
+  .boton-claro:hover { transform: translateY(-2px); }
+  .boton-claro:active { transform: scale(0.98); }
 
   .anuncio {
     margin-block: 40px 0;
     min-height: 90px;
     border: 1px dashed var(--line);
-    border-radius: 10px;
+    border-radius: var(--radio-chico);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--muted);
     font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
-  footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
-  footer nav { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
-  footer a { text-decoration: none; }
+  footer { padding-block: 56px 48px; color: var(--muted); font-size: 0.88rem; }
+  footer .pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 28px; border-top: 1px solid var(--line-suave); }
+  footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  footer a { text-decoration: none; transition: color 0.2s; }
   footer a:hover { color: var(--fg); }
+  footer p { margin: 0; }
 
-  @media (max-width: 760px) {
-    .intro { grid-template-columns: minmax(0, 1fr); padding-block: 28px 16px; }
+  /* ─── Pantallas pequeñas ───────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .portada { min-height: 0; }
+    .portada .contenedor { grid-template-columns: minmax(0, 1fr); padding-block: 36px 40px; }
+    .muro { height: 300px; transform: perspective(1000px) rotateX(10deg) rotateZ(4deg); margin-inline: -8px; }
+    .pasos { grid-template-columns: minmax(0, 1fr); }
   }
-  @media (max-width: 520px) {
-    .cabecera { flex-wrap: wrap; }
+  @media (max-width: 640px) {
+    .cabecera { flex-wrap: wrap; gap: 10px; }
     .buscar { max-width: none; flex-basis: 100%; margin-left: 0; order: 3; }
     .enlace-foro { margin-left: auto; }
-    .enlace-foro .texto { display: none; }
-    .boton-cuenta .texto { display: none; }
-    .esquema { grid-template-columns: 84px minmax(0, 1fr); }
+    .enlace-foro .texto, .boton-cuenta .texto { display: none; }
+    .selector-idioma { max-width: 92px; }
+    .muro { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .muro .columna { gap: 10px; }
+    .paso.esquema { grid-template-columns: 76px minmax(0, 1fr); }
+    .idea-juego { border-radius: 18px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .miniatura img { transition: none; }
+    html { scroll-behavior: auto; }
+    .muro .columna, .tarjeta { animation: none; }
+    .miniatura, .miniatura img, .baldosa, .boton-jugar, .pastilla-jugar { transition: none; }
   }
 </style>
 </head>
@@ -374,55 +625,96 @@
   </div>
 </header>
 
-<main class="contenedor">
-  <section class="intro">
-    <div>
-      <h1 data-i18n="inicio.titulo">Juegos de realidad virtual que se juegan en el navegador</h1>
-      <p data-i18n="inicio.entradilla">Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
-      <div class="acciones-intro">
-        <a class="boton-jugar" id="jugar-ya" href="play.html#fruta" data-i18n="inicio.jugarAhora">Jugar ahora</a>
-        <a class="boton-crear" href="foro.html#/nueva">💡 <span data-i18n="comun.creaTuJuego">¡Crea tu juego!</span></a>
-      </div>
-    </div>
-    <aside class="esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
-      <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
-        <circle cx="60" cy="60" r="54" fill="none" stroke="#34304f" stroke-dasharray="4 5"/>
-        <path d="M60 30 L52 44 H68 Z" fill="#a19cbd"/>
-        <ellipse cx="60" cy="66" rx="34" ry="12" fill="#24213a" stroke="#a19cbd" stroke-width="2"/>
-        <circle cx="60" cy="62" r="14" fill="#1a1828" stroke="#f1effa" stroke-width="2"/>
-        <circle cx="88" cy="92" r="10" fill="#8f6bff"/>
-        <circle cx="88" cy="92" r="15" fill="none" stroke="#00e5ff" stroke-width="2"/>
-        <text x="60" y="18" fill="#a19cbd" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
-      </svg>
+<main>
+  <section class="portada">
+    <div class="contenedor">
       <div>
-        <h2 data-i18n="inicio.cambiarTitulo">Cambiar de juego en VR</h2>
-        <p data-i18n="inicio.cambiarTexto">Lleva la mano por encima de tu hombro derecho, hacia atrás. Déjala medio segundo en el botón o aprieta el gatillo y pasarás al siguiente juego sin quitarte las gafas. El mando vibra más rápido cuanto más cerca estás.</p>
+        <p class="antetitulo"><strong id="cuantos-juegos"></strong><span data-i18n="inicio.etiquetaHero">Gratis y sin instalar</span></p>
+        <h1 id="titular" data-i18n="inicio.titulo">Juegos de realidad virtual que se juegan en el navegador</h1>
+        <p class="entradilla" data-i18n="inicio.entradilla">Abre la web en tus gafas Meta Quest y pulsa «Entrar en VR». Sin gafas también puedes jugar con el ratón.</p>
+        <div class="acciones-portada">
+          <a class="boton-jugar" id="jugar-ya" href="play.html#fruta">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10-6.4c.6-.4.6-1.4 0-1.8l-10-6.4C8.9 4.3 8 4.8 8 5.6Z"/></svg>
+            <span data-i18n="inicio.jugarAhora">Jugar ahora</span>
+          </a>
+          <a class="enlace-texto" href="#como" data-i18n="inicio.comoSeJuega">¿Cómo se juega?</a>
+        </div>
+        <p class="dispositivos" data-i18n="inicio.dispositivos">Meta Quest · ratón · móvil</p>
       </div>
-    </aside>
+      <div class="muro" id="muro" role="group" data-i18n-attr="aria-label:inicio.muro" aria-label="Algunos de los juegos"></div>
+    </div>
   </section>
 
-  <div class="pestanas" id="pestanas" role="tablist" hidden>
-    <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
-    <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
-    <a class="enlace-clasificaciones" href="clasificacion.html">🏆 <span data-i18n="clasificacion.titulos">Clasificaciones</span></a>
-  </div>
-  <section class="feed" id="feed" hidden aria-live="polite"></section>
-  <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
-  <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
+  <section class="contenedor catalogo" id="juegos">
+    <div class="cabeza-seccion">
+      <h2 data-i18n="inicio.todosLosJuegos">Todos los juegos</h2>
+      <span class="contador" id="contador"></span>
+    </div>
+    <div class="pestanas" id="pestanas" role="tablist" hidden>
+      <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
+      <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
+      <a class="enlace-clasificaciones" href="clasificacion.html">🏆 <span data-i18n="clasificacion.titulos">Clasificaciones</span></a>
+    </div>
+    <section class="feed" id="feed" hidden aria-live="polite"></section>
+    <div class="filtros" id="filtros" role="group" data-i18n-attr="aria-label:inicio.filtrar" aria-label="Filtrar por género"></div>
+    <section class="rejilla" id="rejilla" data-i18n-attr="aria-label:comun.juegos" aria-label="Juegos"></section>
 
-  <!-- Oculto hasta que haya anuncios (ver docs/LANZAMIENTO.md): para mostrarlo, quita «hidden». -->
-  <div class="anuncio" hidden role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
+    <!-- Oculto hasta que haya anuncios (ver docs/LANZAMIENTO.md): para mostrarlo, quita «hidden». -->
+    <div class="anuncio" hidden role="complementary" data-i18n-attr="aria-label:inicio.publicidad" aria-label="Publicidad" data-i18n="inicio.espacioPublicitario">Espacio publicitario</div>
+  </section>
+
+  <section class="contenedor como" id="como">
+    <h2 class="seccion-titulo" data-i18n="inicio.comoSeJuega">¿Cómo se juega?</h2>
+    <div class="pasos">
+      <article class="paso">
+        <span class="numero">01</span>
+        <h3 data-i18n="inicio.pasoQuestTitulo">Con gafas Meta Quest</h3>
+        <p data-i18n="inicio.pasoQuestTexto">Abre vrplaygame.com en el navegador de las gafas, elige un juego y pulsa «Entrar en VR».</p>
+      </article>
+      <article class="paso esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
+        <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#2c2843" stroke-dasharray="4 5"/>
+          <path d="M60 30 L52 44 H68 Z" fill="#9d98b8"/>
+          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#1f1c30" stroke="#9d98b8" stroke-width="2"/>
+          <circle cx="60" cy="62" r="14" fill="#161423" stroke="#f3f1fb" stroke-width="2"/>
+          <circle cx="88" cy="92" r="10" fill="#9b7bff"/>
+          <circle cx="88" cy="92" r="15" fill="none" stroke="#c9b8ff" stroke-width="2"/>
+          <text x="60" y="18" fill="#9d98b8" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
+        </svg>
+        <div>
+          <span class="numero">02</span>
+          <h3 data-i18n="inicio.cambiarTitulo">Cambiar de juego en VR</h3>
+          <p data-i18n="inicio.cambiarTexto">Lleva la mano por encima de tu hombro derecho, hacia atrás. Déjala medio segundo en el botón o aprieta el gatillo y pasarás al siguiente juego sin quitarte las gafas. El mando vibra más rápido cuanto más cerca estás.</p>
+        </div>
+      </article>
+      <article class="paso">
+        <span class="numero">03</span>
+        <h3 data-i18n="inicio.pasoSinGafasTitulo">Sin gafas</h3>
+        <p data-i18n="inicio.pasoSinGafasTexto">Los mismos juegos se juegan con el ratón en el ordenador o con el dedo en el móvil.</p>
+      </article>
+    </div>
+
+    <aside class="idea-juego">
+      <div>
+        <h2 data-i18n="inicio.creaTitulo">¿Tienes una idea de juego?</h2>
+        <p data-i18n="inicio.creaTexto">Proponla en el foro. Las que más gustan se convierten en juegos de verdad.</p>
+      </div>
+      <a class="boton-claro" href="foro.html#/nueva">💡 <span data-i18n="comun.creaTuJuego">¡Crea tu juego!</span></a>
+    </aside>
+  </section>
 </main>
 
 <footer class="contenedor">
-  <nav>
-    <a href="foro.html" data-i18n="comun.sugerirJuego">Sugerir un juego</a>
-    <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a>
-    <a href="legal.html#cookies" data-i18n="comun.cookies">Cookies</a>
-    <a href="legal.html#contacto" data-i18n="comun.contacto">Contacto</a>
-    <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
-  </nav>
-  <p>© 2026 VR Play</p>
+  <div class="pie">
+    <nav>
+      <a href="foro.html" data-i18n="comun.sugerirJuego">Sugerir un juego</a>
+      <a href="legal.html#privacidad" data-i18n="comun.privacidad">Privacidad</a>
+      <a href="legal.html#cookies" data-i18n="comun.cookies">Cookies</a>
+      <a href="legal.html#contacto" data-i18n="comun.contacto">Contacto</a>
+      <a href="legal.html#aviso-legal" data-i18n="comun.avisoLegal">Aviso legal</a>
+    </nav>
+    <p>© 2026 VR Play</p>
+  </div>
 </footer>
 
 <script type="module">
@@ -455,6 +747,7 @@
 
   const $filtros = document.getElementById('filtros');
   const $rejilla = document.getElementById('rejilla');
+  const $contador = document.getElementById('contador');
 
   function pintarFiltros() {
     $filtros.replaceChildren(...generos.map((g) => {
@@ -535,23 +828,26 @@
       return;
     }
 
-    $rejilla.replaceChildren(...lista.map((j) => {
+    $contador.textContent = t('inicio.juegosN', { n: lista.length });
+    $rejilla.replaceChildren(...lista.map((j, i) => {
       const a = document.createElement('a');
       a.className = 'tarjeta';
       a.href = `play.html#${j.id}`;
+      a.style.setProperty('--i', i); // entrada escalonada
       a.innerHTML = `
         <div class="miniatura">
           <img alt="" loading="lazy">
-          <span class="insignia"></span>
+          <span class="pastilla-jugar" aria-hidden="true">▶ <span class="txt"></span></span>
         </div>
-        <div>
-          <h3></h3>
+        <div class="texto-tarjeta">
+          <div class="fila-titulo"><h3></h3><span class="genero"></span></div>
           <p class="meta"></p>
           <p class="etiquetas"></p>
         </div>`;
       a.querySelector('img').src = j.miniatura;
-      a.querySelector('.insignia').textContent = t('inicio.insignia');
+      a.querySelector('.pastilla-jugar .txt').textContent = t('inicio.jugar');
       a.querySelector('h3').textContent = j.titulo;
+      a.querySelector('.genero').textContent = j.genero;
       if (misFavoritos.has(j.id)) a.querySelector('h3').append(Object.assign(document.createElement('span'), { className: 'favorito', textContent: ' ★', title: t('inicio.enFavoritos') }));
       // Partidas y «me gusta», abajo a la izquierda de la miniatura
       const cifras = totales[j.id] || {};
@@ -569,9 +865,9 @@
         }
         a.querySelector('.miniatura').append($cifras);
       }
-      a.querySelector('.meta').textContent = `${j.genero} · ${j.descripcion}`;
+      a.querySelector('.meta').textContent = j.descripcion;
       // Solo las primeras: el resto sirven para buscar pero saturarían la tarjeta
-      a.querySelector('.etiquetas').textContent = (j.etiquetas || []).slice(0, 6).map((e) => '#' + e).join(' ');
+      a.querySelector('.etiquetas').textContent = (j.etiquetas || []).slice(0, 3).map((e) => '#' + e).join('  ');
       return a;
     }));
   }
@@ -681,6 +977,51 @@
     $feed.replaceChildren(...datos.actividad.map(evento).filter(Boolean), ...sugeridos);
   }
   document.getElementById('jugar-ya').href = `play.html#${JUEGOS[0].id}`;
+
+  // ─── Portada ───────────────────────────────────────────────────────────
+  document.getElementById('cuantos-juegos').textContent = t('inicio.juegosN', { n: JUEGOS.length });
+
+  // La última palabra del titular, con el color del acento (en japonés, coreano y chino no hay
+  // espacios entre palabras: allí se queda tal cual)
+  const $titular = document.getElementById('titular');
+  const palabrasTitular = $titular.textContent.trim().split(' ');
+  if (palabrasTitular.length > 2) {
+    const ultima = palabrasTitular.pop();
+    $titular.replaceChildren(`${palabrasTitular.join(' ')} `, Object.assign(document.createElement('span'), { className: 'resalte', textContent: ultima }));
+  }
+
+  // Muro de juegos: tres columnas de miniaturas que se deslizan sin parar. Cada columna lleva sus
+  // juegos dos veces para que el bucle no se note; las copias no se leen ni se alcanzan con el tabulador.
+  const $muro = document.getElementById('muro');
+  const barajados = [...JUEGOS].sort(() => Math.random() - 0.5);
+  const columnas = [[], [], []];
+  barajados.forEach((j, i) => columnas[i % 3].push(j));
+  for (const lista of columnas) {
+    const $columna = Object.assign(document.createElement('div'), { className: 'columna' });
+    for (const copia of [false, true]) {
+      for (const j of lista) {
+        const a = Object.assign(document.createElement('a'), { className: 'baldosa', href: `play.html#${j.id}` });
+        if (copia) {
+          a.setAttribute('aria-hidden', 'true');
+          a.tabIndex = -1;
+        } else {
+          a.setAttribute('aria-label', j.titulo);
+        }
+        a.append(Object.assign(document.createElement('img'), { src: j.miniatura, alt: '', decoding: 'async' }));
+        $columna.append(a);
+      }
+    }
+    $muro.append($columna);
+  }
+
+  // Brillo del borde de la tarjeta siguiendo al cursor
+  $rejilla.addEventListener('pointermove', (e) => {
+    const tarjeta = e.target.closest('.tarjeta');
+    if (!tarjeta) return;
+    const r = tarjeta.getBoundingClientRect();
+    tarjeta.style.setProperty('--x', `${e.clientX - r.left}px`);
+    tarjeta.style.setProperty('--y', `${e.clientY - r.top}px`);
+  });
 
   pintarFiltros();
   pintarRejilla();
