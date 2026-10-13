@@ -18,27 +18,13 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0f0f14">
+<meta name="theme-color" content="#0a0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="estilos/base.css">
 <style>
   /* Mismo portal nocturno que el catálogo: lista de hilos, hilo con respuesta anclada y formulario guiado. */
-  :root {
-    --bg: #0e0d16;
-    --surface: #1a1828;
-    --surface-2: #24213a;
-    --line: #34304f;
-    --fg: #f1effa;
-    --muted: #a19cbd;
-    --accent: #8f6bff;
-    --accent-2: #00e5ff;
-    --like: #ff5c8a;
-    --ok: #69f0ae;
-    --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
-    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    color-scheme: dark;
-  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
@@ -82,7 +68,7 @@
     align-items: center;
     gap: 8px;
     padding: 5px 14px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--line);
     color: var(--fg);
     font-size: 0.9rem;
@@ -101,7 +87,7 @@
   .firma-cuenta strong { color: var(--fg); }
   .selector-idioma {
     padding: 5px 8px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--line);
     background: var(--surface);
     color: var(--fg);
@@ -120,10 +106,10 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--accent);
     background: var(--accent);
-    color: #fff;
+    color: var(--sobre-accent);
     font: inherit;
     font-weight: 600;
     text-decoration: none;
@@ -140,7 +126,7 @@
   .barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-block: 16px 20px; }
   .chip {
     padding: 6px 14px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--line);
     background: var(--surface);
     color: var(--muted);
@@ -153,7 +139,7 @@
     width: auto;
     margin-left: auto;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--line);
     background: var(--surface);
     color: var(--fg);
@@ -195,7 +181,7 @@
   .me-gusta .corazon { font-size: 1.2rem; line-height: 1; }
   .me-gusta[aria-pressed="true"] { color: var(--like); border-color: var(--like); }
   .me-gusta:disabled { cursor: wait; }
-  .me-gusta.en-linea { display: inline-flex; grid-auto-flow: column; gap: 8px; padding: 8px 14px; border-radius: 999px; }
+  .me-gusta.en-linea { display: inline-flex; grid-auto-flow: column; gap: 8px; padding: 8px 14px; border-radius: 12px; }
 
   .estado {
     display: inline-block;
@@ -253,7 +239,7 @@
     padding: 0 7px;
     border-radius: 5px;
     background: var(--accent);
-    color: #fff;
+    color: var(--sobre-accent);
     font-size: 0.72rem;
     font-weight: 600;
   }
@@ -297,7 +283,7 @@
     .menu { gap: 12px; }
     .boton-cuenta .texto { display: none; }
     .hilo { grid-template-columns: minmax(0, 1fr); }
-    .hilo .me-gusta { justify-self: start; grid-auto-flow: column; gap: 8px; padding: 6px 12px; border-radius: 999px; }
+    .hilo .me-gusta { justify-self: start; grid-auto-flow: column; gap: 8px; padding: 6px 12px; border-radius: 12px; }
     .selector { margin-left: 0; }
   }
 </style>

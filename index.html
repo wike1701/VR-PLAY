@@ -20,7 +20,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0f0f14">
+<meta name="theme-color" content="#0a0b10">
 <!-- iPhone: al abrirla desde la pantalla de inicio, sin barras de Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -28,32 +28,15 @@
 <meta name="apple-mobile-web-app-title" content="VR Play">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Chakra+Petch:wght@700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="estilos/base.css">
 <style>
   /* Salón recreativo nocturno: portada a pantalla completa con un muro de juegos que se desliza,
      un solo acento (el morado de la marca), grano fino y tarjetas que se iluminan bajo el cursor. */
+  /* Colores y fuentes: estilos/base.css. Aquí solo lo propio de la portada */
   :root {
-    --bg: #0b0a12;
-    --bg-2: #12101c;
-    --surface: #17152400;
-    --surface-1: #161423;
-    --surface-2: #1f1c30;
-    --line: #2c2843;
-    --line-suave: #221f35;
-    --fg: #f3f1fb;
-    --muted: #9d98b8;
-    --accent: #9b7bff;
-    --accent-fuerte: #7f5bff;
-    --accent-tinta: rgba(155, 123, 255, 0.16);
-    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --font-logo: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
-    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --radio: 18px;
-    --radio-chico: 10px;
-    --sombra: 0 24px 60px -24px rgba(40, 18, 110, 0.55);
     --z-cabecera: 20;
     --z-grano: 30;
-    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -136,8 +119,9 @@
   .enlace-foro:hover { border-color: var(--accent); }
   .enlace-foro:active { transform: translateY(1px); }
   /* «¡Crea tu juego!»: lleva al formulario del foro */
-  .enlace-foro.destacado { background: var(--accent-fuerte); border-color: var(--accent-fuerte); color: #fff; }
-  .enlace-foro.destacado:hover { background: var(--accent); border-color: var(--accent); }
+  /* En la portada, «Crea tu juego» de la cabecera va con borde: el botón naranja de la primera pantalla es «Jugar ahora» */
+  .enlace-foro.destacado { background: transparent; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); color: var(--fg); }
+  .enlace-foro.destacado:hover { background: var(--accent-tinta); border-color: var(--accent); }
   .selector-idioma {
     max-width: 120px;
     padding: 8px 10px;
@@ -187,9 +171,9 @@
     inset: -10% -10% 0;
     z-index: -1;
     background:
-      radial-gradient(42% 52% at 78% 42%, rgba(127, 91, 255, 0.34), transparent 70%),
-      radial-gradient(30% 40% at 12% 18%, rgba(127, 91, 255, 0.14), transparent 70%),
-      radial-gradient(60% 50% at 50% 110%, rgba(255, 110, 180, 0.08), transparent 70%);
+      radial-gradient(42% 52% at 78% 42%, rgba(255, 106, 61, 0.22), transparent 70%),
+      radial-gradient(30% 40% at 12% 18%, rgba(255, 61, 110, 0.10), transparent 70%),
+      radial-gradient(60% 50% at 50% 110%, rgba(90, 110, 255, 0.07), transparent 70%);
   }
   .portada .contenedor {
     display: grid;
@@ -217,7 +201,7 @@
     padding: 2px 10px;
     border-radius: 999px;
     background: var(--accent-tinta);
-    color: #d9ccff;
+    color: var(--accent-2);
     font-weight: 600;
   }
   .portada h1 {
@@ -244,7 +228,7 @@
   :lang(ja) .seccion-titulo, :lang(ko) .seccion-titulo, :lang(zh) .seccion-titulo { letter-spacing: 0; }
   /* La última palabra del titular, con el acento (la pone el script) */
   .portada h1 .resalte {
-    background: linear-gradient(100deg, #c9b8ff 0%, var(--accent) 45%, #ff8bc4 100%);
+    background: linear-gradient(100deg, #ffd0a8 0%, var(--accent) 48%, #ff3d6e 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -258,18 +242,40 @@
     padding: 16px 28px 16px 22px;
     border-radius: 14px;
     background: var(--accent-fuerte);
-    color: #fff;
+    color: var(--sobre-accent);
     font-family: var(--font-display);
     font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     text-decoration: none;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 18px 40px -12px rgba(127, 91, 255, 0.75);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25) inset, var(--sombra-accent);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background-color 0.2s;
   }
   .boton-jugar svg { width: 22px; height: 22px; }
-  .boton-jugar:hover { transform: translateY(-2px); background: var(--accent); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset, 0 24px 48px -12px rgba(127, 91, 255, 0.9); }
+  .boton-jugar:hover { transform: translateY(-2px); background: var(--accent-claro); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3) inset, 0 24px 48px -12px rgba(255, 106, 61, 0.7); }
   .boton-jugar:active { transform: translateY(0) scale(0.98); }
+  /* «Crea tu juego», al lado: mismo tamaño, pero de borde para que mande el de jugar */
+  .boton-secundario {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 24px 15px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s, background-color 0.2s;
+  }
+  .boton-secundario svg { width: 20px; height: 20px; color: var(--accent); }
+  .boton-secundario:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--surface-2); }
+  .boton-secundario:active { transform: translateY(0) scale(0.98); }
   .enlace-texto {
     color: var(--fg);
     font-weight: 600;
@@ -309,7 +315,7 @@
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
   }
   .baldosa img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .baldosa:hover { transform: scale(1.05); box-shadow: 0 0 0 2px var(--accent), 0 30px 60px -20px rgba(127, 91, 255, 0.8); }
+  .baldosa:hover { transform: scale(1.05); box-shadow: 0 0 0 2px var(--accent), 0 30px 60px -20px rgba(255, 106, 61, 0.6); }
 
   /* ─── Catálogo ─────────────────────────────────────────────────────── */
   .catalogo { padding-block: 12px 24px; scroll-margin-top: 80px; }
@@ -415,7 +421,7 @@
     padding: 8px 14px;
     border-radius: 10px;
     background: #fff;
-    color: #120f1f;
+    color: var(--bg);
     font-weight: 700;
     font-size: 0.85rem;
     opacity: 0;
@@ -428,19 +434,20 @@
   .insignia {
     padding: 3px 9px;
     border-radius: 8px;
-    background: rgba(11, 10, 18, 0.7);
+    background: rgba(10, 11, 16, 0.72);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     color: #fff;
-    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
-  .insignia.gustos.mio { color: #ff9cc4; }
+  .insignia.gustos.mio { color: var(--like); }
   .tarjeta .texto-tarjeta { display: grid; gap: 4px; padding-inline: 2px; }
   .tarjeta .fila-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .tarjeta h3 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
-  .tarjeta h3 .favorito { color: #ffd54f; }
+  .tarjeta h3 .favorito { color: var(--oro); }
   .tarjeta .genero { flex: none; color: var(--muted); font-size: 0.8rem; font-weight: 500; }
   .meta {
     margin: 0;
@@ -484,7 +491,7 @@
   .evento .juego-hecho { display: flex; align-items: center; gap: 12px; margin-top: 4px; text-decoration: none; }
   .evento .juego-hecho img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
   .evento .juego-hecho strong { display: block; }
-  .evento .juego-hecho span { color: #8ff0bd; font-size: 0.9rem; font-weight: 600; }
+  .evento .juego-hecho span { color: var(--ok); font-size: 0.9rem; font-weight: 600; }
   .personas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 10px; }
   .persona { display: flex; align-items: center; gap: 10px; padding: 10px; }
   .persona a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -496,7 +503,7 @@
     border-radius: 10px;
     border: 1px solid var(--accent-fuerte);
     background: var(--accent-fuerte);
-    color: #fff;
+    color: var(--sobre-accent);
     font: inherit;
     font-size: 0.85rem;
     font-weight: 600;
@@ -541,7 +548,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px 32px;
-    background: linear-gradient(120deg, #2a1d63, #1a1433 55%, #2b1530);
+    background: linear-gradient(120deg, #2b1610, #15131a 55%, #2a1020);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, var(--sombra);
   }
   .idea-juego::before {
@@ -549,10 +556,10 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(50% 120% at 100% 0%, rgba(155, 123, 255, 0.45), transparent 60%);
+    background: radial-gradient(50% 120% at 100% 0%, rgba(255, 106, 61, 0.38), transparent 60%);
   }
   .idea-juego h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -0.03em; line-height: 1.05; }
-  .idea-juego p { margin: 0; color: #cfc8ea; max-width: 52ch; }
+  .idea-juego p { margin: 0; color: #d6d3df; max-width: 52ch; }
   .boton-claro {
     display: inline-flex;
     align-items: center;
@@ -560,7 +567,7 @@
     padding: 14px 24px;
     border-radius: 14px;
     background: #fff;
-    color: #120f1f;
+    color: var(--bg);
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
@@ -637,6 +644,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10-6.4c.6-.4.6-1.4 0-1.8l-10-6.4C8.9 4.3 8 4.8 8 5.6Z"/></svg>
             <span data-i18n="inicio.jugarAhora">Jugar ahora</span>
           </a>
+          <a class="boton-secundario" href="foro.html#/nueva">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="comun.creaTuJuego">¡Crea tu juego!</span>
+          </a>
           <a class="enlace-texto" href="#como" data-i18n="inicio.comoSeJuega">¿Cómo se juega?</a>
         </div>
         <p class="dispositivos" data-i18n="inicio.dispositivos">Meta Quest · ratón · móvil</p>
@@ -673,13 +684,13 @@
       </article>
       <article class="paso esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
         <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="#2c2843" stroke-dasharray="4 5"/>
-          <path d="M60 30 L52 44 H68 Z" fill="#9d98b8"/>
-          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#1f1c30" stroke="#9d98b8" stroke-width="2"/>
-          <circle cx="60" cy="62" r="14" fill="#161423" stroke="#f3f1fb" stroke-width="2"/>
-          <circle cx="88" cy="92" r="10" fill="#9b7bff"/>
-          <circle cx="88" cy="92" r="15" fill="none" stroke="#c9b8ff" stroke-width="2"/>
-          <text x="60" y="18" fill="#9d98b8" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#272b38" stroke-dasharray="4 5"/>
+          <path d="M60 30 L52 44 H68 Z" fill="#8e93a6"/>
+          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#1a1d27" stroke="#8e93a6" stroke-width="2"/>
+          <circle cx="60" cy="62" r="14" fill="#13151d" stroke="#f4f5f8" stroke-width="2"/>
+          <circle cx="88" cy="92" r="10" fill="#ff6a3d"/>
+          <circle cx="88" cy="92" r="15" fill="none" stroke="#ffb49a" stroke-width="2"/>
+          <text x="60" y="18" fill="#8e93a6" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
         </svg>
         <div>
           <span class="numero">02</span>

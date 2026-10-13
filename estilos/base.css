@@ -1,0 +1,79 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Sistema de diseño de VR Play: colores, tipografía y lo básico de todas las páginas.
+   Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
+   color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
+   Fuentes (se cargan en cada página): Geist y Geist Mono, de Google Fonts.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Fondos y superficies: grafito con un toque frío, de más profundo a más cercano */
+  --bg: #0a0b10;
+  --bg-2: #0f1117;
+  --surface: #13151d;
+  --surface-1: #13151d;
+  --surface-2: #1a1d27;
+  --surface-3: #232736;
+  --line: #272b38;
+  --line-suave: #1c1f2a;
+
+  /* Texto */
+  --fg: #f4f5f8;
+  --muted: #8e93a6;
+  --muted-2: #6b7086;
+
+  /* Un solo acento: naranja coral. Sobre él, el texto va oscuro (--sobre-accent) para que se lea bien */
+  --accent: #ff6a3d;
+  --accent-fuerte: #ff6a3d;
+  --accent-claro: #ff8a62;
+  --accent-2: #ffb49a;            /* el acento en suave: etiquetas, sellos, detalles */
+  --accent-tinta: rgba(255, 106, 61, 0.14);
+  --sobre-accent: #1a0d07;
+
+  /* Colores con significado */
+  --like: #ff4d7d;
+  --ok: #3ddc97;
+  --peligro: #ff5d5d;
+  --oro: #ffc94d;
+
+  /* Tipografía */
+  --font-body: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
+  --font-display: var(--font-body);
+  --font-logo: var(--font-body);
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Formas y sombras (teñidas del fondo, no negro plano) */
+  --radio: 16px;
+  --radio-chico: 10px;
+  --sombra: 0 24px 60px -24px rgba(0, 0, 0, 0.7), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  --sombra-accent: 0 18px 40px -14px rgba(255, 106, 61, 0.55);
+
+  /* Alias para la página de juego (play.html) */
+  --text: var(--fg);
+  --panel: rgba(19, 21, 29, 0.88);
+
+  color-scheme: dark;
+}
+
+/* ─── Base común ─────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "cv11"; /* formas más limpias de Geist */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.025em; }
+h1 { letter-spacing: -0.035em; }
+::selection { background: var(--accent); color: var(--sobre-accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* Las cifras no bailan al cambiar */
+.cifra, time { font-variant-numeric: tabular-nums; }
+/* El japonés, el coreano y el chino no llevan espaciado negativo */
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; }
+
+/* Logo «VR·Play», igual en todas las páginas (gana a los estilos propios de cada una) */
+header .logo {
+  font-family: var(--font-logo);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+header .logo span { color: var(--accent); }

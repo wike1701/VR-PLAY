@@ -8,10 +8,11 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0f0f14">
+<meta name="theme-color" content="#0a0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="estilos/base.css">
 <link rel="stylesheet" href="estilos/cuenta.css">
 <style>
   /* Clasificación de un juego: elegir juego y periodo, y la tabla con tu puesto resaltado. */
@@ -22,22 +23,22 @@
   .controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
   .controles select { width: auto; flex: 1 1 200px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; }
   .periodos { display: flex; gap: 6px; }
-  .chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: 0.88rem; cursor: pointer; }
+  .chip { padding: 7px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: 0.88rem; cursor: pointer; }
   .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-  .tu { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid #ffd54f; background: color-mix(in srgb, #ffd54f 10%, var(--surface)); }
+  .tu { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--oro); background: color-mix(in srgb, var(--oro) 10%, var(--surface)); }
   .tabla-clasificacion { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
   .tabla-clasificacion li { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
-  .tabla-clasificacion li.mio { border-color: #ffd54f; }
-  .tabla-clasificacion .puesto { width: 2.6em; flex: none; font-family: var(--font-display); font-weight: 700; color: var(--muted); text-align: right; }
-  .tabla-clasificacion li:nth-child(1) .puesto { color: #ffd54f; }
+  .tabla-clasificacion li.mio { border-color: var(--oro); }
+  .tabla-clasificacion .puesto { width: 2.6em; flex: none; font-family: var(--font-mono); font-weight: 600; color: var(--muted); text-align: right; }
+  .tabla-clasificacion li:nth-child(1) .puesto { color: var(--oro); }
   .tabla-clasificacion li:nth-child(2) .puesto { color: #cfd8dc; }
   .tabla-clasificacion li:nth-child(3) .puesto { color: #ffab76; }
   .tabla-clasificacion a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .tabla-clasificacion a strong { overflow-wrap: anywhere; }
   .tabla-clasificacion a:hover strong { color: var(--accent-2); }
-  .tabla-clasificacion .valor { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
+  .tabla-clasificacion .valor { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
   .vacio { color: var(--muted); }
-  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
+  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 12px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
   .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
   @media (max-width: 520px) {
     .menu { gap: 12px; }

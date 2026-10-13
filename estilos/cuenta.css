@@ -1,19 +1,4 @@
 /* Estilos de entrar.html y cuenta.html: el mismo portal nocturno que el catálogo y el foro. */
-:root {
-  --bg: #0e0d16;
-  --surface: #1a1828;
-  --surface-2: #24213a;
-  --line: #34304f;
-  --fg: #f1effa;
-  --muted: #a19cbd;
-  --accent: #8f6bff;
-  --accent-2: #00e5ff;
-  --ok: #69f0ae;
-  --peligro: #ff6b6b;
-  --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: dark;
-}
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -52,7 +37,7 @@ header {
 .menu a:hover { color: var(--fg); }
 .selector-idioma {
   padding: 5px 8px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--fg);
@@ -73,10 +58,10 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
   justify-content: center;
   gap: 10px;
   padding: 11px 20px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--sobre-accent);
   font: inherit;
   font-weight: 600;
   text-decoration: none;

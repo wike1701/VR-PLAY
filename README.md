@@ -14,6 +14,7 @@ entrar.html             Entrar en la cuenta: con Google o con un enlace y un có
 cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
 clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o #topos/mes): el top 100 y tu puesto
 perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
+estilos/base.css        Sistema de diseño: colores, fuentes (Geist) y logo de todas las páginas
 estilos/cuenta.css      Estilos de entrar.html, cuenta.html, perfil.html y clasificacion.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican

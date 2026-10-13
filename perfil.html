@@ -9,10 +9,11 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0f0f14">
+<meta name="theme-color" content="#0a0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="estilos/base.css">
 <link rel="stylesheet" href="estilos/cuenta.css">
 <style>
   /* Perfil público: cabecera, números, juegos creados a partir de sus ideas e ideas en marcha. */
@@ -57,13 +58,13 @@
   .personas strong { overflow-wrap: anywhere; }
   .records { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .records a { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); text-decoration: none; }
-  .records a:hover { border-color: #ffd54f; }
+  .records a:hover { border-color: var(--oro); }
   .records img { width: 40px; height: 40px; border-radius: 8px; flex: none; }
   .records .titulo { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  .records .valor { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
-  .records .puesto { color: #ffd54f; font-family: var(--font-display); font-weight: 700; min-width: 2.6em; text-align: right; }
+  .records .valor { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
+  .records .puesto { color: var(--oro); font-family: var(--font-mono); font-weight: 600; min-width: 2.6em; text-align: right; }
   /* Botón de la cuenta en la cabecera (shell/cuenta.js) */
-  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
+  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 12px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
   .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
   .boton-cuenta:hover { border-color: var(--accent); }
   @media (max-width: 520px) {

@@ -65,7 +65,7 @@ VR-PLAY/
 | **`juegos/<id>/`** | `juego.js` (exporta `precargar` e `iniciar(ctx)`) y `miniatura.svg` | Todo el juego en su carpeta. Sin textos escritos a mano (van en `idiomas/`) y sin imports de `shell/`. |
 | **`juegos/`** (sueltos) | `catalogo.js` y `marcadores.js` | Solo datos de los juegos. El código va en `shell/`. |
 | **`idiomas/`** | Un archivo por idioma con **las mismas claves** que `es.js`; `legal/` con el texto legal traducido | Cualquier texto visible nuevo se añade aquí, en los 9 idiomas. |
-| **`estilos/`** | `cuenta.css` (entrar, cuenta, perfil y clasificación) | CSS que usa más de una página. |
+| **`estilos/`** | `base.css` (el sistema de diseño: colores, fuentes y logo de toda la web) y `cuenta.css` (entrar, cuenta, perfil y clasificación) | CSS que usa más de una página. Los colores y las fuentes **solo** se definen en `base.css`: las páginas usan sus variables (`var(--accent)`, `var(--font-body)`…) y no escriben colores a mano. |
 | **`servidor/`** | `index.js` (rutas), `comun.js` y `bd.js` (utilidades y tablas), y un archivo por recurso de la API | Un archivo por ruta o grupo de rutas, que exporta `onRequestGet`, `onRequestPost`… |
 | **`bd/`** | `esquema.sql` | Todas las tablas. `servidor/bd.js` crea las nuevas solo, la primera vez. |
 | **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
@@ -149,8 +149,8 @@ archivo que no existe. Al mover un archivo, es lo que avisa de los enlaces que q
 
 - **Subcarpetas en `servidor/`** (`foro/`, `cuentas/`, `juegos/`), siguiendo los grupos de §3. Se deja para cuando
   no haya trabajo en marcha en el servidor: mover sus archivos haría chocar los cambios de quien lo esté tocando.
-- **Estilos comunes**: la portada, el foro y la página legal repiten parte de su CSS (cabecera, botones, colores).
-  Se podría sacar a `estilos/base.css`.
+- **Estilos comunes**: los colores y las fuentes ya están en `estilos/base.css`. Falta sacar ahí también lo que repiten las páginas (cabecera, botones, selector de idioma).
+
 
 ## 10. Historial de este documento
 
