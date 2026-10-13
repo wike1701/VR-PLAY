@@ -63,6 +63,7 @@ juegos/
   piloto/juego.js       Piloto Estelar
   minigolf/juego.js     Minigolf
   globos/juego.js       Pincha Globos
+  mosquitos/juego.js    Matamosquitos
   tirapichon/juego.js   Tirapichón
   slot/juego.js         Circuito Slot
 ```

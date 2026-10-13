@@ -33,6 +33,7 @@ export const MARCADORES = {
   minigolf: { orden: 'menor', unidad: 'golpes', min: 9, max: 200, minSegundos: 40 },
   globos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 50 },
   tirapichon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 36, minSegundos: 10 },
+  mosquitos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 3, minSegundos: 3 },
   slot: { orden: 'menor', unidad: 'tiempo', min: 10, max: 3600, minSegundos: 10 },
 };
 

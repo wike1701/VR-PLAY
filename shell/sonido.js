@@ -91,6 +91,8 @@ const SONIDOS = {
   hoyo: () => { tono(620, 300, 0.08, 'triangle', 0.3); tono(520, 260, 0.08, 'triangle', 0.25, 0.09); tono(880, 1320, 0.14, 'sine', 0.15, 0.25); },
   globo: () => { ruido(0.1, 2400, 0.75, 0.6); tono(620, 160, 0.07, 'square', 0.16); },
   dardo: () => { tono(320, 130, 0.05, 'triangle', 0.32); ruido(0.04, 1600, 0.22, 1.2); },
+  plaf: () => { ruido(0.09, 1700, 0.65, 0.7); tono(240, 80, 0.09, 'triangle', 0.4); }, // matamoscas
+  picadura: () => { tono(1500, 2700, 0.1, 'sawtooth', 0.07); tono(330, 170, 0.28, 'square', 0.12, 0.08); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
@@ -225,6 +227,50 @@ const CONTINUOS = {
         salida.gain.setTargetAtTime(0, t, 0.05);
         o1.stop(t + 0.3);
         o2.stop(t + 0.3);
+      },
+    };
+  },
+  // Zumbido de mosquito (Matamosquitos): dos sierras agudas un poco desafinadas (el batido de las alas)
+  // con vibrato. Sube de tono, de brillo y de volumen cuanto más cerca está el mosquito más cercano.
+  mosquito() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'bandpass';
+    filtro.Q.value = 1.2;
+    filtro.frequency.value = 1200;
+    const o1 = ac.createOscillator();
+    o1.type = 'sawtooth';
+    o1.frequency.value = 560;
+    const o2 = ac.createOscillator();
+    o2.type = 'sawtooth';
+    o2.frequency.value = 572;
+    const g2 = ac.createGain();
+    g2.gain.value = 0.6;
+    const vibrato = ac.createOscillator();
+    vibrato.frequency.value = 6.5;
+    const profundidad = ac.createGain();
+    profundidad.gain.value = 16;
+    vibrato.connect(profundidad);
+    profundidad.connect(o1.frequency);
+    profundidad.connect(o2.frequency);
+    o1.connect(filtro);
+    o2.connect(g2).connect(filtro);
+    filtro.connect(salida).connect(maestro);
+    for (const o of [o1, o2, vibrato]) o.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        const f = 520 + valor * 170;
+        o1.frequency.setTargetAtTime(f, t, 0.05);
+        o2.frequency.setTargetAtTime(f * 1.021, t, 0.05);
+        filtro.frequency.setTargetAtTime(900 + valor * 1600, t, 0.05);
+        salida.gain.setTargetAtTime(volumen, t, 0.05);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        for (const o of [o1, o2, vibrato]) o.stop(t + 0.3);
       },
     };
   },

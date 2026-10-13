@@ -900,6 +900,28 @@ export default {
         resumen: { one: '{n} prize · Best: {record} · next in {otra}', other: '{n} prizes · Best: {record} · next in {otra}' },
       },
     },
+    mosquitos: {
+      titulo: 'Mosquito Swatter',
+      descripcion: 'A summer night on the porch: mosquitoes buzz around and suddenly come for you. Swat them before they bite. More and faster ones keep coming. You have 3 lives.',
+      controlesVR: 'A swatter in each hand: squash the mosquitoes with a quick swing. The ones with red wings are coming to bite you.',
+      controlesEscritorio: 'Click on a mosquito to swat it. The ones with red wings are coming to bite you.',
+      controlesTactil: 'Tap a mosquito to swat it. The ones with red wings are coming to bite you.',
+      etiquetas: [
+        'mosquitoes', 'swatter', 'swat', 'reflexes', 'insects', 'survival', 'mosquito', 'bugs', 'flies',
+        'squash', 'hit', 'bite', 'buzz', 'summer', 'night', 'porch', 'animals', 'lives', 'endless', 'speed',
+        'coordination', 'aim', 'arcade', 'casual', 'fun', 'family', 'kids', 'challenge', 'score',
+      ],
+      juego: {
+        titulo: 'MOSQUITO SWATTER',
+        intro: 'Swat them before they bite you',
+        marcador: { one: '{n} mosquito', other: '{n} mosquitoes' },
+        vidas: 'Lives: {vidas} · Best: {record}',
+        fin: { one: 'Game over! {n} mosquito', other: 'Game over! {n} mosquitoes' },
+        picadura: 'You got bitten!',
+        porLosPelos: 'Close call!',
+        masMosquitos: 'More mosquitoes incoming!',
+      },
+    },
     slot: {
       titulo: 'Slot Racing',
       descripcion: 'Slot car races on a tabletop, seen from above just like at home. You only control the speed: take a bend too fast and the car flies off. 5 laps against a rival in the other lane.',

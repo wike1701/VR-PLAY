@@ -28,6 +28,7 @@ const LISTA = [
   { id: 'minigolf', genero: 'deportes' },
   { id: 'globos', genero: 'arcade' },
   { id: 'tirapichon', genero: 'disparos' },
+  { id: 'mosquitos', genero: 'reflejos' },
   { id: 'slot', genero: 'conduccion' },
 ];
 
