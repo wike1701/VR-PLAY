@@ -12,6 +12,9 @@ Si una de ellas choca con el `README.md` o con `CLAUDE.md`, mandan los del proye
 | `game-ui-ux` | [gamedev-skills/awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) | Apache-2.0 | Marcadores, menús y pantallas de juego |
 | `design-taste-frontend` | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT | Dirección de arte para páginas web |
 | `redesign-existing-projects` | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT | Mejorar el diseño de páginas que ya existen |
+| `folder-structure-blueprint-generator` | [github/awesome-copilot](https://github.com/github/awesome-copilot) | MIT | Analizar y documentar las carpetas, rutas y convenciones del proyecto |
+| `improve-codebase-architecture` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Revisar la organización del código y proponer mejoras (solo a mano: `/improve-codebase-architecture`) |
+| `codebase-design` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Vocabulario y principios para módulos bien separados (la usa la anterior) |
 
 Las skills de three.js de [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills)
 (`threejs-fundamentals`, `threejs-interaction`, `threejs-lighting`, `threejs-materials`) **no están aquí** porque
