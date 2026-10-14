@@ -38,6 +38,12 @@ export const MARCADORES = {
   // Picnic: 1 punto la mosca posada, 2 al vuelo y el doble la moscarda; sin final fijo (hasta perder los 5 platos)
   picnic: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 5, minSegundos: 5 },
   slot: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1300, minSegundos: 10 },
+  // Dardos: 5 rondas de 3 dardos, como mucho 60 cada uno (triple 20)
+  dardos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
+  // Saco de Boxeo: 1 por diana (3 la dorada) × multiplicador de racha (hasta ×4), +1 si el golpe es potente
+  boxeo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 50 },
+  // Simón de Colores: 1 punto por tecla bien pulsada; sin final fijo (hasta el primer error)
+  simon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 3, minSegundos: 3 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

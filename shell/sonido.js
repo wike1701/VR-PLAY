@@ -94,6 +94,20 @@ const SONIDOS = {
   plaf: () => { ruido(0.09, 1700, 0.65, 0.7); tono(240, 80, 0.09, 'triangle', 0.4); }, // matamoscas
   picadura: () => { tono(1500, 2700, 0.1, 'sawtooth', 0.07); tono(330, 170, 0.28, 'square', 0.12, 0.08); },
   podrido: () => { tono(260, 90, 0.35, 'sawtooth', 0.14); ruido(0.3, 500, 0.35, 0.8); tono(180, 120, 0.25, 'square', 0.08, 0.12); }, // comida podrida (Picnic Matamoscas)
+  saco: () => { tono(105, 48, 0.16, 'sine', 0.6); ruido(0.09, 520, 0.5, 0.7); }, // puñetazo al saco (Saco de Boxeo)
+  campana: () => { // campana del ring: dos toques
+    for (const r of [0, 0.32]) {
+      tono(1480, 1460, 1.1, 'sine', 0.22, r);
+      tono(2960, 2920, 0.7, 'sine', 0.07, r);
+      tono(740, 735, 0.9, 'triangle', 0.08, r);
+    }
+  },
+  // Simón de Colores: las cuatro notas de la consola clásica y el zumbido del error
+  simon0: () => { tono(415, 415, 0.38, 'triangle', 0.32); tono(830, 830, 0.22, 'sine', 0.06); },
+  simon1: () => { tono(310, 310, 0.38, 'triangle', 0.32); tono(620, 620, 0.22, 'sine', 0.06); },
+  simon2: () => { tono(252, 252, 0.38, 'triangle', 0.34); tono(504, 504, 0.22, 'sine', 0.06); },
+  simon3: () => { tono(209, 209, 0.38, 'triangle', 0.36); tono(418, 418, 0.22, 'sine', 0.06); },
+  zumbador: () => { tono(90, 88, 0.7, 'square', 0.16); tono(42, 40, 0.7, 'sawtooth', 0.14); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
