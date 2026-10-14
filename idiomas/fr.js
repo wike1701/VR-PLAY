@@ -75,6 +75,8 @@ export default {
     pausaYMenu: 'Pause et menu',
     siguiente: 'Suivant',
     siguienteJuego: 'Jeu suivant',
+    juegoAnterior: 'Jeu précédent',
+    volverA: 'Revenir à {juego}',
     comprobandoVR: 'Vérification de la VR…',
     salirCompleta: 'Quitter le plein écran',
     cargandoJuego: 'Chargement de {juego}…',
@@ -103,7 +105,7 @@ export default {
       botones: 'Des boutons derrière tes épaules',
       derecha: 'Main droite derrière l’épaule droite : jeu suivant',
       izquierda: 'Main gauche derrière l’épaule gauche : pause et menu',
-      dejala: 'Laisse-la une demi-seconde sur le bouton (ou appuie sur la gâchette)',
+      dejala: 'Laisse-la une seconde sur le bouton, jusqu’à ce que la roue soit pleine',
     },
   },
   pausa: {

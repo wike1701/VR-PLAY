@@ -82,6 +82,8 @@ export default {
     pausaYMenu: 'Pausa y menú',
     siguiente: 'Siguiente',
     siguienteJuego: 'Siguiente juego',
+    juegoAnterior: 'Juego anterior',
+    volverA: 'Volver a {juego}',
     comprobandoVR: 'Comprobando VR…',
     salirCompleta: 'Salir de pantalla completa',
     cargandoJuego: 'Cargando {juego}…',
@@ -110,7 +112,7 @@ export default {
       botones: 'Botones detrás de tus hombros',
       derecha: 'Mano derecha atrás del hombro derecho: siguiente juego',
       izquierda: 'Mano izquierda atrás del hombro izquierdo: pausa y menú',
-      dejala: 'Déjala medio segundo en el botón (o aprieta el gatillo)',
+      dejala: 'Déjala un segundo en el botón, hasta que se complete la rueda',
     },
   },
   pausa: {

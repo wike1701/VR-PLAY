@@ -76,6 +76,8 @@ export default {
     pausaYMenu: 'ポーズとメニュー',
     siguiente: '次へ',
     siguienteJuego: '次のゲーム',
+    juegoAnterior: '前のゲーム',
+    volverA: '{juego}に戻る',
     comprobandoVR: 'VRを確認中…',
     salirCompleta: '全画面を終了',
     cargandoJuego: '{juego}を読み込み中…',
@@ -104,7 +106,7 @@ export default {
       botones: '肩のうしろにボタンがあります',
       derecha: '右手を右肩のうしろへ：次のゲーム',
       izquierda: '左手を左肩のうしろへ：ポーズとメニュー',
-      dejala: 'ボタンに0.5秒手を置く（またはトリガーを引く）',
+      dejala: 'ボタンに1秒手を置き、輪がいっぱいになるまで待つ',
     },
   },
   pausa: {

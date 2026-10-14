@@ -75,7 +75,7 @@
       position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
       padding: 16px; background: rgba(8, 8, 14, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     }
-    .pausa[hidden] { display: none; }
+    .pausa[hidden], #btn-anterior[hidden], .pausa-caja button[hidden] { display: none; }
     .pausa-caja {
       display: grid; gap: 10px; width: min(340px, 100%); padding: 20px;
       border-radius: 16px; background: var(--panel); border: 1px solid var(--accent);
@@ -146,6 +146,7 @@
     <a class="volver" href="index.html" data-i18n-attr="aria-label:pausa.volverCatalogo" aria-label="Volver al catálogo">←<span class="largo"> <span data-i18n="jugar.catalogo">Catálogo</span></span></a>
     <div class="titulo" id="titulo" data-i18n="comun.cargando">Cargando…</div>
     <button id="btn-completa" type="button" data-i18n-attr="title:jugar.pantallaCompleta; aria-label:jugar.pantallaCompleta" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> <span data-i18n="jugar.pantallaCompleta">Pantalla completa</span></span></button>
+    <button id="btn-anterior" type="button" hidden data-i18n-attr="aria-label:jugar.juegoAnterior" aria-label="Juego anterior"><span class="corto" aria-hidden="true">⟲</span><span class="largo">⟲ <span data-i18n="jugar.juegoAnterior">Juego anterior</span></span> <kbd>B</kbd></button>
     <button id="btn-pausa" type="button" data-i18n-attr="title:jugar.pausaYMenu; aria-label:pausa.sello" title="Pausa y menú" aria-label="Pausa">⏸<span class="largo"> <span data-i18n="pausa.sello">Pausa</span></span> <kbd>Esc</kbd></button>
     <button id="btn-siguiente" type="button"><span class="corto" data-i18n="jugar.siguiente">Siguiente</span><span class="largo" data-i18n="jugar.siguienteJuego">Siguiente juego</span> <kbd>N</kbd></button>
     <button id="btn-vr" class="principal" type="button" data-i18n="jugar.comprobandoVR" disabled>Comprobando VR…</button>
@@ -171,6 +172,7 @@
       <p class="pausa-sello" data-i18n="pausa.sello">Pausa</p>
       <h2 id="pausa-titulo"></h2>
       <button type="button" class="principal" data-accion="continuar">▶ <span data-i18n="pausa.continuar">Continuar</span></button>
+      <button type="button" data-accion="anterior" hidden></button>
       <button type="button" data-accion="megusta"></button>
       <button type="button" data-accion="favorito"></button>
       <button type="button" data-accion="catalogo">← <span data-i18n="pausa.volverCatalogo">Volver al catálogo</span></button>

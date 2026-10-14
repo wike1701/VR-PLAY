@@ -13,7 +13,7 @@ const RADIO_ZONA = 0.3;       // a esta distancia la mano "toca" el botón
 const RADIO_AVISO = 0.65;     // desde aquí el mando vibra para guiarte hasta el botón
 const TIEMPO_AYUDA = 6;       // segundos que se ve la flecha al empezar cada juego (solo entonces)
 const DETRAS_AVISO = 0.12;    // la guía solo suena con la mano por detrás de la cabeza (no al jugar)
-const TIEMPO_PULSACION = 0.5; // segundos con la mano dentro para activarlo
+const TIEMPO_CARGA = 1;       // segundos exactos con la mano dentro (con la rueda de carga) para activarlo
 const MARGEN_GIRO = 0.8;      // radianes que puede girar la cabeza sin arrastrar el botón
 const ENFRIAMIENTO = 1.5;     // segundos sin poder volver a activarlo
 const SEGMENTOS = 48;
@@ -21,6 +21,8 @@ const SEGMENTOS = 48;
 const EJE_Y = new THREE.Vector3(0, 1, 0);
 const DISTANCIA_GUIA = 0.6;   // la flecha flota a esta distancia delante de los ojos
 const RADIO_FLECHA = 0.17;    // y a esta distancia del centro de la vista
+const DISTANCIA_RUEDA = 0.55; // la rueda de carga, delante de los ojos y un poco por debajo
+const PUNTOS_RUEDA = 10;
 
 // Material para lo que se dibuja encima de todo (flecha guía)
 function materialEncima(color) {
@@ -64,7 +66,8 @@ const ESTILOS = {
 
 // Botón virtual que flota detrás de un hombro del jugador (el derecho para cambiar
 // de juego, el izquierdo para pausar). Solo responde a la mano de ese lado.
-// Se activa al dejar la mano dentro medio segundo o al apretar el gatillo tocándolo.
+// Se activa al dejar la mano dentro exactamente un segundo: mientras tanto, delante de
+// los ojos gira una rueda de carga que se completa (el botón está detrás y no se ve).
 // Al acercar la mano, el mando vibra cada vez más rápido ("frío, caliente").
 export class BotonCambio {
   constructor(crearPanel, camara, tipo = 'siguiente') {
@@ -163,6 +166,36 @@ export class BotonCambio {
     this.indicador.add(this.flecha, this.guiaTexto.mesh);
     this.indicador.visible = false;
     camara.add(this.indicador);
+
+    // ─── Rueda de carga en la vista ────────────────────────────────────
+    // Puntos que giran (la típica rueda de carga), un arco que se completa en
+    // TIEMPO_CARGA y el nombre de la acción debajo.
+    this.rueda = new THREE.Group();
+    this.rueda.position.set(0, -0.04, -DISTANCIA_RUEDA);
+    this.rueda.scale.setScalar(1.4); // en las gafas el campo de visión es más amplio: un poco más grande
+    this.rueda.visible = false;
+    this.puntosRueda = new THREE.Group();
+    const geoPunto = new THREE.CircleGeometry(0.0048, 12);
+    for (let i = 0; i < PUNTOS_RUEDA; i++) {
+      const a = (i / PUNTOS_RUEDA) * Math.PI * 2;
+      const punto = new THREE.Mesh(geoPunto, materialEncima(0xffffff));
+      punto.position.set(Math.sin(a) * 0.036, Math.cos(a) * 0.036, 0);
+      punto.userData.cola = i / PUNTOS_RUEDA; // los de atrás, más apagados
+      this.puntosRueda.add(punto);
+    }
+    this.fondoRueda = new THREE.Mesh(new THREE.RingGeometry(0.019, 0.025, SEGMENTOS, 1), materialEncima(0xffffff));
+    // Arco de progreso: empieza arriba y avanza en el sentido de las agujas del reloj
+    this.arcoRueda = new THREE.Mesh(new THREE.RingGeometry(0.019, 0.025, SEGMENTOS, 1, Math.PI / 2, Math.PI * 2), materialEncima(estilo.guia));
+    this.arcoRueda.scale.x = -1;
+    this.arcoRueda.material.side = THREE.DoubleSide; // al voltearlo se ve por detrás
+    this.arcoRueda.geometry.setDrawRange(0, 0);
+    this.textoRueda = crearPanel({ ancho: 0.16, alto: 0.04, resolucion: 320 });
+    this.textoRueda.escribir([{ texto: t(estilo.tituloGuia), tam: 1, color: estilo.textoGuia }]);
+    this.textoRueda.mesh.material.depthTest = false;
+    this.textoRueda.mesh.position.y = -0.065;
+    for (const o of [this.fondoRueda, this.arcoRueda, this.textoRueda.mesh, ...this.puntosRueda.children]) o.renderOrder = 999;
+    this.rueda.add(this.puntosRueda, this.fondoRueda, this.arcoRueda, this.textoRueda.mesh);
+    camara.add(this.rueda);
     this.camara = camara;
     this.ayuda = TIEMPO_AYUDA;
     this.opacidadGuia = 0;
@@ -203,10 +236,12 @@ export class BotonCambio {
     this.ayuda = TIEMPO_AYUDA;
   }
 
-  // Oculta la flecha guía (fuera de VR)
+  // Oculta la flecha guía y la rueda de carga (fuera de VR o en pausa)
   ocultarGuia() {
     this.indicador.visible = false;
     this.opacidadGuia = 0;
+    this.rueda.visible = false;
+    this.progreso = 0;
   }
 
   /**
@@ -265,18 +300,20 @@ export class BotonCambio {
     }
 
     if (!manoDentro) {
-      // Hay que sacar la mano antes de poder volver a activarlo
+      // Hay que sacar la mano antes de poder volver a activarlo; al sacarla, la carga
+      // vuelve a cero (así siempre dura exactamente TIEMPO_CARGA)
       this.debeSalir = false;
-      this.progreso = Math.max(0, this.progreso - dt * 3);
+      this.progreso = 0;
     } else if (!this.debeSalir && this.enfriamiento === 0) {
-      this.progreso += dt / TIEMPO_PULSACION;
-      if (manoDentro.gatilloPulsado || this.progreso >= 1) {
+      this.progreso += dt / TIEMPO_CARGA;
+      if (this.progreso >= 1) {
         resultado.activado = true;
         this.progreso = 0;
         this.debeSalir = true;
         this.enfriamiento = ENFRIAMIENTO;
       }
     }
+    this.actualizarRueda(dt);
 
     // Aspecto: crece un poco y brilla al acercar la mano
     const segmentos = Math.floor(Math.min(1, this.progreso) * SEGMENTOS);
@@ -293,6 +330,18 @@ export class BotonCambio {
     this.actualizarGuia(dt, manoDentro);
 
     return resultado;
+  }
+
+  // La rueda se ve solo mientras carga: puntos girando y el arco que se completa
+  actualizarRueda() {
+    const cargando = this.progreso > 0;
+    this.rueda.visible = cargando;
+    if (!cargando) return;
+    this.puntosRueda.rotation.z = -this.tiempo * Math.PI * 2; // una vuelta por segundo
+    for (const punto of this.puntosRueda.children) punto.material.opacity = 0.15 + 0.85 * (1 - punto.userData.cola);
+    this.fondoRueda.material.opacity = 0.18;
+    this.arcoRueda.material.opacity = 1;
+    this.arcoRueda.geometry.setDrawRange(0, Math.floor(Math.min(1, this.progreso) * SEGMENTOS) * 6);
   }
 
   actualizarGuia(dt, manoDentro) {

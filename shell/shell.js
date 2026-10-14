@@ -313,6 +313,9 @@ let errorJuego = false;
 // se baraja una vuelta nueva (sin empezar por el juego que acabas de jugar).
 // La primera vuelta incluye el juego inicial, así que solo baraja los demás.
 let cola = barajar(JUEGOS.map((_, i) => i).filter((i) => i !== indiceActual));
+// Juegos por los que has pasado, para poder volver al anterior (el último, al final)
+const historial = [];
+const MAX_HISTORIAL = 20;
 
 // Los juegos en pruebas no entran en la rotación (sí se pueden abrir con su
 // enlace). La lista llega del servidor al poco de arrancar.
@@ -488,14 +491,20 @@ function desmontar() {
   vista.objetivo.copy(VISTA_POR_DEFECTO.objetivo);
 }
 
-async function cambiarA(indice) {
+// volviendo: true cuando se vuelve al juego anterior (entonces no se apunta en el historial)
+async function cambiarA(indice, { volviendo = false } = {}) {
   if (cambiando) return;
   cambiando = true;
   ocultarAviso();
   reanudar();
+  const desde = actual ? indiceActual : null;
   try {
     if (actual) await fundido.a(1, 0.3);
     desmontar();
+    if (!volviendo && desde !== null && desde !== indice) {
+      historial.push(desde);
+      if (historial.length > MAX_HISTORIAL) historial.shift();
+    }
     indiceActual = indice;
     cola = cola.filter((i) => i !== indice); // ya jugado en esta vuelta
     actualizarInterfaz();
@@ -551,6 +560,14 @@ function siguienteJuego() {
   if (cambiando) return;
   sonido('boton');
   cambiarA(siguienteIndice());
+}
+
+// Vuelve al juego por el que pasaste antes (si lo pasaste sin querer o te gustó)
+const juegoAnteriorIndice = () => (historial.length ? historial[historial.length - 1] : null);
+function juegoAnterior() {
+  if (cambiando || !historial.length) return;
+  sonido('boton');
+  cambiarA(historial.pop(), { volviendo: true });
 }
 
 // ─── Botón de cambio detrás del hombro derecho ───────────────────────────
@@ -671,14 +688,21 @@ const $pausa = document.getElementById('pausa');
 const $pausaTitulo = document.getElementById('pausa-titulo');
 const $pausaMeGusta = $pausa.querySelector('[data-accion="megusta"]');
 const $pausaFavorito = $pausa.querySelector('[data-accion="favorito"]');
+const $pausaAnterior = $pausa.querySelector('[data-accion="anterior"]');
 let pausado = false;
 let totalMeGusta = null;
 
 function textosPausa() {
   const juego = JUEGOS[indiceActual];
-  const datos = { titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id) };
+  const anterior = juegoAnteriorIndice();
+  const datos = {
+    titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id),
+    anterior: anterior === null ? null : JUEGOS[anterior].titulo,
+  };
   menuPausa.escribir(datos);
   $pausaTitulo.textContent = datos.titulo;
+  $pausaAnterior.hidden = !datos.anterior;
+  if (datos.anterior) $pausaAnterior.textContent = `⟲ ${t('jugar.volverA', { juego: datos.anterior })}`;
   $pausaMeGusta.textContent = `${datos.meGusta ? `♥ ${t('pausa.teGusta')}` : `♡ ${t('pausa.meGusta')}`}${datos.total ? ` · ${datos.total}` : ''}`;
   $pausaMeGusta.classList.toggle('activo-megusta', datos.meGusta);
   $pausaFavorito.textContent = datos.favorito ? `★ ${t('pausa.enFavoritos')}` : `☆ ${t('pausa.guardarFavorito')}`;
@@ -716,6 +740,9 @@ async function accionPausa(accion) {
   if (accion === 'continuar') {
     sonido('boton');
     reanudar();
+  } else if (accion === 'anterior') {
+    reanudar();
+    juegoAnterior();
   } else if (accion === 'megusta') {
     const r = await alternarMeGusta(id);
     if (r.total !== null) totalMeGusta = r.total;
@@ -751,6 +778,7 @@ const $estado = document.getElementById('estado');
 const $carga = document.getElementById('carga');
 const $btnVR = document.getElementById('btn-vr');
 const $btnSiguiente = document.getElementById('btn-siguiente');
+const $btnAnterior = document.getElementById('btn-anterior');
 
 function actualizarInterfaz() {
   const juego = JUEGOS[indiceActual];
@@ -761,12 +789,19 @@ function actualizarInterfaz() {
     ? juego.controlesTactil || juego.controlesEscritorio
     : t('jugar.controles', { raton: juego.controlesEscritorio, vr: juego.controlesVR });
   $btnSiguiente.title = t('jugar.pasarA', { juego: siguiente.titulo });
+  const anterior = juegoAnteriorIndice();
+  $btnAnterior.hidden = anterior === null;
+  if (anterior !== null) $btnAnterior.title = t('jugar.volverA', { juego: JUEGOS[anterior].titulo });
   $estado.textContent = t('jugar.siguientePrecargando', { juego: siguiente.titulo });
 }
 
 $btnSiguiente.addEventListener('click', () => {
   activarAudio();
   siguienteJuego();
+});
+$btnAnterior.addEventListener('click', () => {
+  activarAudio();
+  juegoAnterior();
 });
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
@@ -777,6 +812,9 @@ window.addEventListener('keydown', (e) => {
   } else if (e.key === 'n' || e.key === 'N') {
     activarAudio();
     siguienteJuego();
+  } else if (e.key === 'b' || e.key === 'B') {
+    activarAudio();
+    juegoAnterior();
   }
 });
 
@@ -933,6 +971,7 @@ renderer.setAnimationLoop(() => {
 // Ayuda para depurar desde la consola del navegador: vrPlay.siguienteJuego(), vrPlay.memoria()...
 window.vrPlay = {
   siguienteJuego,
+  juegoAnterior,
   cambiarA,
   memoria: () => ({ ...renderer.info.memory }),
   dibujado: () => ({ ...renderer.info.render }), // llamadas y triángulos del último fotograma

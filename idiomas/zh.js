@@ -76,6 +76,8 @@ export default {
     pausaYMenu: '暂停与菜单',
     siguiente: '下一个',
     siguienteJuego: '下一个游戏',
+    juegoAnterior: '上一个游戏',
+    volverA: '返回{juego}',
     comprobandoVR: '正在检测 VR…',
     salirCompleta: '退出全屏',
     cargandoJuego: '正在加载 {juego}…',
@@ -104,7 +106,7 @@ export default {
       botones: '按钮在你肩膀后方',
       derecha: '右手伸到右肩后：下一个游戏',
       izquierda: '左手伸到左肩后：暂停与菜单',
-      dejala: '手在按钮上停留半秒（或扣动扳机）',
+      dejala: '手在按钮上停留一秒，直到圆环填满',
     },
   },
   pausa: {

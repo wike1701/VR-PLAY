@@ -76,6 +76,8 @@ export default {
     pausaYMenu: '일시정지 및 메뉴',
     siguiente: '다음',
     siguienteJuego: '다음 게임',
+    juegoAnterior: '이전 게임',
+    volverA: '{juego}(으)로 돌아가기',
     comprobandoVR: 'VR 확인 중…',
     salirCompleta: '전체 화면 종료',
     cargandoJuego: '{juego} 불러오는 중…',
@@ -104,7 +106,7 @@ export default {
       botones: '어깨 뒤에 버튼이 있어요',
       derecha: '오른손을 오른쪽 어깨 뒤로: 다음 게임',
       izquierda: '왼손을 왼쪽 어깨 뒤로: 일시정지 및 메뉴',
-      dejala: '버튼에 0.5초 동안 손을 두세요 (또는 트리거를 당기세요)',
+      dejala: '버튼에 1초 동안 손을 두세요. 원이 다 찰 때까지',
     },
   },
   pausa: {

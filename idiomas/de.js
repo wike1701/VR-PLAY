@@ -75,6 +75,8 @@ export default {
     pausaYMenu: 'Pause und Menü',
     siguiente: 'Weiter',
     siguienteJuego: 'Nächstes Spiel',
+    juegoAnterior: 'Vorheriges Spiel',
+    volverA: 'Zurück zu {juego}',
     comprobandoVR: 'VR wird geprüft…',
     salirCompleta: 'Vollbild beenden',
     cargandoJuego: '{juego} wird geladen…',
@@ -103,7 +105,7 @@ export default {
       botones: 'Knöpfe hinter deinen Schultern',
       derecha: 'Rechte Hand hinter die rechte Schulter: nächstes Spiel',
       izquierda: 'Linke Hand hinter die linke Schulter: Pause und Menü',
-      dejala: 'Halte sie eine halbe Sekunde auf den Knopf (oder drück den Abzug)',
+      dejala: 'Halte sie eine Sekunde auf den Knopf, bis sich das Rad füllt',
     },
   },
   pausa: {

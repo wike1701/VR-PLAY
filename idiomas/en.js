@@ -75,6 +75,8 @@ export default {
     pausaYMenu: 'Pause and menu',
     siguiente: 'Next',
     siguienteJuego: 'Next game',
+    juegoAnterior: 'Previous game',
+    volverA: 'Back to {juego}',
     comprobandoVR: 'Checking VR…',
     salirCompleta: 'Exit full screen',
     cargandoJuego: 'Loading {juego}…',
@@ -103,7 +105,7 @@ export default {
       botones: 'Buttons behind your shoulders',
       derecha: 'Right hand behind your right shoulder: next game',
       izquierda: 'Left hand behind your left shoulder: pause and menu',
-      dejala: 'Hold it on the button for half a second (or pull the trigger)',
+      dejala: 'Hold it on the button for one second, until the wheel fills up',
     },
   },
   pausa: {

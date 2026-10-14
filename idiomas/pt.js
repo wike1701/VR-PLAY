@@ -75,6 +75,8 @@ export default {
     pausaYMenu: 'Pausa e menu',
     siguiente: 'Próximo',
     siguienteJuego: 'Próximo jogo',
+    juegoAnterior: 'Jogo anterior',
+    volverA: 'Voltar a {juego}',
     comprobandoVR: 'Verificando VR…',
     salirCompleta: 'Sair da tela cheia',
     cargandoJuego: 'Carregando {juego}…',
@@ -103,7 +105,7 @@ export default {
       botones: 'Botões atrás dos seus ombros',
       derecha: 'Mão direita atrás do ombro direito: próximo jogo',
       izquierda: 'Mão esquerda atrás do ombro esquerdo: pausa e menu',
-      dejala: 'Deixe-a meio segundo no botão (ou aperte o gatilho)',
+      dejala: 'Deixe-a um segundo no botão, até a roda se completar',
     },
   },
   pausa: {
