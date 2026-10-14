@@ -93,6 +93,7 @@ const SONIDOS = {
   dardo: () => { tono(320, 130, 0.05, 'triangle', 0.32); ruido(0.04, 1600, 0.22, 1.2); },
   plaf: () => { ruido(0.09, 1700, 0.65, 0.7); tono(240, 80, 0.09, 'triangle', 0.4); }, // matamoscas
   picadura: () => { tono(1500, 2700, 0.1, 'sawtooth', 0.07); tono(330, 170, 0.28, 'square', 0.12, 0.08); },
+  podrido: () => { tono(260, 90, 0.35, 'sawtooth', 0.14); ruido(0.3, 500, 0.35, 0.8); tono(180, 120, 0.25, 'square', 0.08, 0.12); }, // comida podrida (Picnic Matamoscas)
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
@@ -265,6 +266,50 @@ const CONTINUOS = {
         o1.frequency.setTargetAtTime(f, t, 0.05);
         o2.frequency.setTargetAtTime(f * 1.021, t, 0.05);
         filtro.frequency.setTargetAtTime(900 + valor * 1600, t, 0.05);
+        salida.gain.setTargetAtTime(volumen, t, 0.05);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        for (const o of [o1, o2, vibrato]) o.stop(t + 0.3);
+      },
+    };
+  },
+  // Zumbido de mosca (Picnic Matamoscas): más grave y más áspero que el del mosquito, con un temblor lento.
+  // Sube de tono y de volumen cuantas más moscas vuelan y cuanto más cerca está la más cercana.
+  mosca() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'bandpass';
+    filtro.Q.value = 0.9;
+    filtro.frequency.value = 700;
+    const o1 = ac.createOscillator();
+    o1.type = 'sawtooth';
+    o1.frequency.value = 190;
+    const o2 = ac.createOscillator();
+    o2.type = 'square';
+    o2.frequency.value = 196;
+    const g2 = ac.createGain();
+    g2.gain.value = 0.35;
+    const vibrato = ac.createOscillator();
+    vibrato.frequency.value = 4.2;
+    const profundidad = ac.createGain();
+    profundidad.gain.value = 9;
+    vibrato.connect(profundidad);
+    profundidad.connect(o1.frequency);
+    profundidad.connect(o2.frequency);
+    o1.connect(filtro);
+    o2.connect(g2).connect(filtro);
+    filtro.connect(salida).connect(maestro);
+    for (const o of [o1, o2, vibrato]) o.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        const f = 185 + valor * 60;
+        o1.frequency.setTargetAtTime(f, t, 0.05);
+        o2.frequency.setTargetAtTime(f * 1.03, t, 0.05);
+        filtro.frequency.setTargetAtTime(600 + valor * 900, t, 0.05);
         salida.gain.setTargetAtTime(volumen, t, 0.05);
       },
       parar() {

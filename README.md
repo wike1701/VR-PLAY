@@ -77,6 +77,7 @@ juegos/
   mosquitos/juego.js    Matamosquitos
   tirapichon/juego.js   Tirapichón
   slot/juego.js         Circuito Slot
+  picnic/juego.js       Picnic Matamoscas
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

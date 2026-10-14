@@ -35,6 +35,8 @@ export const MARCADORES = {
   tirapichon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 36, minSegundos: 10 },
   mosquitos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 3, minSegundos: 3 },
   // Slot: el circuito cambia en cada carrera, así que no se comparan tiempos sino puntos (1000 = la carrera perfecta)
+  // Picnic: 1 punto la mosca posada, 2 al vuelo y el doble la moscarda; sin final fijo (hasta perder los 5 platos)
+  picnic: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 5, minSegundos: 5 },
   slot: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1300, minSegundos: 10 },
 };
 
