@@ -78,6 +78,9 @@ juegos/
   tirapichon/juego.js   Tirapichón
   slot/juego.js         Circuito Slot
   picnic/juego.js       Picnic Matamoscas
+  dardos/juego.js       Dardos
+  boxeo/juego.js        Saco de Boxeo
+  simon/juego.js        Simón de Colores
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

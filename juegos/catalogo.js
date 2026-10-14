@@ -31,6 +31,9 @@ const LISTA = [
   { id: 'mosquitos', genero: 'reflejos' },
   { id: 'slot', genero: 'conduccion' },
   { id: 'picnic', genero: 'reflejos' },
+  { id: 'dardos', genero: 'deportes' },
+  { id: 'boxeo', genero: 'reflejos' },
+  { id: 'simon', genero: 'puzle' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

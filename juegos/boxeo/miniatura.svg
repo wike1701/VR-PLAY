@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2420"/>
+      <stop offset="1" stop-color="#4a3a30"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.6" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#ffcf8a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffcf8a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cuero" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d23a32"/>
+      <stop offset="0.45" stop-color="#9e1e1e"/>
+      <stop offset="1" stop-color="#4e0c0c"/>
+    </linearGradient>
+    <radialGradient id="guante" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ff6f61"/>
+      <stop offset="0.55" stop-color="#c62828"/>
+      <stop offset="1" stop-color="#6d0f0f"/>
+    </radialGradient>
+    <radialGradient id="diana" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff3c4"/>
+      <stop offset="0.5" stop-color="#ffb74d"/>
+      <stop offset="1" stop-color="#ffb74d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Ventanales con la luz de la tarde -->
+  <g fill="#f2b56a" opacity="0.55"><rect x="30" y="40" width="90" height="74" rx="3"/><rect x="290" y="40" width="90" height="74" rx="3"/></g>
+  <g fill="#2b2420" opacity="0.7"><rect x="73" y="40" width="4" height="74"/><rect x="333" y="40" width="4" height="74"/><rect x="30" y="75" width="90" height="4"/><rect x="290" y="75" width="90" height="4"/></g>
+  <!-- Cuerdas del ring al fondo -->
+  <g stroke="#e8e2d8" stroke-width="5" opacity="0.5"><path d="M0 250 H120"/><path d="M0 280 H120"/><path d="M0 310 H120"/></g>
+  <rect x="112" y="226" width="12" height="110" fill="#b71c1c" opacity="0.7"/>
+  <rect x="0" y="336" width="400" height="64" fill="#3a2c22"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Cadena y saco -->
+  <g stroke="#9ea4aa" stroke-width="6" fill="none"><path d="M236 0 V30"/><path d="M236 30 L200 64"/><path d="M236 30 L272 64"/></g>
+  <ellipse cx="240" cy="358" rx="90" ry="16" fill="url(#sombra)"/>
+  <rect x="170" y="56" width="140" height="270" rx="44" fill="url(#cuero)"/>
+  <rect x="170" y="70" width="140" height="22" fill="#151515"/>
+  <rect x="170" y="290" width="140" height="22" fill="#151515"/>
+  <rect x="186" y="96" width="14" height="190" rx="7" fill="#ffffff" opacity="0.16"/>
+  <!-- Diana encendida y golpe coral -->
+  <circle cx="226" cy="186" r="40" fill="url(#diana)"/>
+  <g fill="#ff6a3d">
+    <path d="M226 120 l8 34 l-16 0 z"/><path d="M280 150 l-30 20 l-6 -12 z"/><path d="M290 206 l-34 -4 l4 -14 z"/>
+    <path d="M262 252 l-24 -26 l12 -8 z"/><path d="M172 140 l28 22 l-10 10 z"/>
+  </g>
+  <!-- Guante dando el puñetazo -->
+  <g transform="rotate(-24 150 250)">
+    <path d="M20 268 L96 236 L118 300 L44 330 Z" fill="#8e1b1b"/>
+    <rect x="70" y="234" width="20" height="70" rx="6" fill="#f4f1ea" transform="rotate(-22 80 270)"/>
+    <ellipse cx="160" cy="256" rx="78" ry="64" fill="url(#guante)"/>
+    <ellipse cx="146" cy="306" rx="34" ry="18" fill="#a52020"/>
+    <ellipse cx="150" cy="226" rx="40" ry="16" fill="#ffffff" opacity="0.25"/>
+  </g>
+  <!-- Estela del puñetazo -->
+  <g stroke="#ff6a3d" stroke-width="6" stroke-linecap="round" opacity="0.8"><path d="M30 196 H90"/><path d="M14 230 H70"/><path d="M40 330 H96"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>
