@@ -52,7 +52,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x101a3a);
+  // Noche de verano: estrellas, luna y un bosque oscuro al fondo
+  ctx.fondo(0x101a3a, { estrellas: 1, luna: true, sol: [0.5, 0.35, -0.8], paisaje: { tipo: 'bosque', color: 0x0a1424 } });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.3), new THREE.Vector3(0, 1.45, -2));
 
   // ─── Decorado: porche de madera en una noche de verano ─────────────────

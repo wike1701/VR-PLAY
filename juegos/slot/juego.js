@@ -263,6 +263,50 @@ export function iniciar(ctx) {
   suelo.position.z = -1.5;
   raiz.add(suelo);
 
+  // Cuarto de juegos: paredes de ladrillo pintado (una malla), zócalo, un póster de
+  // bandera a cuadros y una lámpara colgante sobre la mesa
+  const paredes = new THREE.Mesh(
+    R(fusionar([
+      new THREE.PlaneGeometry(8, 4.2).translate(0, 2.1, -4.4),
+      new THREE.PlaneGeometry(8, 4.2).rotateY(Math.PI / 2).translate(-3.6, 2.1, -0.4),
+      new THREE.PlaneGeometry(8, 4.2).rotateY(-Math.PI / 2).translate(3.6, 2.1, -0.4),
+    ])),
+    R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.ladrillos(0x8e9aaf, 0x6f7a8c, { filas: 12, columnas: 4, repetir: [5, 2], semilla: 33 })) })),
+  );
+  raiz.add(paredes);
+  const zocalo = new THREE.Mesh(
+    R(fusionar([
+      new THREE.BoxGeometry(7.2, 0.14, 0.03).translate(0, 0.07, -4.38),
+      new THREE.BoxGeometry(0.03, 0.14, 8).translate(-3.58, 0.07, -0.4),
+      new THREE.BoxGeometry(0.03, 0.14, 8).translate(3.58, 0.07, -0.4),
+    ])),
+    R(new THREE.MeshLambertMaterial({ color: 0x3e2a1c })),
+  );
+  raiz.add(zocalo);
+  const texPoster = R(ctx.texturaCanvas((g, tam) => {
+    g.fillStyle = '#111';
+    g.fillRect(0, 0, tam, tam);
+    const n = 8;
+    const c = tam / n;
+    for (let i = 0; i < n; i++) for (let k = 0; k < n; k++) {
+      g.fillStyle = (i + k) % 2 ? '#f2f2f2' : '#151515';
+      g.fillRect(i * c + c * 0.08 * Math.sin(k), k * c, c, c);
+    }
+    g.strokeStyle = '#ff6a3d';
+    g.lineWidth = tam * 0.04;
+    g.strokeRect(tam * 0.02, tam * 0.02, tam * 0.96, tam * 0.96);
+  }, { tam: 128, semilla: 34 }));
+  const poster = new THREE.Mesh(R(new THREE.PlaneGeometry(1.1, 0.8)), R(new THREE.MeshLambertMaterial({ map: texPoster })));
+  poster.position.set(-1.4, 1.85, -4.37);
+  raiz.add(poster);
+  const pantalla = new THREE.Mesh(R(new THREE.CylinderGeometry(0.12, 0.42, 0.28, 18, 1, true)), R(new THREE.MeshStandardMaterial({ color: 0x263238, roughness: 0.4, metalness: 0.5, side: THREE.DoubleSide })));
+  pantalla.position.set(0, 3.4, Z_MESA); // por encima de la cámara del móvil en vertical (3,1 m)
+  const bombilla = new THREE.Mesh(R(new THREE.CircleGeometry(0.4, 18).rotateX(Math.PI / 2)), R(new THREE.MeshBasicMaterial({ color: 0xfff3d6, toneMapped: false })));
+  bombilla.position.set(0, 3.27, Z_MESA);
+  const cableLampara = new THREE.Mesh(R(new THREE.CylinderGeometry(0.006, 0.006, 0.8, 4)), R(new THREE.MeshBasicMaterial({ color: 0x111111 })));
+  cableLampara.position.set(0, 3.93, Z_MESA);
+  raiz.add(pantalla, bombilla, cableLampara);
+
   const mesa = new THREE.Mesh(
     R(fusionar([
       new THREE.BoxGeometry(ANCHO_MESA + 0.08, 0.05, FONDO_MESA + 0.08).translate(0, Y_MESA - 0.035, Z_MESA),
@@ -423,8 +467,10 @@ export function iniciar(ctx) {
   const MAX_ARBOLES = 18;
   const MAX_NEUMATICOS = 60;
   const MAX_PILARES = 160;
-  const troncos = new THREE.InstancedMesh(R(new THREE.CylinderGeometry(0.008, 0.01, 0.06, 6).translate(0, 0.03, 0)), R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 })), MAX_ARBOLES);
-  const copas = new THREE.InstancedMesh(R(new THREE.ConeGeometry(0.05, 0.13, 8).translate(0, 0.11, 0)), R(new THREE.MeshLambertMaterial({ color: 0x2e7d32 })), MAX_ARBOLES);
+  // Pinos de maqueta: los del kit de la shell a escala 1:25
+  const pinoMaqueta = ctx.geometriaArbol('pino');
+  const troncos = new THREE.InstancedMesh(R(pinoMaqueta.tronco.scale(0.04, 0.04, 0.04)), R(new THREE.MeshLambertMaterial({ color: pinoMaqueta.madera, flatShading: true })), MAX_ARBOLES);
+  const copas = new THREE.InstancedMesh(R(pinoMaqueta.copa.scale(0.04, 0.04, 0.04)), R(new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true })), MAX_ARBOLES);
   for (let i = 0; i < MAX_ARBOLES; i++) copas.setColorAt(i, auxColor.setHex([0x2e7d32, 0x388e3c, 0x1b5e20, 0x558b2f][i % 4]));
   const neumaticos = new THREE.InstancedMesh(R(new THREE.TorusGeometry(0.016, 0.008, 6, 10).rotateX(Math.PI / 2)), R(new THREE.MeshLambertMaterial({ color: 0x1c1c1c })), MAX_NEUMATICOS * 2);
   // Pilares bajo los tramos elevados
@@ -612,17 +658,22 @@ export function iniciar(ctx) {
 
   // ─── Mando de slot (en la mano, en VR) ─────────────────────────────────
   const geoMando = R(fusionar([
-    new THREE.BoxGeometry(0.034, 0.11, 0.04).translate(0, -0.045, 0.005),    // empuñadura
+    new THREE.CylinderGeometry(0.019, 0.017, 0.11, 10).scale(1, 1, 1.2).translate(0, -0.045, 0.006), // empuñadura redondeada
     new THREE.BoxGeometry(0.04, 0.035, 0.07).translate(0, 0.02, -0.005),     // cabeza
+    new THREE.CylinderGeometry(0.02, 0.02, 0.04, 10).rotateZ(Math.PI / 2).translate(0, 0.02, -0.04), // morro redondo
+    new THREE.TorusGeometry(0.03, 0.0035, 6, 12, Math.PI * 0.9).rotateY(Math.PI / 2).translate(0, -0.015, -0.01), // guarda del gatillo
+    new THREE.CylinderGeometry(0.008, 0.008, 0.02, 8).translate(0, -0.11, 0.008), // salida del cable
   ]));
-  const matMando = R(new THREE.MeshStandardMaterial({ color: 0x37474f, metalness: 0.1, roughness: 0.5 }));
+  const matMando = R(new THREE.MeshStandardMaterial({ color: 0x263238, metalness: 0.15, roughness: 0.45 }));
+  // Botón de "turbo" encima, del color del gatillo
+  const geoBoton = R(new THREE.CylinderGeometry(0.008, 0.008, 0.006, 10).translate(0, 0.04, 0.012));
   const geoGatillo = R(new THREE.BoxGeometry(0.014, 0.05, 0.016).translate(0, -0.025, 0));
   const matGatillo = R(new THREE.MeshStandardMaterial({ color: 0xe53935, metalness: 0.1, roughness: 0.4 }));
   function crearMando() {
     const mando = new THREE.Group();
     const gatillo = new THREE.Mesh(geoGatillo, matGatillo);
     gatillo.position.set(0, 0.0, -0.035);
-    mando.add(new THREE.Mesh(geoMando, matMando), gatillo);
+    mando.add(new THREE.Mesh(geoMando, matMando), gatillo, new THREE.Mesh(geoBoton, matGatillo));
     return { mando, gatillo };
   }
   const mandoVR = crearMando();

@@ -48,11 +48,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x87c6ef);
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 70;
-  niebla.far = 260;
+  // Cielo con nubes, niebla lejana y montes en el horizonte (giran con el mundo: ver orientarFondo)
+  ctx.fondo(0x87c6ef, { nubes: 0.5, niebla: [70, 260], paisaje: { tipo: 'montes', color: 0x48685a, radio: 96 } });
   ctx.sueloBase(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, OJOS, 0.05), new THREE.Vector3(0, 0.55, -12));
 
@@ -197,9 +194,7 @@ export function iniciar(ctx) {
   travesano.rotation.y = rumboDe(tangentes[0]);
   mundo.add(travesano);
 
-  // Árboles fuera de la pista (instanciados: dos llamadas)
-  const geoCopa = R(new THREE.ConeGeometry(2.4, 7, 8).translate(0, 5.5, 0));
-  const geoTroncoArbol = R(new THREE.CylinderGeometry(0.3, 0.4, 2, 6).translate(0, 1, 0));
+  // Árboles fuera de la pista: pinos y frondosos del kit de la shell (6 llamadas para todos)
   const lugares = [];
   let semilla = 7;
   const azar = () => ((semilla = (semilla * 16807) % 2147483647) / 2147483647);
@@ -215,15 +210,9 @@ export function iniciar(ctx) {
     }
     if (lejos) lugares.push([x, z, 0.7 + azar() * 0.8]);
   }
-  const copas = new THREE.InstancedMesh(geoCopa, R(new THREE.MeshLambertMaterial({ color: 0x2e6b30 })), lugares.length);
-  const troncos = new THREE.InstancedMesh(geoTroncoArbol, R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 })), lugares.length);
-  const m4 = new THREE.Matrix4();
-  lugares.forEach(([x, z, s], i) => {
-    m4.makeScale(s, s, s).setPosition(x, 0, z);
-    copas.setMatrixAt(i, m4);
-    troncos.setMatrixAt(i, m4);
-  });
-  mundo.add(copas, troncos);
+  const pinos = lugares.filter((_, i) => i % 3).map(([x, z, s]) => [x, z, s * 2.3]);
+  const frondosos = lugares.filter((_, i) => !(i % 3)).map(([x, z, s]) => [x, z, s * 2]);
+  mundo.add(ctx.arboles(pinos, { tipo: 'pino', semilla: 4 }), ctx.arboles(frondosos, { tipo: 'frondoso', semilla: 9 }));
 
   // ─── Monoplazas de la máquina ──────────────────────────────────────────
   // Construidos mirando a -Z: morro largo, pontones, ruedas al aire y alerones.
@@ -263,7 +252,8 @@ export function iniciar(ctx) {
   // ─── Cabina de Fórmula 1 ───────────────────────────────────────────────
   const cabina = new THREE.Group();
   conjunto.add(cabina);
-  const matCarroceria = R(new THREE.MeshLambertMaterial({ color: 0xd32f2f }));
+  // Pintura con brillo y fibra de carbono mate en el interior
+  const matCarroceria = R(new THREE.MeshPhongMaterial({ color: 0xd32f2f, specular: 0x998888, shininess: 70 })); // Phong: brillo barato (la carrocería ocupa mucha pantalla)
   const matInterior = R(new THREE.MeshLambertMaterial({ color: 0x2b2b2b }));
   cabina.add(new THREE.Mesh(fusionar([
     [caja(0.36, 0.22, 2.3), 0, 0.36, -1.75],   // morro
@@ -275,6 +265,13 @@ export function iniciar(ctx) {
     [caja(0.55, 0.34, 1.4), -0.72, 0.3, 0.35],  // pontones
     [caja(0.55, 0.34, 1.4), 0.72, 0.3, 0.35],
   ]), matCarroceria));
+  // Franja blanca a lo largo del morro y filos blancos en los pontones y el alerón
+  cabina.add(new THREE.Mesh(fusionar([
+    [caja(0.1, 0.01, 2.25), 0, 0.476, -1.75],
+    [caja(0.56, 0.01, 0.08), -0.72, 0.476, -0.3],
+    [caja(0.56, 0.01, 0.08), 0.72, 0.476, -0.3],
+    [caja(1.8, 0.012, 0.06), 0, 0.15, -2.8],
+  ]), R(new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }))));
   // Ruedas delanteras al aire: giran con la velocidad y con el volante
   const ruedasDelanteras = [-1, 1].map((s) => {
     const soporte = new THREE.Group();
@@ -610,6 +607,7 @@ export function iniciar(ctx) {
     matrizCoche.compose(tmp.set(x, 0, z), quat, unidad);
     mundo.matrix.copy(matrizCoche).invert();
     mundo.matrixWorldNeedsUpdate = true;
+    ctx.orientarFondo(-rumbo);
 
     // Ruedas delanteras: giran con la velocidad y se orientan con el volante
     for (const rd of ruedasDelanteras) {
@@ -644,8 +642,6 @@ export function iniciar(ctx) {
     actualizar,
     liberar() {
       motor.parar();
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

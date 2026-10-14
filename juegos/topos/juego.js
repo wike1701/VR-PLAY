@@ -29,7 +29,7 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
 
   // Atardecer de verbena: cielo morado y anaranjado en el horizonte
-  ctx.fondo(0x15241b, { cenit: 0x101a3a, horizonte: 0x6b4a6a, suelo: 0x1c2a1c });
+  ctx.fondo(0x15241b, { cenit: 0x101a3a, horizonte: 0x6b4a6a, suelo: 0x1c2a1c, estrellas: 0.8 });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.5, 0.45), new THREE.Vector3(0, 0.85, -0.7));
 
   // ─── Jardín ────────────────────────────────────────────────────────────

@@ -40,13 +40,9 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x231a3a);
   // La niebla de la shell empieza a 7 m: aquí los bolos están a 11 m y se veían
   // apagados. Se aleja mientras dure el juego.
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 22;
-  niebla.far = 45;
+  ctx.fondo(0x231a3a, { niebla: [22, 45] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.45, 1.1), new THREE.Vector3(0, 0.15, Z_BOLO1));
 
   // ─── Bolera ────────────────────────────────────────────────────────────
@@ -846,8 +842,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

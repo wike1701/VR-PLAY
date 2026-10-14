@@ -1,40 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#6fbbe8"/>
-      <stop offset="0.42" stop-color="#d6eef9"/>
-      <stop offset="0.42" stop-color="#6cb33f"/>
-      <stop offset="1" stop-color="#4f9a2c"/>
+      <stop offset="0" stop-color="#4092d6"/>
+      <stop offset="1" stop-color="#cbe8f6"/>
     </linearGradient>
+    <linearGradient id="asfalto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b6f78"/>
+      <stop offset="1" stop-color="#2f3238"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#fff6dc" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff6dc" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pintura" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f9bff"/>
+      <stop offset="1" stop-color="#103f9a"/>
+    </linearGradient>
+    <radialGradient id="moneda" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff2a0"/>
+      <stop offset="1" stop-color="#d99a06"/>
+    </radialGradient>
+    <linearGradient id="cono" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffa04d"/>
+      <stop offset="1" stop-color="#d65400"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#cielo)"/>
-  <!-- Carretera de 3 carriles hacia el horizonte -->
-  <path d="M180 168 L220 168 L380 400 L20 400 Z" fill="#505359"/>
-  <path d="M193 168 L140 400 M207 168 L260 400" stroke="#f5f5f5" stroke-width="4" stroke-dasharray="16 16"/>
-  <!-- Muro y rampa -->
-  <rect x="150" y="190" width="100" height="22" fill="#9c4b3a"/>
-  <path d="M150 201 H250 M175 190 V201 M200 201 V212 M225 190 V201" stroke="#6b5a52" stroke-width="2"/>
-  <path d="M168 262 L208 262 L202 232 L174 232 Z" fill="#ffd600"/>
-  <!-- Conos -->
-  <g fill="#ff6d00">
-    <path d="M110 330 L124 290 L138 330 Z"/>
-    <path d="M276 300 L286 272 L296 300 Z"/>
-  </g>
-  <g fill="#fff"><rect x="117" y="306" width="14" height="5"/><rect x="281" y="285" width="10" height="4"/></g>
-  <!-- Monedas -->
-  <g fill="#ffc400" stroke="#b8860b" stroke-width="2">
-    <ellipse cx="300" cy="240" rx="10" ry="12"/>
-    <ellipse cx="320" cy="270" rx="12" ry="14"/>
-  </g>
+  <g fill="#ffffff" opacity="0.85"><ellipse cx="90" cy="60" rx="64" ry="14"/><ellipse cx="300" cy="90" rx="52" ry="12"/></g>
+  <path d="M0 176 L70 136 L140 166 L210 124 L290 164 L350 140 L400 156 V196 H0 Z" fill="#82a2ae"/>
+  <rect x="0" y="190" width="400" height="210" fill="#62b04a"/>
+  <g fill="#2f6b3a"><path d="M30 200 l16 -56 l16 56 z"/><path d="M70 196 l11 -38 l11 38 z"/><path d="M330 200 l18 -62 l18 62 z"/><path d="M302 196 l10 -36 l10 36 z"/></g>
+  <!-- Carretera en perspectiva -->
+  <path d="M184 190 H216 L360 400 H40 Z" fill="url(#asfalto)"/>
+  <path d="M184 190 L40 400 M216 190 L360 400" stroke="#f5f5f5" stroke-width="6"/>
+  <g fill="#f5f5f5"><path d="M198 214 h4 l2 18 h-8 z"/><path d="M196 260 h8 l3 30 h-14 z"/><path d="M193 330 h14 l4 50 h-22 z"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Rampa, conos y monedas -->
+  <path d="M168 250 H232 L240 278 H160 Z" fill="#ffd54f"/>
+  <g fill="#1d1d1d"><path d="M172 256 h8 l-4 18 h-8 z"/><path d="M196 256 h8 l-4 18 h-8 z"/><path d="M220 256 h8 l-4 18 h-8 z"/></g>
+  <path d="M98 330 L112 286 L126 330 Z" fill="url(#cono)"/><rect x="92" y="328" width="40" height="7" rx="2" fill="#d65400"/>
+  <path d="M104 312 h16" stroke="#ffffff" stroke-width="5"/>
+  <path d="M286 316 L298 276 L310 316 Z" fill="url(#cono)"/><rect x="280" y="314" width="36" height="6" rx="2" fill="#d65400"/>
+  <circle cx="160" cy="156" r="13" fill="url(#moneda)"/><circle cx="200" cy="146" r="11" fill="url(#moneda)"/><circle cx="238" cy="156" r="13" fill="url(#moneda)"/>
   <!-- Coche saltando -->
-  <g transform="translate(190 120) rotate(-8)">
-    <rect x="-46" y="-14" width="92" height="28" rx="8" fill="#1565c0"/>
-    <rect x="-26" y="-34" width="52" height="24" rx="6" fill="#223344"/>
-    <circle cx="-26" cy="16" r="12" fill="#1a1a1a"/>
-    <circle cx="26" cy="16" r="12" fill="#1a1a1a"/>
+  <path d="M200 280 L200 216" stroke="#ff6a3d" stroke-width="18" stroke-linecap="round" opacity="0.35"/>
+  <ellipse cx="200" cy="292" rx="74" ry="12" fill="#0c0d10" opacity="0.4"/>
+  <g transform="translate(200 200) rotate(-6)">
+    <path d="M-80 10 L-74 -14 Q-60 -22 -40 -22 L-28 -44 Q-20 -52 20 -52 Q34 -52 42 -44 L54 -22 Q74 -22 80 -14 L84 10 Q84 22 70 22 H-70 Q-84 22 -80 10 Z" fill="url(#pintura)"/>
+    <path d="M-22 -24 L-14 -42 H20 L32 -24 Z" fill="#a9d4ff" opacity="0.85"/>
+    <rect x="-84" y="0" width="168" height="8" fill="#0b2a6b"/>
+    <rect x="-74" y="-10" width="18" height="8" rx="3" fill="#ff5252"/><rect x="56" y="-10" width="18" height="8" rx="3" fill="#ff5252"/>
+    <rect x="-70" y="14" width="30" height="20" rx="6" fill="#111"/><rect x="40" y="14" width="30" height="20" rx="6" fill="#111"/>
+    <path d="M-44 -20 H40" stroke="#ffffff" stroke-width="3" opacity="0.3"/>
   </g>
-  <g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.7">
-    <line x1="120" y1="132" x2="96" y2="140"/>
-    <line x1="122" y1="114" x2="100" y2="116"/>
-  </g>
+  <g fill="#ff6a3d"><path d="M120 214 l-30 -6 l4 10 z"/><path d="M280 214 l30 -6 l-4 10 z"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

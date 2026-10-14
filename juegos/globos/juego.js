@@ -46,12 +46,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b1440);
   // Noche de feria: alejamos la niebla para que se vea la noria del fondo
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 14;
-  niebla.far = 45;
+  ctx.fondo(0x1b1440, { niebla: [14, 45] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.6), new THREE.Vector3(0, 1.55, TABLERO_Z));
 
   // ─── Utilidades de geometría ───────────────────────────────────────────
@@ -921,8 +917,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       enVuelo.length = 0;
       clavados.length = 0;
     },

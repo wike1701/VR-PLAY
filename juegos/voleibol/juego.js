@@ -43,11 +43,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x8fd3f5);
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 25;
-  niebla.far = 70;
+  ctx.fondo(0x8fd3f5, { nubes: 0.35, niebla: [25, 70], paisaje: { tipo: 'colinas', color: 0x6a9a7a } });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.8, 1.6), new THREE.Vector3(0, 1.5, -5));
 
   // ─── Playa ─────────────────────────────────────────────────────────────
@@ -652,8 +648,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

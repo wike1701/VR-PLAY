@@ -34,11 +34,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x9cc9e6);
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 16;
-  niebla.far = 40;
+  ctx.fondo(0x9cc9e6, { nubes: 0.4, niebla: [16, 40], paisaje: { tipo: 'colinas', color: 0x5d8a52 } });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.75, 0.9), new THREE.Vector3(0, 0, -7));
 
   // ─── Suelo: césped alrededor de la pista ───────────────────────────────
@@ -645,8 +641,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       cuerpos.length = 0;
     },
   };

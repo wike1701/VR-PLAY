@@ -24,7 +24,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b2230);
+  ctx.fondo(0x1b2230, { estrellas: 0.8 }); // feria de noche
   const vistaPos = new THREE.Vector3(0, 1.6, 0.4);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 1.3, -6));
 
@@ -344,15 +344,36 @@ export function iniciar(ctx) {
   const geoFogonazo = R(new THREE.SphereGeometry(0.04, 8, 6));
   const matFogonazo = R(new THREE.MeshBasicMaterial({ color: 0xffd54f }));
   // Metal pavonado y cachas de madera, compartidos por las tres pistolas
-  const geoArmazon = R(fusionar([
-    new THREE.BoxGeometry(0.035, 0.05, 0.2).translate(0, 0.03, -0.08),
-    new THREE.CylinderGeometry(0.011, 0.011, 0.03, 12).rotateX(Math.PI / 2).translate(0, 0.035, -0.19),
-    new THREE.BoxGeometry(0.006, 0.012, 0.012).translate(0, 0.061, -0.17),
-    new THREE.BoxGeometry(0.012, 0.035, 0.035).translate(0, -0.005, -0.045),
-  ]));
+  const piezasArma = [
+    new THREE.BoxGeometry(0.032, 0.03, 0.2).translate(0, 0.043, -0.08),              // corredera
+    new THREE.BoxGeometry(0.029, 0.022, 0.15).translate(0, 0.017, -0.065),           // armazón
+    new THREE.CylinderGeometry(0.0105, 0.0105, 0.02, 12).rotateX(Math.PI / 2).translate(0, 0.036, -0.185), // boca del cañón
+    new THREE.BoxGeometry(0.005, 0.01, 0.01).translate(0, 0.062, -0.17),             // punto de mira
+    new THREE.BoxGeometry(0.009, 0.009, 0.008).translate(-0.007, 0.061, 0.012),      // alza (dos dientes)
+    new THREE.BoxGeometry(0.009, 0.009, 0.008).translate(0.007, 0.061, 0.012),
+    new THREE.TorusGeometry(0.019, 0.003, 6, 12, Math.PI).rotateY(Math.PI / 2).rotateX(Math.PI).translate(0, 0.006, -0.05), // guardamonte
+    new THREE.BoxGeometry(0.005, 0.02, 0.006).rotateX(0.3).translate(0, 0, -0.048),  // gatillo
+    new THREE.BoxGeometry(0.01, 0.016, 0.01).rotateX(-0.5).translate(0, 0.058, 0.026), // martillo
+  ];
+  // Estrías de agarre en la parte de atrás de la corredera
+  for (let i = 0; i < 6; i++) piezasArma.push(new THREE.BoxGeometry(0.0335, 0.024, 0.0018).translate(0, 0.045, 0.006 - i * 0.0055));
+  const geoArmazon = R(fusionar(piezasArma));
   const matMetal = R(new THREE.MeshStandardMaterial({ color: 0x3a4148, metalness: 0.85, roughness: 0.32 }));
   const geoEmpunadura = R(new THREE.BoxGeometry(0.03, 0.1, 0.045));
-  const matEmpunadura = R(new THREE.MeshStandardMaterial({ color: 0x6d4330, metalness: 0, roughness: 0.6 }));
+  // Cachas de nogal con picado a cuadros
+  const texCachas = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#6d4330';
+    g.fillRect(0, 0, tam, tam);
+    g.strokeStyle = 'rgba(30,15,5,0.55)';
+    g.lineWidth = 1;
+    for (let i = -tam; i < tam * 2; i += 5) {
+      g.beginPath(); g.moveTo(i, 0); g.lineTo(i + tam, tam); g.stroke();
+      g.beginPath(); g.moveTo(i, tam); g.lineTo(i + tam, 0); g.stroke();
+    }
+    g.fillStyle = 'rgba(255,220,180,0.08)';
+    for (let i = 0; i < 60; i++) g.fillRect(azar() * tam, azar() * tam, 2, 2);
+  }, { tam: 64, semilla: 43 }));
+  const matEmpunadura = R(new THREE.MeshStandardMaterial({ map: texCachas, metalness: 0, roughness: 0.6 }));
 
   function crearPistola() {
     const arma = new THREE.Group();

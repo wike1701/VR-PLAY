@@ -37,7 +37,7 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
   const azar = (a, b) => a + Math.random() * (b - a);
 
-  ctx.fondo(0x8ecbf2);
+  ctx.fondo(0x8ecbf2, { nubes: 0.5, niebla: [14, 45], paisaje: { tipo: 'colinas', color: 0x4f8a4a } });
   ctx.sueloBase(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.75, 1.4), new THREE.Vector3(0, 0, -3.5));
 
@@ -52,7 +52,7 @@ export function iniciar(ctx) {
   const matPoste = R(new THREE.MeshStandardMaterial({ color: 0xffb300, metalness: 0.3, roughness: 0.5 }));
   const matMolino = R(new THREE.MeshStandardMaterial({ color: 0x5c6bc0, metalness: 0.2, roughness: 0.5 }));
   const matTronco = R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 }));
-  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0x2e7d32 }));
+  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0x3f7f3a, flatShading: true }));
 
   // Fusiona geometrías estáticas (cada una con su matriz) en una sola: una llamada de dibujo
   function fusionar(piezas) {
@@ -314,21 +314,22 @@ export function iniciar(ctx) {
     prado.position.set(cx, -0.002, cz);
     const troncos = [];
     const copas = [];
-    const geoTronco = new THREE.CylinderGeometry(0.12, 0.16, 1.2, 8).translate(0, 0.6, 0);
-    const geoCopa = new THREE.ConeGeometry(0.9, 2.2, 9).translate(0, 2.1, 0);
+    // Pinos y frondosos del kit de la shell, fusionados en una malla por hoyo
+    const pino = ctx.geometriaArbol('pino');
+    const frondoso = ctx.geometriaArbol('frondoso');
     for (let k = 0; k < 14; k++) {
       const a = (k / 14) * Math.PI * 2 + azar(-0.2, 0.2);
       const dist = Math.max(maxX - minX, maxZ - minZ) / 2 + azar(4, 9);
       const x = cx + Math.cos(a) * dist;
       const z = cz + Math.sin(a) * dist;
-      const s = azar(0.8, 1.4);
-      const mat = new THREE.Matrix4().compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion(), new THREE.Vector3(s, s, s));
-      troncos.push([geoTronco, mat]);
-      copas.push([geoCopa, mat]);
+      const s = azar(0.7, 1.1);
+      const mat = new THREE.Matrix4().compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromAxisAngle(THREE.Object3D.DEFAULT_UP, azar(0, 6.3)), new THREE.Vector3(s, s, s));
+      const tipo = k % 3 ? pino : frondoso;
+      troncos.push([tipo.tronco, mat]);
+      copas.push([tipo.copa, mat]);
     }
     hoyoGrupo.add(prado, new THREE.Mesh(fusionar(troncos), matTronco), new THREE.Mesh(fusionar(copas), matCopa));
-    geoTronco.dispose();
-    geoCopa.dispose();
+    for (const g of [pino.copa, pino.tronco, frondoso.copa, frondoso.tronco]) g.dispose();
 
     bandera.position.set(hoyoPos.x, 0, hoyoPos.y);
     agujero.position.set(hoyoPos.x, 0.003, hoyoPos.y);

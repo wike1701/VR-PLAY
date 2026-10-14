@@ -1,36 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
-    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5d9fd6"/>
-      <stop offset="0.55" stop-color="#a6d6f2"/>
-      <stop offset="0.55" stop-color="#4caf50"/>
-      <stop offset="1" stop-color="#2e7d32"/>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f6fb8"/>
+      <stop offset="1" stop-color="#9fcbea"/>
     </linearGradient>
+    <linearGradient id="cesped" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aae4c"/>
+      <stop offset="1" stop-color="#2f7c2f"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.62" cy="0.35" r="0.45">
+      <stop offset="0" stop-color="#fffbe6" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#fffbe6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0c98c"/>
+      <stop offset="0.5" stop-color="#d49a55"/>
+      <stop offset="1" stop-color="#8f5c28"/>
+    </linearGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c9ccd2"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#fff0e6" stop-opacity="0.95"/>
+      <stop offset="0.4" stop-color="#ff6a3d" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
-  <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Gradas y valla -->
-  <rect x="0" y="160" width="400" height="40" fill="#455a64"/>
-  <rect x="0" y="180" width="400" height="40" fill="#37474f"/>
-  <rect x="0" y="200" width="400" height="22" fill="#1b5e20"/>
-  <rect x="0" y="198" width="400" height="5" fill="#ffd600"/>
-  <!-- Diamante -->
-  <path d="M200 395 L330 300 L200 250 L70 300 Z" fill="#c68a4e"/>
-  <path d="M200 372 L300 302 L200 268 L100 302 Z" fill="#43a047"/>
-  <rect x="190" y="372" width="20" height="14" fill="#fff"/>
-  <!-- Estela de la bola -->
-  <g stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.75" fill="none">
-    <path d="M180 300 Q230 150 300 90"/>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <g fill="#ffffff" opacity="0.75"><ellipse cx="90" cy="60" rx="64" ry="14"/><ellipse cx="330" cy="40" rx="40" ry="10"/></g>
+  <!-- Torres de luz y grada -->
+  <g fill="#3a4250"><rect x="56" y="70" width="6" height="110"/><rect x="336" y="60" width="6" height="120"/></g>
+  <g fill="#fffdf2"><rect x="38" y="58" width="42" height="18" rx="3"/><rect x="318" y="48" width="42" height="18" rx="3"/></g>
+  <path d="M0 170 H400 V214 H0 Z" fill="#2b3150"/>
+  <g opacity="0.7"><rect x="0" y="178" width="400" height="5" fill="#e04a5a"/><rect x="0" y="192" width="400" height="5" fill="#f2c94c"/></g>
+  <rect x="0" y="212" width="400" height="12" fill="#1e5a2e"/>
+  <rect x="0" y="224" width="400" height="176" fill="url(#cesped)"/>
+  <path d="M60 400 L200 290 L340 400 Z" fill="#c98d4f"/>
+  <path d="M200 290 L130 352 M200 290 L270 352" stroke="#ffffff" stroke-width="5" opacity="0.8"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Batazo: impacto coral y la bola saliendo -->
+  <path d="M250 136 L360 40" stroke="#ff6a3d" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+  <circle cx="244" cy="146" r="70" fill="url(#impacto)"/>
+  <circle cx="250" cy="138" r="24" fill="url(#bola)"/>
+  <path d="M234 124 Q244 138 236 154 M266 122 Q256 138 264 154" fill="none" stroke="#d9363e" stroke-width="2.5"/>
+  <g transform="rotate(-38 160 250)">
+    <path d="M10 242 Q60 238 120 236 Q200 230 300 226 Q330 226 332 250 Q330 274 300 274 Q200 270 120 264 Q60 262 10 258 Z" fill="url(#bate)"/>
+    <rect x="-8" y="236" width="22" height="28" rx="6" fill="#1c1c1c"/>
+    <rect x="14" y="240" width="56" height="20" rx="4" fill="#1c1c1c"/>
+    <path d="M140 240 Q230 234 300 232" stroke="#ffffff" stroke-width="4" opacity="0.35" fill="none"/>
   </g>
-  <!-- Bola -->
-  <g transform="translate(305 86)">
-    <circle r="26" fill="#fafafa" stroke="#222" stroke-width="2"/>
-    <path d="M-16 -18 Q-6 0 -16 18" stroke="#d32f2f" stroke-width="3" fill="none"/>
-    <path d="M16 -18 Q6 0 16 18" stroke="#d32f2f" stroke-width="3" fill="none"/>
-  </g>
-  <!-- Bate -->
-  <g transform="translate(120 330) rotate(-40)">
-    <path d="M0 -7 L150 -16 Q162 -16 162 0 Q162 16 150 16 L0 7 Z" fill="#d2a565" stroke="#8d6e3f" stroke-width="2"/>
-    <rect x="-8" y="-8" width="40" height="16" rx="4" fill="#212121"/>
-    <circle cx="-10" cy="0" r="10" fill="#212121"/>
-  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

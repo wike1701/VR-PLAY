@@ -47,6 +47,7 @@ shell/
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
   efectos.js            Sensación de juego (ctx.efectos): partículas, números que saltan, micro-pausa y sacudida
+  paisaje.js            Horizonte lejano (montes, ciudad…) y árboles instanciados (ctx.fondo({ paisaje }), ctx.arboles)
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
   clasificacion.js      Clasificaciones en el navegador (formato de cada unidad, enviar resultados)
@@ -135,6 +136,8 @@ export function iniciar(ctx) {
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
   // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
   // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
+  // ctx.fondo(color, { nubes, estrellas, luna, sol, niebla: [cerca, lejos], paisaje: { tipo, color } })
+  // ctx.arboles(lista, { tipo: 'pino' | 'frondoso' | 'palmera' }) -> grupo, ctx.geometriaArbol(tipo), ctx.orientarFondo(giro)
   // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»)
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
@@ -143,7 +146,7 @@ export function iniciar(ctx) {
 }
 ```
 
-2. Añade una miniatura cuadrada (`juegos/<id>/miniatura.svg`; si es `.png` o `.jpg`, indícalo en el catálogo con `miniatura`).
+2. Añade su portada cuadrada (`juegos/<id>/miniatura.svg`) siguiendo [`docs/PORTADAS.md`](docs/PORTADAS.md), para que sea de la misma familia que las demás. `node herramientas/calidad.mjs` comprueba lo técnico.
 3. Añade la entrada en `juegos/catalogo.js` con su género (una clave de `generos` en los idiomas: `arcade`, `deportes`, `disparos`…):
 
 ```js
@@ -219,7 +222,7 @@ Cada juego tiene su clasificación: la **de siempre** y la **del mes**, con el t
 
 ## Calidad gráfica y rendimiento
 
-**El estándar completo está en [`docs/CALIDAD.md`](docs/CALIDAD.md)** (rendimiento, sensación de juego, HUD y lista antes de subir) y se comprueba con `node herramientas/calidad.mjs` (`--avisos` para ver también las recomendaciones). Ningún juego se sube con errores.
+**El estándar completo está en [`docs/CALIDAD.md`](docs/CALIDAD.md)** (rendimiento, sensación de juego, HUD, aspecto y lista antes de subir) y el de las portadas en [`docs/PORTADAS.md`](docs/PORTADAS.md) y se comprueba con `node herramientas/calidad.mjs` (`--avisos` para ver también las recomendaciones). Ningún juego se sube con errores.
 
 El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los fotogramas del Quest. La shell ya pone tone mapping, un cielo con degradado (`ctx.fondo(color)`) y un mapa de entorno sacado de ese cielo, así que los `MeshStandardMaterial` tienen reflejos sin coste extra. El estándar para cada juego:
 

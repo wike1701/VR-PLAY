@@ -21,6 +21,11 @@ const sombreadorCielo = {
     suelo: { value: new THREE.Color() },
     solDir: { value: new THREE.Vector3(0.35, 0.75, -0.55).normalize() },
     solColor: { value: new THREE.Color() },
+    mapaCielo: { value: null },        // R: nubes, G: estrellas (ver obtenerTexturaCielo)
+    nubes: { value: 0 },                // 0 = despejado · 1 = muy nublado
+    estrellas: { value: 0 },
+    colorNubes: { value: new THREE.Color() },
+    tiempo: { value: 0 },
   },
   vertexShader: /* glsl */ `
     varying vec3 vDir;
@@ -35,6 +40,11 @@ const sombreadorCielo = {
     uniform vec3 suelo;
     uniform vec3 solDir;
     uniform vec3 solColor;
+    uniform sampler2D mapaCielo;
+    uniform float nubes;
+    uniform float estrellas;
+    uniform vec3 colorNubes;
+    uniform float tiempo;
     varying vec3 vDir;
     void main() {
       vec3 d = normalize(vDir);
@@ -45,6 +55,23 @@ const sombreadorCielo = {
       // Halo suave alrededor del sol (o de la luz principal en escenas de noche)
       float s = max(dot(d, solDir), 0.0);
       c += solColor * (pow(s, 8.0) * 0.25 + pow(s, 400.0) * 1.5);
+      if (h > 0.0) {
+        float despejado = 1.0;
+        // Capa de nubes proyectada sobre un techo plano: se aplanan hacia el horizonte
+        // como las de verdad. Una lectura de una textura pequeña: coste casi nulo.
+        if (nubes > 0.0) {
+          vec2 uv = d.xz / (h + 0.1) * 0.16 + vec2(tiempo * 0.003, tiempo * 0.001);
+          float n = texture2D(mapaCielo, uv).r;
+          float cobertura = smoothstep(1.0 - nubes, 1.25 - nubes, n) * smoothstep(0.0, 0.2, h);
+          vec3 cn = colorNubes * (0.8 + 0.35 * n) + solColor * pow(s, 6.0) * 0.35;
+          c = mix(c, cn, cobertura * 0.92);
+          despejado = 1.0 - cobertura; // las nubes tapan las estrellas
+        }
+        if (estrellas > 0.0) {
+          float e = texture2D(mapaCielo, d.xz / (1.0 + h) * 1.7).g;
+          c += vec3(e * e) * estrellas * 1.6 * smoothstep(0.04, 0.35, h) * despejado;
+        }
+      }
       gl_FragColor = vec4(c, 1.0);
       // Sin tone mapping: three.js aplica la niebla después del tone mapping, así que
       // el horizonte solo casa con la niebla si el cielo tampoco lo lleva.
@@ -82,6 +109,7 @@ export function crearCielo() {
     depthWrite: false,
     fog: false,
   });
+  material.uniforms.mapaCielo.value = obtenerTexturaCielo();
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(RADIO_CIELO, 32, 16), material);
   mesh.name = 'cielo';
   mesh.renderOrder = -1000;
@@ -89,16 +117,77 @@ export function crearCielo() {
 
   return {
     mesh,
-    // colores: { cenit, horizonte, suelo, dia } (THREE.Color o hex)
+    // colores: { cenit, horizonte, suelo, dia, nubes, estrellas, luna, sol } (THREE.Color o hex)
+    // luna: de noche, el disco y el halo del sol se pintan como una luna pálida.
+    // sol: dirección [x, y, z] del sol (o de la luna).
     aplicar(colores, solColor) {
       const u = material.uniforms;
       u.cenit.value.set(colores.cenit);
       u.horizonte.value.set(colores.horizonte);
       u.suelo.value.set(colores.suelo);
-      u.solColor.value.set(solColor ?? (colores.dia ? 0xfff2d6 : 0x000000));
+      u.solColor.value.set(solColor ?? (colores.dia ? 0xfff2d6 : colores.luna ? 0x8f98b8 : 0x000000));
+      u.solDir.value.set(...(colores.sol || [0.35, 0.75, -0.55])).normalize();
+      // Por defecto: algunas nubes de día
+      u.nubes.value = colores.nubes ?? (colores.dia ? 0.45 : 0);
+      u.estrellas.value = colores.estrellas ?? 0; // solo si el juego las pide (en interiores no pegan)
+      if (colores.dia) u.colorNubes.value.set(0xffffff).lerp(u.horizonte.value, 0.12);
+      else u.colorNubes.value.copy(u.horizonte.value).lerp(u.cenit.value, 0.4).multiplyScalar(1.3);
+    },
+    // Las nubes se mueven muy despacio
+    actualizar(t) {
+      material.uniforms.tiempo.value = t;
     },
     get solDir() { return material.uniforms.solDir.value; },
   };
+}
+
+// Textura del cielo, generada una sola vez y compartida: en el canal rojo, nubes
+// (ruido suave que se repite sin costuras); en el verde, estrellas sueltas.
+let texturaCielo = null;
+function obtenerTexturaCielo() {
+  if (texturaCielo) return texturaCielo;
+  const tam = 256;
+  const azar = aleatorio(7);
+  // Ruido de valor que se repite: rejillas de 4, 8, 16 y 32 celdas
+  const capas = [4, 8, 16, 32].map((n) => ({ n, v: Float32Array.from({ length: n * n }, () => azar()) }));
+  const suave = (t) => t * t * (3 - 2 * t);
+  const datos = new Uint8Array(tam * tam * 4);
+  for (let y = 0; y < tam; y++) {
+    for (let x = 0; x < tam; x++) {
+      let valor = 0;
+      let peso = 0.5;
+      let total = 0;
+      for (const { n, v } of capas) {
+        const fx = (x / tam) * n;
+        const fy = (y / tam) * n;
+        const x0 = Math.floor(fx);
+        const y0 = Math.floor(fy);
+        const tx = suave(fx - x0);
+        const ty = suave(fy - y0);
+        const a = v[(y0 % n) * n + (x0 % n)];
+        const b = v[(y0 % n) * n + ((x0 + 1) % n)];
+        const c = v[((y0 + 1) % n) * n + (x0 % n)];
+        const d = v[((y0 + 1) % n) * n + ((x0 + 1) % n)];
+        valor += (a + (b - a) * tx + (c - a) * ty + (a - b - c + d) * tx * ty) * peso;
+        total += peso;
+        peso *= 0.5;
+      }
+      datos[(y * tam + x) * 4] = Math.round((valor / total) * 255);
+      datos[(y * tam + x) * 4 + 3] = 255;
+    }
+  }
+  for (let i = 0; i < 500; i++) {
+    const p = Math.floor(azar() * tam * tam) * 4;
+    datos[p + 1] = 90 + Math.floor(azar() ** 3 * 165);
+  }
+  texturaCielo = new THREE.DataTexture(datos, tam, tam);
+  texturaCielo.wrapS = texturaCielo.wrapT = THREE.RepeatWrapping;
+  texturaCielo.magFilter = THREE.LinearFilter;
+  texturaCielo.minFilter = THREE.LinearFilter; // sin mipmaps: las estrellas no se apagan a lo lejos
+  texturaCielo.generateMipmaps = false;
+  texturaCielo.needsUpdate = true;
+  texturaCielo.userData.compartido = true;
+  return texturaCielo;
 }
 
 // ─── Mapa de entorno ─────────────────────────────────────────────────────
@@ -305,7 +394,7 @@ export const texturas = {
 // ─── Sombras de mancha ───────────────────────────────────────────────────
 // Una textura de degradado radial que comparten todas las sombras.
 let texturaSombra = null;
-function obtenerTexturaSombra() {
+export function obtenerTexturaSombra() {
   if (texturaSombra) return texturaSombra;
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 64;

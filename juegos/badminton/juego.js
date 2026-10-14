@@ -43,12 +43,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x2a3550);
   // Pabellón cerrado: la niebla de la shell (de 7 a 16 m) apagaría las paredes del fondo
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 20;
-  niebla.far = 40;
+  ctx.fondo(0x2a3550, { niebla: [20, 40] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.7, 1.5), new THREE.Vector3(0, 1.3, -5));
 
   // ─── Pabellón y pista ──────────────────────────────────────────────────
@@ -709,8 +705,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

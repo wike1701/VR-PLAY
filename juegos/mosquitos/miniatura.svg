@@ -1,52 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0d1430"/>
-      <stop offset="1" stop-color="#2a3a6a"/>
+      <stop offset="0" stop-color="#0b1330"/>
+      <stop offset="1" stop-color="#1d2a55"/>
     </linearGradient>
-    <radialGradient id="luz" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#fff2c4"/>
-      <stop offset="0.3" stop-color="#ffcf7a" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#ffb04a" stop-opacity="0"/>
+    <radialGradient id="luna" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6d6"/>
+      <stop offset="0.2" stop-color="#fff0c0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff0c0" stop-opacity="0"/>
     </radialGradient>
-    <pattern id="rejilla" width="12" height="12" patternUnits="userSpaceOnUse">
-      <rect width="12" height="12" fill="none"/>
-      <path d="M0 0H12M0 0V12" stroke="#ffca28" stroke-width="3"/>
+    <linearGradient id="tablas" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a6a42"/>
+      <stop offset="1" stop-color="#5e3b21"/>
+    </linearGradient>
+    <linearGradient id="mango" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffd35a"/>
+      <stop offset="1" stop-color="#d79a0a"/>
+    </linearGradient>
+    <radialGradient id="plaf">
+      <stop offset="0" stop-color="#fff0e6" stop-opacity="0.9"/>
+      <stop offset="0.4" stop-color="#ff6a3d" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="malla" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#ffc83a"/>
+      <rect x="2" y="2" width="6" height="6" fill="#b3830a"/>
     </pattern>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Estrellas y bombilla del porche -->
-  <g fill="#dfe6ff">
-    <circle cx="40" cy="44" r="2"/><circle cx="120" cy="28" r="1.6"/><circle cx="210" cy="56" r="2"/>
-    <circle cx="300" cy="22" r="1.5"/><circle cx="360" cy="70" r="2"/><circle cx="70" cy="120" r="1.4"/>
+  <g fill="#ffffff" opacity="0.7"><circle cx="30" cy="30" r="1.5"/><circle cx="110" cy="56" r="1.2"/><circle cx="210" cy="24" r="1.4"/><circle cx="160" cy="110" r="1"/></g>
+  <circle cx="326" cy="74" r="80" fill="url(#luna)"/>
+  <circle cx="326" cy="74" r="20" fill="#fff6d6"/>
+  <path d="M0 220 L40 200 L60 214 L90 196 L120 212 L170 198 L220 214 L270 196 L320 212 L360 198 L400 208 V250 H0 Z" fill="#0a1424"/>
+  <!-- Barandilla y suelo del porche -->
+  <rect x="0" y="250" width="400" height="150" fill="url(#tablas)"/>
+  <g stroke="#3e2614" stroke-width="2" opacity="0.6"><path d="M0 290 H400 M0 336 H400 M0 380 H400"/></g>
+  <rect x="0" y="226" width="400" height="10" fill="#e8e8e8"/>
+  <g fill="#e8e8e8"><rect x="20" y="236" width="8" height="40"/><rect x="70" y="236" width="8" height="40"/><rect x="320" y="236" width="8" height="40"/><rect x="370" y="236" width="8" height="40"/></g>
+  <!-- ¡Plaf! -->
+  <circle cx="170" cy="164" r="78" fill="url(#plaf)"/>
+  <g transform="translate(170 160)">
+    <ellipse cx="0" cy="0" rx="16" ry="7" fill="#2a2420"/>
+    <circle cx="16" cy="-2" r="6" fill="#2a2420"/>
+    <path d="M20 -2 L36 2" stroke="#2a2420" stroke-width="2"/>
+    <ellipse cx="-4" cy="-14" rx="18" ry="8" fill="#cfe3ff" opacity="0.8" transform="rotate(-20)"/>
+    <ellipse cx="-4" cy="12" rx="18" ry="8" fill="#cfe3ff" opacity="0.8" transform="rotate(20)"/>
+    <g stroke="#2a2420" stroke-width="2"><path d="M-6 4 l-10 16"/><path d="M2 5 l-2 18"/><path d="M8 4 l8 16"/></g>
   </g>
-  <circle cx="320" cy="96" r="70" fill="url(#luz)"/>
-  <circle cx="320" cy="96" r="14" fill="#fff6d8"/>
-  <!-- Suelo de tablas -->
-  <rect y="320" width="400" height="80" fill="#6b4a30"/>
-  <path d="M0 340H400M0 362H400M0 384H400" stroke="#4a3220" stroke-width="3"/>
-  <!-- Matamoscas -->
-  <g transform="rotate(-28 230 250)">
-    <rect x="224" y="240" width="12" height="170" rx="6" fill="#f9a825"/>
-    <rect x="180" y="128" width="100" height="116" rx="14" fill="#ffca28" fill-opacity="0.25" stroke="#ffca28" stroke-width="8"/>
-    <rect x="180" y="128" width="100" height="116" rx="14" fill="url(#rejilla)"/>
+  <g fill="#ff6a3d"><path d="M110 120 l18 14 l-22 -2 z"/><path d="M230 112 l-16 16 l20 -4 z"/><path d="M106 210 l22 -10 l-8 18 z"/></g>
+  <!-- Matamoscas golpeando -->
+  <g transform="translate(78 34) rotate(-34 260 260)">
+    <rect x="184" y="80" width="104" height="104" rx="14" fill="url(#malla)"/>
+    <rect x="184" y="80" width="104" height="104" rx="14" fill="none" stroke="#d79a0a" stroke-width="6"/>
+    <rect x="228" y="184" width="16" height="200" rx="6" fill="url(#mango)"/>
   </g>
-  <!-- Mosquito tigre -->
-  <g transform="translate(118 196) rotate(-18)">
-    <ellipse cx="-38" cy="-26" rx="44" ry="13" fill="#c8dcff" fill-opacity="0.55" transform="rotate(-28 -38 -26)"/>
-    <ellipse cx="-30" cy="22" rx="40" ry="12" fill="#c8dcff" fill-opacity="0.45" transform="rotate(24 -30 22)"/>
-    <g stroke="#1b1b20" stroke-width="3.5" fill="none" stroke-linecap="round">
-      <path d="M-4 6 L-20 44 L-44 70"/><path d="M4 8 L10 48 L2 82"/><path d="M10 6 L34 40 L60 58"/>
-      <path d="M-4 -6 L-18 -40 L-40 -62"/><path d="M6 -6 L20 -40 L42 -60"/>
-    </g>
-    <ellipse cx="-50" cy="2" rx="38" ry="12" fill="#1b1b20"/>
-    <g fill="#e6e6ea">
-      <rect x="-80" y="-10" width="5" height="22"/><rect x="-66" y="-11" width="5" height="24"/>
-      <rect x="-52" y="-12" width="5" height="24"/><rect x="-38" y="-11" width="5" height="22"/>
-    </g>
-    <ellipse cx="2" cy="0" rx="18" ry="14" fill="#1b1b20"/>
-    <circle cx="24" cy="-2" r="9" fill="#1b1b20"/>
-    <path d="M30 0 L62 10" stroke="#1b1b20" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="27" cy="-5" r="3" fill="#ff5252"/>
-  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

@@ -22,7 +22,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1d1626);
+  // Noche con luna sobre el castillo: estrellas, montes oscuros y la niebla más lejos
+  ctx.fondo(0x1d1626, { estrellas: 0.9, luna: true, sol: [-0.4, 0.32, -0.85], niebla: [9, 28], paisaje: { tipo: 'montes', color: 0x150f20 } });
 
   // ─── Utilidades de geometría ───────────────────────────────────────────
   // Junta varias geometrías ya colocadas en una sola (una llamada de dibujo).

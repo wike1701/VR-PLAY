@@ -1,43 +1,64 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2b2f3a"/>
-      <stop offset="1" stop-color="#171a22"/>
+      <stop offset="0" stop-color="#3a2420"/>
+      <stop offset="1" stop-color="#1e1412"/>
     </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#ffcf8a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffcf8a" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="cobre" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f0b27a"/>
-      <stop offset="1" stop-color="#a0612b"/>
+      <stop offset="0" stop-color="#ffd09a"/>
+      <stop offset="1" stop-color="#a3561f"/>
     </linearGradient>
-    <radialGradient id="brillo" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#fff59d" stop-opacity="0.9"/>
-      <stop offset="1" stop-color="#ffab00" stop-opacity="0"/>
+    <linearGradient id="mesa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a6a42"/>
+      <stop offset="1" stop-color="#5e3b21"/>
+    </linearGradient>
+    <radialGradient id="chispa">
+      <stop offset="0" stop-color="#fff6d0"/>
+      <stop offset="0.3" stop-color="#ffb04d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bombilla" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#fffbe0"/>
+      <stop offset="0.6" stop-color="#ffe17a"/>
+      <stop offset="1" stop-color="#ffb02e"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
     </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Mesa -->
-  <rect x="0" y="318" width="400" height="82" fill="#6d4c41"/>
-  <rect x="0" y="318" width="400" height="8" fill="#8d6e63"/>
-  <!-- Postes -->
-  <rect x="44" y="236" width="12" height="86" fill="#37474f"/>
-  <rect x="344" y="176" width="12" height="146" fill="#37474f"/>
-  <!-- Cable -->
-  <path d="M50 240 L84 240 C110 240 112 170 140 170 C168 170 170 262 200 262 C226 262 232 150 262 150 C292 150 290 210 316 196 L350 180"
-        fill="none" stroke="url(#cobre)" stroke-width="7" stroke-linecap="round"/>
-  <!-- Zonas de salida y llegada -->
-  <path d="M50 240 L84 240" stroke="#2e7d32" stroke-width="16" stroke-linecap="round"/>
-  <path d="M318 195 L350 180" stroke="#ffc400" stroke-width="16" stroke-linecap="round"/>
-  <!-- Chispa -->
-  <circle cx="200" cy="262" r="40" fill="url(#brillo)"/>
-  <g stroke="#ffe082" stroke-width="4" stroke-linecap="round">
-    <line x1="200" y1="262" x2="186" y2="232"/>
-    <line x1="200" y1="262" x2="222" y2="236"/>
-    <line x1="200" y1="262" x2="232" y2="270"/>
-    <line x1="200" y1="262" x2="172" y2="282"/>
+  <!-- Ladrillos -->
+  <g fill="#6b3a2c" opacity="0.7">
+    <rect x="4" y="20" width="76" height="30" rx="3"/><rect x="86" y="20" width="76" height="30" rx="3"/><rect x="168" y="20" width="76" height="30" rx="3"/><rect x="250" y="20" width="76" height="30" rx="3"/><rect x="332" y="20" width="76" height="30" rx="3"/>
+    <rect x="-34" y="56" width="76" height="30" rx="3"/><rect x="48" y="56" width="76" height="30" rx="3"/><rect x="130" y="56" width="76" height="30" rx="3"/><rect x="212" y="56" width="76" height="30" rx="3"/><rect x="294" y="56" width="76" height="30" rx="3"/>
+    <rect x="4" y="92" width="76" height="30" rx="3"/><rect x="86" y="92" width="76" height="30" rx="3"/><rect x="168" y="92" width="76" height="30" rx="3"/><rect x="250" y="92" width="76" height="30" rx="3"/><rect x="332" y="92" width="76" height="30" rx="3"/>
+    <rect x="-34" y="128" width="76" height="30" rx="3"/><rect x="48" y="128" width="76" height="30" rx="3"/><rect x="130" y="128" width="76" height="30" rx="3"/><rect x="212" y="128" width="76" height="30" rx="3"/><rect x="294" y="128" width="76" height="30" rx="3"/>
+    <rect x="4" y="164" width="76" height="30" rx="3"/><rect x="86" y="164" width="76" height="30" rx="3"/><rect x="168" y="164" width="76" height="30" rx="3"/><rect x="250" y="164" width="76" height="30" rx="3"/><rect x="332" y="164" width="76" height="30" rx="3"/>
   </g>
-  <!-- Aro con su mango -->
-  <g transform="translate(200 262)">
-    <ellipse rx="16" ry="30" fill="none" stroke="#eceff1" stroke-width="6"/>
-    <rect x="-5" y="30" width="10" height="34" fill="#cfd8dc"/>
-    <rect x="-11" y="62" width="22" height="58" rx="8" fill="#d32f2f"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <rect x="0" y="300" width="400" height="100" fill="url(#mesa)"/>
+  <!-- Bombilla encendida -->
+  <circle cx="200" cy="60" r="56" fill="url(#chispa)" opacity="0.5"/>
+  <circle cx="200" cy="62" r="24" fill="url(#bombilla)"/>
+  <rect x="190" y="84" width="20" height="16" rx="3" fill="#8a949c"/>
+  <!-- Postes y cable ondulado -->
+  <rect x="44" y="190" width="10" height="114" fill="#2a2a2a"/><rect x="346" y="150" width="10" height="154" fill="#2a2a2a"/>
+  <rect x="30" y="182" width="38" height="14" rx="4" fill="#2e7d32"/><rect x="332" y="142" width="38" height="14" rx="4" fill="#ffc400"/>
+  <path d="M49 190 C90 120 120 260 170 200 S250 110 290 190 S340 220 351 150" fill="none" stroke="url(#cobre)" stroke-width="8" stroke-linecap="round"/>
+  <!-- Calambrazo -->
+  <circle cx="236" cy="168" r="44" fill="url(#chispa)"/>
+  <path d="M236 132 l-8 20 h12 l-10 26" fill="none" stroke="#fff6d0" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Varita con el aro -->
+  <g transform="rotate(24 236 168)">
+    <ellipse cx="236" cy="168" rx="30" ry="34" fill="none" stroke="#dfe4ea" stroke-width="8"/>
+    <rect x="232" y="198" width="8" height="40" fill="#b9c2cc"/>
+    <rect x="224" y="236" width="24" height="96" rx="10" fill="#d32f2f"/>
+    <rect x="228" y="240" width="6" height="86" rx="3" fill="#ffffff" opacity="0.3"/>
   </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

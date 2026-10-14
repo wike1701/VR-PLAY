@@ -18,6 +18,7 @@ import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta,
 import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hayCuenta } from './clasificacion.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { crearEfectos } from './efectos.js';
+import { crearHorizonte, crearArboles, geometriaArbol } from './paisaje.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
@@ -64,17 +65,35 @@ const entorno = crearGeneradorEntorno(renderer);
 const camara = new THREE.PerspectiveCamera(FOV_ESCRITORIO, window.innerWidth / window.innerHeight, 0.05, 100);
 escena.add(camara);
 
-const hemisferio = new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.6);
+const hemisferio = new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.25);
 escena.add(hemisferio);
-const sol = new THREE.DirectionalLight(0xfff4e5, 1.8);
-sol.position.set(2, 5, 2);
+const sol = new THREE.DirectionalLight(0xfff1dc, 2.5);
+sol.position.set(3.5, 5, 2.5); // luz principal de lado y desde arriba: marca el volumen de las cosas
 escena.add(sol);
 
+// Horizonte lejano (montes, ciudad...) del juego actual, si lo pide
+let horizonte = null;
+// Giro del cielo y del horizonte (para juegos en los que el mundo gira alrededor del jugador)
+let giroFondo = 0;
+
 // Cambia el cielo, la niebla y el color de las luces para que todo case.
+// opciones: { cenit, horizonte, suelo, dia, nubes, estrellas, niebla: [cerca, lejos],
+//             paisaje: { tipo: 'montes' | 'colinas' | 'dunas' | 'bosque' | 'ciudad', color } }
 function aplicarFondo(color, opciones = {}) {
   const colores = { ...coloresCielo(color), ...opciones };
   cielo.aplicar(colores);
   escena.fog.color.set(colores.horizonte);
+  [escena.fog.near, escena.fog.far] = opciones.niebla || [7, 16];
+  giroFondo = 0;
+  if (horizonte) {
+    escena.remove(horizonte);
+    liberarObjeto(horizonte);
+    horizonte = null;
+  }
+  if (opciones.paisaje) {
+    horizonte = crearHorizonte({ ...opciones.paisaje, horizonte: colores.horizonte });
+    escena.add(horizonte);
+  }
   hemisferio.color.set(colores.dia ? 0xe6f0ff : 0xc8ccff).lerp(new THREE.Color(colores.cenit), 0.25);
   hemisferio.groundColor.set(colores.suelo).multiplyScalar(colores.dia ? 1 : 1.6);
   escena.environment = entorno.generar(colores);
@@ -396,8 +415,19 @@ function montar(indice, modulo) {
     vibrar,
     destello: (color, fuerza) => fundido.destello(color, fuerza),
     // Cielo con degradado a partir de un color. opciones: { cenit, horizonte, suelo, dia }
+    // y, si se quiere, nubes/estrellas, niebla y un horizonte lejano (ver shell/paisaje.js):
+    //   ctx.fondo(0x8ec9f0, { niebla: [20, 70], paisaje: { tipo: 'montes', color: 0x4a6a58 } })
     fondo(color, opciones) {
       aplicarFondo(color, opciones);
+    },
+    // Árboles en InstancedMesh (3 llamadas de dibujo para todos): devuelve un grupo
+    // para añadir a ctx.raiz. lista: [{ x, z, escala }], opciones: { tipo, hojas, madera }
+    arboles: crearArboles,
+    // Geometrías de un árbol del kit ({ copa, tronco }) para quien mueve sus propias instancias
+    geometriaArbol,
+    // Gira el cielo y el horizonte (radianes, sobre el eje vertical)
+    orientarFondo(giro) {
+      giroFondo = giro;
     },
     // Kit gráfico: texturas procedurales y sombras de mancha (ver shell/graficos.js).
     // Las texturas que crea un juego hay que registrarlas con ctx.recurso().
@@ -821,10 +851,20 @@ window.addEventListener('resize', alRedimensionar);
 const SEGUNDOS_PARTIDA = 15;
 const reloj = new THREE.Clock();
 let tiempo = 0;
+const posCamara = new THREE.Vector3();
 
 renderer.setAnimationLoop(() => {
   const dt = Math.min(reloj.getDelta(), 0.05);
   tiempo += dt;
+  cielo.actualizar(tiempo);
+  // El cielo y el horizonte van con la cámara: siempre igual de lejos, nunca se atraviesan
+  camara.getWorldPosition(posCamara);
+  cielo.mesh.position.copy(posCamara);
+  cielo.mesh.rotation.y = giroFondo;
+  if (horizonte) {
+    horizonte.position.set(posCamara.x, 0, posCamara.z);
+    horizonte.rotation.y = giroFondo;
+  }
   const enVR = renderer.xr.isPresenting;
 
   escena.updateMatrixWorld();

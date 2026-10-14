@@ -32,12 +32,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1f1a2e);
   // Pabellón cerrado: alejamos la niebla para que se vean las paredes y las gradas
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 11;
-  niebla.far = 30;
+  ctx.fondo(0x1f1a2e, { niebla: [11, 30] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.7), new THREE.Vector3(0, ARO.y - 0.45, ARO.z));
 
   // ─── Utilidades de geometría ───────────────────────────────────────────
@@ -713,8 +709,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       enVuelo.length = 0;
     },
   };

@@ -1,35 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2a3550"/>
-      <stop offset="0.6" stop-color="#3d4c72"/>
-      <stop offset="0.6" stop-color="#2e7d4f"/>
-      <stop offset="1" stop-color="#21613b"/>
+      <stop offset="0" stop-color="#1b2440"/>
+      <stop offset="1" stop-color="#2c3a66"/>
     </linearGradient>
-    <pattern id="red" width="12" height="12" patternUnits="userSpaceOnUse">
-      <path d="M0 0 H12 M0 0 V12" stroke="#111" stroke-width="1.5" opacity="0.7"/>
-    </pattern>
+    <radialGradient id="foco" cx="0.5" cy="0.3" r="0.55">
+      <stop offset="0" stop-color="#eef3ff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#eef3ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pista" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f8f52"/>
+      <stop offset="1" stop-color="#1c6b3a"/>
+    </linearGradient>
+    <linearGradient id="marco" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7a7a"/>
+      <stop offset="1" stop-color="#b5162a"/>
+    </linearGradient>
+    <radialGradient id="pluma" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cfd6e2"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Banderines y gradas -->
+  <path d="M0 40 Q200 70 400 40" fill="none" stroke="#c9d1e6" stroke-width="2"/>
+  <g><path d="M30 46 l12 0 l-6 14 z" fill="#ffd54f"/><path d="M90 54 l12 0 l-6 14 z" fill="#4fc3f7"/><path d="M150 59 l12 0 l-6 14 z" fill="#ef5350"/><path d="M210 60 l12 0 l-6 14 z" fill="#66bb6a"/><path d="M270 58 l12 0 l-6 14 z" fill="#ab47bc"/><path d="M330 52 l12 0 l-6 14 z" fill="#ffd54f"/></g>
+  <g fill="#2f55c8" opacity="0.8"><rect x="0" y="150" width="400" height="12"/><rect x="0" y="174" width="400" height="12"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <path d="M0 220 H400 V400 H0 Z" fill="#c99662"/>
+  <path d="M70 400 L130 220 H270 L330 400 Z" fill="url(#pista)"/>
+  <path d="M70 400 L130 220 H270 L330 400 Z M200 220 V400" fill="none" stroke="#f5f5f5" stroke-width="4"/>
   <!-- Red -->
-  <rect x="30" y="196" width="340" height="56" fill="url(#red)"/>
-  <rect x="30" y="192" width="340" height="8" fill="#f5f5f5"/>
-  <rect x="26" y="192" width="6" height="140" fill="#37474f"/>
-  <rect x="368" y="192" width="6" height="140" fill="#37474f"/>
-  <!-- Volante -->
-  <g transform="translate(150 120) rotate(-30)">
-    <path d="M-20 0 L20 0 L10 -46 L-10 -46 Z" fill="#fff" stroke="#ccc" stroke-width="2"/>
-    <path d="M-12 -2 L-6 -44 M0 -2 L0 -46 M12 -2 L6 -44" stroke="#ccc" stroke-width="1.5"/>
-    <ellipse cx="0" cy="8" rx="16" ry="12" fill="#fafafa" stroke="#bbb" stroke-width="2"/>
+  <rect x="60" y="196" width="280" height="40" fill="#141414" opacity="0.35"/>
+  <g stroke="#e6e6e6" stroke-width="1.5" opacity="0.5"><path d="M60 206 H340 M60 216 H340 M60 226 H340"/></g>
+  <path d="M60 196 H340" stroke="#f5f5f5" stroke-width="5"/>
+  <g fill="#222"><rect x="56" y="190" width="7" height="90"/><rect x="337" y="190" width="7" height="90"/></g>
+  <!-- Volante volando -->
+  <path d="M60 330 Q120 160 238 112" fill="none" stroke="url(#estela)" stroke-width="12" stroke-linecap="round"/>
+  <g transform="translate(250 108) rotate(-60)">
+    <path d="M-20 -6 L20 -6 L28 -50 L-28 -50 Z" fill="url(#pluma)"/>
+    <g stroke="#b9c2d0" stroke-width="2"><path d="M-10 -6 L-14 -50 M0 -6 V-50 M10 -6 L14 -50"/></g>
+    <path d="M-24 -30 H24" stroke="#ff6a3d" stroke-width="3"/>
+    <ellipse cx="0" cy="2" rx="18" ry="14" fill="#f2f2f2"/>
   </g>
-  <path d="M130 150 Q90 230 60 260" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 10" opacity="0.6"/>
-  <!-- Raqueta -->
-  <g transform="translate(275 165) rotate(28)">
-    <ellipse cx="0" cy="0" rx="50" ry="62" fill="none" stroke="#e53935" stroke-width="9"/>
-    <g stroke="#fff" stroke-width="1.5" opacity="0.6">
-      <path d="M-40 -30 H40 M-46 -10 H46 M-46 10 H46 M-40 30 H40 M-30 -50 V50 M-10 -60 V60 M10 -60 V60 M30 -50 V50"/>
+  <!-- Raqueta en primer plano -->
+  <g transform="rotate(-30 120 260)">
+    <ellipse cx="120" cy="180" rx="62" ry="80" fill="none" stroke="url(#marco)" stroke-width="12"/>
+    <g stroke="#f2f2f2" stroke-width="2" opacity="0.75">
+      <path d="M78 140 H162 M66 160 H174 M62 180 H178 M66 200 H174 M78 220 H162 M96 240 H144"/>
+      <path d="M90 116 V244 M110 104 V258 M130 104 V258 M150 116 V244"/>
     </g>
-    <rect x="-4" y="62" width="8" height="70" fill="#e53935"/>
-    <rect x="-8" y="132" width="16" height="44" rx="5" fill="#212121"/>
+    <rect x="114" y="258" width="12" height="70" fill="#9aa1ad"/>
+    <rect x="108" y="326" width="24" height="76" rx="8" fill="#1d1d1d"/>
   </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

@@ -25,12 +25,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x86b8e0);
   // El lanzador está lejos: alejamos la niebla mientras dura este juego
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 25;
-  niebla.far = 60;
+  ctx.fondo(0x86b8e0, { niebla: [25, 60] });
   const vistaPos = new THREE.Vector3(0, 1.25, 1.1);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 0.9, -11));
 
@@ -319,25 +315,42 @@ export function iniciar(ctx) {
   const LLEGADA_LANZADOR = new THREE.Vector3(-0.32, 0, -11.45);
 
   // ─── Guantes ───────────────────────────────────────────────────────────
-  // Palma y pulgar fusionados (una geometría para cada mano)
+  // Guante de portero de verdad: palma acolchada, cuatro dedos y pulgar redondeados,
+  // palma de látex gris y muñequera de velcro. Mismo tamaño y centro que antes (el
+  // choque con el balón no cambia). Una geometría por material y por mano.
   const geoGuante = {};
+  const geoLatex = {};
   for (const lado of [-1, 1]) {
+    const dedos = [[-0.045, 0.052, 0.12], [-0.015, 0.06, 0.04], [0.015, 0.058, -0.04], [0.045, 0.048, -0.12]];
     geoGuante[lado] = fusionar([
-      colocar(new THREE.BoxGeometry(0.13, 0.16, 0.05), 0, 0.03, -0.06),
-      colocar(new THREE.BoxGeometry(0.04, 0.08, 0.04), -lado * 0.08, 0, -0.06, 0, 0, lado * 0.5),
+      colocar(new THREE.BoxGeometry(0.125, 0.095, 0.05), 0, 0, -0.06),
+      ...dedos.map(([x, largo, giro]) => colocar(new THREE.CapsuleGeometry(0.0155, largo, 3, 8), x * -lado, 0.05 + largo / 2, -0.06, 0, 0, giro * -lado)),
+      colocar(new THREE.CapsuleGeometry(0.017, 0.045, 3, 8), -lado * 0.072, 0.0, -0.058, 0, 0, lado * 0.75),
+    ]);
+    // Látex de la palma y de las yemas, un poco por delante de la cara de la palma
+    geoLatex[lado] = fusionar([
+      colocar(new THREE.BoxGeometry(0.115, 0.085, 0.006), 0, 0.002, -0.087),
+      ...dedos.map(([x, largo, giro]) => colocar(new THREE.BoxGeometry(0.024, largo * 0.8, 0.006), x * -lado, 0.05 + largo / 2, -0.074, 0, 0, giro * -lado)),
     ]);
   }
-  const matGuante = R(new THREE.MeshStandardMaterial({ color: 0x76ff03, roughness: 0.7 }));
-  const matPuno = R(new THREE.MeshLambertMaterial({ color: 0x212121 }));
-  const geoPuno = R(new THREE.CylinderGeometry(0.045, 0.045, 0.06, 12));
+  const matGuante = R(new THREE.MeshStandardMaterial({ color: 0x76ff03, roughness: 0.65 }));
+  const matLatex = R(new THREE.MeshStandardMaterial({ color: 0x3a4248, roughness: 0.9 }));
+  const matPuno = R(new THREE.MeshStandardMaterial({ color: 0x1d1f22, roughness: 0.8 }));
+  const geoPuno = R(new THREE.CylinderGeometry(0.047, 0.044, 0.06, 12));
+  // Franja blanca de la muñequera
+  const geoFranja = R(new THREE.CylinderGeometry(0.0478, 0.0478, 0.012, 12));
+  const matFranja = R(new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
 
   function crearGuante(lado) {
     const g = new THREE.Group();
     // Palma mirando hacia delante (-Z), dedos hacia arriba
     const mano = new THREE.Mesh(geoGuante[lado], matGuante);
+    const latex = new THREE.Mesh(geoLatex[lado], matLatex);
     const puno = new THREE.Mesh(geoPuno, matPuno);
     puno.position.set(0, -0.07, -0.06);
-    g.add(mano, puno);
+    const franja = new THREE.Mesh(geoFranja, matFranja);
+    franja.position.set(0, -0.062, -0.06);
+    g.add(mano, latex, puno, franja);
     return g;
   }
 
@@ -672,8 +685,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

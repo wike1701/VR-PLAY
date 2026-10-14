@@ -42,7 +42,7 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
   const azar = (a, b) => a + Math.random() * (b - a);
 
-  ctx.fondo(0x070a1c, { cenit: new THREE.Color(0x020309), horizonte: new THREE.Color(0x0d1233), suelo: new THREE.Color(0x020309) });
+  ctx.fondo(0x070a1c, { cenit: new THREE.Color(0x020309), horizonte: new THREE.Color(0x0d1233), suelo: new THREE.Color(0x020309), estrellas: 0.5, niebla: [70, 150] });
   ctx.sueloBase(false);
   // Sin gafas, la cámara va en la cabina (centro de la cabina a 1,2 m, ver centroCabina)
   // (un poco detrás de los ojos: sin gafas el campo de visión es más estrecho)
@@ -52,10 +52,6 @@ export function iniciar(ctx) {
   const camaraLejos = ctx.camara.far;
   ctx.camara.far = 600;
   ctx.camara.updateProjectionMatrix();
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 70;
-  niebla.far = 150;
 
   // Todo lo del espacio va en este grupo (ver el comentario de arriba)
   const mundo = new THREE.Group();
@@ -797,7 +793,7 @@ export function iniciar(ctx) {
           derribos++;
           explosion(c.pos, 1.2);
           ctx.efectos.impacto('medio');
-          ctx.efectos.texto(c.pos, `+${PUNTOS.caza}`, { color: '#ffd740', tam: 3 });
+          ctx.efectos.texto(c.pos, `+${PUNTOS.caza}`, { color: '#ffd740', tam: 1.6 });
         } else {
           explosion(c.pos, 0.4, 0xffffff);
         }
@@ -831,7 +827,7 @@ export function iniciar(ctx) {
           jefe.grupo.visible = false;
           ctx.destello(0xffd740, 0.4);
           ctx.efectos.impacto('grande');
-          ctx.efectos.texto(jefe.pos, `+${PUNTOS.jefe}`, { color: '#ffd740', tam: 6, vida: 1.6 });
+          ctx.efectos.texto(jefe.pos, `+${PUNTOS.jefe}`, { color: '#ffd740', tam: 3, vida: 1.6 });
           terminarMision(ctx.t('cumplida'), '#b9f6ca', true);
         }
       }
@@ -869,7 +865,6 @@ export function iniciar(ctx) {
           a.malla.material = matAnilloPasado;
           ctx.sonido('anillo');
           for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.3, 50);
-          ctx.efectos.texto(a.malla.position, `+${PUNTOS.anillo}`, { color: '#b9f6ca', tam: 3 });
         }
       }
       a.malla.position.copy(a.pos);
@@ -1049,8 +1044,6 @@ export function iniciar(ctx) {
       propulsor.parar();
       ctx.camara.far = camaraLejos;
       ctx.camara.updateProjectionMatrix();
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

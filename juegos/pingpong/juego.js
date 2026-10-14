@@ -46,7 +46,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b2338);
+  ctx.fondo(0x1b2338, { niebla: [18, 35] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.4, 0.95), new THREE.Vector3(0, 0.75, -2.3));
 
   // ─── Sala ──────────────────────────────────────────────────────────────
@@ -71,10 +71,6 @@ export function iniciar(ctx) {
 
   // ─── Ambiente: sala de club de tenis de mesa ───────────────────────────
   // Niebla más lejos para que se vean las paredes (la de la shell empieza a 7 m)
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 18;
-  niebla.far = 35;
   // Paredes con zócalo oscuro, pared azulada, carteles y un friso con el nombre del club
   const texPared = R(ctx.texturaCanvas((g, tam, azar) => {
     g.fillStyle = '#3d5a80';
@@ -731,8 +727,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

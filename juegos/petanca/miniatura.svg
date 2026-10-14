@@ -1,48 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
-    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#9cc9e6"/>
-      <stop offset="0.42" stop-color="#d9ecf5"/>
-      <stop offset="0.42" stop-color="#cdb38b"/>
-      <stop offset="1" stop-color="#b69a70"/>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a9ed4"/>
+      <stop offset="1" stop-color="#cfe6f3"/>
     </linearGradient>
-    <radialGradient id="acero" cx="0.35" cy="0.3" r="0.75">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="0.45" stop-color="#c3cad2"/>
-      <stop offset="1" stop-color="#6b757f"/>
+    <linearGradient id="grava" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9c9a4"/>
+      <stop offset="1" stop-color="#a68d63"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.55" cy="0.62" r="0.5">
+      <stop offset="0" stop-color="#fff6dc" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff6dc" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="bronce" cx="0.35" cy="0.3" r="0.75">
-      <stop offset="0" stop-color="#f3c39c"/>
-      <stop offset="0.45" stop-color="#b06a3b"/>
-      <stop offset="1" stop-color="#5a3018"/>
+    <radialGradient id="acero" cx="0.32" cy="0.28" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#b8c2cc"/>
+      <stop offset="1" stop-color="#3e4650"/>
+    </radialGradient>
+    <radialGradient id="aceroOscuro" cx="0.32" cy="0.28" r="0.8">
+      <stop offset="0" stop-color="#e9d6b5"/>
+      <stop offset="0.35" stop-color="#9c8a6e"/>
+      <stop offset="1" stop-color="#3a3024"/>
+    </radialGradient>
+    <radialGradient id="boliche" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff07a"/>
+      <stop offset="1" stop-color="#d8a10a"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#2a1d10" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#2a1d10" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
     </radialGradient>
   </defs>
-  <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Árboles -->
-  <g fill="#4f7f3a">
-    <path d="M40 168 L70 90 L100 168 Z"/>
-    <path d="M300 168 L332 80 L364 168 Z"/>
+  <rect width="400" height="400" fill="url(#cielo)"/>
+  <g fill="#ffffff" opacity="0.8"><ellipse cx="300" cy="48" rx="60" ry="14"/></g>
+  <path d="M0 150 Q100 118 200 140 T400 132 V180 H0 Z" fill="#7aa36a"/>
+  <!-- Pinos -->
+  <g fill="#2f6b3a"><path d="M24 182 l26 -86 l26 86 z"/><path d="M336 182 l30 -100 l30 100 z"/><path d="M290 176 l18 -58 l18 58 z"/></g>
+  <g fill="#4e8a3a"><circle cx="110" cy="160" r="26"/><circle cx="136" cy="168" r="20"/></g>
+  <rect x="0" y="176" width="400" height="224" fill="url(#grava)"/>
+  <g fill="#7d6545" opacity="0.5">
+    <circle cx="40" cy="220" r="2"/><circle cx="90" cy="300" r="2.5"/><circle cx="160" cy="250" r="2"/><circle cx="330" cy="230" r="2"/>
+    <circle cx="370" cy="320" r="2.5"/><circle cx="250" cy="370" r="2"/><circle cx="60" cy="360" r="2"/><circle cx="210" cy="216" r="1.8"/>
   </g>
-  <!-- Piedrecitas -->
-  <g fill="#a88f68">
-    <circle cx="60" cy="230" r="3"/><circle cx="120" cy="300" r="2.5"/><circle cx="330" cy="260" r="3"/>
-    <circle cx="250" cy="350" r="3"/><circle cx="90" cy="370" r="2.5"/><circle cx="360" cy="330" r="2"/>
-    <circle cx="180" cy="220" r="2"/><circle cx="300" cy="200" r="2.5"/>
-  </g>
-  <!-- Sombras -->
-  <g fill="#000" opacity="0.18">
-    <ellipse cx="148" cy="306" rx="46" ry="10"/>
-    <ellipse cx="270" cy="296" rx="44" ry="10"/>
-    <ellipse cx="206" cy="282" rx="16" ry="4"/>
-  </g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Bola que llega rodando, con su estela -->
+  <path d="M-10 330 Q90 300 168 296" fill="none" stroke="#ff6a3d" stroke-width="12" stroke-linecap="round" opacity="0.55"/>
+  <ellipse cx="240" cy="322" rx="56" ry="12" fill="url(#sombra)"/>
+  <ellipse cx="300" cy="268" rx="40" ry="9" fill="url(#sombra)"/>
+  <ellipse cx="166" cy="320" rx="62" ry="13" fill="url(#sombra)"/>
   <!-- Boliche -->
-  <circle cx="206" cy="270" r="13" fill="#ffb300"/>
-  <circle cx="202" cy="266" r="4" fill="#ffe082"/>
-  <!-- Bolas -->
-  <circle cx="148" cy="262" r="44" fill="url(#acero)"/>
-  <path d="M104 262 Q148 246 192 262 M148 218 Q132 262 148 306" fill="none" stroke="#37474f" stroke-width="2.5"/>
-  <circle cx="270" cy="254" r="42" fill="url(#bronce)"/>
-  <path d="M228 254 Q270 238 312 254 M270 212 Q254 254 270 296" fill="none" stroke="#3e2210" stroke-width="2.5"/>
-  <!-- Medida del punto -->
-  <path d="M186 296 Q196 312 206 290" fill="none" stroke="#00e5ff" stroke-width="3" stroke-dasharray="5 5"/>
+  <circle cx="246" cy="300" r="15" fill="url(#boliche)"/>
+  <!-- Bolas de acero -->
+  <circle cx="300" cy="234" r="38" fill="url(#aceroOscuro)"/>
+  <path d="M268 222 Q300 210 332 222" fill="none" stroke="#3a3024" stroke-width="3" opacity="0.5"/>
+  <circle cx="166" cy="258" r="64" fill="url(#acero)"/>
+  <path d="M110 236 Q166 214 222 236" fill="none" stroke="#3e4650" stroke-width="4" opacity="0.45"/>
+  <path d="M112 270 Q166 290 220 270" fill="none" stroke="#3e4650" stroke-width="4" opacity="0.45"/>
+  <ellipse cx="146" cy="226" rx="20" ry="10" fill="#ffffff" opacity="0.5"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

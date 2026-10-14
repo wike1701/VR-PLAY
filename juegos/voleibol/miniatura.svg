@@ -1,42 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4fb3ea"/>
-      <stop offset="0.55" stop-color="#bfe6fa"/>
-      <stop offset="0.55" stop-color="#1f84c4"/>
-      <stop offset="0.62" stop-color="#1f84c4"/>
-      <stop offset="0.62" stop-color="#e6c890"/>
-      <stop offset="1" stop-color="#d7b377"/>
+      <stop offset="0" stop-color="#2f98da"/>
+      <stop offset="1" stop-color="#c4ecfa"/>
     </linearGradient>
-    <pattern id="red" width="12" height="12" patternUnits="userSpaceOnUse">
-      <path d="M0 0 H12 M0 0 V12" stroke="#111" stroke-width="1.5" opacity="0.65"/>
-    </pattern>
-    <clipPath id="c"><circle cx="0" cy="0" r="48"/></clipPath>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2fb3c9"/>
+      <stop offset="1" stop-color="#1b7fa8"/>
+    </linearGradient>
+    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2dcae"/>
+      <stop offset="1" stop-color="#d4b37a"/>
+    </linearGradient>
+    <radialGradient id="sol" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fffbe0"/>
+      <stop offset="0.3" stop-color="#fff2b0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff2b0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="balon" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d5dae2"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.8"/>
+    </linearGradient>
+    <clipPath id="esfera"><circle cx="236" cy="146" r="62"/></clipPath>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.45"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#cielo)"/>
-  <!-- Sol y palmera -->
-  <circle cx="330" cy="70" r="30" fill="#fff59d"/>
-  <path d="M60 300 Q50 200 78 120" fill="none" stroke="#8d6e4a" stroke-width="12" stroke-linecap="round"/>
-  <g fill="#3f8f3a">
-    <path d="M78 120 Q40 100 10 130 Q45 110 78 124 Z"/>
-    <path d="M78 120 Q110 90 150 110 Q110 104 80 126 Z"/>
-    <path d="M78 120 Q60 80 30 74 Q66 90 76 124 Z"/>
-    <path d="M78 120 Q100 70 130 66 Q98 90 82 124 Z"/>
-  </g>
+  <circle cx="330" cy="60" r="90" fill="url(#sol)"/>
+  <g fill="#ffffff" opacity="0.85"><ellipse cx="70" cy="64" rx="56" ry="12"/></g>
+  <path d="M0 196 Q80 176 160 192 T320 186 T400 192 V206 H0 Z" fill="#6a9a7a"/>
+  <rect x="0" y="204" width="400" height="44" fill="url(#mar)"/>
+  <g fill="#ffffff" opacity="0.5"><rect x="30" y="222" width="70" height="3"/><rect x="220" y="232" width="90" height="3"/></g>
+  <path d="M0 246 Q200 236 400 246 V400 H0 Z" fill="url(#arena)"/>
+  <!-- Palmera -->
+  <path d="M40 400 Q30 300 70 200" fill="none" stroke="#8a6a45" stroke-width="16" stroke-linecap="round"/>
+  <g fill="#3f8f3a"><path d="M70 200 Q20 170 -10 200 Q30 186 70 206 Z"/><path d="M70 200 Q110 150 160 170 Q110 172 72 208 Z"/><path d="M70 200 Q60 140 90 110 Q82 160 74 206 Z"/><path d="M70 200 Q20 220 10 270 Q40 226 74 206 Z"/></g>
   <!-- Red -->
-  <rect x="120" y="190" width="270" height="50" fill="url(#red)"/>
-  <rect x="120" y="186" width="270" height="7" fill="#1565c0"/>
-  <rect x="116" y="186" width="7" height="140" fill="#eee"/>
-  <!-- Balón -->
-  <g transform="translate(250 120) rotate(-20)" clip-path="url(#c)">
-    <rect x="-48" y="-48" width="96" height="32" fill="#ffd600"/>
-    <rect x="-48" y="-16" width="96" height="32" fill="#1e63c6"/>
-    <rect x="-48" y="16" width="96" height="32" fill="#fafafa"/>
+  <g stroke="#1d1d1d" stroke-width="1.5" opacity="0.55"><path d="M120 212 V262 M150 212 V262 M180 212 V262 M210 212 V262 M240 212 V262 M270 212 V262 M300 212 V262 M330 212 V262"/><path d="M110 224 H350 M110 238 H350 M110 252 H350"/></g>
+  <rect x="108" y="206" width="244" height="8" fill="#1e63d6"/>
+  <g fill="#e6e6e6"><rect x="104" y="200" width="7" height="140"/><rect x="349" y="200" width="7" height="140"/></g>
+  <ellipse cx="236" cy="370" rx="70" ry="10" fill="#7a5a30" opacity="0.35"/>
+  <!-- Balón con su estela -->
+  <path d="M20 360 Q110 170 186 150" fill="none" stroke="url(#estela)" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="236" cy="146" r="62" fill="url(#balon)"/>
+  <g clip-path="url(#esfera)">
+    <path d="M170 120 Q236 150 300 112 L300 160 Q236 196 170 166 Z" fill="#1e63d6"/>
+    <path d="M200 84 Q250 120 246 210 L272 210 Q284 120 230 84 Z" fill="#f7c33b"/>
   </g>
-  <circle cx="250" cy="120" r="48" fill="none" stroke="#333" stroke-width="2" opacity="0.4"/>
-  <!-- Líneas de movimiento -->
-  <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.7">
-    <line x1="190" y1="190" x2="170" y2="214"/>
-    <line x1="214" y1="178" x2="196" y2="204"/>
-  </g>
+  <ellipse cx="214" cy="116" rx="20" ry="10" fill="#ffffff" opacity="0.6"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

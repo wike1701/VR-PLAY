@@ -1,40 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5fa8e0"/>
-      <stop offset="1" stop-color="#bfe3f7"/>
+      <stop offset="0" stop-color="#3f8fd1"/>
+      <stop offset="1" stop-color="#c8e6f5"/>
     </linearGradient>
+    <linearGradient id="prado" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aae4a"/>
+      <stop offset="1" stop-color="#2f7c2f"/>
+    </linearGradient>
+    <linearGradient id="calle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fe07a"/>
+      <stop offset="1" stop-color="#4fb44a"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.55" cy="0.6" r="0.5">
+      <stop offset="0" stop-color="#fffbe6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fffbe6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c9cfd8"/>
+    </radialGradient>
+    <linearGradient id="cabeza" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6ebf0"/>
+      <stop offset="1" stop-color="#7d8794"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#cielo)"/>
-  <!-- Prado -->
-  <rect x="0" y="170" width="400" height="230" fill="#2f7d38"/>
-  <!-- Árboles -->
-  <g>
-    <rect x="44" y="140" width="10" height="34" fill="#6d4c41"/>
-    <path d="M49 82 L80 150 L18 150 Z" fill="#2e7d32"/>
-    <rect x="344" y="132" width="10" height="40" fill="#6d4c41"/>
-    <path d="M349 70 L384 144 L314 144 Z" fill="#2e7d32"/>
-  </g>
-  <!-- Recorrido en L con paredes de madera -->
-  <path d="M120 380 L120 230 L300 230 L300 300 L190 300 L190 380 Z" fill="#43b04a" stroke="#a0703f" stroke-width="12" stroke-linejoin="round"/>
-  <!-- Molino -->
-  <g transform="translate(155 262) rotate(-25)">
-    <rect x="-34" y="-5" width="68" height="10" rx="3" fill="#5c6bc0"/>
-    <circle r="8" fill="#3949ab"/>
-  </g>
-  <!-- Poste -->
-  <circle cx="250" cy="275" r="8" fill="#ffb300"/>
+  <g fill="#ffffff" opacity="0.85"><ellipse cx="300" cy="50" rx="66" ry="14"/><ellipse cx="70" cy="80" rx="44" ry="10"/></g>
+  <path d="M0 160 Q90 128 180 150 T400 142 V190 H0 Z" fill="#6f9f64"/>
+  <rect x="0" y="176" width="400" height="224" fill="url(#prado)"/>
+  <g fill="#2f6b3a"><path d="M20 196 l18 -64 l18 64 z"/><path d="M344 200 l22 -76 l22 76 z"/></g>
+  <g fill="#4e8a3a"><circle cx="300" cy="178" r="22"/><circle cx="322" cy="184" r="16"/></g>
+  <!-- Calle del hoyo en L con borde de madera -->
+  <path d="M90 220 H260 V258 H190 V400 H90 Z" fill="#8a5a32"/>
+  <path d="M100 230 H250 V248 H180 V400 H100 Z" fill="url(#calle)"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
   <!-- Hoyo y bandera -->
-  <ellipse cx="272" cy="252" rx="13" ry="6" fill="#111"/>
-  <rect x="270" y="150" width="4" height="102" fill="#fff"/>
-  <path d="M274 150 L318 165 L274 180 Z" fill="#e53935"/>
-  <!-- Bola y trayectoria -->
-  <path d="M156 360 Q150 320 168 300 Q210 268 255 255" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="6 7" opacity="0.8"/>
-  <circle cx="156" cy="360" r="9" fill="#fff" stroke="#cfd8dc" stroke-width="2"/>
+  <ellipse cx="226" cy="240" rx="13" ry="5" fill="#0d1a0c"/>
+  <rect x="224" y="150" width="4" height="90" fill="#f2f2f2"/>
+  <path d="M228 152 L266 164 L228 176 Z" fill="#ff6a3d"/>
+  <!-- Recorrido de la bola -->
+  <path d="M150 360 Q150 260 220 240" fill="none" stroke="#ff6a3d" stroke-width="5" stroke-dasharray="4 12" stroke-linecap="round"/>
+  <ellipse cx="150" cy="372" rx="18" ry="5" fill="#1a3a14" opacity="0.4"/>
+  <circle cx="150" cy="360" r="14" fill="url(#bola)"/>
   <!-- Palo -->
-  <g transform="translate(132 366) rotate(-18)">
-    <rect x="-3" y="-120" width="6" height="120" fill="#b0bec5"/>
-    <rect x="-4" y="-150" width="8" height="34" rx="3" fill="#212121"/>
-    <rect x="-6" y="-2" width="26" height="10" rx="2" fill="#37474f"/>
-  </g>
+  <path d="M372 30 L176 360" stroke="#c7ccd4" stroke-width="7" stroke-linecap="round"/>
+  <path d="M372 30 L330 100" stroke="#1d1d1d" stroke-width="14" stroke-linecap="round"/>
+  <path d="M150 378 L196 360 Q206 356 204 346 L192 342 L146 360 Z" fill="url(#cabeza)"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

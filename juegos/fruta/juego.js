@@ -32,7 +32,8 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
   const EJE_Y = new THREE.Vector3(0, 1, 0);
 
-  ctx.fondo(0x1b1530);
+  // Noche estrellada con montes oscuros detrás del dojo
+  ctx.fondo(0x1b1530, { estrellas: 0.9, paisaje: { tipo: 'montes', color: 0x0e0b1c } });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.6, 0.4), new THREE.Vector3(0, 1.4, -1.8));
 
   // ─── Decorado: dojo de noche ───────────────────────────────────────────
@@ -137,6 +138,63 @@ export function iniciar(ctx) {
     farol.position.set(x, 2.55, -3.0);
     raiz.add(farol);
   }
+
+  // Luna llena con halo, asomando por encima del dojo (sin luces: solo color)
+  const matLuna = R(new THREE.MeshBasicMaterial({ color: 0xfff1d6, fog: false, toneMapped: false }));
+  const luna = new THREE.Mesh(R(new THREE.CircleGeometry(2.6, 32)), matLuna);
+  luna.position.set(-16, 17, -55);
+  luna.lookAt(0, 1.6, 0);
+  raiz.add(luna);
+  const texHalo = R(ctx.texturaCanvas((g, tam) => {
+    const grad = g.createRadialGradient(tam / 2, tam / 2, 0, tam / 2, tam / 2, tam / 2);
+    grad.addColorStop(0, 'rgba(255,236,200,0.55)');
+    grad.addColorStop(0.35, 'rgba(255,220,180,0.18)');
+    grad.addColorStop(1, 'rgba(255,220,180,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, tam, tam);
+  }, { tam: 128, semilla: 36 }));
+  const halo = new THREE.Mesh(R(new THREE.PlaneGeometry(16, 16)), R(new THREE.MeshBasicMaterial({ map: texHalo, transparent: true, depthWrite: false, fog: false, toneMapped: false })));
+  halo.position.copy(luna.position).multiplyScalar(1.01);
+  halo.lookAt(0, 1.6, 0);
+  raiz.add(halo);
+
+  // Bambú a los lados del dojo: cañas con nudos (una textura) en una sola malla instanciada
+  const texBambu = R(ctx.texturaCanvas((g, tam, azar) => {
+    const grad = g.createLinearGradient(0, 0, tam, 0);
+    grad.addColorStop(0, '#2f5a22');
+    grad.addColorStop(0.45, '#6f9a3c');
+    grad.addColorStop(1, '#2a4d1e');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, tam, tam);
+    for (let i = 0; i < 4; i++) {
+      const y = (i + 0.5) * (tam / 4) + (azar() - 0.5) * 4;
+      g.fillStyle = 'rgba(20,35,10,0.8)';
+      g.fillRect(0, y, tam, 3);
+      g.fillStyle = 'rgba(190,220,140,0.5)';
+      g.fillRect(0, y + 3, tam, 2);
+    }
+  }, { tam: 64, semilla: 37 }));
+  const lugaresBambu = [];
+  let semillaBambu = 11;
+  const azarBambu = () => ((semillaBambu = (semillaBambu * 16807) % 2147483647) / 2147483647);
+  for (const lado of [-1, 1]) {
+    for (let i = 0; i < 26; i++) {
+      lugaresBambu.push([lado * (3.9 + azarBambu() * 2.6), -0.6 - azarBambu() * 4.6, 3.6 + azarBambu() * 2.4, (azarBambu() - 0.5) * 0.12]);
+    }
+  }
+  const geoCana = R(new THREE.CylinderGeometry(0.045, 0.055, 1, 6, 1, true).translate(0, 0.5, 0));
+  texBambu.repeat.set(1, 3);
+  const canas = new THREE.InstancedMesh(geoCana, R(new THREE.MeshLambertMaterial({ map: texBambu })), lugaresBambu.length);
+  const mCana = new THREE.Matrix4();
+  const qCana = new THREE.Quaternion();
+  lugaresBambu.forEach(([x, z, alto, inclinacion], i) => {
+    qCana.setFromAxisAngle(new THREE.Vector3(Math.sign(x), 0, 0.3).normalize(), inclinacion);
+    mCana.compose(new THREE.Vector3(x, 0, z), qCana, new THREE.Vector3(1, alto, 1));
+    canas.setMatrixAt(i, mCana);
+  });
+  raiz.add(canas);
+  // Hojas del bambú: copas frondosas oscuras sobre las cañas
+  raiz.add(ctx.arboles(lugaresBambu.filter((_, i) => i % 3 === 0).map(([x, z, alto]) => ({ x, z, y: alto - 2.6, escala: 0.75 })), { tipo: 'frondoso', hojas: 0x2e5a26, sombras: false, semilla: 12 }));
 
   // ─── Fruta detallada ───────────────────────────────────────────────────
   // Cada fruta tiene su forma (torneada o alargada), su piel pintada con código
@@ -392,19 +450,57 @@ export function iniciar(ctx) {
 
   // ─── Espadas (una en cada mano) ────────────────────────────────────────
   // Katana: mango forrado, guarda dorada y hoja de acero con un reflejo del color de la mano
+  // ─── Katanas ───────────────────────────────────────────────────────────
+  // Hoja con lomo y filo (perfil extruido con bisel), punta en ángulo, línea de temple
+  // brillante del color de cada mano, tsuba, habaki y empuñadura con cordón trenzado.
+  const LARGO_HOJA = Math.abs(PUNTA_HOJA - INICIO_HOJA);
+  const perfilHoja = new THREE.Shape();
+  perfilHoja.moveTo(0, -0.004);
+  perfilHoja.lineTo(LARGO_HOJA - 0.06, -0.006);           // lomo, casi recto
+  perfilHoja.quadraticCurveTo(LARGO_HOJA - 0.01, -0.004, LARGO_HOJA, 0.012); // punta (kissaki)
+  perfilHoja.lineTo(LARGO_HOJA - 0.07, 0.026);             // filo
+  perfilHoja.quadraticCurveTo(LARGO_HOJA * 0.5, 0.03, 0, 0.026);
+  perfilHoja.lineTo(0, -0.004);
+  const geoKatana = R(new THREE.ExtrudeGeometry(perfilHoja, { depth: 0.003, bevelEnabled: true, bevelThickness: 0.0025, bevelSize: 0.0035, bevelSegments: 1, curveSegments: 6 }));
+  geoKatana.translate(0, -0.011, -0.0015).rotateY(Math.PI / 2).translate(0, 0, INICIO_HOJA);
+  const geoTemple = R(new THREE.BoxGeometry(0.0088, 0.003, LARGO_HOJA - 0.08).translate(0, 0.009, INICIO_HOJA - (LARGO_HOJA - 0.08) / 2 - 0.01));
+  const texTsuka = R(ctx.texturaCanvas((g, tam) => {
+    g.fillStyle = '#b8aa88'; // piel de raya debajo
+    g.fillRect(0, 0, tam, tam);
+    g.fillStyle = '#1b1414'; // cordón en rombos
+    const n = 4;
+    for (let i = 0; i < n; i++) {
+      const y = (i / n) * tam;
+      g.beginPath();
+      g.moveTo(0, y);
+      g.lineTo(tam / 2, y + tam / n / 2 - 3);
+      g.lineTo(tam, y);
+      g.lineTo(tam, y + tam / n * 0.78);
+      g.lineTo(tam / 2, y + tam / n - 2);
+      g.lineTo(0, y + tam / n * 0.78);
+      g.fill();
+    }
+  }, { tam: 64, repetir: [3, 2], semilla: 41 }));
+  const geoTsuka = R(new THREE.CylinderGeometry(0.0155, 0.017, 0.17, 8).rotateX(Math.PI / 2).translate(0, 0, 0.035));
+  const geoKashira = R(new THREE.CylinderGeometry(0.017, 0.015, 0.014, 8).rotateX(Math.PI / 2).translate(0, 0, 0.125));
+  const geoTsuba = R(new THREE.CylinderGeometry(0.04, 0.04, 0.007, 8).rotateX(Math.PI / 2).translate(0, 0, -0.056));
+  const geoHabaki = R(new THREE.BoxGeometry(0.012, 0.036, 0.022).translate(0, 0.0005, -0.07));
+
+  const matTsuka = R(new THREE.MeshStandardMaterial({ map: texTsuka, roughness: 0.85 }));
+  const matOro = R(new THREE.MeshStandardMaterial({ color: 0xc9a227, metalness: 1, roughness: 0.3 }));
+  const matTsuba = R(new THREE.MeshStandardMaterial({ color: 0x23201f, metalness: 0.8, roughness: 0.45 }));
+
   function crearEspada(colorHoja) {
     const espada = new THREE.Group();
-    const mango = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.02, 0.15, 10), new THREE.MeshStandardMaterial({ color: 0x2b1d1a, roughness: 0.8 }));
-    mango.rotation.x = Math.PI / 2;
-    mango.position.z = 0.03;
-    const guarda = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.012, 16).rotateX(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xc9a227, metalness: 1, roughness: 0.35 }));
-    guarda.position.z = -0.05;
-    const largo = PUNTA_HOJA - INICIO_HOJA;
-    const hoja = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.045, Math.abs(largo)), new THREE.MeshStandardMaterial({
-      color: 0xe3e9ef, metalness: 0.9, roughness: 0.22, emissive: colorHoja, emissiveIntensity: 0.35,
-    }));
-    hoja.position.z = INICIO_HOJA + largo / 2;
-    espada.add(mango, guarda, hoja);
+    const temple = new THREE.Mesh(geoTemple, R(new THREE.MeshBasicMaterial({ color: colorHoja, toneMapped: false })));
+    espada.add(
+      new THREE.Mesh(geoKatana, R(new THREE.MeshStandardMaterial({ color: 0xe6edf4, metalness: 0.7, roughness: 0.2, emissive: colorHoja, emissiveIntensity: 0.3 }))),
+      temple,
+      new THREE.Mesh(geoTsuka, matTsuka),
+      new THREE.Mesh(geoKashira, matTsuba),
+      new THREE.Mesh(geoTsuba, matTsuba),
+      new THREE.Mesh(geoHabaki, matOro),
+    );
     return espada;
   }
 

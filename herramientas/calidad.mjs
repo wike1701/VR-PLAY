@@ -1,5 +1,6 @@
-// Comprueba que los juegos cumplen el estándar de calidad y rendimiento (docs/CALIDAD.md).
-// Revisa el código de cada juegos/<id>/juego.js. Lo que mide en ejecución (llamadas de dibujo,
+// Comprueba que los juegos cumplen el estándar de calidad y rendimiento (docs/CALIDAD.md) y que
+// sus portadas siguen el estándar de portadas (docs/PORTADAS.md). Revisa el código de cada
+// juegos/<id>/juego.js y su miniatura.svg. Lo que mide en ejecución (llamadas de dibujo,
 // triángulos) se comprueba aparte, con vrPlay.dibujado() en el navegador.
 //
 //   ERROR (hay que arreglarlo):
@@ -7,12 +8,17 @@
 //     - setTimeout, setInterval o addEventListener dentro del juego
 //     - el juego no da respuesta con sonido (ctx.sonido) ni con vibración (ctx.vibrar)
 //     - no llama a ctx.puntuacion (lo comprueba también marcadores.mjs)
+//     - portada (miniatura.svg): falta, no es de 400×400, pesa más de 16 KB o lleva texto,
+//       imágenes, enlaces, scripts o filtros (en el móvil se dibujan 22 a la vez)
 //   AVISO (revisarlo):
 //     - "new THREE.Vector3(…)" y parecidos dentro de las funciones de cada fotograma
 //       (actualizar, mover…, simular…): crean basura y en el Quest dan tirones
 //     - más de 6 materiales MeshStandardMaterial/MeshPhysicalMaterial distintos
 //     - texturas de 1024 px o más
 //     - el juego no usa el kit de efectos de la shell (ctx.efectos) en ningún momento
+//     - cambia la niebla a mano (ctx.escena.fog) en vez de ctx.fondo(color, { niebla })
+//     - árboles hechos con un cono suelto en vez del kit (ctx.arboles / ctx.geometriaArbol)
+//     - portada sin el coral de la marca (#ff6a3d) o sin viñeta
 // Uso: node herramientas/calidad.mjs [id …] [--avisos]   (sin --avisos solo enseña los errores y el resumen)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,6 +53,21 @@ function analizar(id) {
   if (caros > 6) avisos.push(`${caros} materiales MeshStandard/Physical: déjalos para los protagonistas pequeños (el resto, MeshLambertMaterial)`);
   for (const m of texto.matchAll(/tam:\s*(\d{4,})/g)) avisos.push(`textura de ${m[1]} px: con 512 suele bastar`);
   if (!/ctx\.efectos\./.test(texto)) avisos.push('no usa ctx.efectos (estallidos, puntos que saltan, impactos): ver docs/CALIDAD.md');
+  if (/ctx\.escena\.fog/.test(texto)) avisos.push('cambia la niebla a mano: usa ctx.fondo(color, { niebla: [cerca, lejos] }) (la shell la restaura sola)');
+  if (/(copa|arbol|pino)[A-Za-z]*\s*=.*ConeGeometry/i.test(texto)) avisos.push('árboles de cono suelto: usa ctx.arboles(lista, { tipo }) o ctx.geometriaArbol(tipo)');
+
+  // Portada
+  const svg = path.join(RAIZ, 'juegos', id, 'miniatura.svg');
+  if (!fs.existsSync(svg)) errores.push('no tiene portada (juegos/<id>/miniatura.svg): ver docs/PORTADAS.md');
+  else {
+    const p = fs.readFileSync(svg, 'utf8');
+    const kb = Buffer.byteLength(p) / 1024;
+    if (!/viewBox="0 0 400 400"/.test(p)) errores.push('portada: el viewBox tiene que ser "0 0 400 400"');
+    if (kb > 16) errores.push(`portada: pesa ${kb.toFixed(1)} KB (máximo 16)`);
+    if (/<(text|image|script|foreignObject|filter)\b/.test(p) || /href="(https?:|data:)/.test(p)) errores.push('portada: sin textos, imágenes, scripts, filtros ni enlaces (ver docs/PORTADAS.md)');
+    if (!/#ff6a3d/i.test(p)) avisos.push('portada: falta el coral de la marca (#ff6a3d) en la acción (estela, chispa o impacto)');
+    if (!/id="vineta"/.test(p)) avisos.push('portada: falta la viñeta oscura de los bordes (id="vineta")');
+  }
 
   // Objetos nuevos en las funciones de cada fotograma (siguiendo las llaves para saber en qué función estamos)
   const pila = [];

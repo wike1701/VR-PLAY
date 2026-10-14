@@ -33,11 +33,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x9fd4f2);
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 40;
-  niebla.far = 150;
+  ctx.fondo(0x9fd4f2, { nubes: 0.45, niebla: [40, 150], paisaje: { tipo: 'montes', color: 0x55786a, radio: 96 } });
   ctx.sueloBase(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, OJOS, 0.1), new THREE.Vector3(0, 0.9, -10));
 
@@ -73,11 +69,15 @@ export function iniciar(ctx) {
   mundo.add(campo);
 
   // Árboles y postes a los lados (instanciados, se reciclan al pasar)
-  const geoCopa = R(new THREE.ConeGeometry(1.8, 5, 8).translate(0, 4.2, 0));
-  const geoTronco = R(new THREE.CylinderGeometry(0.25, 0.35, 1.8, 6).translate(0, 0.9, 0));
+  const arbol = ctx.geometriaArbol('pino');
+  const geoCopa = R(arbol.copa.scale(1.7, 1.7, 1.7));
+  const geoTronco = R(arbol.tronco.scale(1.7, 1.7, 1.7));
   const NUM_ARBOLES = 40;
-  const copas = new THREE.InstancedMesh(geoCopa, R(new THREE.MeshLambertMaterial({ color: 0x2f7a32 })), NUM_ARBOLES);
-  const troncos = new THREE.InstancedMesh(geoTronco, R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 })), NUM_ARBOLES);
+  const copas = new THREE.InstancedMesh(geoCopa, R(new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true })), NUM_ARBOLES);
+  const troncos = new THREE.InstancedMesh(geoTronco, R(new THREE.MeshLambertMaterial({ color: arbol.madera, flatShading: true })), NUM_ARBOLES);
+  // Cada copa con un verde algo distinto
+  const colorCopa = new THREE.Color();
+  for (let i = 0; i < NUM_ARBOLES; i++) copas.setColorAt(i, colorCopa.setHSL(0.3 + ((i * 7) % 5) / 100, 0.45, 0.2 + ((i * 13) % 7) / 70));
   const arboles = Array.from({ length: NUM_ARBOLES }, (_, i) => ({
     x: (i % 2 ? 1 : -1) * (anchoCarretera / 2 + 4 + Math.random() * 14),
     z: APARICION + (i / NUM_ARBOLES) * (20 - APARICION),
@@ -210,15 +210,58 @@ export function iniciar(ctx) {
   // ─── Cabina ────────────────────────────────────────────────────────────
   const cabina = new THREE.Group();
   conjunto.add(cabina);
-  const matCarroceria = R(new THREE.MeshLambertMaterial({ color: 0x1565c0 }));
+  // Pintura con brillo, franjas de carreras, salpicadero de cuero
+  // con relojes y retrovisores cromados
+  const matCarroceria = R(new THREE.MeshPhongMaterial({ color: 0x1565c0, specular: 0x8899aa, shininess: 70 })); // Phong: brillo barato (el capó ocupa media pantalla)
   const matInterior = R(new THREE.MeshLambertMaterial({ color: 0x2b2b2b }));
+  const matCromo = R(new THREE.MeshPhongMaterial({ color: 0x8a939c, specular: 0xffffff, shininess: 90 }));
   const capo = new THREE.Mesh(R(new THREE.BoxGeometry(1.7, 0.3, 1.9)), matCarroceria);
   capo.position.set(0, 0.62, -1.65);
-  const salpicadero = new THREE.Mesh(R(new THREE.BoxGeometry(1.6, 0.25, 0.35)), matInterior);
+  const franjas = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.16, 0.012, 1.9)), R(new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })), 2);
+  [-1, 1].forEach((s, i) => franjas.setMatrixAt(i, new THREE.Matrix4().setPosition(s * 0.14, 0.776, -1.65)));
+  const texSalpicadero = R(ctx.texturaCanvas((g, tam) => {
+    // La cara del salpicadero es 6,4 veces más ancha que alta: se dibuja estirado
+    // a lo ancho para que los relojes salgan redondos
+    const W = tam * 6.4;
+    g.scale(1 / 6.4, 1);
+    g.fillStyle = '#26282b';
+    g.fillRect(0, 0, W, tam);
+    g.strokeStyle = 'rgba(255,255,255,0.2)'; // costura del cuero
+    g.lineWidth = 2;
+    g.setLineDash([10, 8]);
+    g.beginPath(); g.moveTo(0, tam * 0.08); g.lineTo(W, tam * 0.08); g.stroke();
+    g.setLineDash([]);
+    // Dos relojes detrás del volante: cuentarrevoluciones y velocímetro
+    for (const cx of [W * 0.42, W * 0.58]) {
+      const cy = tam * 0.55;
+      const r = tam * 0.32;
+      g.fillStyle = '#0d0f12';
+      g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#b0bec5'; g.lineWidth = 5;
+      g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+      for (let k = 0; k <= 10; k++) {
+        const ang = Math.PI * 0.75 + (k / 10) * Math.PI * 1.5;
+        g.strokeStyle = k >= 8 ? '#ff5252' : '#eceff1';
+        g.lineWidth = 4;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(ang) * r * 0.7, cy + Math.sin(ang) * r * 0.7);
+        g.lineTo(cx + Math.cos(ang) * r * 0.88, cy + Math.sin(ang) * r * 0.88);
+        g.stroke();
+      }
+      g.strokeStyle = '#ff6a3d'; g.lineWidth = 5;
+      g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(Math.PI * 1.15) * r * 0.72, cy + Math.sin(Math.PI * 1.15) * r * 0.72); g.stroke();
+    }
+  }, { tam: 256, semilla: 51 }));
+  // El canvas de texturaCanvas es cuadrado: se estira 4:1 sobre la cara de atrás del salpicadero
+  const matSalpicadero = R(new THREE.MeshLambertMaterial({ map: texSalpicadero }));
+  const salpicadero = new THREE.Mesh(R(new THREE.BoxGeometry(1.6, 0.25, 0.35)), [matInterior, matInterior, matInterior, matInterior, matSalpicadero, matInterior]);
   salpicadero.position.set(0, 0.82, -0.62);
   const lados = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.12, 0.45, 2.6)), matCarroceria, 2);
   [-1, 1].forEach((s, i) => lados.setMatrixAt(i, new THREE.Matrix4().setPosition(s * 0.82, 0.6, -0.2)));
-  cabina.add(capo, salpicadero, lados); // descapotable: sin parabrisas que tape la vista
+  // Retrovisores: brazo de cromo y espejo
+  const retrovisores = new THREE.InstancedMesh(R(new THREE.BoxGeometry(0.2, 0.11, 0.05)), matCromo, 2);
+  [-1, 1].forEach((s, i) => retrovisores.setMatrixAt(i, new THREE.Matrix4().makeRotationY(-s * 0.25).setPosition(s * 0.98, 0.95, -0.75)));
+  cabina.add(capo, franjas, salpicadero, lados, retrovisores); // descapotable: sin parabrisas que tape la vista
   // Volante bajo, a la altura del pecho y bastante tumbado: así no hay que llevar
   // los brazos levantados. Sale del salpicadero con su columna.
   const soporteVolante = new THREE.Group();
@@ -557,8 +600,6 @@ export function iniciar(ctx) {
     actualizar,
     liberar() {
       motor.parar();
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

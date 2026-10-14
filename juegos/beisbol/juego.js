@@ -42,12 +42,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x8ec9f0);
   // La valla está lejos: alejamos la niebla mientras dura este juego
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 45;
-  niebla.far = 170;
+  ctx.fondo(0x8ec9f0, { niebla: [45, 170] });
   ctx.vistaEscritorio(new THREE.Vector3(-0.35, 1.5, 2.3), new THREE.Vector3(0.3, 1.1, -DISTANCIA_LANZADOR));
 
   // ─── Campo ─────────────────────────────────────────────────────────────
@@ -329,9 +325,13 @@ export function iniciar(ctx) {
 
   // ─── Bates ─────────────────────────────────────────────────────────────
   // Puño en el origen y el bate hacia delante (-Z), como las espadas de Corta Fruta
-  const geoBate = R(new THREE.CylinderGeometry(0.033, 0.014, 0.84, 20, 4));
+  const perfilBate = [
+    [0, 0], [0.024, 0.002], [0.025, 0.01], [0.014, 0.024], [0.0125, 0.12], [0.013, 0.26], [0.0175, 0.4],
+    [0.025, 0.54], [0.031, 0.66], [0.0335, 0.76], [0.033, 0.82], [0.029, 0.84], [0.016, 0.85], [0, 0.852],
+  ].map(([r, y]) => new THREE.Vector2(r, y));
+  const geoBate = R(new THREE.LatheGeometry(perfilBate, 20));
   geoBate.rotateX(-Math.PI / 2);
-  geoBate.translate(0, 0, -0.35);
+  geoBate.translate(0, 0, 0.085);
   const geoPomo = R(new THREE.CylinderGeometry(0.022, 0.022, 0.02, 16));
   geoPomo.rotateX(-Math.PI / 2);
   geoPomo.translate(0, 0, 0.075);
@@ -792,8 +792,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       puntosEstela.length = 0;
     },
   };
