@@ -1184,9 +1184,9 @@ export default {
     cinta: {
       titulo: 'Tapis Roulant',
       descripcion: 'Tu travailles au tapis roulant d’un entrepôt : arrivent des fruits, des canettes, des bouteilles et des cartons de couleurs, et chacun va dans son bac. D’abord on trie par couleur puis, soudain, par type : la règle change régulièrement, avec un avertissement. Le tapis accélère et les objets arrivent plus vite. Trois erreurs et c’est fini.',
-      controlesVR: 'Attrape l’objet avec la gâchette et lâche-le dans son bac ou lance-le (avec un peu d’aide à la visée). Regarde le panneau de chaque bac : il indique ce qu’il accepte.',
-      controlesEscritorio: 'Clique sur l’objet puis sur le bac, ou fais-le glisser jusqu’au bac. Le panneau de chaque bac indique ce qu’il accepte.',
-      controlesTactil: 'Touche l’objet puis le bac, ou fais-le glisser jusqu’au bac. Le panneau de chaque bac indique ce qu’il accepte.',
+      controlesVR: 'Attrape l’objet avec la gâchette et lâche-le dans son bac ou lance-le (avec un peu d’aide à la visée). Les panneaux de l’autre côté du tapis, encadrés de la couleur de chaque bac, indiquent ce qu’il accepte.',
+      controlesEscritorio: 'Clique sur l’objet puis sur le bac, ou fais-le glisser jusqu’au bac. Les panneaux de l’autre côté du tapis, encadrés de la couleur de chaque bac, indiquent ce qu’il accepte.',
+      controlesTactil: 'Touche l’objet puis le bac, ou fais-le glisser jusqu’au bac. Les panneaux de l’autre côté du tapis, encadrés de la couleur de chaque bac, indiquent ce qu’il accepte.',
       etiquetas: [
         'tapis roulant', 'trier', 'tri', 'recyclage', 'bacs', 'couleurs', 'entrepôt', 'usine', 'travail',
         'fruits', 'canettes', 'bouteilles', 'cartons', 'règles', 'changement de règle', 'attention',
@@ -1202,6 +1202,8 @@ export default {
         fin: { one: 'Fini ! {n} objet', other: 'Fini ! {n} objets' },
         reglaColor: 'Règle : par COULEUR',
         reglaTipo: 'Règle : par TYPE',
+        proximaTipo: 'Changement dans {n} s : par TYPE !',
+        proximaColor: 'Changement dans {n} s : par COULEUR !',
         cambioRegla: 'CHANGEMENT DE RÈGLE !',
         racha: 'Série ×{n}',
         cuboEquivocado: 'Mauvais bac !',

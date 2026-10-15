@@ -1183,9 +1183,9 @@ export default {
     cinta: {
       titulo: 'Förderband',
       descripcion: 'Du arbeitest am Förderband eines Lagers: Obst, Dosen, Flaschen und Kartons in bunten Farben kommen an, und jedes Teil gehört in seine Tonne. Erst wird nach Farbe sortiert und plötzlich nach Art: Die Regel wechselt immer wieder, mit Warnung. Das Band wird schneller und die Teile kommen dichter. Bei 3 Fehlern ist Schluss.',
-      controlesVR: 'Greif ein Teil mit dem Trigger und lass es in seine Tonne fallen oder wirf es (mit etwas Zielhilfe). Das Schild an jeder Tonne zeigt, was hineingehört.',
-      controlesEscritorio: 'Klicke auf das Teil und dann auf die Tonne, oder zieh es hinein. Das Schild an jeder Tonne zeigt, was hineingehört.',
-      controlesTactil: 'Tippe auf das Teil und dann auf die Tonne, oder zieh es hinein. Das Schild an jeder Tonne zeigt, was hineingehört.',
+      controlesVR: 'Greif ein Teil mit dem Trigger und lass es in seine Tonne fallen oder wirf es (mit etwas Zielhilfe). Die Schilder hinter dem Band, in der Farbe der jeweiligen Tonne umrandet, zeigen, was hineingehört.',
+      controlesEscritorio: 'Klicke auf das Teil und dann auf die Tonne, oder zieh es hinein. Die Schilder hinter dem Band, in der Farbe der jeweiligen Tonne umrandet, zeigen, was hineingehört.',
+      controlesTactil: 'Tippe auf das Teil und dann auf die Tonne, oder zieh es hinein. Die Schilder hinter dem Band, in der Farbe der jeweiligen Tonne umrandet, zeigen, was hineingehört.',
       etiquetas: [
         'förderband', 'sortieren', 'recycling', 'tonnen', 'farben', 'lager', 'fabrik', 'arbeit', 'obst',
         'dosen', 'flaschen', 'kartons', 'regeln', 'regelwechsel', 'aufmerksamkeit', 'konzentration',
@@ -1201,6 +1201,8 @@ export default {
         fin: { one: 'Ende! {n} Teil', other: 'Ende! {n} Teile' },
         reglaColor: 'Regel: nach FARBE',
         reglaTipo: 'Regel: nach ART',
+        proximaTipo: 'Wechsel in {n} s: nach ART!',
+        proximaColor: 'Wechsel in {n} s: nach FARBE!',
         cambioRegla: 'REGELWECHSEL!',
         racha: 'Serie ×{n}',
         cuboEquivocado: 'Falsche Tonne!',

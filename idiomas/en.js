@@ -1179,9 +1179,9 @@ export default {
     cinta: {
       titulo: 'Conveyor Belt',
       descripcion: 'You work the conveyor belt in a warehouse: fruit, cans, bottles and boxes of different colours come along, and each one goes in its bin. First you sort by colour and, suddenly, by type: the rule changes every so often, with a warning. The belt speeds up and items come faster. Three mistakes and you\'re out.',
-      controlesVR: 'Grab an item with the trigger and drop it in its bin or throw it (with a little aim assist). Check each bin\'s sign: it shows what goes in.',
-      controlesEscritorio: 'Click the item and then the bin, or drag it into the bin. Each bin\'s sign shows what goes in.',
-      controlesTactil: 'Tap the item and then the bin, or drag it into the bin. Each bin\'s sign shows what goes in.',
+      controlesVR: 'Grab an item with the trigger and drop it in its bin or throw it (with a little aim assist). The signs across the belt, framed in each bin\'s colour, show what goes in.',
+      controlesEscritorio: 'Click the item and then the bin, or drag it into the bin. The signs across the belt, framed in each bin\'s colour, show what goes in.',
+      controlesTactil: 'Tap the item and then the bin, or drag it into the bin. The signs across the belt, framed in each bin\'s colour, show what goes in.',
       etiquetas: [
         'conveyor belt', 'sorting', 'sort', 'recycling', 'bins', 'colours', 'warehouse', 'factory', 'job',
         'fruit', 'cans', 'bottles', 'boxes', 'rules', 'rule change', 'attention', 'focus', 'reflexes',
@@ -1197,6 +1197,8 @@ export default {
         fin: { one: 'Game over! {n} item', other: 'Game over! {n} items' },
         reglaColor: 'Rule: by COLOUR',
         reglaTipo: 'Rule: by TYPE',
+        proximaTipo: 'Changing in {n} s: by TYPE!',
+        proximaColor: 'Changing in {n} s: by COLOUR!',
         cambioRegla: 'RULE CHANGE!',
         racha: 'Streak ×{n}',
         cuboEquivocado: 'Wrong bin!',

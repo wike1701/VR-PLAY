@@ -2,7 +2,7 @@
 // Un almacén con una cinta transportadora delante que pasa de izquierda a derecha. Llegan objetos
 // (fruta, latas, botellas y cajas de cuatro colores) y hay que echar cada uno en su cubo según la regla:
 // al principio por color y, más adelante, por tipo. La regla cambia cada cierto tiempo, con un aviso
-// grande. Si un objeto llega al final de la cinta, se cae al suelo o va al cubo equivocado, es un fallo;
+// grande y una cuenta atrás de unos segundos antes. Si un objeto llega al final de la cinta, se cae al suelo o va al cubo equivocado, es un fallo;
 // con 3 fallos se acaba. La cinta acelera poco a poco y los objetos llegan más seguidos.
 //
 // En VR: coges el objeto con el gatillo y lo sueltas dentro del cubo o lo lanzas (con algo de ayuda a la
@@ -24,6 +24,9 @@ const R_CUBO = 0.16;            // radio de la boca
 const CUBOS_X = [-0.66, -0.22, 0.22, 0.66];
 const CUBOS_Z = -0.24;
 const DURACION_REGLA = 28;      // segundos que dura cada regla
+const AVISO_PREVIO = 6;         // segundos de cuenta atrás antes de cada cambio de regla
+const CARTELES_Y = 1.26;        // tablero de carteles, al otro lado de la cinta y de cara al jugador
+const CARTELES_Z = -1.0;
 const R_COGER = 0.13;           // distancia de la mano para coger un objeto (VR)
 const GRAVEDAD = 9.8;
 const HISTORIAL = 8;
@@ -103,7 +106,7 @@ export function iniciar(ctx) {
   ctx.sueloBase(false);
   // Desde detrás de los cubos; con la pantalla en vertical (móvil), más alta y más atrás para que quepan
   const VISTAS = {
-    horizontal: [new THREE.Vector3(0, 1.72, 0.78), new THREE.Vector3(0, 0.8, -0.6)],
+    horizontal: [new THREE.Vector3(0, 1.72, 0.78), new THREE.Vector3(0, 0.95, -0.6)],
     vertical: [new THREE.Vector3(0, 2.15, 1.25), new THREE.Vector3(0, 1.0, -0.5)],
   };
   let vistaVertical = null;
@@ -282,11 +285,12 @@ export function iniciar(ctx) {
   let avisoFinTiempo = 0;
 
   // ─── Cubos ─────────────────────────────────────────────────────────────
-  // Cubo de plástico abierto, con su aro (que se ilumina) y un cartel con lo que acepta
+  // Cubo de plástico abierto, con su aro (que se ilumina), y su cartel con lo que acepta en el tablero
+  // del otro lado de la cinta (a la vista mientras juegas), enmarcado con el color del cubo
   const perfilCubo = [[0.001, 0.01], [0.125, 0.01], [0.13, 0], [R_CUBO, BORDE_CUBO]].map(([x, y]) => new THREE.Vector2(x, y));
   const geoCubo = R(new THREE.LatheGeometry(perfilCubo, 28));
   const geoAro = R(new THREE.TorusGeometry(R_CUBO, 0.012, 6, 28).rotateX(Math.PI / 2).translate(0, BORDE_CUBO, 0));
-  const geoCartel = R(new THREE.PlaneGeometry(0.17, 0.17));
+  const geoCartel = R(new THREE.PlaneGeometry(0.24, 0.24));
   // Atlas de iconos: primera fila, los 4 colores; segunda fila, los 4 tipos
   const texIconos = R(ctx.texturaCanvas((g, tam) => {
     const c = tam / 4;
@@ -344,16 +348,27 @@ export function iniciar(ctx) {
     const tex = R(texIconos.clone());
     tex.repeat.set(0.25, 0.25);
     const cartel = new THREE.Mesh(geoCartel, R(new THREE.MeshBasicMaterial({ map: tex })));
-    // Pegado a la pared del cubo, que se abre hacia arriba
-    cartel.position.set(0, 0.38, 0.163);
-    cartel.rotation.x = -0.05;
-    grupo.add(cuerpo, aro, cartel);
+    cartel.position.set(x, CARTELES_Y, CARTELES_Z + 0.006);
+    raiz.add(cartel);
+    grupo.add(cuerpo, aro);
     raiz.add(grupo);
     const sombra = ctx.crearSombra({ radio: 0.2, opacidad: 0.4 });
     ctx.colocarSombra(sombra, grupo.position, 0.004);
     raiz.add(sombra);
     return { indice: i, grupo, matAro, tex, acepta: i, brillo: 0, colorBrillo: new THREE.Color(), pos: new THREE.Vector3(x, BORDE_CUBO, CUBOS_Z) };
   });
+
+  // Tablero de los carteles: marcos del color de cada cubo (parpadean antes de un cambio de regla),
+  // una viga y dos postes
+  const matMarcos = R(new THREE.MeshBasicMaterial({ vertexColors: true }));
+  raiz.add(new THREE.Mesh(R(fusionar(CUBOS_X.map((x) => new THREE.PlaneGeometry(0.3, 0.3).translate(x, CARTELES_Y, CARTELES_Z))
+    .concat([new THREE.PlaneGeometry(0.06, 0.05).translate(0, -10, 0)]), [...COLORES, 0])), matMarcos));
+  raiz.add(new THREE.Mesh(R(fusionar([
+    new THREE.BoxGeometry(1.9, 0.05, 0.05).translate(0, CARTELES_Y + 0.18, CARTELES_Z - 0.03),
+    new THREE.BoxGeometry(0.04, CARTELES_Y + 0.18, 0.04).translate(-0.95, (CARTELES_Y + 0.18) / 2, CARTELES_Z - 0.03),
+    new THREE.BoxGeometry(0.04, CARTELES_Y + 0.18, 0.04).translate(0.95, (CARTELES_Y + 0.18) / 2, CARTELES_Z - 0.03),
+    ...CUBOS_X.map((x) => new THREE.BoxGeometry(0.31, 0.31, 0.02).translate(x, CARTELES_Y, CARTELES_Z - 0.012)),
+  ])), R(new THREE.MeshLambertMaterial({ color: 0x3c4450 }))));
 
   // ─── Objetos (un grupo fijo que se reutiliza) ──────────────────────────
   const geos = TIPOS.map((tipo) => COLORES.map((color) => R(geometriaObjeto(tipo, color))));
@@ -401,7 +416,7 @@ export function iniciar(ctx) {
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const panel = ctx.crearPanel({ ancho: 1.3, alto: 0.36 });
-  panel.mesh.position.set(0, 1.45, -1.2);
+  panel.mesh.position.set(0, 1.63, -1.25);
   panel.mesh.rotation.x = 0.1;
   raiz.add(panel.mesh);
 
@@ -416,6 +431,7 @@ export function iniciar(ctx) {
   let record = ctx.leer('record', 0);
   let regla = 'color'; // 'color' | 'tipo'
   let tiempoRegla = 0;
+  let segundoAviso = 0;    // último segundo de la cuenta atrás que ha sonado
   let proximo = 0;
   let desplazamiento = 0;  // metros que ha avanzado la cinta (para la textura)
   let aviso = null;        // { texto, color, tiempo, grande }
@@ -444,6 +460,10 @@ export function iniciar(ctx) {
         { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(reloj) }), tam: 0.72 }];
     } else if (aviso && aviso.grande) {
       lineas = [{ texto: aviso.texto, tam: 1.3, color: aviso.color }, { texto: ctx.t(regla === 'color' ? 'reglaColor' : 'reglaTipo'), tam: 0.8, color: '#ffffff' }];
+    } else if (segundoAviso > 0) {
+      // Cuenta atrás antes del cambio de regla, con la regla que viene
+      lineas = [{ texto: ctx.t('marcador', { n: puntos, vidas: corazones }), tam: 1.15, color: '#ffffff' },
+        { texto: ctx.t(regla === 'color' ? 'proximaTipo' : 'proximaColor', { n: segundoAviso }), tam: 0.85, color: '#ff8a50' }];
     } else {
       lineas = [{ texto: ctx.t('marcador', { n: puntos, vidas: corazones }), tam: 1.15, color: '#ffffff' },
         aviso ? { texto: aviso.texto, tam: 0.75, color: aviso.color }
@@ -861,9 +881,16 @@ export function iniciar(ctx) {
     if (estado === 'juego') {
       tiempoJuego += dt;
       tiempoRegla += dt;
+      // Cuenta atrás: un tic por segundo y los marcos de los carteles parpadeando
+      const queda = DURACION_REGLA - tiempoRegla;
+      const segundo = queda <= AVISO_PREVIO ? Math.ceil(queda) : 0;
+      if (segundo !== segundoAviso && segundo > 0) ctx.sonido('tic');
+      segundoAviso = segundo;
       if (tiempoRegla >= DURACION_REGLA) cambiarRegla();
       proximo -= dt;
       if (proximo <= 0 && soltarObjeto()) proximo = intervalo() * azar(0.8, 1.2);
+    } else {
+      segundoAviso = 0;
     }
     if (aviso && (aviso.tiempo -= dt) <= 0) aviso = null;
 
@@ -891,6 +918,8 @@ export function iniciar(ctx) {
       cubo.matAro.color.setHex(0xffffff).lerp(cubo.colorBrillo, Math.min(1, cubo.brillo));
       cubo.grupo.scale.setScalar(1 + Math.min(1, cubo.brillo) * 0.06);
     }
+    const parpadeo = segundoAviso > 0 && Math.floor(tiempo * 4) % 2 === 0;
+    matMarcos.color.setHex(parpadeo ? 0xff8a50 : 0xffffff);
     avisoFinTiempo = Math.max(0, avisoFinTiempo - dt);
     avisoFin.material.color.setHex(avisoFinTiempo > 0 && Math.floor(tiempo * 8) % 2 ? 0xff1744 : 0x553322);
     escribirMarcador();

@@ -1183,9 +1183,9 @@ export default {
     cinta: {
       titulo: 'Nastro Trasportatore',
       descripcion: 'Lavori al nastro trasportatore di un magazzino: arrivano frutta, lattine, bottiglie e scatole colorate, e ognuna va nel suo bidone. All’inizio si divide per colore e, all’improvviso, per tipo: la regola cambia ogni tanto, con un avviso. Il nastro accelera e gli oggetti arrivano più fitti. Con 3 errori è finita.',
-      controlesVR: 'Prendi l’oggetto con il grilletto e lascialo nel suo bidone o lancialo (con un piccolo aiuto alla mira). Guarda il cartello di ogni bidone: dice cosa accetta.',
-      controlesEscritorio: 'Clicca l’oggetto e poi il bidone, oppure trascinalo nel bidone. Il cartello di ogni bidone dice cosa accetta.',
-      controlesTactil: 'Tocca l’oggetto e poi il bidone, oppure trascinalo nel bidone. Il cartello di ogni bidone dice cosa accetta.',
+      controlesVR: 'Prendi l’oggetto con il grilletto e lascialo nel suo bidone o lancialo (con un piccolo aiuto alla mira). I cartelli oltre il nastro, con la cornice del colore di ogni bidone, dicono cosa accetta.',
+      controlesEscritorio: 'Clicca l’oggetto e poi il bidone, oppure trascinalo nel bidone. I cartelli oltre il nastro, con la cornice del colore di ogni bidone, dicono cosa accetta.',
+      controlesTactil: 'Tocca l’oggetto e poi il bidone, oppure trascinalo nel bidone. I cartelli oltre il nastro, con la cornice del colore di ogni bidone, dicono cosa accetta.',
       etiquetas: [
         'nastro trasportatore', 'smistare', 'riciclo', 'bidoni', 'colori', 'magazzino', 'fabbrica',
         'lavoro', 'frutta', 'lattine', 'bottiglie', 'scatole', 'regole', 'cambio di regola', 'attenzione',
@@ -1201,6 +1201,8 @@ export default {
         fin: { one: 'Fine! {n} oggetto', other: 'Fine! {n} oggetti' },
         reglaColor: 'Regola: per COLORE',
         reglaTipo: 'Regola: per TIPO',
+        proximaTipo: 'Cambia tra {n} s: per TIPO!',
+        proximaColor: 'Cambia tra {n} s: per COLORE!',
         cambioRegla: 'CAMBIO DI REGOLA!',
         racha: 'Serie ×{n}',
         cuboEquivocado: 'Bidone sbagliato!',

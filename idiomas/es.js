@@ -1257,9 +1257,9 @@ export default {
     cinta: {
       titulo: 'Cinta Mecánica',
       descripcion: 'Trabajas en la cinta de un almacén: llegan fruta, latas, botellas y cajas de colores, y cada una va a su cubo. Al principio se clasifica por color y, de repente, por tipo: la regla cambia cada poco, con aviso. La cinta acelera y los objetos llegan más seguidos. Con 3 fallos se acaba.',
-      controlesVR: 'Coge el objeto con el gatillo y suéltalo dentro de su cubo o lánzalo (con un poco de ayuda a la puntería). Mira el cartel de cada cubo: dice qué acepta.',
-      controlesEscritorio: 'Haz clic en el objeto y luego en el cubo, o arrástralo hasta el cubo. El cartel de cada cubo dice qué acepta.',
-      controlesTactil: 'Toca el objeto y luego el cubo, o arrástralo hasta el cubo. El cartel de cada cubo dice qué acepta.',
+      controlesVR: 'Coge el objeto con el gatillo y suéltalo dentro de su cubo o lánzalo (con un poco de ayuda a la puntería). Los carteles al otro lado de la cinta, con el marco del color de cada cubo, dicen qué acepta.',
+      controlesEscritorio: 'Haz clic en el objeto y luego en el cubo, o arrástralo hasta el cubo. Los carteles al otro lado de la cinta, con el marco del color de cada cubo, dicen qué acepta.',
+      controlesTactil: 'Toca el objeto y luego el cubo, o arrástralo hasta el cubo. Los carteles al otro lado de la cinta, con el marco del color de cada cubo, dicen qué acepta.',
       etiquetas: [
         'cinta transportadora', 'cinta', 'clasificar', 'ordenar', 'reciclaje', 'cubos', 'colores',
         'almacén', 'fábrica', 'trabajo', 'objetos', 'fruta', 'latas', 'botellas', 'cajas', 'reglas',
@@ -1277,6 +1277,8 @@ export default {
         fin: { one: '¡Fin! {n} objeto', other: '¡Fin! {n} objetos' },
         reglaColor: 'Regla: por COLOR',
         reglaTipo: 'Regla: por TIPO',
+        proximaTipo: 'En {n} s cambia: ¡por TIPO!',
+        proximaColor: 'En {n} s cambia: ¡por COLOR!',
         cambioRegla: '¡CAMBIO DE REGLA!',
         racha: 'Racha ×{n}',
         cuboEquivocado: '¡Cubo equivocado!',

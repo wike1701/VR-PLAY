@@ -1183,9 +1183,9 @@ export default {
     cinta: {
       titulo: 'Esteira Mecânica',
       descripcion: 'Você trabalha na esteira de um armazém: chegam frutas, latas, garrafas e caixas coloridas, e cada uma vai para o seu balde. No começo se separa por cor e, de repente, por tipo: a regra muda de vez em quando, com aviso. A esteira acelera e os objetos chegam mais seguidos. Com 3 erros, acabou.',
-      controlesVR: 'Pegue o objeto com o gatilho e solte dentro do balde certo ou arremesse (com uma ajudinha na mira). Veja a placa de cada balde: ela mostra o que aceita.',
-      controlesEscritorio: 'Clique no objeto e depois no balde, ou arraste até o balde. A placa de cada balde mostra o que aceita.',
-      controlesTactil: 'Toque no objeto e depois no balde, ou arraste até o balde. A placa de cada balde mostra o que aceita.',
+      controlesVR: 'Pegue o objeto com o gatilho e solte dentro do balde certo ou arremesse (com uma ajudinha na mira). As placas do outro lado da esteira, com a moldura da cor de cada balde, mostram o que ele aceita.',
+      controlesEscritorio: 'Clique no objeto e depois no balde, ou arraste até o balde. As placas do outro lado da esteira, com a moldura da cor de cada balde, mostram o que ele aceita.',
+      controlesTactil: 'Toque no objeto e depois no balde, ou arraste até o balde. As placas do outro lado da esteira, com a moldura da cor de cada balde, mostram o que ele aceita.',
       etiquetas: [
         'esteira', 'esteira transportadora', 'separar', 'reciclagem', 'baldes', 'cores', 'armazém',
         'fábrica', 'trabalho', 'frutas', 'latas', 'garrafas', 'caixas', 'regras', 'mudança de regra',
@@ -1201,6 +1201,8 @@ export default {
         fin: { one: 'Fim! {n} objeto', other: 'Fim! {n} objetos' },
         reglaColor: 'Regra: por COR',
         reglaTipo: 'Regra: por TIPO',
+        proximaTipo: 'Muda em {n} s: por TIPO!',
+        proximaColor: 'Muda em {n} s: por COR!',
         cambioRegla: 'MUDANÇA DE REGRA!',
         racha: 'Sequência ×{n}',
         cuboEquivocado: 'Balde errado!',
