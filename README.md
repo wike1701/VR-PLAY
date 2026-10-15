@@ -246,9 +246,9 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 
 ## Encargos de voz (Discord → Claude)
 
-Un bot de Discord (carpeta `voz-a-claude`, **fuera** de este repositorio, junto a `vr-play`) escucha el canal de voz mientras habláis. Cada vez que alguien dice **«Claude»**, su frase siguiente es un encargo («Claude, haz más fácil el minigolf»): el bot crea un issue en este repositorio con esa frase (etiqueta `voz`) y avisa en el chat de Discord. Lo demás de la charla no sale del PC.
+Un bot de Discord (carpeta `voz-a-claude`, **fuera** de este repositorio, junto a `vr-play`) escucha el canal de voz mientras habláis. Cada vez que el usuario dice **«Claude»**, su frase siguiente es un encargo («Claude, haz más fácil el minigolf»): el bot crea un issue en este repositorio con esa frase y las etiquetas `voz` y `claude-implementar`, y avisa en el chat de Discord. Lo demás de la charla no sale del PC. Solo valen los encargos de las voces de `DISCORD_VOCES_PERMITIDAS` (la del usuario).
 
-Al poner la etiqueta `claude-implementar` en el issue, `.github/workflows/claude-implementar.yml` lanza a Claude Code en GitHub: lee `CLAUDE.md`, programa el encargo en una rama y deja el enlace para abrir el Pull Request. No se publica nada hasta que se acepta el Pull Request. En los issues y Pull Requests también se le puede pedir algo con `@claude …` (solo dueños y colaboradores).
+La etiqueta lanza `.github/workflows/claude-implementar.yml`: Claude Code lee `CLAUDE.md` y programa el encargo en una rama; después el workflow la pone encima de main, pasa las comprobaciones (sintaxis, idiomas, marcadores, estructura y calidad) y, si todo va bien, **la sube a main** (la web se publica sola), cuenta el commit en el issue y lo cierra. Si algo falla, no se sube nada y lo dice en el issue. Los encargos van de uno en uno. En los issues y Pull Requests también se le puede pedir algo con `@claude …` (solo dueños y colaboradores); eso no se sube solo a main.
 
 Para que funcione hace falta, una vez: instalar la app de Claude en el repositorio (`/install-github-app` en Claude Code) y añadir el secreto `ANTHROPIC_API_KEY` (o `CLAUDE_CODE_OAUTH_TOKEN`, de `claude setup-token`, para usar la suscripción; entonces hay que cambiar la línea comentada del workflow). Cómo arrancar el bot: su propio `README.md`.
 
