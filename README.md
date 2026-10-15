@@ -328,3 +328,5 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 npx wrangler d1 execute vrplay-foro --local --file bd/esquema.sql
 npx wrangler dev
 ```
+
+Prueba del bot de voz
