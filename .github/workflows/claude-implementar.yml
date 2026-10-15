@@ -76,6 +76,10 @@ jobs:
           set -euo pipefail
           git config user.name "claude[bot]"
           git config user.email "claude[bot]@users.noreply.github.com"
+          # La acción de Claude cambia las credenciales de git y al acabar las retira: se vuelve a
+          # usar el permiso de este workflow (contents: write) para poder subir a main
+          git config --unset-all http.https://github.com/.extraheader || true
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git fetch origin --prune
           RAMA=$(git for-each-ref --sort=-committerdate --format='%(refname:lstrip=3)' "refs/remotes/origin/claude/issue-${ISSUE}-*" | head -n 1)
           if [ -z "$RAMA" ] || [ -z "$(git rev-list "origin/main..origin/$RAMA")" ]; then
