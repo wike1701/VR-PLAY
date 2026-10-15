@@ -109,6 +109,10 @@ const SONIDOS = {
   simon3: () => { tono(209, 209, 0.38, 'triangle', 0.36); tono(418, 418, 0.22, 'sine', 0.06); },
   zumbador: () => { tono(90, 88, 0.7, 'square', 0.16); tono(42, 40, 0.7, 'sawtooth', 0.14); },
   silbato: () => { tono(2100, 2150, 0.18, 'square', 0.08); tono(2100, 2150, 0.35, 'square', 0.08, 0.22); },
+  // Balanceo: el cañón de circo que lanza los cubos, el cubo que golpea la escoba y la escoba que cae
+  canon: () => { ruido(0.2, 480, 0.55, 0.7); tono(210, 70, 0.16, 'sine', 0.4); tono(900, 500, 0.05, 'triangle', 0.08); },
+  cubo: () => { tono(760, 320, 0.09, 'square', 0.16); ruido(0.07, 2300, 0.45, 1); tono(160, 90, 0.12, 'sine', 0.3); },
+  caida: () => { tono(170, 55, 0.35, 'sine', 0.5); ruido(0.25, 700, 0.45, 0.6); tono(1300, 900, 0.05, 'triangle', 0.1, 0.08); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
