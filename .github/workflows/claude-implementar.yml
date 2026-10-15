@@ -8,8 +8,8 @@
 # También responde si escribes "@claude ..." en un comentario de un issue o de un Pull Request
 # (solo a los dueños y colaboradores del repositorio), para pedirle cambios sobre la marcha.
 #
-# Necesita la app de Claude instalada en el repositorio y el secreto ANTHROPIC_API_KEY
-# (o CLAUDE_CODE_OAUTH_TOKEN para usar la suscripción: ver la sección «Encargos de voz» del README).
+# Necesita la app de Claude instalada en el repositorio y el secreto CLAUDE_CODE_OAUTH_TOKEN
+# (la suscripción de Claude; o ANTHROPIC_API_KEY, ver la sección «Encargos de voz» del README).
 
 name: Claude implementa encargos de voz
 
@@ -47,9 +47,10 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
-          # Usa UNO de los dos: la API key (pago por uso) o el token de tu suscripción de Claude
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Se usa la suscripción de Claude (secreto CLAUDE_CODE_OAUTH_TOKEN, de «claude setup-token»).
+          # Para usar en su lugar una API key de pago por uso: secreto ANTHROPIC_API_KEY y cambiar las líneas.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           label_trigger: "claude-implementar"
           claude_args: |
             --max-turns 60
