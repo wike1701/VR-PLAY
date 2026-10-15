@@ -1,7 +1,7 @@
 // PICNIC MATAMOSCAS
 // Mesa de picnic en un jardín, con cinco platos de comida. Las moscas llegan volando, dan unas vueltas
-// sobre un plato y se posan: si una se queda más de 1 segundo en la comida, ese plato se pudre. Cada
-// plato es una vida y la partida acaba cuando se pudren todos. Aplastar una mosca posada vale 1 punto
+// sobre un plato y se posan: si una se queda más de 1 segundo en la comida, ese plato se pudre. La
+// partida acaba cuando se pudren 3 platos (aunque queden otros sanos). Aplastar una mosca posada vale 1 punto
 // y cazarla al vuelo, 2; la moscarda verde vale el doble. Cada vez llegan más moscas y más rápidas.
 // En VR: un matamoscas en cada mano (hay que darles con un golpe rápido). Con ratón o en el móvil:
 // clic o toque sobre la mosca, y el matamoscas baja de golpe.
@@ -16,6 +16,7 @@ const SUPERFICIE = 0.78;            // altura del mantel
 const Y_PLATO = SUPERFICIE + 0.007; // donde se apoya la comida
 const MESA = { x: 0.78, z: [-1.03, -0.17], centro: -0.6 }; // medio ancho y fondo del mantel
 const TIEMPO_PUDRIR = 1.0;          // segundos que aguanta la comida con una mosca encima
+const VIDAS = 3;                    // platos podridos con los que se pierde (de los 5 que hay)
 const MAX_MOSCAS = 12;              // las que puede haber a la vez como mucho (se reutilizan)
 const DIFICULTAD_MAX = 150;         // segundos hasta llegar a la dificultad máxima
 const NIVEL_SEGUNDOS = 30;          // cada 30 s, aviso de que llegan más
@@ -481,6 +482,7 @@ export function iniciar(ctx) {
   const nivel = () => 1 + Math.floor(tiempoJugado / NIVEL_SEGUNDOS);
   const vivas = (m) => m.estado === 'llega' || m.estado === 'ronda' || m.estado === 'baja' || m.estado === 'posada';
   const platosSanos = () => platos.reduce((n, p) => n + (p.podrido ? 0 : 1), 0);
+  const vidas = () => Math.max(0, VIDAS - (platos.length - platosSanos()));
   const sobreMesa = (p) => Math.abs(p.x) < MESA.x && p.z > MESA.z[0] && p.z < MESA.z[1];
 
   function actualizarMarcador() {
@@ -490,7 +492,7 @@ export function iniciar(ctx) {
         ? [{ texto: ctx.t('fin', { n: puntos }), tam: 1.2, color: '#ffe082' }, { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(reloj) }), tam: 0.75 }]
         : [{ texto: ctx.t('marcador', { n: puntos }), tam: 1.3 },
           aviso ? { texto: aviso.texto, tam: 0.8, color: aviso.color }
-            : { texto: ctx.t('platos', { n: platosSanos(), record }), tam: 0.78, color: '#c5e1a5' }];
+            : { texto: ctx.t('platos', { n: vidas(), record }), tam: 0.78, color: '#c5e1a5' }];
     marcador.escribir(lineas);
   }
   const avisar = (texto, color, duracion = 1.3) => { aviso = { texto, color, tiempo: duracion }; };
@@ -600,7 +602,7 @@ export function iniciar(ctx) {
       const otro = elegirPlato();
       if (otro) { apuntar(m, otro); irAlPlato(m); } else huir(m);
     }
-    if (platosSanos() === 0) terminar();
+    if (vidas() === 0 || platosSanos() === 0) terminar();
     else avisar(ctx.t('podrido'), '#dce775', 1.6);
   }
 

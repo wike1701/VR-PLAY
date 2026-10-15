@@ -1042,7 +1042,7 @@ export default {
     },
     picnic: {
       titulo: 'Picnic Matamoscas',
-      descripcion: 'Mediodía de verano en el jardín y la mesa de picnic llena de comida: bocadillo, sandía, tarta, queso y uvas. Las moscas llegan volando, dan vueltas sobre un plato y se posan: si una se queda más de 1 segundo, la comida se pudre. Cada plato es una vida. Aplástalas posadas o, mejor aún, al vuelo.',
+      descripcion: 'Mediodía de verano en el jardín y la mesa de picnic llena de comida: bocadillo, sandía, tarta, queso y uvas. Las moscas llegan volando, dan vueltas sobre un plato y se posan: si una se queda más de 1 segundo, la comida se pudre. Si se pudren 3 platos, pierdes. Aplástalas posadas o, mejor aún, al vuelo.',
       controlesVR: 'Un matamoscas en cada mano: aplasta las moscas con un golpe rápido. Cazarlas al vuelo vale el doble y la moscarda verde, otro doble.',
       controlesEscritorio: 'Haz clic sobre la mosca para aplastarla con el matamoscas, mejor antes de que se pose en la comida.',
       controlesTactil: 'Toca la mosca para aplastarla con el matamoscas, mejor antes de que se pose en la comida.',
@@ -1058,7 +1058,7 @@ export default {
         titulo: 'PICNIC MATAMOSCAS',
         intro: 'Aplasta las moscas antes de que se pudra la comida',
         marcador: { one: '{n} punto', other: '{n} puntos' },
-        platos: 'Platos: {n} · Récord: {record}',
+        platos: 'Vidas: {n} · Récord: {record}',
         fin: { one: '¡Fin! {n} punto', other: '¡Fin! {n} puntos' },
         podrido: '¡Se ha podrido un plato!',
         alVuelo: '¡Al vuelo!',

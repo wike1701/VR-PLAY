@@ -981,7 +981,7 @@ export default {
     },
     picnic: {
       titulo: 'Picknick-Fliegenklatsche',
-      descripcion: 'Sommermittag im Garten, und der Picknicktisch ist voller Essen: Sandwich, Wassermelone, Kuchen, Käse und Trauben. Die Fliegen kommen angeflogen, kreisen über einem Teller und landen: Bleibt eine länger als 1 Sekunde sitzen, verdirbt das Essen. Jeder Teller ist ein Leben. Erwisch sie beim Landen oder, noch besser, im Flug.',
+      descripcion: 'Sommermittag im Garten, und der Picknicktisch ist voller Essen: Sandwich, Wassermelone, Kuchen, Käse und Trauben. Die Fliegen kommen angeflogen, kreisen über einem Teller und landen: Bleibt eine länger als 1 Sekunde sitzen, verdirbt das Essen. Verderben 3 Teller, hast du verloren. Erwisch sie beim Landen oder, noch besser, im Flug.',
       controlesVR: 'Eine Fliegenklatsche in jeder Hand: Erwisch die Fliegen mit einem schnellen Schlag. Im Flug zählt es doppelt, die grüne Schmeißfliege noch einmal doppelt.',
       controlesEscritorio: 'Klicke auf eine Fliege, um sie zu erwischen, am besten bevor sie auf dem Essen landet.',
       controlesTactil: 'Tippe auf eine Fliege, um sie zu erwischen, am besten bevor sie auf dem Essen landet.',
@@ -995,7 +995,7 @@ export default {
         titulo: 'PICKNICK-FLIEGENKLATSCHE',
         intro: 'Erwisch die Fliegen, bevor das Essen verdirbt',
         marcador: { one: '{n} Punkt', other: '{n} Punkte' },
-        platos: 'Teller: {n} · Rekord: {record}',
+        platos: 'Leben: {n} · Rekord: {record}',
         fin: { one: 'Ende! {n} Punkt', other: 'Ende! {n} Punkte' },
         podrido: 'Ein Teller ist verdorben!',
         alVuelo: 'Im Flug!',

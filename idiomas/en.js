@@ -978,7 +978,7 @@ export default {
     },
     picnic: {
       titulo: 'Picnic Fly Swatter',
-      descripcion: 'A summer noon in the garden and the picnic table is full of food: sandwich, watermelon, cake, cheese and grapes. Flies buzz in, circle a plate and land: if one stays for more than 1 second, the food goes bad. Every plate is a life. Swat them when they land or, even better, in mid-air.',
+      descripcion: 'A summer noon in the garden and the picnic table is full of food: sandwich, watermelon, cake, cheese and grapes. Flies buzz in, circle a plate and land: if one stays for more than 1 second, the food goes bad. If 3 plates go bad, you lose. Swat them when they land or, even better, in mid-air.',
       controlesVR: 'A swatter in each hand: squash the flies with a quick swing. Mid-air hits are worth double, and the green blowfly doubles it again.',
       controlesEscritorio: 'Click on a fly to swat it, ideally before it lands on the food.',
       controlesTactil: 'Tap a fly to swat it, ideally before it lands on the food.',
@@ -991,7 +991,7 @@ export default {
         titulo: 'PICNIC FLY SWATTER',
         intro: 'Swat the flies before the food goes bad',
         marcador: { one: '{n} point', other: '{n} points' },
-        platos: 'Plates: {n} · Best: {record}',
+        platos: 'Lives: {n} · Best: {record}',
         fin: { one: 'Game over! {n} point', other: 'Game over! {n} points' },
         podrido: 'A plate has gone bad!',
         alVuelo: 'Mid-air!',

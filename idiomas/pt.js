@@ -981,7 +981,7 @@ export default {
     },
     picnic: {
       titulo: 'Piquenique Mata-Moscas',
-      descripcion: 'Meio-dia de verão no jardim e a mesa de piquenique está cheia de comida: sanduíche, melancia, bolo, queijo e uvas. As moscas chegam voando, dão voltas sobre um prato e pousam: se uma ficar mais de 1 segundo, a comida apodrece. Cada prato é uma vida. Esmague-as pousadas ou, melhor ainda, no ar.',
+      descripcion: 'Meio-dia de verão no jardim e a mesa de piquenique está cheia de comida: sanduíche, melancia, bolo, queijo e uvas. As moscas chegam voando, dão voltas sobre um prato e pousam: se uma ficar mais de 1 segundo, a comida apodrece. Se 3 pratos apodrecerem, você perde. Esmague-as pousadas ou, melhor ainda, no ar.',
       controlesVR: 'Um mata-moscas em cada mão: esmague as moscas com um golpe rápido. No ar vale o dobro, e a mosca-varejeira verde dobra outra vez.',
       controlesEscritorio: 'Clique numa mosca para esmagá-la, de preferência antes que pouse na comida.',
       controlesTactil: 'Toque numa mosca para esmagá-la, de preferência antes que pouse na comida.',
@@ -995,7 +995,7 @@ export default {
         titulo: 'PIQUENIQUE MATA-MOSCAS',
         intro: 'Esmague as moscas antes que a comida apodreça',
         marcador: { one: '{n} ponto', other: '{n} pontos' },
-        platos: 'Pratos: {n} · Recorde: {record}',
+        platos: 'Vidas: {n} · Recorde: {record}',
         fin: { one: 'Fim! {n} ponto', other: 'Fim! {n} pontos' },
         podrido: 'Um prato apodreceu!',
         alVuelo: 'No ar!',

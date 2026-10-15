@@ -982,7 +982,7 @@ export default {
     },
     picnic: {
       titulo: 'Pique-nique Tapette',
-      descripcion: 'Midi d’été au jardin et la table de pique-nique est pleine : sandwich, pastèque, gâteau, fromage et raisin. Les mouches arrivent, tournent au-dessus d’une assiette et se posent : si l’une d’elles reste plus d’une seconde, la nourriture pourrit. Chaque assiette est une vie. Écrasez-les posées ou, mieux encore, en plein vol.',
+      descripcion: 'Midi d’été au jardin et la table de pique-nique est pleine : sandwich, pastèque, gâteau, fromage et raisin. Les mouches arrivent, tournent au-dessus d’une assiette et se posent : si l’une d’elles reste plus d’une seconde, la nourriture pourrit. Si 3 assiettes pourrissent, tu as perdu. Écrasez-les posées ou, mieux encore, en plein vol.',
       controlesVR: 'Une tapette dans chaque main : écrasez les mouches d’un coup rapide. En plein vol, ça vaut le double, et la mouche verte double encore.',
       controlesEscritorio: 'Cliquez sur une mouche pour l’écraser, de préférence avant qu’elle se pose sur la nourriture.',
       controlesTactil: 'Touchez une mouche pour l’écraser, de préférence avant qu’elle se pose sur la nourriture.',
@@ -996,7 +996,7 @@ export default {
         titulo: 'PIQUE-NIQUE TAPETTE',
         intro: 'Écrasez les mouches avant que la nourriture pourrisse',
         marcador: { one: '{n} point', other: '{n} points' },
-        platos: 'Assiettes : {n} · Record : {record}',
+        platos: 'Vies: {n} · Record : {record}',
         fin: { one: 'Terminé ! {n} point', other: 'Terminé ! {n} points' },
         podrido: 'Une assiette a pourri !',
         alVuelo: 'En plein vol !',

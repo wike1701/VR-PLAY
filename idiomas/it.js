@@ -981,7 +981,7 @@ export default {
     },
     picnic: {
       titulo: 'Picnic Acchiappamosche',
-      descripcion: 'Mezzogiorno d’estate in giardino e il tavolo da picnic è pieno di cibo: panino, anguria, torta, formaggio e uva. Le mosche arrivano in volo, girano sopra un piatto e si posano: se una resta più di 1 secondo, il cibo marcisce. Ogni piatto è una vita. Schiacciale quando si posano o, ancora meglio, al volo.',
+      descripcion: 'Mezzogiorno d’estate in giardino e il tavolo da picnic è pieno di cibo: panino, anguria, torta, formaggio e uva. Le mosche arrivano in volo, girano sopra un piatto e si posano: se una resta più di 1 secondo, il cibo marcisce. Se marciscono 3 piatti, hai perso. Schiacciale quando si posano o, ancora meglio, al volo.',
       controlesVR: 'Uno scacciamosche in ogni mano: schiaccia le mosche con un colpo rapido. Al volo valgono il doppio e il moscone verde ancora il doppio.',
       controlesEscritorio: 'Clicca su una mosca per schiacciarla, meglio prima che si posi sul cibo.',
       controlesTactil: 'Tocca una mosca per schiacciarla, meglio prima che si posi sul cibo.',
@@ -995,7 +995,7 @@ export default {
         titulo: 'PICNIC ACCHIAPPAMOSCHE',
         intro: 'Schiaccia le mosche prima che il cibo marcisca',
         marcador: { one: '{n} punto', other: '{n} punti' },
-        platos: 'Piatti: {n} · Record: {record}',
+        platos: 'Vite: {n} · Record: {record}',
         fin: { one: 'Fine! {n} punto', other: 'Fine! {n} punti' },
         podrido: 'Un piatto è marcito!',
         alVuelo: 'Al volo!',
