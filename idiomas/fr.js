@@ -1158,5 +1158,28 @@ export default {
         destiempo: 'À contretemps !',
       },
     },
+    airhockey: {
+      titulo: 'Air Hockey',
+      descripcion: 'Du air hockey dans une salle d’arcade pleine de néons. Match en 7 buts contre la machine, qui commence tranquille et monte de niveau peu à peu : elle défend, attaque et rate parfois. Frappe le palet avec le maillet, joue avec les bandes et ne laisse pas ton but ouvert.',
+      controlesVR: 'Le maillet suit ta main droite sur la table (la gâchette de l’autre main le change de main). Plus ta main va vite, plus le tir est fort.',
+      controlesEscritorio: 'Le maillet suit la souris sur la table. Déplace-le vite contre le palet pour frapper fort.',
+      controlesTactil: 'Le maillet suit ton doigt sur la table. Déplace-le vite contre le palet pour frapper fort.',
+      etiquetas: [
+        'air hockey', 'hockey', 'hockey de table', 'palet', 'maillet', 'table', 'salle d’arcade', 'arcade',
+        'néon', 'but', 'buts', 'bandes', 'rebond', 'match', 'contre l’ordinateur', 'adversaire', 'sport',
+        'réflexes', 'vitesse', 'frapper', 'défendre', 'attaquer', 'précision', 'coordination', 'rétro',
+        'années 80', 'classique', 'famille', 'compétitif',
+      ],
+      juego: {
+        titulo: 'AIR HOCKEY',
+        introVR: 'Le maillet suit ta main · l’autre gâchette le change',
+        introRaton: 'Déplace le maillet avec la souris et frappe le palet',
+        introTactil: 'Fais glisser ton doigt pour déplacer le maillet',
+        tuSaque: 'À toi d’engager : frappe le palet',
+        gol: 'BUT !',
+        golMaquina: 'But de la machine',
+        nuevoPartido: 'Nouveau match dans {n}',
+      },
+    },
   },
 };

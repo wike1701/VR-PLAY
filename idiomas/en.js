@@ -1153,5 +1153,28 @@ export default {
         destiempo: 'Off beat!',
       },
     },
+    airhockey: {
+      titulo: 'Air Hockey',
+      descripcion: 'Air hockey in an arcade full of neon lights. First to 7 goals against the machine, which starts easy and slowly levels up: it defends, attacks and sometimes misses. Hit the puck with the mallet, bank it off the rails and keep your goal covered.',
+      controlesVR: 'The mallet follows your right hand on the table (the other hand\'s trigger switches hands). The faster you move your hand, the harder the shot.',
+      controlesEscritorio: 'The mallet follows the mouse on the table. Move it fast into the puck to hit hard.',
+      controlesTactil: 'The mallet follows your finger on the table. Move it fast into the puck to hit hard.',
+      etiquetas: [
+        'air hockey', 'hockey', 'table hockey', 'puck', 'mallet', 'table', 'arcade', 'neon', 'goal',
+        'goals', 'rebound', 'bank shot', 'match', 'versus computer', 'opponent', 'sports', 'reflexes',
+        'speed', 'hit', 'defend', 'attack', 'precision', 'aim', 'coordination', 'retro', '80s', 'classic',
+        'casual', 'family', 'competitive',
+      ],
+      juego: {
+        titulo: 'AIR HOCKEY',
+        introVR: 'The mallet follows your hand · the other trigger switches',
+        introRaton: 'Move the mallet with the mouse and hit the puck',
+        introTactil: 'Drag your finger to move the mallet',
+        tuSaque: 'Your serve: hit the puck',
+        gol: 'GOAL!',
+        golMaquina: 'Machine scores',
+        nuevoPartido: 'New match in {n}',
+      },
+    },
   },
 };

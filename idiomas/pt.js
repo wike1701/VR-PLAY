@@ -1157,5 +1157,28 @@ export default {
         destiempo: 'Fora do tempo!',
       },
     },
+    airhockey: {
+      titulo: 'Air Hockey',
+      descripcion: 'Air hockey num salão de fliperama cheio de neon. Partida de 7 gols contra a máquina, que começa tranquila e sobe de nível aos poucos: defende, ataca e às vezes erra. Bata no disco com o taco, jogue com as tabelas e não deixe seu gol aberto.',
+      controlesVR: 'O taco segue sua mão direita sobre a mesa (o gatilho da outra mão troca de mão). Quanto mais rápido você move a mão, mais forte sai o disco.',
+      controlesEscritorio: 'O taco segue o mouse sobre a mesa. Mova-o rápido contra o disco para bater forte.',
+      controlesTactil: 'O taco segue seu dedo sobre a mesa. Mova-o rápido contra o disco para bater forte.',
+      etiquetas: [
+        'air hockey', 'hóquei', 'hóquei de mesa', 'disco', 'taco', 'mesa', 'fliperama', 'arcade', 'neon',
+        'gol', 'gols', 'tabela', 'rebote', 'partida', 'contra a máquina', 'adversário', 'esportes',
+        'reflexos', 'velocidade', 'bater', 'defender', 'atacar', 'precisão', 'coordenação', 'retrô',
+        'anos 80', 'clássico', 'família', 'competitivo',
+      ],
+      juego: {
+        titulo: 'AIR HOCKEY',
+        introVR: 'O taco segue sua mão · o outro gatilho troca',
+        introRaton: 'Mova o taco com o mouse e bata no disco',
+        introTactil: 'Arraste o dedo para mover o taco',
+        tuSaque: 'Sua saída: bata no disco',
+        gol: 'GOL!',
+        golMaquina: 'Gol da máquina',
+        nuevoPartido: 'Nova partida em {n}',
+      },
+    },
   },
 };

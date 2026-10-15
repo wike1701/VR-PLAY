@@ -1157,5 +1157,28 @@ export default {
         destiempo: 'Fuori tempo!',
       },
     },
+    airhockey: {
+      titulo: 'Air Hockey',
+      descripcion: 'Air hockey in una sala giochi piena di neon. Partita a 7 gol contro la macchina, che parte tranquilla e sale di livello poco a poco: difende, attacca e a volte sbaglia. Colpisci il disco con la mazza, gioca di sponda e non lasciare la porta scoperta.',
+      controlesVR: 'La mazza segue la tua mano destra sul tavolo (il grilletto dell’altra mano la cambia di mano). Più veloce muovi la mano, più forte parte il disco.',
+      controlesEscritorio: 'La mazza segue il mouse sul tavolo. Muovila veloce contro il disco per colpire forte.',
+      controlesTactil: 'La mazza segue il tuo dito sul tavolo. Muovilo veloce contro il disco per colpire forte.',
+      etiquetas: [
+        'air hockey', 'hockey', 'hockey da tavolo', 'disco', 'mazza', 'tavolo', 'sala giochi', 'arcade',
+        'neon', 'gol', 'porta', 'sponde', 'rimbalzo', 'partita', 'contro il computer', 'avversario',
+        'sport', 'riflessi', 'velocità', 'colpire', 'difendere', 'attaccare', 'precisione',
+        'coordinazione', 'retrò', 'anni 80', 'classico', 'famiglia', 'competitivo',
+      ],
+      juego: {
+        titulo: 'AIR HOCKEY',
+        introVR: 'La mazza segue la tua mano · l’altro grilletto la cambia',
+        introRaton: 'Muovi la mazza con il mouse e colpisci il disco',
+        introTactil: 'Trascina il dito per muovere la mazza',
+        tuSaque: 'Batti tu: colpisci il disco',
+        gol: 'GOL!',
+        golMaquina: 'Gol della macchina',
+        nuevoPartido: 'Nuova partita tra {n}',
+      },
+    },
   },
 };

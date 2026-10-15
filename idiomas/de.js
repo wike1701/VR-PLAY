@@ -1157,5 +1157,28 @@ export default {
         destiempo: 'Aus dem Takt!',
       },
     },
+    airhockey: {
+      titulo: 'Air Hockey',
+      descripcion: 'Air Hockey in einer Spielhalle voller Neonlichter. Spiel bis 7 Tore gegen die Maschine, die locker anfängt und nach und nach besser wird: Sie verteidigt, greift an und patzt manchmal. Triff den Puck mit dem Schläger, spiel über die Banden und lass dein Tor nicht offen.',
+      controlesVR: 'Der Schläger folgt deiner rechten Hand auf dem Tisch (der Trigger der anderen Hand wechselt die Hand). Je schneller deine Hand, desto härter der Schuss.',
+      controlesEscritorio: 'Der Schläger folgt der Maus auf dem Tisch. Beweg ihn schnell gegen den Puck, um hart zu schießen.',
+      controlesTactil: 'Der Schläger folgt deinem Finger auf dem Tisch. Beweg ihn schnell gegen den Puck, um hart zu schießen.',
+      etiquetas: [
+        'air hockey', 'hockey', 'tischhockey', 'puck', 'schläger', 'tisch', 'spielhalle', 'arcade', 'neon',
+        'tor', 'tore', 'bande', 'abpraller', 'match', 'gegen den computer', 'gegner', 'sport', 'reflexe',
+        'tempo', 'schießen', 'verteidigen', 'angreifen', 'präzision', 'koordination', 'retro', '80er',
+        'klassiker', 'familie', 'wettkampf',
+      ],
+      juego: {
+        titulo: 'AIR HOCKEY',
+        introVR: 'Der Schläger folgt deiner Hand · anderer Trigger wechselt',
+        introRaton: 'Beweg den Schläger mit der Maus und triff den Puck',
+        introTactil: 'Zieh mit dem Finger, um den Schläger zu bewegen',
+        tuSaque: 'Dein Anstoß: triff den Puck',
+        gol: 'TOR!',
+        golMaquina: 'Tor für die Maschine',
+        nuevoPartido: 'Neues Spiel in {n}',
+      },
+    },
   },
 };

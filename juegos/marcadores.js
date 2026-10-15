@@ -50,6 +50,8 @@ export const MARCADORES = {
   cazafantasmas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 200000, maxPorSegundo: 45, minSegundos: 5 },
   // Malabares: la cadena de recepciones seguidas más larga (como mucho unas 3 por segundo con 5 bolas)
   malabares: { orden: 'mayor', unidad: 'recepciones', min: 0, max: 5000, maxPorSegundo: 4, minSegundos: 5 },
+  // Air Hockey: partido a 7 goles; solo cuenta si ganas, con la diferencia (de 7-6 a 7-0)
+  airhockey: { orden: 'mayor', unidad: 'diferencia', min: 1, max: 7, minSegundos: 20 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

@@ -121,6 +121,9 @@ const SONIDOS = {
   recepcion: () => { ruido(0.06, 1100, 0.4, 0.9); tono(300, 190, 0.07, 'sine', 0.25); },
   plof: () => { tono(110, 48, 0.24, 'sine', 0.55); ruido(0.14, 260, 0.45, 0.7); },
   cadenaRota: () => { tono(2200, 1900, 0.09, 'triangle', 0.1); tono(1700, 1500, 0.09, 'triangle', 0.08, 0.09); tono(1350, 1200, 0.12, 'triangle', 0.07, 0.19); },
+  // Air Hockey: el disco contra la banda y la musiquilla de gol
+  banda: () => { tono(1300, 900, 0.035, 'triangle', 0.16); ruido(0.03, 2600, 0.12, 1.4); },
+  gol: () => { tono(660, 660, 0.09, 'square', 0.1); tono(880, 880, 0.09, 'square', 0.1, 0.1); tono(1320, 1320, 0.22, 'square', 0.1, 0.2); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
