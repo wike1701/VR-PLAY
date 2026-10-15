@@ -52,6 +52,8 @@ export const MARCADORES = {
   malabares: { orden: 'mayor', unidad: 'recepciones', min: 0, max: 5000, maxPorSegundo: 4, minSegundos: 5 },
   // Air Hockey: partido a 7 goles; solo cuenta si ganas, con la diferencia (de 7-6 a 7-0)
   airhockey: { orden: 'mayor', unidad: 'diferencia', min: 1, max: 7, minSegundos: 20 },
+  // Cinta Mecánica: 1 punto por objeto bien clasificado; sale uno cada 0,9 s como mucho (hasta 3 fallos)
+  cinta: { orden: 'mayor', unidad: 'puntos', min: 0, max: 10000, maxPorSegundo: 1.5, minSegundos: 5 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

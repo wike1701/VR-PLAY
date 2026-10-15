@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f242c"/>
+      <stop offset="0.6" stop-color="#3a4250"/>
+      <stop offset="1" stop-color="#262b33"/>
+    </linearGradient>
+    <linearGradient id="suelo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6c7078"/>
+      <stop offset="1" stop-color="#3e4148"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#ffd59a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffd59a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lata" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8e1b1b"/>
+      <stop offset="0.35" stop-color="#ff6b5e"/>
+      <stop offset="1" stop-color="#b71c1c"/>
+    </linearGradient>
+    <linearGradient id="cubo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9e1e1e"/>
+      <stop offset="0.4" stop-color="#ef5350"/>
+      <stop offset="1" stop-color="#a82222"/>
+    </linearGradient>
+    <linearGradient id="estela" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#ff6a3d" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffd0b8" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Ventanas altas y estanterías del almacén -->
+  <g fill="#e8eefc" opacity="0.8"><rect x="20" y="26" width="80" height="34"/><rect x="160" y="26" width="80" height="34"/><rect x="300" y="26" width="80" height="34"/></g>
+  <g fill="#2f6fb0"><rect x="10" y="90" width="6" height="140"/><rect x="150" y="90" width="6" height="140"/><rect x="10" y="130" width="146" height="5"/><rect x="10" y="180" width="146" height="5"/></g>
+  <g fill="#b98b55"><rect x="22" y="104" width="40" height="26"/><rect x="70" y="110" width="34" height="20"/><rect x="110" y="100" width="34" height="30"/><rect x="30" y="152" width="44" height="28"/><rect x="84" y="158" width="50" height="22"/></g>
+  <path d="M0 250 H400 V400 H0 Z" fill="url(#suelo)"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Cinta en diagonal con sus rodillos -->
+  <path d="M-10 196 L410 150 L410 196 L-10 252 Z" fill="#26282d"/>
+  <g stroke="#34373e" stroke-width="5">
+    <path d="M30 192 L30 246"/><path d="M90 185 L90 238"/><path d="M150 178 L150 230"/><path d="M210 172 L210 222"/><path d="M270 165 L270 214"/><path d="M330 158 L330 206"/>
+  </g>
+  <path d="M-10 252 L410 196 L410 210 L-10 268 Z" fill="#f9c80e"/>
+  <g fill="#1d1d1d"><path d="M20 248 l14 -2 l-10 16 l-14 2 Z"/><path d="M80 240 l14 -2 l-10 16 l-14 2 Z"/><path d="M140 232 l14 -2 l-10 16 l-14 2 Z"/><path d="M200 224 l14 -2 l-10 16 l-14 2 Z"/><path d="M260 216 l14 -2 l-10 16 l-14 2 Z"/><path d="M320 208 l14 -2 l-10 16 l-14 2 Z"/><path d="M380 200 l14 -2 l-10 16 l-14 2 Z"/></g>
+  <g fill="#9aa3ad"><circle cx="40" cy="262" r="8"/><circle cx="130" cy="250" r="8"/><circle cx="220" cy="238" r="8"/><circle cx="310" cy="226" r="8"/></g>
+  <!-- Objetos en la cinta: manzana, botella y caja -->
+  <circle cx="58" cy="194" r="16" fill="#43a047"/><path d="M58 178 l3 -9" stroke="#6d4c2f" stroke-width="3"/>
+  <path d="M290 112 h16 v12 l8 10 v40 h-32 v-40 l8 -10 Z" fill="#1e88e5"/><rect x="284" y="146" width="28" height="10" fill="#fafafa"/><rect x="291" y="104" width="14" height="9" fill="#0d47a1"/>
+  <rect x="340" y="138" width="44" height="34" fill="#fdd835"/><rect x="358" y="138" width="8" height="34" fill="#c8a165"/>
+  <!-- Cubo rojo en primer plano -->
+  <ellipse cx="250" cy="384" rx="110" ry="16" fill="url(#sombra)"/>
+  <path d="M168 288 L332 288 L316 392 L184 392 Z" fill="url(#cubo)"/>
+  <ellipse cx="250" cy="288" rx="82" ry="20" fill="#5a0f0f"/>
+  <ellipse cx="250" cy="288" rx="82" ry="20" fill="none" stroke="#ffffff" stroke-width="6"/>
+  <rect x="224" y="318" width="52" height="46" rx="5" fill="#f4f1ea"/>
+  <circle cx="250" cy="341" r="17" fill="#e53935"/>
+  <!-- Estela y lata roja cayendo en su cubo -->
+  <path d="M96 150 Q170 120 236 200 Q160 160 104 168 Z" fill="url(#estela)"/>
+  <g transform="rotate(28 240 222)">
+    <rect x="212" y="180" width="56" height="84" rx="6" fill="url(#lata)"/>
+    <rect x="212" y="208" width="56" height="22" fill="#f5f5f5"/>
+    <ellipse cx="240" cy="181" rx="28" ry="7" fill="#cfd8dc"/>
+    <ellipse cx="240" cy="181" rx="22" ry="5" fill="#b0bec5"/>
+    <rect x="222" y="190" width="7" height="66" fill="#ffffff" opacity="0.35"/>
+  </g>
+  <!-- Chispas del acierto -->
+  <g fill="#ffd0b8"><circle cx="186" cy="262" r="4"/><circle cx="318" cy="258" r="4"/><circle cx="300" cy="236" r="3"/></g>
+  <g fill="#ff6a3d"><circle cx="176" cy="240" r="3"/><circle cx="330" cy="276" r="3"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

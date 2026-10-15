@@ -86,6 +86,7 @@ juegos/
   cazafantasmas/juego.js  Cazafantasmas
   malabares/juego.js    Malabares
   airhockey/juego.js    Air Hockey
+  cinta/juego.js        Cinta Mecánica
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
