@@ -530,6 +530,7 @@ export function iniciar(ctx) {
   let manoPalo = null;
   const direccion = new THREE.Vector3();
   const puntaPalo = new THREE.Vector3();          // donde empieza la vara (la punta de la mano)
+  const ejeCabeza = new THREE.Vector3();          // hacia dónde va la cabeza del palo (sigue al mando)
 
   function actualizarPalo(dt) {
     const activas = ctx.manos.filter((m) => m.activa);
@@ -558,9 +559,12 @@ export function iniciar(ctx) {
     tmp.copy(puntaPalo).addScaledVector(direccion, largo);
     if (tmp.y < 0.018) tmp.y = 0.018;
     cabezaPalo.position.copy(tmp);
-    // Cabeza con orientación fija: alineada con el campo (que no gira en todo el hoyo), con la cara
-    // hacia delante del recorrido. No rota al mover o girar el palo (es solo visual: el golpe va por su posición)
-    cabezaPalo.rotation.set(0, campo.rotation.y, 0);
+    // La cabeza gira con el mando, no sola: va a lo largo del eje lateral del mando (su +X), visto
+    // desde arriba, y siempre plana sobre el césped. Si giras la muñeca o el mando, gira con él; si
+    // solo mueves la mano, no cambia. (Es solo visual: el golpe se calcula por su posición.)
+    ejeCabeza.set(1, 0, 0).transformDirection(mano.grip.matrixWorld).setY(0);
+    if (ejeCabeza.lengthSq() < 1e-4) ejeCabeza.set(0, 0, -1).transformDirection(mano.grip.matrixWorld).setY(0);
+    cabezaPalo.rotation.set(0, Math.atan2(-ejeCabeza.z, ejeCabeza.x), 0);
     palo.position.copy(puntaPalo);
     tmp2.subVectors(tmp, puntaPalo);
     varaPalo.scale.y = tmp2.length();
