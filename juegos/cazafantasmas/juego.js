@@ -20,8 +20,9 @@ const DIFICULTAD_MAX = 150;         // segundos hasta la dificultad máxima
 const NIVEL_SEGUNDOS = 30;          // cada 30 s, aviso de que vienen más
 const RADIO_APARICION = 6;
 const ALCANCE = 0.5;                // a esta distancia (en horizontal) el fantasma te atrapa
-const APERTURA = THREE.MathUtils.degToRad(15); // medio ángulo del haz de la linterna
-const LARGO_HAZ = 13;
+const TAM_HAZ = 0.75;                // el haz, al 75 % de su tamaño original (como la linterna)
+const APERTURA = THREE.MathUtils.degToRad(15 * TAM_HAZ); // medio ángulo del haz de la linterna
+const LARGO_HAZ = 13 * TAM_HAZ;     // alcance de la luz (los fantasmas aparecen a 6 m: siguen a tiro)
 const FUERZA_LINTERNA = 38;         // lo que ilumina la linterna las paredes y los muebles
 const AZAR_TIPOS = [
   // color, tamaño, velocidad (m/s), segundos de luz para deshacerlo, puntos, brillo en la oscuridad
