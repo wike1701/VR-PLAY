@@ -119,6 +119,12 @@
     }
     .aviso-completa[hidden] { display: none; }
 
+    /* En pantallas medianas, «Juego anterior» solo con su icono (si no, la barra salta a dos filas) */
+    @media (max-width: 1100px) {
+      #btn-anterior .largo, #btn-anterior kbd { display: none; }
+      #btn-anterior .corto { display: inline; }
+    }
+
     /* Móvil en vertical: todo en una fila y textos cortos para dejar sitio al juego */
     @media (max-width: 600px) {
       .barra { flex-wrap: nowrap; gap: 8px; padding-inline: 12px; }

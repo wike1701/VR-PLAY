@@ -454,7 +454,7 @@ export function iniciar(ctx) {
       grupo, cuerpo, matCuerpo, matCara,
       estado: 'libre', // 'libre' | 'aparece' | 'acecha' | 'deshace' | 'ataca' | 'huye'
       tipo: AZAR_TIPOS[0], pos: new THREE.Vector3(), vel: new THREE.Vector3(),
-      carga: 0, iluminado: 0, tiempo: 0, fase: 0, velocidad: 0, aparicion: 0, vibra: 0,
+      carga: 0, iluminado: 0, tiempo: 0, fase: 0, velocidad: 0, aparicion: 0, vibra: 0, luz: 0,
     });
   }
   const colorTmp = new THREE.Color();
@@ -543,6 +543,7 @@ export function iniciar(ctx) {
     f.tiempo = 0;
     f.carga = 0;
     f.iluminado = 0;
+    f.luz = 0;
     f.fase = Math.random() * 100;
     f.aparicion = 0;
     f.grupo.visible = true;
@@ -698,8 +699,6 @@ export function iniciar(ctx) {
           if (f.carga >= t.vida && estado === 'jugando') deshacer(f, mano);
         } else {
           f.carga = Math.max(0, f.carga - dt * 0.5);
-          // De cerca se ven más (es lo justo)
-          brillo += Math.max(0, 1 - dist / 3) * 0.35;
         }
         if (f.estado === 'aparece' || f.estado === 'acecha') {
           opacidad = f.aparicion;
@@ -737,6 +736,15 @@ export function iniciar(ctx) {
         opacidad = Math.max(0, 1 - f.tiempo / 1.2);
         if (f.tiempo > 1.2) { f.estado = 'libre'; f.grupo.visible = false; continue; }
       }
+      // Sin la luz de una linterna encima no se ven nada (solo se oyen): se encienden en 0,1 s al
+      // entrar en el haz y se apagan en 0,25 s al salir. Al deshacerse y al atacarte sí se ven.
+      if (f.estado === 'aparece' || f.estado === 'acecha' || f.estado === 'huye') {
+        const objetivo = f.iluminado && f.estado !== 'huye' ? 1 : 0;
+        f.luz += (objetivo - f.luz) * Math.min(1, dt * (objetivo ? 10 : 4));
+        opacidad *= f.luz;
+      } else f.luz = 1;
+      f.grupo.visible = opacidad > 0.01;
+      if (!f.grupo.visible) continue;
       // Dibujo: mira hacia ti, flota, ondea y brilla según la luz
       f.grupo.position.copy(f.pos);
       f.grupo.position.x += Math.sin(tiempo * 61) * temblor;

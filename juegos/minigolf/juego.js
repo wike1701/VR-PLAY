@@ -529,7 +529,6 @@ export function iniciar(ctx) {
   let cabezaLista = false;
   let manoPalo = null;
   const direccion = new THREE.Vector3();
-  const haciaCabeza = new THREE.Vector3();
   const puntaPalo = new THREE.Vector3();          // donde empieza la vara (la punta de la mano)
 
   function actualizarPalo(dt) {
@@ -559,11 +558,9 @@ export function iniciar(ctx) {
     tmp.copy(puntaPalo).addScaledVector(direccion, largo);
     if (tmp.y < 0.018) tmp.y = 0.018;
     cabezaPalo.position.copy(tmp);
-    // Cabeza horizontal, de punta a talón a lo largo de la vara vista desde arriba (como un putter),
-    // con la cara hacia el golpe
-    haciaCabeza.set(direccion.x, 0, direccion.z);
-    if (haciaCabeza.lengthSq() < 1e-6) haciaCabeza.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
-    cabezaPalo.rotation.set(0, Math.atan2(-haciaCabeza.z, haciaCabeza.x), 0);
+    // Cabeza con orientación fija: alineada con el campo (que no gira en todo el hoyo), con la cara
+    // hacia delante del recorrido. No rota al mover o girar el palo (es solo visual: el golpe va por su posición)
+    cabezaPalo.rotation.set(0, campo.rotation.y, 0);
     palo.position.copy(puntaPalo);
     tmp2.subVectors(tmp, puntaPalo);
     varaPalo.scale.y = tmp2.length();
