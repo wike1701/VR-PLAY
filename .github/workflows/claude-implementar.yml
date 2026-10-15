@@ -1,0 +1,55 @@
+# Encargos de voz: Claude programa los issues con la etiqueta "claude-implementar".
+#
+# Los issues los crea el bot de voz (carpeta voz-a-claude, fuera de este repositorio) cada vez que
+# alguien dice «Claude, ...» en el canal de voz de Discord. Al ponerle la etiqueta al issue, Claude
+# lee CLAUDE.md, programa el encargo en una rama nueva y deja el enlace para abrir el Pull Request.
+# Nunca toca main: hasta que no se acepta el Pull Request no se publica nada en la web.
+#
+# También responde si escribes "@claude ..." en un comentario de un issue o de un Pull Request
+# (solo a los dueños y colaboradores del repositorio), para pedirle cambios sobre la marcha.
+#
+# Necesita la app de Claude instalada en el repositorio y el secreto ANTHROPIC_API_KEY
+# (o CLAUDE_CODE_OAUTH_TOKEN para usar la suscripción: ver la sección «Encargos de voz» del README).
+
+name: Claude implementa encargos de voz
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issues' && github.event.label.name == 'claude-implementar') ||
+      (github.event_name != 'issues' && contains(github.event.comment.body, '@claude') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # Node para las comprobaciones del proyecto (idiomas, calidad, marcadores, estructura)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          # Usa UNO de los dos: la API key (pago por uso) o el token de tu suscripción de Claude
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          label_trigger: "claude-implementar"
+          claude_args: |
+            --max-turns 60

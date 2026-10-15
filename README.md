@@ -244,6 +244,14 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
 
+## Encargos de voz (Discord → Claude)
+
+Un bot de Discord (carpeta `voz-a-claude`, **fuera** de este repositorio, junto a `vr-play`) escucha el canal de voz mientras habláis. Cada vez que alguien dice **«Claude»**, su frase siguiente es un encargo («Claude, haz más fácil el minigolf»): el bot crea un issue en este repositorio con esa frase (etiqueta `voz`) y avisa en el chat de Discord. Lo demás de la charla no sale del PC.
+
+Al poner la etiqueta `claude-implementar` en el issue, `.github/workflows/claude-implementar.yml` lanza a Claude Code en GitHub: lee `CLAUDE.md`, programa el encargo en una rama y deja el enlace para abrir el Pull Request. No se publica nada hasta que se acepta el Pull Request. En los issues y Pull Requests también se le puede pedir algo con `@claude …` (solo dueños y colaboradores).
+
+Para que funcione hace falta, una vez: instalar la app de Claude en el repositorio (`/install-github-app` en Claude Code) y añadir el secreto `ANTHROPIC_API_KEY` (o `CLAUDE_CODE_OAUTH_TOKEN`, de `claude setup-token`, para usar la suscripción; entonces hay que cambiar la línea comentada del workflow). Cómo arrancar el bot: su propio `README.md`.
+
 ## Foro de sugerencias
 
 `foro.html` es un foro donde cualquiera, sin cuenta, puede sugerir juegos, darles ♥ y comentar. Las sugerencias se guardan en una base de datos **Cloudflare D1** a través de `servidor/`, el programa del Worker que solo atiende las direcciones `/api/*` (el resto de la web son archivos estáticos).

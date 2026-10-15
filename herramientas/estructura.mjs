@@ -36,7 +36,7 @@ for (const nombre of fs.readdirSync(path.join(RAIZ, 'juegos'))) {
 // ─── Raíz ────────────────────────────────────────────────────────────────
 // Las páginas van en la raíz porque su dirección es pública (enlaces, Google, buscadores).
 const PERMITIDOS_RAIZ = new Set([
-  '.assetsignore', '.gitignore', '.git', '.claude', '.wrangler', '.dev.vars', 'node_modules',
+  '.assetsignore', '.gitignore', '.git', '.github', '.claude', '.wrangler', '.dev.vars', 'node_modules',
   'README.md', 'CLAUDE.md', 'wrangler.jsonc', 'favicon.svg', 'manifest.webmanifest',
   'bd', 'docs', 'estilos', 'herramientas', 'iconos', 'idiomas', 'juegos', 'servidor', 'shell',
 ]);

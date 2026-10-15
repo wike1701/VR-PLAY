@@ -51,6 +51,7 @@ VR-PLAY/
 ├── herramientas/           Scripts de terminal (Node) y la guía de la rutina diaria
 ├── docs/                   Documentos de diseño y planificación (no se publican)
 ├── .claude/skills/         Skills de Claude Code del proyecto (no se publican)
+├── .github/workflows/      GitHub Actions: Claude programa los encargos de voz (no se publica)
 ├── README.md, CLAUDE.md    Documentación principal e instrucciones para Claude
 ├── wrangler.jsonc          Configuración de Cloudflare
 └── .assetsignore, .gitignore
@@ -128,7 +129,7 @@ Todos los archivos están en `servidor/`, sin subcarpetas. Por grupos:
 ## 7. Publicación
 
 - **Sin compilación**: al subir a `main`, Cloudflare ejecuta `npx wrangler deploy`, que publica los archivos de la raíz como web y `servidor/index.js` como API.
-- **Lo que no se publica** está en `.assetsignore`: `servidor/`, `bd/`, `herramientas/`, `docs/`, `.claude/`, los `.md` principales y la configuración. Si añades una carpeta que no debe verse en la web, añádela ahí.
+- **Lo que no se publica** está en `.assetsignore`: `servidor/`, `bd/`, `herramientas/`, `docs/`, `.claude/`, `.github/`, los `.md` principales y la configuración. Si añades una carpeta que no debe verse en la web, añádela ahí.
 - **En local**: `npx wrangler dev` (web + API) o cualquier servidor de archivos (solo la web; el foro y las cuentas dirán que no están disponibles).
 
 ## 8. Cómo se mantiene ordenado
