@@ -2,8 +2,9 @@
 // 9 hoyos generados al azar en cada ronda: recorridos con curvas, postes, estrechamientos y
 // molinos que giran. En VR el palo va en la mano y su cabeza se apoya sola en el suelo (no hace
 // falta agacharse); con ratón o con el dedo se hace clic donde quieres que llegue la bola.
-// El jugador no se desplaza: tras cada golpe, un parpadeo recoloca el campo para que la bola
-// quede a tus pies mirando hacia donde sigue el recorrido.
+// El jugador no se desplaza: tras cada golpe, un parpadeo mueve el campo para que la bola quede
+// justo debajo de ti (en VR; con ratón, delante). El campo no gira: su orientación se fija al
+// empezar cada hoyo y eres tú quien se gira hacia donde quiere tirar.
 //
 // Coordenadas: el campo vive en su propio grupo (x, z en metros, el suelo en y = 0). La física
 // de la bola es en 2D, en coordenadas del campo. Para recolocar, solo se mueve y gira el grupo.
@@ -145,6 +146,7 @@ export function iniciar(ctx) {
   let paredes = [];     // segmentos { ax, az, bx, bz }
   let postes = [];      // { x, z, r }
   let molinoDatos = null; // { x, z, angulo, vel, medio }
+  let giroHoyo = null;    // orientación del campo en este hoyo (fija mientras dura)
   const hoyoPos = new THREE.Vector2();
   const puntoHoyo = new THREE.Vector3();
   const CERO2 = new THREE.Vector2();
@@ -210,6 +212,7 @@ export function iniciar(ctx) {
 
   function generarHoyo(numero) {
     limpiarHoyo();
+    giroHoyo = null; // el primer recolocar del hoyo decide su orientación
     const n = 4 + Math.floor(numero / 2) + Math.floor(Math.random() * 3);
     const camino = generarCamino(n);
     casillas = camino.map(([i, j]) => ({ i, j, x: i * LADO, z: -j * LADO }));
@@ -364,9 +367,10 @@ export function iniciar(ctx) {
     return true;
   }
 
-  // La bola queda en POS_BOLA, mirando al hoyo si se ve o, si no, a la casilla más lejana
-  // del recorrido que se ve desde ella
-  function recolocar(conParpadeo = true) {
+  // Al empezar el hoyo, el campo se orienta mirando al hoyo si se ve o, si no, a la casilla más
+  // lejana del recorrido que se ve desde la salida. Después ya no gira: solo se mueve para que la
+  // bola quede debajo del jugador (en VR, justo bajo la cabeza; con ratón, en POS_BOLA)
+  function orientacionInicial() {
     let dx = hoyoPos.x - posBola.x;
     let dz = hoyoPos.y - posBola.y;
     if (!seVe(posBola.x, posBola.y, hoyoPos.x, hoyoPos.y)) {
@@ -380,11 +384,18 @@ export function iniciar(ctx) {
       }
     }
     if (Math.hypot(dx, dz) < 1e-3) dz = -1;
-    const giro = Math.atan2(dx, -dz);
-    campo.rotation.y = giro;
-    // posición = POS_BOLA − giro(bola)
-    tmp.set(posBola.x, 0, posBola.y).applyAxisAngle(new THREE.Vector3(0, 1, 0), giro);
-    campo.position.set(POS_BOLA.x - tmp.x, 0, POS_BOLA.z - tmp.z);
+    return Math.atan2(dx, -dz);
+  }
+  const debajo = new THREE.Vector3();
+  function recolocar(conParpadeo = true) {
+    if (giroHoyo === null) giroHoyo = orientacionInicial();
+    campo.rotation.y = giroHoyo;
+    // Dónde tiene que quedar la bola: bajo la cabeza en VR (estés donde estés de la habitación)
+    if (ctx.enVR()) ctx.camara.getWorldPosition(debajo).setY(0);
+    else debajo.copy(POS_BOLA);
+    // posición = destino − giro(bola)
+    tmp.set(posBola.x, 0, posBola.y).applyAxisAngle(THREE.Object3D.DEFAULT_UP, giroHoyo);
+    campo.position.set(debajo.x - tmp.x, 0, debajo.z - tmp.z);
     campo.updateMatrixWorld(true);
     if (conParpadeo) ctx.destello(0x000000, 1);
   }

@@ -283,10 +283,10 @@ export function iniciar(ctx) {
     perfil.push(new THREE.Vector2(Math.sin(a) * R_SACO, mitad - 0.05 + Math.cos(a) * 0.05));
   }
   perfil.push(new THREE.Vector2(0, mitad));
-  const cuerpoSaco = new THREE.Mesh(
-    R(new THREE.LatheGeometry(perfil, 40)),
-    R(new THREE.MeshPhongMaterial({ map: texCuero, shininess: 55, specular: 0x5a4040 })),
-  );
+  // Transparente desde el principio (con opacidad 1 se ve igual): así puede desvanecerse en VR
+  // cuando tapa el cartel sin tener que recompilar el material
+  const matSaco = R(new THREE.MeshPhongMaterial({ map: texCuero, shininess: 55, specular: 0x5a4040, transparent: true }));
+  const cuerpoSaco = new THREE.Mesh(R(new THREE.LatheGeometry(perfil, 40)), matSaco);
   saco.add(cuerpoSaco);
   // Cadenas: cuatro desde el aro del saco hasta el anclaje (una malla con eslabones)
   const piezasCadena = [];
@@ -413,21 +413,31 @@ export function iniciar(ctx) {
   let turnoRaton = 0;
 
   // ─── Marcador ──────────────────────────────────────────────────────────
-  // A la derecha y por encima del saco, para que el saco (y su balanceo) nunca tape la
-  // puntuación. Con el móvil en vertical no cabe a un lado: va abajo, sobre la lona.
+  // Que el saco (y su balanceo) nunca tape la puntuación ni la explicación:
+  // - en VR, a la derecha y por encima del saco, de cara a los ojos; si aun así el saco se pone
+  //   delante (al moverte o al balancearse), el saco se vuelve semitransparente (ver transparentarSaco);
+  // - con ratón, a la derecha y por encima del saco;
+  // - con el móvil en vertical no cabe a un lado: abajo, sobre la lona.
   const marcador = ctx.crearPanel({ ancho: 0.72, alto: 0.24 });
   raiz.add(marcador.mesh);
-  let marcadorVertical = null;
+  let modoMarcador = null;
   function colocarMarcador() {
-    const vertical = !ctx.enVR() && ctx.camara.aspect < 1;
-    if (vertical === marcadorVertical) return;
-    marcadorVertical = vertical;
-    if (vertical) {
+    const modo = ctx.enVR() ? 'vr' : ctx.camara.aspect < 1 ? 'vertical' : 'pantalla';
+    if (modo === modoMarcador) return;
+    modoMarcador = modo;
+    if (modo === 'vr') {
+      marcador.mesh.position.set(0.75, 1.86, -0.9);
+      marcador.mesh.rotation.set(0, 0, 0);
+      marcador.mesh.lookAt(0, 1.6, 0); // de cara a los ojos
+      marcador.mesh.scale.setScalar(1);
+    } else if (modo === 'vertical') {
       marcador.mesh.position.set(0, 0.62, -0.3);
       marcador.mesh.rotation.set(-0.75, 0, 0);
+      marcador.mesh.scale.setScalar(1);
     } else {
       marcador.mesh.position.set(0.8, 1.84, -0.92);
       marcador.mesh.rotation.set(0, -0.6, 0);
+      marcador.mesh.scale.setScalar(1);
     }
   }
   colocarMarcador();
@@ -627,8 +637,50 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
+  // En VR, si el saco queda entre los ojos y el cartel, se desvanece un momento para leerlo.
+  // Se comparan, vistos desde los ojos (en ángulos), el contorno del saco y el del cartel.
+  const centroSaco = new THREE.Vector3();
+  const esquina = new THREE.Vector3();
+  const ESQUINAS = [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]];
+  const matrizVista = new THREE.Matrix4();
+  let opacidadSaco = 1;
+  function tapaElCartel() {
+    const camara = ctx.camara;
+    camara.updateMatrixWorld();
+    const vista = matrizVista.copy(camara.matrixWorld).invert();
+    // Saco: centro en el espacio de la cámara y su tamaño aparente
+    cuerpoSaco.getWorldPosition(centroSaco).applyMatrix4(vista);
+    if (centroSaco.z > -0.05) return false; // detrás de la cabeza
+    const dSaco = -centroSaco.z;
+    const sx = Math.atan2(centroSaco.x, dSaco);
+    const sy = Math.atan2(centroSaco.y, dSaco);
+    const anchoSaco = Math.atan2(R_SACO, dSaco);
+    const altoSaco = Math.atan2(ALTO_SACO / 2, dSaco);
+    // Cartel: sus cuatro esquinas
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, dCartel = 0;
+    const geo = marcador.mesh.geometry.parameters;
+    for (const [u, v] of ESQUINAS) {
+      esquina.set(u * geo.width, v * geo.height, 0);
+      marcador.mesh.localToWorld(esquina).applyMatrix4(vista);
+      if (esquina.z > -0.05) return false;
+      const d = -esquina.z;
+      x0 = Math.min(x0, Math.atan2(esquina.x, d)); x1 = Math.max(x1, Math.atan2(esquina.x, d));
+      y0 = Math.min(y0, Math.atan2(esquina.y, d)); y1 = Math.max(y1, Math.atan2(esquina.y, d));
+      dCartel = Math.max(dCartel, d);
+    }
+    const solapa = sx + anchoSaco > x0 && sx - anchoSaco < x1 && sy + altoSaco > y0 && sy - altoSaco < y1;
+    return solapa && dSaco - R_SACO < dCartel;
+  }
+  function transparentarSaco(dt) {
+    const tapa = ctx.enVR() && tapaElCartel();
+    opacidadSaco += ((tapa ? 0.3 : 1) - opacidadSaco) * Math.min(1, dt * 8);
+    matSaco.opacity = opacidadSaco;
+    matSaco.depthWrite = opacidadSaco > 0.95; // semitransparente, que deje ver lo de detrás
+  }
+
   function actualizar(dt) {
     colocarMarcador();
+    transparentarSaco(dt);
     reloj -= dt;
     avisoTiempo -= dt;
     if (estado === 'intro' && reloj <= 0) {
