@@ -390,20 +390,27 @@ export function iniciar(ctx) {
   const matHaz = R(new THREE.MeshBasicMaterial({
     map: texHaz, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, fog: false,
   }));
+  // La linterna se ve al TAM_LINTERNA de su tamaño modelado (más manejable en la mano); el haz
+  // y lo que ilumina no cambian, solo arrancan de la lente en su nuevo sitio
+  const TAM_LINTERNA = 0.75;
   function crearLinterna() {
     const g = new THREE.Group();
+    const cuerpo = new THREE.Group();
+    cuerpo.scale.setScalar(TAM_LINTERNA);
+    cuerpo.add(new THREE.Mesh(geoCuerpo, matMetal), new THREE.Mesh(geoGoma, matGoma), new THREE.Mesh(geoAro, matCromo),
+      new THREE.Mesh(geoBoton, matBoton), new THREE.Mesh(geoLente, matLente));
     const haz = new THREE.Mesh(geoHaz, matHaz);
+    haz.position.z = (ATRAS - 0.2) * (TAM_LINTERNA - 1); // el haz sale de la lente
     haz.renderOrder = 2;
-    g.add(new THREE.Mesh(geoCuerpo, matMetal), new THREE.Mesh(geoGoma, matGoma), new THREE.Mesh(geoAro, matCromo),
-      new THREE.Mesh(geoBoton, matBoton), new THREE.Mesh(geoLente, matLente), haz);
+    g.add(cuerpo, haz);
     return g;
   }
   const linternas = ctx.manos.map((mano) => ({ mano, objeto: ctx.adjuntarAMano(mano, crearLinterna()) }));
   // Con ratón: la linterna abajo a la derecha de la vista, apuntando al cursor
   const linternaRaton = crearLinterna();
-  linternaRaton.scale.setScalar(1.3);
+  linternaRaton.scale.setScalar(1.1);
   raiz.add(linternaRaton);
-  const LENTE = new THREE.Vector3(0, 0, ATRAS - 0.2);
+  const LENTE = new THREE.Vector3(0, 0, (ATRAS - 0.2) * TAM_LINTERNA);
 
   // ─── Fantasmas ─────────────────────────────────────────────────────────
   // Sábana con capucha redonda, bajo ondulado y bracitos estirados hacia ti (miran hacia +Z)
@@ -463,7 +470,7 @@ export function iniciar(ctx) {
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
-  let reloj = 4;
+  let reloj = 2.5;
   let tiempoJugado = 0;
   let proximo = 0;
   let aviso = null;
@@ -582,7 +589,7 @@ export function iniciar(ctx) {
     estado = 'jugando';
     puntos = 0;
     tiempoJugado = 0;
-    proximo = 1.2;
+    proximo = 0.4; // el primero sale casi enseguida
     aviso = null;
     for (const f of fantasmas) { f.estado = 'libre'; f.grupo.visible = false; }
   }
@@ -659,7 +666,7 @@ export function iniciar(ctx) {
       let temblor = 0;
       if (f.estado === 'aparece' || f.estado === 'acecha') {
         if (f.estado === 'aparece') {
-          f.aparicion = Math.min(1, f.tiempo / 0.9);
+          f.aparicion = Math.min(1, f.tiempo / 0.6);
           if (f.aparicion >= 1) f.estado = 'acecha';
         }
         luzSobre(f);
@@ -781,7 +788,7 @@ export function iniciar(ctx) {
       for (const f of fantasmas) if (vivo(f)) activos++;
       if (proximo <= 0 && activos < Math.round(2 + d * 6)) {
         soltarFantasma();
-        proximo = (3.2 - d * 2.2) * azar(0.8, 1.2);
+        proximo = (2.2 - d * 1.4) * azar(0.8, 1.2); // de 2,2 s al empezar a 0,8 s al final
       }
     }
     if (aviso && (aviso.tiempo -= dt) <= 0) aviso = null;

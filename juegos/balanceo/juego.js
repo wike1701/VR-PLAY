@@ -17,10 +17,13 @@ const INICIO_CEPILLO = 0.8;         // donde empieza el cepillo, contado desde l
 const FIN_CEPILLO = 1.16;
 const RADIO_MANGO = 0.018;
 const RADIO_CEPILLO = 0.075;
-const ANGULO_CAIDA = Math.cos(THREE.MathUtils.degToRad(55)); // más inclinada que esto, se cae
-const GRAVEDAD_INICIO = 2.7;        // "gravedad" de la escoba (m/s²): más baja que la real para que se pueda jugar
-const GRAVEDAD_MAX = 5.2;
-const DIFICULTAD_MAX = 120;         // segundos hasta la dificultad máxima
+// Más fácil que la primera versión (era muy difícil): cae más despacio, aguanta más inclinada y
+// la dificultad sube más poco a poco
+const ANGULO_CAIDA = Math.cos(THREE.MathUtils.degToRad(65)); // más inclinada que esto, se cae
+const GRAVEDAD_INICIO = 1.8;        // "gravedad" de la escoba (m/s²): más baja que la real para que se pueda jugar
+const GRAVEDAD_MAX = 3.8;
+const FRENO_AIRE = 1.5;             // rozamiento del aire: cuanto más alto, más tranquila se mueve la escoba
+const DIFICULTAD_MAX = 150;         // segundos hasta la dificultad máxima
 const NIVEL_SEGUNDOS = 30;          // cada 30 s, aviso de que llegan más cubos
 const PREMIO_SEGUNDOS = 15;         // cada 15 s seguidos en equilibrio, 5 puntos
 const VIDAS = 3;
@@ -517,7 +520,7 @@ export function iniciar(ctx) {
       subidaBase.lerpVectors(baseAnterior, base, p / pasos);
       tmp2.copy(punta);
       puntaVel.y -= g * h;
-      puntaVel.multiplyScalar(Math.exp(-h * 0.5));
+      puntaVel.multiplyScalar(Math.exp(-h * FRENO_AIRE));
       punta.addScaledVector(puntaVel, h);
       if (plano) punta.z = subidaBase.z;
       tmp.subVectors(punta, subidaBase);
@@ -602,7 +605,7 @@ export function iniciar(ctx) {
     cubo.objetivo.y += azar(-0.1, 0.15);
     cubo.pos.copy(canon.boca);
     cubo.anterior.copy(cubo.pos);
-    const velocidad = azar(2.3, 2.9) * (1 + d * 0.75);
+    const velocidad = azar(2.2, 2.7) * (1 + d * 0.5);
     const tVuelo = cubo.pos.distanceTo(cubo.objetivo) / velocidad;
     // Tiro parabólico que pasa por el objetivo
     cubo.vel.subVectors(cubo.objetivo, cubo.pos).divideScalar(tVuelo);
@@ -790,7 +793,7 @@ export function iniciar(ctx) {
       if (proximo <= 0) {
         disparar();
         if (Math.random() < d * 0.3) disparar();
-        proximo = (2.3 - d * 1.5) * azar(0.8, 1.2);
+        proximo = (2.8 - d * 1.6) * azar(0.8, 1.2);
       }
       dir.subVectors(punta, base).normalize();
       if (dir.y < ANGULO_CAIDA) caer();

@@ -30,6 +30,7 @@ const POS_BOLA = new THREE.Vector3(0, 0, -0.45); // dónde queda la bola respect
 const LARGO_MIN = 0.35;
 const LARGO_MAX = 0.8;            // como un putter corto: más largo resultaba incómodo
 const INCLINACION = THREE.MathUtils.degToRad(60); // la vara sale del mando inclinada 60° hacia abajo
+const PUNTA_MANO = new THREE.Vector3(0, 0, -0.07); // la vara empieza en la punta de la mano (delante del agarre)
 const RADIO_CABEZA = 0.06;       // tamaño de la cabeza del palo para el choque
 
 export function iniciar(ctx) {
@@ -518,6 +519,7 @@ export function iniciar(ctx) {
   let manoPalo = null;
   const direccion = new THREE.Vector3();
   const haciaCabeza = new THREE.Vector3();
+  const puntaPalo = new THREE.Vector3();          // donde empieza la vara (la punta de la mano)
 
   function actualizarPalo(dt) {
     const activas = ctx.manos.filter((m) => m.activa);
@@ -535,15 +537,15 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara va fija en el mando: sale hacia el +X del mando en la mano derecha (el -X en la
-    // izquierda) y 60° hacia abajo (el -Y), que, cogido como un putter, queda por delante, hacia la
-    // bola. (Con el -X en la derecha apuntaba hacia el jugador; con el -Z, a un lado.)
-    const lado = mano.lado === 'left' ? -1 : 1;
-    direccion.set(lado * Math.cos(INCLINACION), -Math.sin(INCLINACION), 0).transformDirection(mano.grip.matrixWorld);
+    // La vara va fija en el mando: sale de la punta de la mano hacia el -Z del mando (hacia donde
+    // apunta) y 60° hacia abajo (el -Y), igual en las dos manos. Es la dirección de antes (el +X,
+    // hacia fuera en la mano derecha) girada 90° a la izquierda, como se pidió al probarlo.
+    mano.grip.localToWorld(puntaPalo.copy(PUNTA_MANO));
+    direccion.set(0, -Math.sin(INCLINACION), -Math.cos(INCLINACION)).transformDirection(mano.grip.matrixWorld);
     // La cabeza, donde esa línea toca el suelo (con el largo de un putter)
     let largo = LARGO_MAX;
-    if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);
-    tmp.copy(mano.posicion).addScaledVector(direccion, largo);
+    if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(puntaPalo.y / -direccion.y, LARGO_MIN, LARGO_MAX);
+    tmp.copy(puntaPalo).addScaledVector(direccion, largo);
     if (tmp.y < 0.018) tmp.y = 0.018;
     cabezaPalo.position.copy(tmp);
     // Cabeza horizontal, de punta a talón a lo largo de la vara vista desde arriba (como un putter),
@@ -551,8 +553,8 @@ export function iniciar(ctx) {
     haciaCabeza.set(direccion.x, 0, direccion.z);
     if (haciaCabeza.lengthSq() < 1e-6) haciaCabeza.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
     cabezaPalo.rotation.set(0, Math.atan2(-haciaCabeza.z, haciaCabeza.x), 0);
-    palo.position.copy(mano.posicion);
-    tmp2.subVectors(tmp, mano.posicion);
+    palo.position.copy(puntaPalo);
+    tmp2.subVectors(tmp, puntaPalo);
     varaPalo.scale.y = tmp2.length();
     palo.quaternion.setFromUnitVectors(ARRIBA, tmp2.normalize());
 
