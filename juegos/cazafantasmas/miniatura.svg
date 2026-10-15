@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e1026"/>
+      <stop offset="0.7" stop-color="#1c1a34"/>
+      <stop offset="1" stop-color="#120c10"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.62" cy="0.38" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2a5e"/>
+      <stop offset="1" stop-color="#4a64a6"/>
+    </linearGradient>
+    <linearGradient id="haz" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff4d6" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#fff4d6" stop-opacity="0.08"/>
+    </linearGradient>
+    <radialGradient id="fantasma" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#dfe9ff"/>
+      <stop offset="1" stop-color="#8f9fd0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#e6f0ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#e6f0ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a7a90"/>
+      <stop offset="0.45" stop-color="#2c3440"/>
+      <stop offset="1" stop-color="#11151b"/>
+    </linearGradient>
+    <linearGradient id="cromo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#8a95a3"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Ventana con la luna y cortinas raídas -->
+  <rect x="34" y="40" width="120" height="140" fill="url(#cielo)"/>
+  <circle cx="112" cy="84" r="22" fill="#eef1ff"/>
+  <path d="M34 168 L70 140 L86 150 L110 118" fill="none" stroke="#05060c" stroke-width="5" stroke-linecap="round"/>
+  <g fill="#2a1a12"><rect x="90" y="40" width="6" height="140"/><rect x="34" y="106" width="120" height="6"/><rect x="28" y="34" width="132" height="8"/><rect x="28" y="178" width="132" height="8"/></g>
+  <path d="M16 30 H44 L40 210 Q30 200 22 214 Z" fill="#4a1420"/>
+  <path d="M146 30 H172 L170 214 Q160 202 150 210 Z" fill="#4a1420"/>
+  <!-- Suelo de tablas -->
+  <rect x="0" y="300" width="400" height="100" fill="#22160f"/>
+  <g stroke="#120a06" stroke-width="3"><path d="M0 330 H400"/><path d="M0 364 H400"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Haz de la linterna, desde abajo a la izquierda -->
+  <path d="M96 336 L340 70 L398 196 Z" fill="url(#haz)"/>
+  <ellipse cx="270" cy="352" rx="70" ry="10" fill="url(#sombra)"/>
+  <!-- Fantasma iluminado que se deshace -->
+  <circle cx="266" cy="176" r="110" fill="url(#halo)"/>
+  <g transform="rotate(8 266 180)">
+    <path d="M266 72 C318 72 336 118 334 168 C334 206 346 240 356 262 Q338 250 326 268 Q312 248 298 270 Q284 250 270 272 Q256 250 242 270 Q228 250 212 266 Q200 250 182 260 C196 234 200 204 200 168 C198 118 214 72 266 72 Z" fill="url(#fantasma)"/>
+    <path d="M206 170 Q170 166 160 190 Q178 192 204 188 Z" fill="url(#fantasma)"/>
+    <path d="M328 166 Q362 160 372 182 Q354 186 330 184 Z" fill="url(#fantasma)"/>
+    <ellipse cx="244" cy="136" rx="13" ry="18" fill="#140a1c"/>
+    <ellipse cx="290" cy="136" rx="13" ry="18" fill="#140a1c"/>
+    <ellipse cx="267" cy="186" rx="15" ry="20" fill="#140a1c"/>
+    <ellipse cx="238" cy="98" rx="20" ry="9" fill="#ffffff" opacity="0.6"/>
+  </g>
+  <!-- Chispas coral donde le da la luz -->
+  <g fill="#ff6a3d">
+    <circle cx="200" cy="230" r="6"/><circle cx="182" cy="212" r="4"/><circle cx="214" cy="256" r="4"/>
+    <circle cx="352" cy="120" r="5"/><circle cx="366" cy="148" r="3.5"/>
+  </g>
+  <path d="M176 252 Q150 270 140 296" fill="none" stroke="#ff6a3d" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+  <!-- Linterna en diagonal -->
+  <g transform="rotate(-48 92 340)">
+    <rect x="-6" y="326" width="96" height="28" rx="8" fill="#15171b"/>
+    <g fill="#2a2e36"><rect x="6" y="326" width="5" height="28"/><rect x="20" y="326" width="5" height="28"/><rect x="34" y="326" width="5" height="28"/><rect x="48" y="326" width="5" height="28"/></g>
+    <path d="M88 324 H118 L148 312 V368 L118 356 H88 Z" fill="url(#metal)"/>
+    <rect x="146" y="308" width="12" height="64" rx="4" fill="url(#cromo)"/>
+    <ellipse cx="160" cy="340" rx="6" ry="28" fill="#fff4d6"/>
+    <rect x="96" y="318" width="16" height="8" rx="3" fill="#ff6a3d"/>
+    <rect x="92" y="328" width="52" height="5" rx="2" fill="#ffffff" opacity="0.3"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

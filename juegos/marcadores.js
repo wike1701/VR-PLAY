@@ -46,6 +46,8 @@ export const MARCADORES = {
   simon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 3, minSegundos: 3 },
   // Balanceo: 1 punto por cubo esquivado (3 si pasa rozando) y 5 cada 15 s en equilibrio; sin final fijo (hasta que se cae)
   balanceo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 8, minSegundos: 3 },
+  // Cazafantasmas: de 10 a 25 puntos por fantasma, +5 o +10 si se deshace lejos; sin final fijo (hasta que uno te alcanza)
+  cazafantasmas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 200000, maxPorSegundo: 45, minSegundos: 5 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

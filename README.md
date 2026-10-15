@@ -82,6 +82,7 @@ juegos/
   boxeo/juego.js        Saco de Boxeo
   simon/juego.js        Simón de Colores
   balanceo/juego.js     Balanceo
+  cazafantasmas/juego.js  Cazafantasmas
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

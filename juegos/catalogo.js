@@ -35,6 +35,7 @@ const LISTA = [
   { id: 'boxeo', genero: 'reflejos' },
   { id: 'simon', genero: 'puzle' },
   { id: 'balanceo', genero: 'habilidad' },
+  { id: 'cazafantasmas', genero: 'reflejos' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

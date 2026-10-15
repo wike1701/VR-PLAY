@@ -113,6 +113,10 @@ const SONIDOS = {
   canon: () => { ruido(0.2, 480, 0.55, 0.7); tono(210, 70, 0.16, 'sine', 0.4); tono(900, 500, 0.05, 'triangle', 0.08); },
   cubo: () => { tono(760, 320, 0.09, 'square', 0.16); ruido(0.07, 2300, 0.45, 1); tono(160, 90, 0.12, 'sine', 0.3); },
   caida: () => { tono(170, 55, 0.35, 'sine', 0.5); ruido(0.25, 700, 0.45, 0.6); tono(1300, 900, 0.05, 'triangle', 0.1, 0.08); },
+  // Cazafantasmas: el fantasma que aparece, el que se deshace con la luz y el susto final
+  aparicion: () => { ruido(0.55, 900, 0.18, 2.5); tono(260, 520, 0.5, 'sine', 0.06); },
+  desvanecer: () => { tono(620, 1480, 0.28, 'sine', 0.16); tono(930, 2200, 0.24, 'triangle', 0.07, 0.06); ruido(0.3, 5200, 0.16, 1.5); },
+  susto: () => { tono(1300, 380, 0.7, 'sawtooth', 0.16); tono(1390, 410, 0.7, 'square', 0.08); ruido(0.6, 1800, 0.5, 0.6); tono(70, 40, 0.6, 'sine', 0.5); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
@@ -334,6 +338,66 @@ const CONTINUOS = {
         const t = ac.currentTime;
         salida.gain.setTargetAtTime(0, t, 0.05);
         for (const o of [o1, o2, vibrato]) o.stop(t + 0.3);
+      },
+    };
+  },
+  // Lamento de fantasma (Cazafantasmas): un «uuuh» que sube y baja despacio, con su aliento de ruido.
+  // Aquí «valor» es de dónde viene (0 = izquierda, 0,5 = delante, 1 = derecha) y el volumen, lo cerca que está.
+  fantasma() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const panorama = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.frequency.value = 900;
+    const o1 = ac.createOscillator();
+    o1.type = 'sine';
+    o1.frequency.value = 300;
+    const o2 = ac.createOscillator();
+    o2.type = 'triangle';
+    o2.frequency.value = 452;
+    const g2 = ac.createGain();
+    g2.gain.value = 0.25;
+    const vibrato = ac.createOscillator();
+    vibrato.frequency.value = 5.2;
+    const profundidad = ac.createGain();
+    profundidad.gain.value = 7;
+    const ola = ac.createOscillator(); // el lamento que sube y baja
+    ola.frequency.value = 0.35;
+    const alto = ac.createGain();
+    alto.gain.value = 55;
+    vibrato.connect(profundidad);
+    ola.connect(alto);
+    for (const o of [o1, o2]) {
+      profundidad.connect(o.frequency);
+      alto.connect(o.frequency);
+    }
+    const aliento = ac.createBufferSource();
+    aliento.buffer = obtenerRuido();
+    aliento.loop = true;
+    const filtroRuido = ac.createBiquadFilter();
+    filtroRuido.type = 'bandpass';
+    filtroRuido.frequency.value = 1100;
+    filtroRuido.Q.value = 0.8;
+    const gRuido = ac.createGain();
+    gRuido.gain.value = 0.18;
+    o1.connect(filtro);
+    o2.connect(g2).connect(filtro);
+    aliento.connect(filtroRuido).connect(gRuido).connect(filtro);
+    if (panorama) filtro.connect(salida).connect(panorama).connect(maestro);
+    else filtro.connect(salida).connect(maestro);
+    for (const o of [o1, o2, vibrato, ola, aliento]) o.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        if (panorama) panorama.pan.setTargetAtTime(valor * 2 - 1, t, 0.06);
+        filtro.frequency.setTargetAtTime(600 + volumen * 4000, t, 0.1);
+        salida.gain.setTargetAtTime(volumen, t, 0.08);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        for (const o of [o1, o2, vibrato, ola, aliento]) o.stop(t + 0.3);
       },
     };
   },
