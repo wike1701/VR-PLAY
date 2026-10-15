@@ -1,7 +1,12 @@
-# Encargos de voz: Claude programa los issues con la etiqueta "claude-implementar" y los sube a main.
+# Encargos de voz: Claude programa los encargos y los sube a main.
 #
 # Los issues los crea el bot de voz (carpeta voz-a-claude, fuera de este repositorio) cada vez que
-# el usuario dice «Claude, ...» en el canal de voz de Discord, y el bot les pone ya la etiqueta.
+# el usuario dice «Claude, ...» en el canal de voz de Discord. Se lanza:
+#   - al abrirse un issue de encargo de voz (empieza por «🎙️», lleva «@claude» y lo ha creado el
+#     dueño del repositorio: el bot usa su token). El token del bot no puede poner etiquetas (haría
+#     falta darle permiso sobre el código), así que el aviso va en el texto y la etiqueta «voz» la
+#     pone este workflow;
+#   - o al poner a mano la etiqueta «claude-implementar» en cualquier issue.
 # Claude lee CLAUDE.md y programa el encargo en una rama (claude/issue-N-...). Después, si hay
 # cambios y pasan las comprobaciones del proyecto (sintaxis, idiomas, marcadores, estructura y
 # calidad), se ponen encima de main y se suben: la web se publica sola. Si algo falla, no se sube
@@ -18,7 +23,7 @@ name: Claude implementa encargos de voz
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
   issue_comment:
     types: [created]
   pull_request_review_comment:
@@ -27,7 +32,10 @@ on:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issues' && github.event.label.name == 'claude-implementar') ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'claude-implementar') ||
+      (github.event_name == 'issues' && github.event.action == 'opened' &&
+       github.event.issue.user.login == github.repository_owner &&
+       startsWith(github.event.issue.title, '🎙️') && contains(github.event.issue.body, '@claude')) ||
       (github.event_name != 'issues' && contains(github.event.comment.body, '@claude') &&
        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
     runs-on: ubuntu-latest
@@ -48,6 +56,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Los encargos de voz llevan la etiqueta «voz» (el token del bot no puede ponerla)
+      - name: Etiquetar el encargo de voz
+        if: github.event.action == 'opened'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue edit "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --add-label voz || true
+
       # Node para las comprobaciones del proyecto (idiomas, calidad, marcadores, estructura)
       - uses: actions/setup-node@v4
         with:
@@ -64,7 +79,7 @@ jobs:
             --max-turns 60
 
       # ─── Subir a main ─────────────────────────────────────────────────────
-      # Solo para los encargos (issues etiquetados). Busca la rama que ha hecho Claude para este
+      # Solo para los encargos (issues, no comentarios). Busca la rama que ha hecho Claude para este
       # issue, la pone encima de main, pasa las comprobaciones y, si todo va bien, la sube a main,
       # borra la rama, lo cuenta en el issue y lo cierra.
       - name: Subir el encargo a main
