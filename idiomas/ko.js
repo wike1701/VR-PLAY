@@ -118,6 +118,12 @@ export default {
     guardarFavorito: '즐겨찾기에 추가',
     volverCatalogo: '카탈로그로 돌아가기',
   },
+  catalogoVR: {
+    titulo: '카탈로그',
+    pagina: '{total}페이지 중 {n}페이지',
+    apunta: '컨트롤러로 게임을 가리키고 트리거를 당기면 플레이',
+    salirVR: '가상 현실 나가기',
+  },
   foro: {
     tituloPagina: '제안 게시판 · VR Play',
     pie: '제안은 공개돼요. 개인정보를 쓰지 마세요.',

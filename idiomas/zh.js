@@ -118,6 +118,12 @@ export default {
     guardarFavorito: '加入收藏',
     volverCatalogo: '返回游戏目录',
   },
+  catalogoVR: {
+    titulo: '游戏目录',
+    pagina: '第 {n} 页，共 {total} 页',
+    apunta: '用手柄指向一个游戏，扣动扳机即可开玩',
+    salirVR: '退出虚拟现实',
+  },
   foro: {
     tituloPagina: '建议论坛 · VR Play',
     pie: '建议是公开的：请勿填写个人信息。',

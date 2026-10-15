@@ -117,6 +117,12 @@ export default {
     guardarFavorito: 'Add to favorites',
     volverCatalogo: 'Back to the catalog',
   },
+  catalogoVR: {
+    titulo: 'Catalog',
+    pagina: 'Page {n} of {total}',
+    apunta: 'Point at a game with the controller and pull the trigger to play',
+    salirVR: 'Exit virtual reality',
+  },
   foro: {
     tituloPagina: 'Suggestions forum · VR Play',
     pie: 'Suggestions are public: don’t write personal data.',

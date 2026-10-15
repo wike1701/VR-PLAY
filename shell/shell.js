@@ -14,7 +14,8 @@ import { JUEGOS } from '../juegos/catalogo.js';
 import { juegosEnPruebas } from './en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { MenuPausa } from './menu-pausa.js';
-import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';
+import { CatalogoVR } from './catalogo-vr.js';
+import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida, favoritos, meGustaMios, estadisticasJuegos } from './valoraciones.js';
 import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hayCuenta } from './clasificacion.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { crearEfectos } from './efectos.js';
@@ -497,6 +498,10 @@ async function cambiarA(indice, { volviendo = false } = {}) {
   cambiando = true;
   ocultarAviso();
   reanudar();
+  if (enCatalogo) {
+    await fundido.a(1, 0.3);
+    cerrarCatalogoVR();
+  }
   const desde = actual ? indiceActual : null;
   try {
     if (actual) await fundido.a(1, 0.3);
@@ -685,6 +690,50 @@ async function clasificacionPausa(juego) {
 // con ratón o en el móvil, con el botón ⏸ o la tecla Esc (menú HTML). El juego
 // no recibe actualizar() mientras está en pausa, así que se queda congelado.
 const menuPausa = new MenuPausa(crearPanel, renderer, escena);
+
+// ─── Catálogo dentro de la VR ────────────────────────────────────────────
+// Con las gafas puestas, «Volver al catálogo» no sale de la realidad virtual: se cierra el
+// juego y aparece el catálogo en 3D (shell/catalogo-vr.js). Al elegir un juego, empieza ahí mismo.
+const catalogoVR = new CatalogoVR(renderer, escena);
+let enCatalogo = false;
+let estadisticasCatalogo = {};
+
+async function abrirCatalogoVR() {
+  if (cambiando || enCatalogo) return;
+  cambiando = true;
+  reanudar();
+  ocultarAviso();
+  if (actual) {
+    await fundido.a(1, 0.3);
+    // El juego que dejas queda como "anterior" (para volver desde el catálogo o luego)
+    historial.push(indiceActual);
+    if (historial.length > MAX_HISTORIAL) historial.shift();
+    desmontar();
+  }
+  enCatalogo = true;
+  const anterior = juegoAnteriorIndice();
+  catalogoVR.abrir({
+    juegos: JUEGOS,
+    indices: indicesPublicos(),
+    favoritos: favoritos(),
+    meGusta: meGustaMios(),
+    estadisticas: estadisticasCatalogo,
+    anterior: anterior === null ? null : JUEGOS[anterior].titulo,
+  }, cabezaPos, cabezaDir);
+  document.title = `${t('catalogoVR.titulo')} · VR Play`;
+  // Las partidas y los «me gusta» llegan después, sin hacer esperar
+  estadisticasJuegos().then((e) => {
+    estadisticasCatalogo = e;
+    if (enCatalogo) catalogoVR.actualizarEstadisticas(e);
+  });
+  await fundido.a(0, 0.35);
+  cambiando = false;
+}
+
+function cerrarCatalogoVR() {
+  enCatalogo = false;
+  catalogoVR.cerrar();
+}
 const $pausa = document.getElementById('pausa');
 const $pausaTitulo = document.getElementById('pausa-titulo');
 const $pausaMeGusta = $pausa.querySelector('[data-accion="megusta"]');
@@ -755,8 +804,8 @@ async function accionPausa(accion) {
     textosPausa();
   } else if (accion === 'catalogo') {
     sonido('boton');
-    const sesion = renderer.xr.getSession();
-    if (sesion) sesion.end().catch(() => {}).finally(() => { location.href = 'index.html'; });
+    // En VR, el catálogo se abre dentro de la VR; sin gafas, la portada de la web
+    if (renderer.xr.isPresenting) abrirCatalogoVR();
     else location.href = 'index.html';
   }
 }
@@ -867,6 +916,12 @@ function alEntrarVR() {
 
 function alSalirVR() {
   document.body.classList.remove('en-vr');
+  // Si sales de VR desde el catálogo (sin juego abierto), sigues en el catálogo de la web
+  if (enCatalogo) {
+    cerrarCatalogoVR();
+    location.href = 'index.html';
+    return;
+  }
   // Si sales de VR con el juego en pausa, el menú pasa a la pantalla
   if (pausado) {
     menuPausa.cerrar();
@@ -932,11 +987,27 @@ renderer.setAnimationLoop(() => {
   }
   guardarRatonAnterior();
 
-  boton.grupo.visible = enVR && !pausado;
-  if (!enVR || pausado) boton.ocultarGuia();
-  botonPausa.grupo.visible = enVR && !pausado;
-  if (!enVR || pausado) botonPausa.ocultarGuia();
-  if (enVR && pausado) {
+  // Los botones de los hombros, solo jugando (ni en pausa ni en el catálogo)
+  const sinBotones = !enVR || pausado || enCatalogo;
+  boton.grupo.visible = botonPausa.grupo.visible = !sinBotones;
+  if (sinBotones) {
+    boton.ocultarGuia();
+    botonPausa.ocultarGuia();
+  }
+  if (enVR && enCatalogo) {
+    const r = catalogoVR.actualizar(manos);
+    if (r.pasar) vibrar(r.pasar, 0.15, 15);
+    const a = r.accion;
+    if (a?.tipo === 'jugar') {
+      sonido('boton');
+      cambiarA(a.indice);
+    } else if (a?.tipo === 'anterior') {
+      juegoAnterior();
+    } else if (a?.tipo === 'salir') {
+      sonido('boton');
+      renderer.xr.getSession()?.end();
+    }
+  } else if (enVR && pausado) {
     const accion = menuPausa.actualizar(manos);
     if (accion) accionPausa(accion);
   } else if (enVR) {

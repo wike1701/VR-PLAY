@@ -124,6 +124,12 @@ export default {
     guardarFavorito: 'Guardar en favoritos',
     volverCatalogo: 'Volver al catálogo',
   },
+  catalogoVR: {
+    titulo: 'Catálogo',
+    pagina: 'Página {n} de {total}',
+    apunta: 'Apunta a un juego con el mando y aprieta el gatillo para jugar',
+    salirVR: 'Salir de la realidad virtual',
+  },
   foro: {
     tituloPagina: 'Foro de sugerencias · VR Play',
     pie: 'Las sugerencias son públicas: no escribas datos personales.',

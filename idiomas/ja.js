@@ -118,6 +118,12 @@ export default {
     guardarFavorito: 'お気に入りに追加',
     volverCatalogo: 'カタログに戻る',
   },
+  catalogoVR: {
+    titulo: 'カタログ',
+    pagina: '{total}ページ中{n}ページ',
+    apunta: 'コントローラーでゲームを指してトリガーを引くとプレイ',
+    salirVR: 'VRを終了',
+  },
   foro: {
     tituloPagina: 'リクエスト掲示板 · VR Play',
     pie: 'リクエストは公開されます。個人情報は書かないでください。',
