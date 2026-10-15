@@ -5,7 +5,8 @@
 # Claude lee CLAUDE.md y programa el encargo en una rama (claude/issue-N-...). Después, si hay
 # cambios y pasan las comprobaciones del proyecto (sintaxis, idiomas, marcadores, estructura y
 # calidad), se ponen encima de main y se suben: la web se publica sola. Si algo falla, no se sube
-# nada, la rama se queda y se avisa en el issue.
+# nada, la rama se queda y se avisa en el issue. Cada encargo va por su lado y, si dos suben a la vez,
+# el segundo se pone encima del primero y lo reintenta.
 #
 # También responde si escribes "@claude ..." en un comentario de un issue o de un Pull Request
 # (solo a los dueños y colaboradores del repositorio); esos cambios NO se suben solos a main.
@@ -23,11 +24,6 @@ on:
   pull_request_review_comment:
     types: [created]
 
-# Un encargo detrás de otro: así dos encargos seguidos no se pisan al subir a main
-concurrency:
-  group: claude-encargos
-  cancel-in-progress: false
-
 jobs:
   claude:
     if: |
@@ -36,6 +32,11 @@ jobs:
        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Cada encargo por su lado (GitHub solo deja uno en espera por grupo: con un grupo común, tres
+    # encargos seguidos cancelarían el del medio). Si dos suben a la vez, ver los reintentos de abajo.
+    concurrency:
+      group: claude-encargo-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+      cancel-in-progress: false
     permissions:
       contents: write
       pull-requests: write
@@ -98,7 +99,14 @@ jobs:
           node herramientas/marcadores.mjs
           node herramientas/estructura.mjs
           node herramientas/calidad.mjs
-          git push origin HEAD:main
+          # Si otro encargo acaba de subir a main, se vuelve a poner encima y se reintenta
+          for intento in 1 2 3 4 5; do
+            if git push origin HEAD:main; then break; fi
+            if [ "$intento" = 5 ]; then exit 1; fi
+            sleep $((intento * 5))
+            git fetch origin main
+            git rebase origin/main
+          done
           git push origin --delete "$RAMA" || true
           COMMIT=$(git rev-parse --short HEAD)
           gh issue comment "$ISSUE" --body "✅ Subido a \`main\` ($COMMIT). La web se publica sola en unos minutos."
