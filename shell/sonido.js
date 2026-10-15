@@ -117,6 +117,10 @@ const SONIDOS = {
   aparicion: () => { ruido(0.55, 900, 0.18, 2.5); tono(260, 520, 0.5, 'sine', 0.06); },
   desvanecer: () => { tono(620, 1480, 0.28, 'sine', 0.16); tono(930, 2200, 0.24, 'triangle', 0.07, 0.06); ruido(0.3, 5200, 0.16, 1.5); },
   susto: () => { tono(1300, 380, 0.7, 'sawtooth', 0.16); tono(1390, 410, 0.7, 'square', 0.08); ruido(0.6, 1800, 0.5, 0.6); tono(70, 40, 0.6, 'sine', 0.5); },
+  // Malabares: la bola en la mano, la que cae al suelo (golpe sordo) y la cadena que se rompe
+  recepcion: () => { ruido(0.06, 1100, 0.4, 0.9); tono(300, 190, 0.07, 'sine', 0.25); },
+  plof: () => { tono(110, 48, 0.24, 'sine', 0.55); ruido(0.14, 260, 0.45, 0.7); },
+  cadenaRota: () => { tono(2200, 1900, 0.09, 'triangle', 0.1); tono(1700, 1500, 0.09, 'triangle', 0.08, 0.09); tono(1350, 1200, 0.12, 'triangle', 0.07, 0.19); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

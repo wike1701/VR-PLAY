@@ -13,7 +13,7 @@ const catalogo = fs.readFileSync(path.join(RAIZ, 'juegos/catalogo.js'), 'utf8');
 const ids = [...catalogo.matchAll(/\{\s*id:\s*'([a-z0-9_-]+)'/g)].map((m) => m[1]);
 const errores = [];
 
-const UNIDADES = ['puntos', 'tiempo', 'golpes', 'diferencia'];
+const UNIDADES = ['puntos', 'tiempo', 'golpes', 'diferencia', 'recepciones'];
 for (const id of ids) {
   const m = MARCADORES[id];
   if (!m) {

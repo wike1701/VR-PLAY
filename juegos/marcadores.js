@@ -5,7 +5,7 @@
 //
 //   orden          'mayor' (más es mejor) o 'menor' (menos es mejor: tiempos, golpes)
 //   unidad         'puntos' | 'tiempo' (segundos, con décimas) | 'golpes' | 'diferencia' (al ganar a
-//                  la máquina: tus puntos menos los suyos; solo se envía si ganas)
+//                  la máquina: tus puntos menos los suyos; solo se envía si ganas) | 'recepciones'
 //   min, max       los valores posibles de una partida (contra trampas: el servidor rechaza lo demás)
 //   maxPorSegundo  en los juegos sin final fijo (sobrevivir), el máximo según lo que ha durado la partida
 //   minSegundos    lo mínimo que puede durar una partida, desde que se abre el juego o termina la anterior
@@ -48,6 +48,8 @@ export const MARCADORES = {
   balanceo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 8, minSegundos: 3 },
   // Cazafantasmas: de 10 a 25 puntos por fantasma, +5 o +10 si se deshace lejos; sin final fijo (hasta que uno te alcanza)
   cazafantasmas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 200000, maxPorSegundo: 45, minSegundos: 5 },
+  // Malabares: la cadena de recepciones seguidas más larga (como mucho unas 3 por segundo con 5 bolas)
+  malabares: { orden: 'mayor', unidad: 'recepciones', min: 0, max: 5000, maxPorSegundo: 4, minSegundos: 5 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?
