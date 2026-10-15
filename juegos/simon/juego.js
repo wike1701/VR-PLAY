@@ -239,11 +239,11 @@ export function iniciar(ctx) {
     baqueta.add(empunadura, mango, cabeza);
     return baqueta;
   }
-  // En la mano, la baqueta sale por delante de los dedos (como el dardo de Pincha Globos)
-  const PUNTA_EN_MANO = new THREE.Vector3(0, -(LARGO_BAQUETA - 0.04), -0.02);
+  // En la mano, la baqueta sale del puño hacia arriba, a lo largo del mando (-Z del agarre),
+  // como la katana de Corta Fruta o el matamoscas: así se golpea de arriba abajo
+  const PUNTA_EN_MANO = new THREE.Vector3(0, 0, -(LARGO_BAQUETA - 0.04) - 0.02);
   const baquetas = ctx.manos.map((mano) => {
     const objeto = crearBaqueta();
-    objeto.rotation.x = -Math.PI / 2;
     objeto.position.set(0, 0, -0.02);
     ctx.adjuntarAMano(mano, objeto);
     return { mano, punta: new THREE.Vector3(), listo: false };

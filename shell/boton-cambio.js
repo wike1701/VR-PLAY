@@ -20,7 +20,7 @@ const SEGMENTOS = 48;
 
 const EJE_Y = new THREE.Vector3(0, 1, 0);
 const DISTANCIA_GUIA = 0.6;   // la flecha flota a esta distancia delante de los ojos
-const RADIO_FLECHA = 0.17;    // y a esta distancia del centro de la vista
+const RADIO_FLECHA = 0.22;    // y a esta distancia del centro de la vista (las dos guías, una a cada lado)
 const DISTANCIA_RUEDA = 0.55; // la rueda de carga, delante de los ojos y un poco por debajo
 const PUNTOS_RUEDA = 10;
 
@@ -371,7 +371,9 @@ export class BotonCambio {
     const empuje = Math.sin(this.tiempo * 6) * 0.012; // la flecha "empuja" hacia el botón
     this.flecha.position.set(dx * (RADIO_FLECHA + empuje), dy * (RADIO_FLECHA + empuje), 0);
     this.flecha.rotation.z = Math.atan2(dy, dx);
-    this.guiaTexto.mesh.position.set(dx * (RADIO_FLECHA - 0.11), dy * (RADIO_FLECHA - 0.11) - 0.035, 0);
+    // El texto, debajo de su flecha y hacia fuera: las guías de los dos hombros salen a la vez
+    // al empezar cada juego y, si el texto fuera hacia el centro, se pisarían
+    this.guiaTexto.mesh.position.set(dx * RADIO_FLECHA - Math.sign(dx || this.lado) * 0.04, dy * RADIO_FLECHA - 0.06, 0);
     const o = this.opacidadGuia * (0.75 + 0.25 * Math.sin(this.tiempo * 6));
     this.flecha.material.opacity = o;
     this.guiaTexto.mesh.material.opacity = this.opacidadGuia;

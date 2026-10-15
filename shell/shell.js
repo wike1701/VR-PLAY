@@ -604,10 +604,11 @@ function actualizarAviso(dt) {
   }
   tiempoAviso -= dt;
   if (colocarAviso) {
-    // Delante de la cabeza, a 1,3 m
+    // Delante de la cabeza, a 1,3 m y algo por debajo de los ojos: así no se monta
+    // con las guías de los botones de los hombros (que salen a la altura de los ojos)
     const delante = cabezaDir.clone().setY(0).normalize().multiplyScalar(1.3);
     aviso.mesh.position.copy(cabezaPos).add(delante);
-    aviso.mesh.position.y = cabezaPos.y - 0.05;
+    aviso.mesh.position.y = cabezaPos.y - 0.38;
     aviso.mesh.lookAt(cabezaPos);
     colocarAviso = false;
   }
@@ -723,6 +724,7 @@ function pausar() {
     }
   });
   clasificacionPausa(id);
+  ocultarAviso(); // que el aviso de VR no quede encima del menú
   if (renderer.xr.isPresenting) menuPausa.abrir(cabezaPos, cabezaDir);
   else $pausa.hidden = false;
   sonido('tic');

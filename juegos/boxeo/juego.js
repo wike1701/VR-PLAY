@@ -413,11 +413,24 @@ export function iniciar(ctx) {
   let turnoRaton = 0;
 
   // ─── Marcador ──────────────────────────────────────────────────────────
-  // A la derecha del saco: se ve en VR, con ratón y en el móvil en vertical
+  // A la derecha y por encima del saco, para que el saco (y su balanceo) nunca tape la
+  // puntuación. Con el móvil en vertical no cabe a un lado: va abajo, sobre la lona.
   const marcador = ctx.crearPanel({ ancho: 0.72, alto: 0.24 });
-  marcador.mesh.position.set(0.5, 1.92, -1.05);
-  marcador.mesh.rotation.y = -0.35;
   raiz.add(marcador.mesh);
+  let marcadorVertical = null;
+  function colocarMarcador() {
+    const vertical = !ctx.enVR() && ctx.camara.aspect < 1;
+    if (vertical === marcadorVertical) return;
+    marcadorVertical = vertical;
+    if (vertical) {
+      marcador.mesh.position.set(0, 0.62, -0.3);
+      marcador.mesh.rotation.set(-0.75, 0, 0);
+    } else {
+      marcador.mesh.position.set(0.8, 1.84, -0.92);
+      marcador.mesh.rotation.set(0, -0.6, 0);
+    }
+  }
+  colocarMarcador();
 
   // ─── Estado ────────────────────────────────────────────────────────────
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
@@ -615,6 +628,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function actualizar(dt) {
+    colocarMarcador();
     reloj -= dt;
     avisoTiempo -= dt;
     if (estado === 'intro' && reloj <= 0) {
