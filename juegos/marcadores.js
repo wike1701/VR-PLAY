@@ -61,6 +61,9 @@ export const MARCADORES = {
   // Fusión de Frutas (cajón en 3D): 150 s; puntos por cada fruta creada (2 a 50) por el combo (hasta x6).
   // En las simulaciones salen de 1.200 a 3.300; margen para los combos largos
   fusion: { orden: 'mayor', unidad: 'puntos', min: 0, max: 8000, maxPorSegundo: 60, minSegundos: 25 },
+  // Penaltis de Balonmano: 10 lanzamientos; gol 10 (+5 a la escuadra), el doble desde el tercer gol seguido.
+  // El máximo es 15 + 15 + 8 × 30 = 270; cada lanzamiento tarda al menos unos 3 s con el silbato y la pausa
+  balonmano: { orden: 'mayor', unidad: 'puntos', min: 0, max: 270, minSegundos: 25 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

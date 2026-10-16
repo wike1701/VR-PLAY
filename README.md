@@ -90,6 +90,7 @@ juegos/
   bar/juego.js          Last Call: Bar Loco (en pruebas)
   bomba/juego.js        ¡Que no explote! (en pruebas)
   fusion/juego.js       Fusión de Frutas
+  balonmano/juego.js    Penaltis de Balonmano
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
