@@ -143,6 +143,7 @@ export function iniciar(ctx) {
   // ctx.manos          -> mandos: { grip, activa, gatillo, gatilloPulsado, posicion }
   // ctx.raton          -> ratón en modo escritorio: { rayo, clic, velocidadPx, ... }
   // ctx.enVR()         -> true si se está jugando con gafas
+  // ctx.bloquearCambio(bool) -> mientras sea true no se puede pasar de juego (balón cogido); se reinicia al cambiar
   // ctx.adjuntarAMano(mano, objeto), ctx.recurso(geometriaOMaterial)
   // ctx.crearPanel(...), ctx.sonido(nombre), ctx.vibrar(mano, fuerza, ms)
   // ctx.sonidoContinuo('motor') -> { ajustar(valor 0-1, volumen), parar() } (la shell lo para al salir)

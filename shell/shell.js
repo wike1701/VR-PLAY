@@ -307,6 +307,7 @@ let actual = null;         // { indice, instancia, raiz, adjuntos, recursos }
 const idInicial = location.hash.slice(1) || new URLSearchParams(location.search).get('juego');
 let indiceActual = Math.max(0, JUEGOS.findIndex((j) => j.id === idInicial));
 let cambiando = false;
+let cambioBloqueado = false; // el juego lo activa mientras el jugador lleva algo en la mano (ctx.bloquearCambio)
 let errorJuego = false;
 
 // ─── Orden aleatorio sin repetir ─────────────────────────────────────────
@@ -381,6 +382,8 @@ function montar(indice, modulo) {
   const ctx = {
     raiz, escena, camara, renderer, manos, raton,
     enVR: () => renderer.xr.isPresenting,
+    // Mientras vale true no se puede pasar de juego (p. ej. con el balón cogido). Se reinicia al cambiar.
+    bloquearCambio(valor) { cambioBloqueado = !!valor; },
     tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
     // El juego la llama al terminar CADA partida con su resultado: puntos, segundos, golpes… según
     // juegos/marcadores.js. Con cuenta, va a la clasificación; la shell enseña el puesto.
@@ -494,7 +497,7 @@ function desmontar() {
 
 // volviendo: true cuando se vuelve al juego anterior (entonces no se apunta en el historial)
 async function cambiarA(indice, { volviendo = false } = {}) {
-  if (cambiando) return;
+  if (cambiando || (cambioBloqueado && actual)) return;
   cambiando = true;
   ocultarAviso();
   reanudar();
@@ -506,6 +509,7 @@ async function cambiarA(indice, { volviendo = false } = {}) {
   try {
     if (actual) await fundido.a(1, 0.3);
     desmontar();
+    cambioBloqueado = false;
     if (!volviendo && desde !== null && desde !== indice) {
       historial.push(desde);
       if (historial.length > MAX_HISTORIAL) historial.shift();
@@ -562,7 +566,7 @@ function anunciarSiguiente() {
 }
 
 function siguienteJuego() {
-  if (cambiando) return;
+  if (cambiando || cambioBloqueado) return;
   sonido('boton');
   cambiarA(siguienteIndice());
 }
@@ -570,7 +574,7 @@ function siguienteJuego() {
 // Vuelve al juego por el que pasaste antes (si lo pasaste sin querer o te gustó)
 const juegoAnteriorIndice = () => (historial.length ? historial[historial.length - 1] : null);
 function juegoAnterior() {
-  if (cambiando || !historial.length) return;
+  if (cambiando || cambioBloqueado || !historial.length) return;
   sonido('boton');
   cambiarA(historial.pop(), { volviendo: true });
 }

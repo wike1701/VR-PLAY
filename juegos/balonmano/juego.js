@@ -828,6 +828,8 @@ export function iniciar(ctx) {
     }
     if (estadoBalon === 'vuelo') moverBalon(dt);
 
+    ctx.bloquearCambio(estadoBalon === 'mano'); // con el balón cogido no se puede pasar de juego
+
     moverPortero(dt);
     // La red se menea al entrar el balón
     meneoRed = Math.max(0, meneoRed - dt * 2.5);
