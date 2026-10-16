@@ -58,9 +58,9 @@ export const MARCADORES = {
   bar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 55 },
   // ¡Que no explote!: 3 bombas (2, 3 y 4 módulos); por bomba, 100 por módulo + 5 por segundo que sobra - 20 por error
   bomba: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1600, minSegundos: 12 },
-  // Fusión de Frutas (cajón en 3D): 150 s; puntos por cada fruta creada (2 a 50) por el combo (hasta x6).
+  // Fusión de Frutas (cajón en 3D): sin límite de tiempo, acaba al rebosar; puntos por cada fruta creada (2 a 50) por el combo (hasta x6).
   // En las simulaciones salen de 1.200 a 3.300; margen para los combos largos
-  fusion: { orden: 'mayor', unidad: 'puntos', min: 0, max: 8000, maxPorSegundo: 60, minSegundos: 25 },
+  fusion: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 60, minSegundos: 25 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

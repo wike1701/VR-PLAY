@@ -1267,7 +1267,7 @@ export default {
     },
     fusion: {
       titulo: 'Fruit Merge',
-      descripcion: 'A market stall has an open wooden crate. Drop fruit from above and, when two identical ones touch, they merge into the next, bigger one: cherry, strawberry, grape, orange, apple, grapefruit, melon and watermelon. Two watermelons burst into a shower of points. Chain merges back to back and your points multiply. If the fruit piles up above the red line the crate overflows and it\'s over; otherwise you have 150 seconds. It is a real crate, in 3D: you choose where each fruit falls, side to side and front to back.',
+      descripcion: 'A market stall has an open wooden crate. Drop fruit from above and, when two identical ones touch, they merge into the next, bigger one: cherry, strawberry, grape, orange, apple, grapefruit, melon and watermelon. Two watermelons burst into a shower of points. Chain merges back to back and your points multiply. If the fruit piles up above the red line the crate overflows and it\'s over; otherwise you play on with no time limit. It is a real crate, in 3D: you choose where each fruit falls, side to side and front to back.',
       controlesVR: 'The fruit waits on the tray: grab it with your hand by pulling the trigger, carry it over the crate wherever you like (side to side and front to back) and release the trigger to drop it. A ring shows where it will land.',
       controlesEscritorio: 'Point the mouse over the top of the crate to choose where the fruit falls (side to side and front to back) and click to drop it. A ring shows where it will land.',
       controlesTactil: 'Drag your finger over the top of the crate to choose where the fruit falls and lift it to drop. A ring shows where it will land.',

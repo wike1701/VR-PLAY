@@ -3,8 +3,8 @@
 // la boca del cajón y cae dentro; cuando dos frutas iguales se tocan se funden en la siguiente, más grande:
 // cereza → fresa → uva → naranja → manzana → pomelo → melón → sandía. Dos sandías se funden en un
 // estallido de puntos. Las fusiones seguidas (menos de ~1 s entre una y otra) multiplican los puntos.
-// Si una fruta se queda por encima de la línea roja más de 2,5 s, el cajón rebosa y se acaba; si no,
-// la partida dura 150 s. Lo que cuenta para la clasificación son los puntos.
+// Si una fruta se queda por encima de la línea roja más de 2,5 s, el cajón rebosa y se acaba; no hay
+// límite de tiempo. Lo que cuenta para la clasificación son los puntos.
 //
 // Todo es en 3D: las frutas son esferas que chocan, ruedan y se amontonan por todo el cajón, y se elige
 // el punto de caída a lo ancho y a lo hondo. Una guía baja desde la fruta hasta un aro que marca dónde
@@ -29,7 +29,6 @@ const ALTO_PARED = 0.42;
 const BORDE = SUELO + ALTO_PARED;   // boca del cajón
 const LINEA = BORDE - 0.05;         // línea roja de peligro
 const SPAWN = BORDE + 0.1;          // altura desde la que cae la fruta con ratón
-const DURACION = 150;               // segundos de partida
 const TOLERANCIA = 2.5;             // segundos por encima de la línea antes de rebosar
 const RECARGA = 0.5;                // segundos hasta poder soltar otra fruta
 const VENTANA_COMBO = 1.1;          // segundos entre fusiones para que cuenten como combo
@@ -379,7 +378,6 @@ export function iniciar(ctx) {
   let tiempo = 0;
   let acumulado = 0;
   let puntos = 0;
-  let restante = DURACION;
   let peligro = 0;
   let enPeligro = false;
   let actual = 0;
@@ -388,7 +386,6 @@ export function iniciar(ctx) {
   let cadena = 0;
   let ultimaFusion = -10;
   let vistaSiguiente = -1;
-  let rebosa = false;
   let aviso = null;
   let record = ctx.leer('record', 0);
   let sonidoBote = 0;
@@ -445,10 +442,10 @@ export function iniciar(ctx) {
       lineas = [{ texto: ctx.t('titulo'), tam: 1.1, color: '#ffd54f' },
         { texto: ctx.t(ctx.enVR() ? 'introVR' : ctx.tactil ? 'introTactil' : 'introRaton'), tam: 0.55, color: '#fff3e0' }];
     } else if (estado === 'fin') {
-      lineas = [{ texto: rebosa ? ctx.t('fin', { n: puntos }) : ctx.t('partida.tiempoPuntos', { n: puntos }), tam: 0.95, color: rebosa ? '#ff8a65' : '#ffd54f' },
+      lineas = [{ texto: ctx.t('fin', { n: puntos }), tam: 0.95, color: '#ff8a65' },
         { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(espera) }), tam: 0.55 }];
     } else {
-      lineas = [{ texto: ctx.t('partida.puntosTiempo', { puntos, s: Math.ceil(restante) }), tam: 0.95, color: '#ffffff' },
+      lineas = [{ texto: ctx.t('partida.puntosN', { n: puntos }), tam: 0.95, color: '#ffffff' },
         aviso ? { texto: aviso.texto, tam: 0.6, color: aviso.color } : { texto: ctx.t('partida.record', { record }), tam: 0.55, color: '#bdbdbd' }];
     }
     panel.escribir(lineas);
@@ -647,12 +644,10 @@ export function iniciar(ctx) {
   function empezarPartida() {
     for (const f of pool) f.vivo = false;
     puntos = 0;
-    restante = DURACION;
     peligro = 0;
     enPeligro = false;
     cadena = 0;
     ultimaFusion = -10;
-    rebosa = false;
     aviso = null;
     actual = nivelAlAzar();
     siguiente = nivelAlAzar();
@@ -661,17 +656,16 @@ export function iniciar(ctx) {
     ctx.sonido('clac');
   }
 
-  function terminar(porRebose) {
+  function terminar() {
     estado = 'fin';
     espera = 6;
-    rebosa = porRebose;
     ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js): los puntos de las fusiones
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
     }
-    ctx.efectos.impacto(porRebose ? 'grande' : 'medio', { pos: centro, color: porRebose ? 0xff6a3d : 0xffd54f, sonido: porRebose ? 'caida' : 'fin' });
-    if (porRebose) for (const m of ctx.manos) ctx.vibrar(m, 0.8, 250);
+    ctx.efectos.impacto('grande', { pos: centro, color: 0xff6a3d, sonido: 'caida' });
+    for (const m of ctx.manos) ctx.vibrar(m, 0.8, 250);
   }
 
   // Suelta la fruta actual en (x, y, z), siempre dentro de la boca del cajón y por encima de él
@@ -819,12 +813,7 @@ export function iniciar(ctx) {
       espera -= dt;
       if (espera <= 0) empezarPartida();
     } else if (estado === 'jugando') {
-      restante -= dt;
       recarga -= dt;
-      if (restante <= 0) {
-        restante = 0;
-        terminar(false);
-      }
     } else {
       espera -= dt;
       if (espera <= 0) empezarPartida();
@@ -854,7 +843,7 @@ export function iniciar(ctx) {
           avisar(ctx.t('peligro'), '#ff8a65', TOLERANCIA);
           for (const m of ctx.manos) ctx.vibrar(m, 0.5, 120);
         }
-        if (peligro >= TOLERANCIA) terminar(true);
+        if (peligro >= TOLERANCIA) terminar();
       } else {
         peligro = Math.max(0, peligro - dt * 2);
         if (peligro === 0 && enPeligro) {
