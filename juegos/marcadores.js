@@ -56,6 +56,8 @@ export const MARCADORES = {
   cinta: { orden: 'mayor', unidad: 'puntos', min: 0, max: 10000, maxPorSegundo: 1.5, minSegundos: 5 },
   // Last Call: turno de 60 s; cada bebida da de 3 a 10 puntos (con la propina), el doble si es especial
   bar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 55 },
+  // ¡Que no explote!: 3 bombas (2, 3 y 4 módulos); por bomba, 100 por módulo + 5 por segundo que sobra - 20 por error
+  bomba: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1600, minSegundos: 12 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

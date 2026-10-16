@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#15191c"/>
+      <stop offset="0.6" stop-color="#2c3338"/>
+      <stop offset="1" stop-color="#1c1a16"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mesa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a6440"/>
+      <stop offset="1" stop-color="#4a321c"/>
+    </linearGradient>
+    <linearGradient id="caja" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8d969e"/>
+      <stop offset="0.55" stop-color="#5a6168"/>
+      <stop offset="1" stop-color="#363b40"/>
+    </linearGradient>
+    <linearGradient id="dinamita" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b5e"/>
+      <stop offset="0.5" stop-color="#d32f2f"/>
+      <stop offset="1" stop-color="#8e1414"/>
+    </linearGradient>
+    <linearGradient id="acero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f7fa"/>
+      <stop offset="1" stop-color="#8f99a3"/>
+    </linearGradient>
+    <linearGradient id="goma" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ef5350"/>
+      <stop offset="1" stop-color="#9a1b1b"/>
+    </linearGradient>
+    <radialGradient id="chispa">
+      <stop offset="0" stop-color="#fff3d6"/>
+      <stop offset="0.35" stop-color="#ff6a3d"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Pared de bloques y franja de peligro -->
+  <g fill="#20262a" opacity="0.8">
+    <rect x="0" y="62" width="400" height="5"/><rect x="0" y="128" width="400" height="5"/><rect x="0" y="194" width="400" height="5"/>
+    <rect x="96" y="0" width="5" height="62"/><rect x="250" y="0" width="5" height="62"/><rect x="40" y="67" width="5" height="61"/><rect x="190" y="67" width="5" height="61"/><rect x="330" y="67" width="5" height="61"/><rect x="120" y="133" width="5" height="61"/><rect x="280" y="133" width="5" height="61"/>
+  </g>
+  <path d="M0 226 H400 V240 H0 Z" fill="#f9c80e" opacity="0.75"/>
+  <path d="M10 226 L24 226 L10 240 Z M50 226 L64 226 L50 240 L36 240 Z M90 226 L104 226 L90 240 L76 240 Z M130 226 L144 226 L130 240 L116 240 Z M170 226 L184 226 L170 240 L156 240 Z M210 226 L224 226 L210 240 L196 240 Z M250 226 L264 226 L250 240 L236 240 Z M290 226 L304 226 L290 240 L276 240 Z M330 226 L344 226 L330 240 L316 240 Z M370 226 L384 226 L370 240 L356 240 Z" fill="#1d1d1d" opacity="0.8"/>
+  <!-- Mesa -->
+  <path d="M0 262 L400 262 L400 400 L0 400 Z" fill="url(#mesa)"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="336" rx="150" ry="20" fill="url(#sombra)"/>
+  <!-- Dinamita detrás -->
+  <rect x="78" y="150" width="244" height="34" rx="17" fill="url(#dinamita)"/>
+  <rect x="78" y="176" width="244" height="34" rx="17" fill="url(#dinamita)"/>
+  <rect x="104" y="146" width="16" height="68" fill="#2b2b2b"/><rect x="280" y="146" width="16" height="68" fill="#2b2b2b"/>
+  <!-- Caja con la tapa inclinada -->
+  <path d="M62 222 L338 222 L360 330 L40 330 Z" fill="url(#caja)"/>
+  <path d="M40 330 L360 330 L360 344 L40 344 Z" fill="#30353a"/>
+  <!-- Reloj -->
+  <rect x="140" y="188" width="120" height="48" rx="6" fill="#1b1f22"/>
+  <rect x="150" y="196" width="100" height="32" rx="4" fill="#3a0606"/>
+  <rect x="156" y="204" width="62" height="16" rx="4" fill="#ff3d3d"/>
+  <rect x="222" y="204" width="22" height="16" rx="4" fill="#ff3d3d" opacity="0.25"/>
+  <circle cx="248" cy="196" r="5" fill="#ff1744"/>
+  <!-- Módulo de cables: el rojo, a punto de cortarse -->
+  <rect x="78" y="250" width="244" height="68" rx="8" fill="#2a2f34"/>
+  <rect x="96" y="256" width="16" height="56" rx="3" fill="#b7bec5"/><rect x="288" y="256" width="16" height="56" rx="3" fill="#b7bec5"/>
+  <path d="M112 266 Q200 252 288 266" stroke="#1e88e5" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M112 300 Q200 288 288 300" stroke="#fdd835" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M112 283 Q160 274 190 279" stroke="#e53935" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M212 280 Q250 276 288 283" stroke="#e53935" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <!-- Chispa del corte (la acción) -->
+  <circle cx="201" cy="278" r="34" fill="url(#chispa)"/>
+  <path d="M201 278 L236 250 M201 278 L176 246 M201 278 L238 296 M201 278 L170 302" stroke="#ff6a3d" stroke-width="4" stroke-linecap="round"/>
+  <!-- Alicates entrando desde abajo a la derecha -->
+  <g transform="translate(14 39) rotate(-30 210 276)">
+    <path d="M196 270 Q198 248 206 238 L212 240 Q206 252 208 272 Z" fill="url(#acero)"/>
+    <path d="M222 270 Q222 248 214 238 L208 240 Q214 252 212 272 Z" fill="url(#acero)"/>
+    <circle cx="210" cy="276" r="10" fill="#8f99a3"/>
+    <circle cx="210" cy="276" r="4" fill="#4b5258"/>
+    <path d="M202 282 Q186 330 176 382 L196 386 Q204 332 210 288 Z" fill="url(#goma)"/>
+    <path d="M218 282 Q234 330 246 382 L226 386 Q216 332 210 288 Z" fill="url(#goma)"/>
+    <path d="M192 300 Q186 330 182 360" stroke="#ff9a8f" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>
