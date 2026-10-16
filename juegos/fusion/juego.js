@@ -342,32 +342,23 @@ export function iniciar(ctx) {
     return { linea: linea1, aro, fantasma, x: 0, y: SPAWN, z: ZC };
   });
 
-  // Mano visible (VR): palma, cuatro dedos y pulgar sobre el mando; los dedos se cierran al apretar el gatillo
-  const matPiel = R(new THREE.MeshBasicMaterial({ color: 0xf1b98f }));
-  const geoPalma = R(new THREE.BoxGeometry(0.085, 0.03, 0.095));
-  const geoDedo = R(new THREE.CapsuleGeometry(0.0085, 0.05, 3, 8).rotateX(Math.PI / 2));
-  const geoPulgar = R(new THREE.CapsuleGeometry(0.0095, 0.04, 3, 8));
+  // Manos en VR: la misma pinza que en la cinta transportadora, dos dedos que se cierran al apretar el gatillo
+  const matPinza = R(new THREE.MeshLambertMaterial({ color: 0xffb300 }));
+  const geoDedo = R(new THREE.BoxGeometry(0.014, 0.014, 0.06).translate(0, 0, -0.03));
+  const geoPalma = R(new THREE.BoxGeometry(0.06, 0.03, 0.04));
   const dedosMano = [];
-  function crearMano(mano, lado) {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(geoPalma, matPiel));
-    for (let d = 0; d < 4; d++) {
-      const pivote = new THREE.Group();
-      pivote.position.set(-0.03 + d * 0.02, 0, -0.045);
-      const dedo = new THREE.Mesh(geoDedo, matPiel);
-      dedo.position.z = -0.028;
-      pivote.add(dedo);
-      g.add(pivote);
-      dedosMano.push({ mano, pivote });
-    }
-    const pulgar = new THREE.Mesh(geoPulgar, matPiel);
-    pulgar.position.set(lado * 0.05, 0, -0.01);
-    pulgar.rotation.z = lado * 0.9;
-    g.add(pulgar);
-    g.position.set(0, 0.0, 0.02);
-    ctx.adjuntarAMano(mano, g);
+  for (const mano of ctx.manos) {
+    const pinza = new THREE.Group();
+    pinza.add(new THREE.Mesh(geoPalma, matPinza));
+    const dedos = [-1, 1].map((lado) => {
+      const dedo = new THREE.Mesh(geoDedo, matPinza);
+      dedo.position.set(lado * 0.022, 0, -0.02);
+      pinza.add(dedo);
+      return { dedo, lado };
+    });
+    dedosMano.push({ mano, dedos });
+    ctx.adjuntarAMano(mano, pinza);
   }
-  ctx.manos.forEach((mano) => crearMano(mano, mano.lado === 'left' ? 1 : -1));
 
   // Fruta en la mano (VR)
   const manos = ctx.manos.map((mano, i) => {
@@ -761,7 +752,7 @@ export function iniciar(ctx) {
   function leerEntrada() {
     const listo = estado === 'jugando' && recarga <= 0;
     if (ctx.enVR()) {
-      for (const d of dedosMano) d.pivote.rotation.x = d.mano.gatillo ? -0.9 : -0.15;
+      for (const d of dedosMano) for (const f of d.dedos) f.dedo.position.x = f.lado * (d.mano.gatillo ? 0.011 : 0.022);
       const ocupada = manos.some((h) => h.agarrando);
       bandeja.visible = estado === 'jugando';
       for (const m of manos) {
