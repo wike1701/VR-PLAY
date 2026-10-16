@@ -1272,10 +1272,10 @@ export default {
     },
     fusion: {
       titulo: 'Fusão de Frutas',
-      descripcion: 'Numa banca de mercado há uma caixa de madeira aberta em cima. Larga frutas de cima e, quando duas iguais se tocam, fundem-se na seguinte, maior: cereja, morango, uva, laranja, maçã, toranja, melão e melancia. Duas melancias explodem numa chuva de pontos. Se encadeares fusões seguidas, os pontos multiplicam-se. Se a fruta se amontoar acima da linha vermelha, a caixa transborda e acabou; senão, tens 150 segundos.',
-      controlesVR: 'Cada mão leva a fruta seguinte. Uma guia sobre a caixa mostra por onde vai cair, à altura da tua mão: posiciona-a e aperta o gatilho para a largar.',
-      controlesEscritorio: 'Mexe o rato para escolher onde cai a fruta e clica para a largar.',
-      controlesTactil: 'Arrasta o dedo para escolher onde cai a fruta e levanta-o para a largar.',
+      descripcion: 'Numa banca de mercado há uma caixa de madeira aberta em cima. Larga frutas de cima e, quando duas iguais se tocam, fundem-se na seguinte, maior: cereja, morango, uva, laranja, maçã, toranja, melão e melancia. Duas melancias explodem numa chuva de pontos. Se encadeares fusões seguidas, os pontos multiplicam-se. Se a fruta se amontoar acima da linha vermelha, a caixa transborda e acabou; senão, tens 150 segundos. É uma caixa de verdade, em 3D: escolhes onde cai cada fruta, na largura e na profundidade.',
+      controlesVR: 'A fruta está na tua mão: põe-na sobre a caixa onde quiseres (na largura e na profundidade) e aperta o gatilho para a largar. Um aro mostra onde vai ficar.',
+      controlesEscritorio: 'Aponta com o rato sobre a caixa para escolher onde cai a fruta (na largura e na profundidade) e clica para a largar. Um aro mostra onde vai ficar.',
+      controlesTactil: 'Arrasta o dedo sobre a caixa para escolher onde cai a fruta e levanta-o para a largar. Um aro mostra onde vai ficar.',
       etiquetas: [
         'frutas', 'fusão', 'juntar', 'combinar', 'puzzle', 'física', 'caixa', 'largar', 'cereja', 'morango',
         'uva', 'laranja', 'maçã', 'toranja', 'melão', 'melancia', 'combo', 'cadeia', 'pontos',
@@ -1284,8 +1284,8 @@ export default {
       juego: {
         titulo: 'FUSÃO DE FRUTAS',
         introVR: 'Põe a mão sobre a caixa e larga com o gatilho',
-        introRaton: 'Mexe o rato e clica para largar a fruta',
-        introTactil: 'Arrasta o dedo e levanta-o para largar a fruta',
+        introRaton: 'Aponta sobre a caixa e clica para largar a fruta',
+        introTactil: 'Arrasta o dedo sobre a caixa e levanta-o',
         siguiente: 'Seguinte',
         combo: 'Combo x{n}!',
         gigante: 'Melancia gigante! +{n}',

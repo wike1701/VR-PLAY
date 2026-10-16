@@ -1351,10 +1351,10 @@ export default {
     },
     fusion: {
       titulo: 'Fusión de Frutas',
-      descripcion: 'En un puesto de mercado hay una caja de madera abierta por arriba. Suelta frutas desde arriba y, cuando dos iguales se tocan, se funden en la siguiente, más grande: cereza, fresa, uva, naranja, manzana, pomelo, melón y sandía. Dos sandías se funden en un estallido de puntos. Si enlazas fusiones seguidas, los puntos se multiplican. Si la fruta se amontona por encima de la línea roja, la caja rebosa y se acaba; si no, tienes 150 segundos.',
-      controlesVR: 'Cada mano lleva la siguiente fruta. Una guía sobre la caja marca por dónde caerá, a la altura de tu mano: colócala y aprieta el gatillo para soltarla.',
-      controlesEscritorio: 'Mueve el ratón para elegir dónde cae la fruta y haz clic para soltarla.',
-      controlesTactil: 'Arrastra el dedo para elegir dónde cae la fruta y levántalo para soltarla.',
+      descripcion: 'En un puesto de mercado hay una caja de madera abierta por arriba. Suelta frutas desde arriba y, cuando dos iguales se tocan, se funden en la siguiente, más grande: cereza, fresa, uva, naranja, manzana, pomelo, melón y sandía. Dos sandías se funden en un estallido de puntos. Si enlazas fusiones seguidas, los puntos se multiplican. Si la fruta se amontona por encima de la línea roja, la caja rebosa y se acaba; si no, tienes 150 segundos. Es un cajón de verdad, en 3D: eliges dónde cae cada fruta a lo ancho y a lo hondo.',
+      controlesVR: 'La fruta va en tu mano: ponla sobre la boca del cajón donde quieras (a lo ancho y a lo hondo) y aprieta el gatillo para soltarla. Un aro marca dónde quedará apoyada.',
+      controlesEscritorio: 'Apunta con el ratón sobre la boca del cajón para elegir dónde cae la fruta (a lo ancho y a lo hondo) y haz clic para soltarla. Un aro marca dónde quedará apoyada.',
+      controlesTactil: 'Arrastra el dedo sobre la boca del cajón para elegir dónde cae la fruta y levántalo para soltarla. Un aro marca dónde quedará apoyada.',
       etiquetas: [
         'frutas', 'fusionar', 'fusión', 'combinar', 'unir', 'juntar', 'puzle', 'física', 'caja', 'soltar',
         'dejar caer', 'cereza', 'fresa', 'uva', 'naranja', 'manzana', 'pomelo', 'melón', 'sandía', 'combo',
@@ -1364,9 +1364,9 @@ export default {
       ],
       juego: {
         titulo: 'FUSIÓN DE FRUTAS',
-        introVR: 'Coloca la mano sobre la caja y suelta con el gatillo',
-        introRaton: 'Mueve el ratón y haz clic para soltar la fruta',
-        introTactil: 'Arrastra el dedo y levántalo para soltar la fruta',
+        introVR: 'Pon la mano sobre el cajón y suelta con el gatillo',
+        introRaton: 'Apunta sobre el cajón y haz clic para soltar la fruta',
+        introTactil: 'Arrastra el dedo sobre el cajón y levántalo para soltar',
         siguiente: 'Siguiente',
         combo: '¡Combo x{n}!',
         gigante: '¡Sandía gigante! +{n}',

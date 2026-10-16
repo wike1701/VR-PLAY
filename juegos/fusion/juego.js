@@ -1,15 +1,16 @@
 // FUSIÓN DE FRUTAS
-// En un puesto de mercado hay una caja de madera abierta por arriba. Se suelta una fruta desde arriba
-// y cae dentro; cuando dos frutas iguales se tocan se funden en la siguiente, más grande:
+// En un puesto de mercado hay un cajón de madera de verdad, abierto por arriba. Se suelta una fruta sobre
+// la boca del cajón y cae dentro; cuando dos frutas iguales se tocan se funden en la siguiente, más grande:
 // cereza → fresa → uva → naranja → manzana → pomelo → melón → sandía. Dos sandías se funden en un
 // estallido de puntos. Las fusiones seguidas (menos de ~1 s entre una y otra) multiplican los puntos.
-// Si una fruta se queda por encima de la línea roja más de 2,5 s, la caja rebosa y se acaba; si no,
+// Si una fruta se queda por encima de la línea roja más de 2,5 s, el cajón rebosa y se acaba; si no,
 // la partida dura 150 s. Lo que cuenta para la clasificación son los puntos.
 //
-// Física propia en 2D (círculos con gravedad, rebote y rozamiento) dentro de un plano frente al jugador.
-// En VR: cada mano lleva la siguiente fruta; el sitio por donde caerá lo marca una guía sobre la caja,
-// a la altura (en horizontal) de tu mano. Gatillo para soltarla.
-// Con ratón: se mueve la guía con el puntero y un clic la suelta. En el móvil: se arrastra el dedo y la
+// Todo es en 3D: las frutas son esferas que chocan, ruedan y se amontonan por todo el cajón, y se elige
+// el punto de caída a lo ancho y a lo hondo. Una guía baja desde la fruta hasta un aro que marca dónde
+// quedará apoyada (encima del montón), para calcular bien la profundidad.
+// En VR: la fruta va en la mano y se suelta con el gatillo justo donde está la mano (encima del cajón).
+// Con ratón: se apunta sobre la boca del cajón y un clic la suelta. En el móvil: se arrastra el dedo y la
 // fruta cae al levantarlo.
 import * as THREE from 'three';
 
@@ -17,14 +18,17 @@ import * as THREE from 'three';
 export async function precargar() {}
 
 // ─── Ajustes ─────────────────────────────────────────────────────────────
-const ZP = -0.8;                    // plano donde viven las frutas
-const ANCHO = 0.64;                 // anchura interior de la caja
-const XMIN = -ANCHO / 2;
-const XMAX = ANCHO / 2;
-const SUELO = 0.8;                  // fondo interior de la caja
-const LINEA = SUELO + 0.6;          // línea roja de peligro
-const SPAWN = LINEA + 0.1;          // altura desde la que cae la fruta
-const ALTO_PARED = 0.76;
+const ZC = -0.52;                   // centro del cajón (cerca, para mirar dentro desde arriba)
+const MEDIO = 0.17;                 // media anchura interior (el cajón es cuadrado)
+const XMIN = -MEDIO;
+const XMAX = MEDIO;
+const ZMIN = ZC - MEDIO;
+const ZMAX = ZC + MEDIO;
+const SUELO = 0.56;                 // fondo interior del cajón
+const ALTO_PARED = 0.42;
+const BORDE = SUELO + ALTO_PARED;   // boca del cajón
+const LINEA = BORDE - 0.05;         // línea roja de peligro
+const SPAWN = BORDE + 0.1;          // altura desde la que cae la fruta con ratón
 const DURACION = 150;               // segundos de partida
 const TOLERANCIA = 2.5;             // segundos por encima de la línea antes de rebosar
 const RECARGA = 0.5;                // segundos hasta poder soltar otra fruta
@@ -143,9 +147,10 @@ export function iniciar(ctx) {
   // ─── Decorado: un puesto de mercado al aire libre, por la mañana ───────
   ctx.fondo(0xa8dcf5, { nubes: 0.45, sol: [0.5, 0.55, -0.7], niebla: [14, 45], paisaje: { tipo: 'colinas', color: 0x6f9f7a, radio: 60 } });
   ctx.sueloBase(false);
+  // Casi desde arriba, para ver el interior del cajón por encima de la pared de delante
   const VISTAS = {
-    horizontal: [new THREE.Vector3(0, 1.33, 0.5), new THREE.Vector3(0, 1.17, ZP)],
-    vertical: [new THREE.Vector3(0, 1.35, 1.0), new THREE.Vector3(0, 1.17, ZP)],
+    horizontal: [new THREE.Vector3(0, 1.95, -0.1), new THREE.Vector3(0, 0.76, ZC)],
+    vertical: [new THREE.Vector3(0, 2.2, 0.02), new THREE.Vector3(0, 0.74, ZC)],
   };
   let vistaVertical = null;
   function colocarVista() {
@@ -185,7 +190,7 @@ export function iniciar(ctx) {
   toldo.computeVertexNormals();
   raiz.add(new THREE.Mesh(R(toldo), R(new THREE.MeshLambertMaterial({ map: texToldo, side: THREE.DoubleSide }))));
 
-  // Mantel de cuadros sobre la mesa (techo y tres lados)
+  // Mesa baja con mantel de cuadros, donde descansa el cajón
   const texMantel = R(ctx.texturaCanvas((g, tam) => {
     g.fillStyle = '#f7f1e3';
     g.fillRect(0, 0, tam, tam);
@@ -195,8 +200,8 @@ export function iniciar(ctx) {
       g.fillRect(0, i * tam / 4 + tam / 8, tam, tam / 8);
     }
   }, { tam: 256, semilla: 504 }));
-  const MESA_Y = SUELO - 0.06;    // la tabla de la caja descansa sobre la mesa
-  const mesaZ = ZP + 0.05;
+  const MESA_Y = SUELO - 0.045;   // el fondo del cajón descansa sobre la mesa
+  const mesaZ = ZC - 0.05;
   const planoMantel = (ancho, alto, ux, uy) => {
     const g = new THREE.PlaneGeometry(ancho, alto);
     const uv = g.attributes.uv;
@@ -204,17 +209,16 @@ export function iniciar(ctx) {
     return g;
   };
   const MESA_ANCHO = 1.7;
-  const MESA_FONDO = 0.9;
+  const MESA_FONDO = 0.8;
   const mantel = [
     planoMantel(MESA_ANCHO, MESA_FONDO, MESA_ANCHO / 0.2, MESA_FONDO / 0.2).rotateX(-Math.PI / 2).translate(0, MESA_Y, mesaZ),
     planoMantel(MESA_ANCHO, MESA_Y, MESA_ANCHO / 0.2, MESA_Y / 0.2).translate(0, MESA_Y / 2, mesaZ + MESA_FONDO / 2),
     planoMantel(MESA_FONDO, MESA_Y, MESA_FONDO / 0.2, MESA_Y / 0.2).rotateY(Math.PI / 2).translate(MESA_ANCHO / 2, MESA_Y / 2, mesaZ),
     planoMantel(MESA_FONDO, MESA_Y, MESA_FONDO / 0.2, MESA_Y / 0.2).rotateY(-Math.PI / 2).translate(-MESA_ANCHO / 2, MESA_Y / 2, mesaZ),
   ];
-  const geoMantel = R(fusionarSimple(mantel));
-  raiz.add(new THREE.Mesh(geoMantel, R(new THREE.MeshLambertMaterial({ map: texMantel, side: THREE.DoubleSide }))));
+  raiz.add(new THREE.Mesh(R(fusionarSimple(mantel)), R(new THREE.MeshLambertMaterial({ map: texMantel, side: THREE.DoubleSide }))));
 
-  // Postes del toldo, estantes del fondo y la caja: madera
+  // Postes del toldo, estantes del fondo y el cajón: madera
   const texMadera = R(ctx.texturas.madera(0x9a6b3f, { tam: 512, repetir: [1, 1], semilla: 505 }));
   const matMadera = R(new THREE.MeshLambertMaterial({ map: texMadera }));
   const maderas = [];
@@ -222,25 +226,43 @@ export function iniciar(ctx) {
   for (const x of [-1.2, 1.2]) maderas.push(new THREE.BoxGeometry(0.95, 0.04, 0.3).translate(x, 1.12, -1.8));
   raiz.add(new THREE.Mesh(R(fusionarSimple(maderas)), matMadera));
 
-  // La caja: base, dos paredes con su remate y el tablón del fondo
-  const caja = [
-    new THREE.BoxGeometry(ANCHO + 0.1, 0.05, 0.34).translate(0, SUELO - 0.025, ZP),
-    new THREE.BoxGeometry(0.05, ALTO_PARED + 0.05, 0.34).translate(XMIN - 0.025, SUELO + ALTO_PARED / 2 - 0.025, ZP),
-    new THREE.BoxGeometry(0.05, ALTO_PARED + 0.05, 0.34).translate(XMAX + 0.025, SUELO + ALTO_PARED / 2 - 0.025, ZP),
-    new THREE.BoxGeometry(0.075, 0.03, 0.375).translate(XMIN - 0.025, SUELO + ALTO_PARED + 0.015, ZP),
-    new THREE.BoxGeometry(0.075, 0.03, 0.375).translate(XMAX + 0.025, SUELO + ALTO_PARED + 0.015, ZP),
-  ];
-  raiz.add(new THREE.Mesh(R(fusionarSimple(caja)), matMadera));
-  const texFondo = R(ctx.texturas.tablas(0xd9a768, { tam: 512, tablas: 6, repetir: [1, 1], semilla: 506 }));
-  raiz.add(new THREE.Mesh(
-    R(new THREE.PlaneGeometry(ANCHO + 0.1, ALTO_PARED + 0.05).translate(0, SUELO + ALTO_PARED / 2 - 0.025, ZP - 0.17)),
-    R(new THREE.MeshLambertMaterial({ map: texFondo })),
-  ));
+  // El cajón: fondo de tablas, cuatro paredes de listones con huecos (se ve el interior entre ellos),
+  // postes en las esquinas y un remate en la boca
+  const texListon = R(ctx.texturas.tablas(0xd9a768, { tam: 256, tablas: 1, repetir: [1, 1], semilla: 506 }));
+  const listones = [];
+  const G = 0.018; // grosor de la madera
+  const LISTONES = 4;
+  const altoListon = ALTO_PARED / LISTONES - 0.028;
+  listones.push(new THREE.BoxGeometry(MEDIO * 2 + G * 2, G, MEDIO * 2 + G * 2).translate(0, SUELO - G / 2, ZC));
+  for (let k = 0; k < LISTONES; k++) {
+    const y = SUELO + (k + 0.5) * (ALTO_PARED / LISTONES) + 0.006;
+    for (const lado of [-1, 1]) {
+      listones.push(new THREE.BoxGeometry(MEDIO * 2 + G * 2, altoListon, G).translate(0, y, ZC + lado * (MEDIO + G / 2)));
+      listones.push(new THREE.BoxGeometry(G, altoListon, MEDIO * 2).translate(lado * (MEDIO + G / 2), y, ZC));
+    }
+  }
+  raiz.add(new THREE.Mesh(R(fusionarSimple(listones)), R(new THREE.MeshLambertMaterial({ map: texListon }))));
+  const postes = [];
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) postes.push(new THREE.BoxGeometry(0.036, ALTO_PARED + 0.02, 0.036).translate(sx * (MEDIO + 0.018), SUELO + ALTO_PARED / 2, ZC + sz * (MEDIO + 0.018)));
+  }
+  for (const lado of [-1, 1]) {
+    postes.push(new THREE.BoxGeometry(MEDIO * 2 + 0.07, 0.02, 0.036).translate(0, BORDE + 0.01, ZC + lado * (MEDIO + 0.018)));
+    postes.push(new THREE.BoxGeometry(0.036, 0.02, MEDIO * 2).translate(lado * (MEDIO + 0.018), BORDE + 0.01, ZC));
+  }
+  raiz.add(new THREE.Mesh(R(fusionarSimple(postes)), matMadera));
+  const sombraCajon = ctx.crearSombra({ radio: 0.42, opacidad: 0.35 });
+  ctx.colocarSombra(sombraCajon, new THREE.Vector3(0, MESA_Y, ZC), MESA_Y + 0.002);
+  raiz.add(sombraCajon);
 
-  // Línea roja de peligro, en el borde abierto de la caja
-  const matLinea = R(new THREE.MeshBasicMaterial({ color: 0xff5a4a, transparent: true, opacity: 0.55, toneMapped: false, depthWrite: false }));
-  const linea = new THREE.Mesh(R(new THREE.PlaneGeometry(ANCHO, 0.012).translate(0, LINEA, ZP + 0.17)), matLinea);
-  raiz.add(linea);
+  // Línea roja de peligro, por dentro de las cuatro paredes, justo bajo la boca
+  const matLinea = R(new THREE.MeshBasicMaterial({ color: 0xff5a4a, transparent: true, opacity: 0.6, toneMapped: false, depthWrite: false, side: THREE.DoubleSide }));
+  const tiraLinea = [];
+  for (const lado of [-1, 1]) {
+    tiraLinea.push(new THREE.PlaneGeometry(MEDIO * 2, 0.012).translate(0, LINEA, ZC + lado * (MEDIO - 0.001)));
+    tiraLinea.push(new THREE.PlaneGeometry(MEDIO * 2, 0.012).rotateY(Math.PI / 2).translate(lado * (MEDIO - 0.001), LINEA, ZC));
+  }
+  raiz.add(new THREE.Mesh(R(fusionarSimple(tiraLinea)), matLinea));
 
   raiz.add(ctx.arboles([
     { x: -4.5, z: -4.5, escala: 1.4 }, { x: 5, z: -5, escala: 1.5 }, { x: -7, z: -1, escala: 1.3 },
@@ -272,29 +294,32 @@ export function iniciar(ctx) {
     raiz.add(m);
   }
 
-  // Cadena de fusión sobre la mesa, de la cereza a la sandía: se ve qué sigue a qué
+  // Cadena de fusión sobre la mesa, delante del cajón: se ve qué sigue a qué
   const ESCALA_CADENA = 0.5;
   const cadenaFrutas = RADIOS.map((r, nivel) => {
     const m = fruta(nivel, ESCALA_CADENA);
-    m.position.set(-0.4 + nivel * 0.115, MESA_Y + r * ESCALA_CADENA, ZP + 0.36);
+    m.position.set(-0.42 + nivel * 0.12, MESA_Y + r * ESCALA_CADENA, ZC + 0.33);
     m.rotation.set(0.25, 0.5, 0);
     raiz.add(m);
     return m;
   });
 
   // ─── Marcador ──────────────────────────────────────────────────────────
-  const panel = ctx.crearPanel({ ancho: 0.62, alto: 0.3 });
-  panel.mesh.position.set(-0.7, 1.4, ZP);
-  panel.mesh.rotation.y = Math.atan2(0.7, -ZP);
+  // El marcador, detrás del cajón; «Siguiente», a la derecha. Inclinados hacia atrás para leerlos
+  // desde arriba y girados hacia el jugador (sin ladearse)
+  const orientar = (malla, x, z, inclinacion) => malla.rotation.set(-inclinacion, Math.atan2(-x, -z), 0, 'YXZ');
+  const panel = ctx.crearPanel({ ancho: 0.42, alto: 0.2 });
+  panel.mesh.position.set(0, 1.2, ZC - MEDIO - 0.16);
+  orientar(panel.mesh, 0, ZC - MEDIO - 0.16, 0.55);
   raiz.add(panel.mesh);
 
-  const panelSiguiente = ctx.crearPanel({ ancho: 0.34, alto: 0.1 });
-  panelSiguiente.mesh.position.set(0.66, 1.32, ZP);
-  panelSiguiente.mesh.rotation.y = Math.atan2(-0.66, -ZP);
+  const panelSiguiente = ctx.crearPanel({ ancho: 0.24, alto: 0.075 });
+  panelSiguiente.mesh.position.set(0.36, 1.12, ZC);
+  orientar(panelSiguiente.mesh, 0.36, ZC, 0.55);
   raiz.add(panelSiguiente.mesh);
   panelSiguiente.escribir([{ texto: ctx.t('siguiente'), tam: 1, color: '#ffe0a8' }]);
   const frutaSiguiente = fruta(0);
-  frutaSiguiente.position.set(0.66, 1.18, ZP);
+  frutaSiguiente.position.set(0.36, 1.0, ZC + 0.03);
   raiz.add(frutaSiguiente);
 
   const panelTitulo = ctx.crearPanel({ ancho: 1.1, alto: 0.2 });
@@ -303,18 +328,18 @@ export function iniciar(ctx) {
   panelTitulo.escribir([{ texto: ctx.t('titulo'), tam: 1, color: '#ffd54f' }]);
 
   // ─── Guías de caída (una por mano; la 0 también sirve para el ratón) ────
-  const matGuia = R(new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, toneMapped: false }));
+  // Una línea vertical desde la fruta hasta un aro donde quedará apoyada (encima del montón)
+  const matGuia = R(new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, toneMapped: false }));
   const geoGuia = R(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -1, 0)]));
+  const geoAro = R(new THREE.TorusGeometry(1, 0.06, 6, 28).rotateX(Math.PI / 2));
+  const matAro = R(new THREE.MeshBasicMaterial({ color: 0xff6a3d, transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false }));
   const guias = [0, 1].map(() => {
-    const grupo = new THREE.Group();
     const linea1 = new THREE.LineSegments(geoGuia, matGuia);
-    linea1.scale.y = SPAWN - SUELO;
+    const aro = new THREE.Mesh(geoAro, matAro);
     const fantasma = fruta(0);
-    grupo.add(linea1, fantasma);
-    grupo.position.set(0, SPAWN, ZP);
-    grupo.visible = false;
-    raiz.add(grupo);
-    return { grupo, fantasma, x: 0 };
+    linea1.visible = aro.visible = fantasma.visible = false;
+    raiz.add(linea1, aro, fantasma);
+    return { linea: linea1, aro, fantasma, x: 0, y: SPAWN, z: ZC };
   });
 
   // Fruta en la mano (VR)
@@ -322,13 +347,16 @@ export function iniciar(ctx) {
     const m = fruta(0);
     m.position.set(0, -0.01, -0.075);
     ctx.adjuntarAMano(mano, m);
-    return { mano, fruta: m, guia: guias[Math.min(i, 1)] };
+    return { mano, fruta: m, guia: guias[Math.min(i, 1)], punto: new THREE.Vector3() };
   });
 
   // ─── Estado ────────────────────────────────────────────────────────────
   const pool = [];
   for (let i = 0; i < MAX_FRUTAS; i++) {
-    pool.push({ vivo: false, nivel: 0, r: 0, x: 0, y: 0, vx: 0, vy: 0, ang: 0, vang: 0, edad: 0, pop: 1, contacto: false, fusion: false });
+    pool.push({
+      vivo: false, nivel: 0, r: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, edad: 0, pop: 1, contacto: false, fusion: false,
+      giro: new THREE.Quaternion(),
+    });
   }
   const pares = new Int16Array(MAX_PARES * 2);
   let numPares = 0;
@@ -351,13 +379,14 @@ export function iniciar(ctx) {
   let record = ctx.leer('record', 0);
   let sonidoBote = 0;
   let punteroAnterior = false;
-  let xRaton = 0;
+  const apuntado = new THREE.Vector3(0, SPAWN, ZC); // último punto apuntado con el ratón o el dedo
   const pos = new THREE.Vector3();
   const quat = new THREE.Quaternion();
   const escala = new THREE.Vector3();
-  const ejeZ = new THREE.Vector3(0, 0, 1);
+  const eje = new THREE.Vector3();
   const matriz = new THREE.Matrix4();
-  const centro = new THREE.Vector3(0, SUELO + 0.3, ZP);
+  const centro = new THREE.Vector3(0, SUELO + 0.3, ZC);
+  const planoBoca = new THREE.Plane(new THREE.Vector3(0, 1, 0), -SPAWN);
 
   function avisar(texto, color, duracion = 1.6) { aviso = { texto, color, tiempo: duracion }; }
 
@@ -370,18 +399,25 @@ export function iniciar(ctx) {
     return 0;
   }
 
-  function nuevaFruta(nivel, x, y) {
-    const f = pool.find((q) => !q.vivo);
+  function nuevaFruta(nivel, x, y, z) {
+    let f = null;
+    for (const q of pool) {
+      if (!q.vivo) {
+        f = q;
+        break;
+      }
+    }
     if (!f) return null;
     f.vivo = true;
     f.nivel = nivel;
     f.r = RADIOS[nivel];
     f.x = x;
     f.y = y;
+    f.z = z;
     f.vx = 0;
     f.vy = 0;
-    f.ang = azar(-0.4, 0.4);
-    f.vang = 0;
+    f.vz = 0;
+    f.giro.setFromAxisAngle(eje.set(0, 1, 0), azar(0, Math.PI * 2));
     f.edad = 0;
     f.pop = 1;
     f.contacto = false;
@@ -411,13 +447,17 @@ export function iniciar(ctx) {
     // Se leen antes de liberar las dos: la fruta nueva puede ocupar el hueco de una de ellas
     const vx = (a.vx + b.vx) / 2;
     const vy = (a.vy + b.vy) / 2;
-    const ang = (a.ang + b.ang) / 2;
+    const vz = (a.vz + b.vz) / 2;
+    const ma = a.r * a.r * a.r;
+    const mb = b.r * b.r * b.r;
+    const mx = (a.x * ma + b.x * mb) / (ma + mb);
+    const my = (a.y * ma + b.y * mb) / (ma + mb);
+    const mz = (a.z * ma + b.z * mb) / (ma + mb);
+    quat.copy(a.giro);
     // Ambas desaparecen
     a.vivo = false;
     b.vivo = false;
-    const mx = (a.x * a.r * a.r + b.x * b.r * b.r) / (a.r * a.r + b.r * b.r);
-    const my = (a.y * a.r * a.r + b.y * b.r * b.r) / (a.r * a.r + b.r * b.r);
-    pos.set(mx, my, ZP + 0.05);
+    pos.set(mx, my, mz);
     cadena = tiempo - ultimaFusion < VENTANA_COMBO ? Math.min(cadena + 1, COMBO_MAX) : 1;
     ultimaFusion = tiempo;
     const mult = cadena;
@@ -435,11 +475,14 @@ export function iniciar(ctx) {
       return;
     }
     const nuevo = total + 1;
-    const f = nuevaFruta(nuevo, mx, my);
+    // La fruta nueva es más grande: que no atraviese las paredes
+    const r = RADIOS[nuevo];
+    const f = nuevaFruta(nuevo, limitar(mx, XMIN + r, XMAX - r), Math.max(my, SUELO + r), limitar(mz, ZMIN + r, ZMAX - r));
     if (!f) return;
     f.vx = vx;
     f.vy = vy + 0.2;
-    f.ang = ang;
+    f.vz = vz;
+    f.giro.copy(quat);
     f.pop = 0.3;
     f.edad = 0.5;
     const ganado = PUNTOS[nuevo] * mult;
@@ -452,23 +495,24 @@ export function iniciar(ctx) {
     if (puntos > record && record > 0 && puntos - ganado <= record) avisar(ctx.t('partida.nuevoRecord'), '#ffd54f', 2.2);
   }
 
-  // ─── Física ────────────────────────────────────────────────────────────
+  // ─── Física en 3D: esferas dentro del cajón ────────────────────────────
   function simular(h) {
     for (const f of pool) {
       if (!f.vivo) continue;
       f.vy -= GRAVEDAD * h;
       const roce = 1 - (f.contacto ? 3 : 0.5) * h; // más freno apoyada, para que el montón se asiente
-      f.vx *= roce;
-      f.vy *= roce;
-      f.vx = limitar(f.vx, -4, 4);
-      f.vy = limitar(f.vy, -4, 4);
+      f.vx = limitar(f.vx * roce, -4, 4);
+      f.vy = limitar(f.vy * roce, -4, 4);
+      f.vz = limitar(f.vz * roce, -4, 4);
       f.x += f.vx * h;
       f.y += f.vy * h;
+      f.z += f.vz * h;
       f.edad += h;
       f.contacto = false;
     }
     numPares = 0;
     for (let iter = 0; iter < 3; iter++) {
+      // Paredes y fondo
       for (const f of pool) {
         if (!f.vivo) continue;
         if (f.x - f.r < XMIN) {
@@ -478,6 +522,15 @@ export function iniciar(ctx) {
         } else if (f.x + f.r > XMAX) {
           f.x = XMAX - f.r;
           if (f.vx > 0) f.vx = -f.vx * REBOTE;
+          f.contacto = true;
+        }
+        if (f.z - f.r < ZMIN) {
+          f.z = ZMIN + f.r;
+          if (f.vz < 0) f.vz = -f.vz * REBOTE;
+          f.contacto = true;
+        } else if (f.z + f.r > ZMAX) {
+          f.z = ZMAX - f.r;
+          if (f.vz > 0) f.vz = -f.vz * REBOTE;
           f.contacto = true;
         }
         if (f.y - f.r < SUELO) {
@@ -490,9 +543,11 @@ export function iniciar(ctx) {
             f.vy = -f.vy * REBOTE;
           }
           f.vx *= 1 - 5 * h;
+          f.vz *= 1 - 5 * h;
           f.contacto = true;
         }
       }
+      // Frutas entre sí
       for (let i = 0; i < MAX_FRUTAS; i++) {
         const a = pool[i];
         if (!a.vivo) continue;
@@ -501,8 +556,9 @@ export function iniciar(ctx) {
           if (!b.vivo) continue;
           const dx = b.x - a.x;
           const dy = b.y - a.y;
+          const dz = b.z - a.z;
           const suma = a.r + b.r;
-          const d2 = dx * dx + dy * dy;
+          const d2 = dx * dx + dy * dy + dz * dz;
           if (d2 >= suma * suma) continue;
           const d = Math.sqrt(d2) || 1e-5;
           if (a.nivel === b.nivel) {
@@ -517,34 +573,54 @@ export function iniciar(ctx) {
           }
           const nx = dx / d;
           const ny = dy / d;
-          const ma = a.r * a.r;
-          const mb = b.r * b.r;
+          const nz = dz / d;
+          const ma = a.r * a.r * a.r;
+          const mb = b.r * b.r * b.r;
           const mover = (suma - d) / (ma + mb);
           a.x -= nx * mover * mb;
           a.y -= ny * mover * mb;
+          a.z -= nz * mover * mb;
           b.x += nx * mover * ma;
           b.y += ny * mover * ma;
+          b.z += nz * mover * ma;
           a.contacto = b.contacto = true;
-          const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+          const rvx = b.vx - a.vx;
+          const rvy = b.vy - a.vy;
+          const rvz = b.vz - a.vz;
+          const vn = rvx * nx + rvy * ny + rvz * nz;
           if (vn < 0) {
             const inv = 1 / ma + 1 / mb;
             const jn = (-(1 + REBOTE) * vn) / inv;
             a.vx -= (jn * nx) / ma;
             a.vy -= (jn * ny) / ma;
+            a.vz -= (jn * nz) / ma;
             b.vx += (jn * nx) / mb;
             b.vy += (jn * ny) / mb;
-            // Rozamiento entre frutas
-            const tx = -ny;
-            const ty = nx;
-            const vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty;
-            const jt = limitar(-vt / inv, -0.3 * jn, 0.3 * jn);
-            a.vx -= (jt * tx) / ma;
-            a.vy -= (jt * ty) / ma;
-            b.vx += (jt * tx) / mb;
-            b.vy += (jt * ty) / mb;
+            b.vz += (jn * nz) / mb;
+            // Rozamiento entre frutas (contra el deslizamiento tangencial)
+            const tx = rvx - vn * nx;
+            const ty = rvy - vn * ny;
+            const tz = rvz - vn * nz;
+            const vt = Math.sqrt(tx * tx + ty * ty + tz * tz);
+            if (vt > 1e-6) {
+              const jt = Math.min(vt / inv, 0.3 * jn) / vt;
+              a.vx += (jt * tx) / ma;
+              a.vy += (jt * ty) / ma;
+              a.vz += (jt * tz) / ma;
+              b.vx -= (jt * tx) / mb;
+              b.vy -= (jt * ty) / mb;
+              b.vz -= (jt * tz) / mb;
+            }
           }
         }
       }
+    }
+    // Que ningún empujón entre frutas deje una fuera de las paredes hasta el paso siguiente
+    for (const f of pool) {
+      if (!f.vivo) continue;
+      f.x = limitar(f.x, XMIN + f.r, XMAX - f.r);
+      f.z = limitar(f.z, ZMIN + f.r, ZMAX - f.r);
+      if (f.y < SUELO + f.r) f.y = SUELO + f.r;
     }
     for (let p = 0; p < numPares; p++) {
       const a = pool[pares[p * 2]];
@@ -584,10 +660,11 @@ export function iniciar(ctx) {
     if (porRebose) for (const m of ctx.manos) ctx.vibrar(m, 0.8, 250);
   }
 
-  function soltar(x, mano) {
+  // Suelta la fruta actual en (x, y, z), siempre dentro de la boca del cajón y por encima de él
+  function soltar(x, y, z, mano) {
     if (estado !== 'jugando' || recarga > 0) return;
     const r = RADIOS[actual];
-    const f = nuevaFruta(actual, limitar(x, XMIN + r, XMAX - r), SPAWN);
+    const f = nuevaFruta(actual, limitar(x, XMIN + r, XMAX - r), Math.max(y, BORDE + r), limitar(z, ZMIN + r, ZMAX - r));
     if (!f) return;
     f.vy = -0.4;
     actual = siguiente;
@@ -598,16 +675,38 @@ export function iniciar(ctx) {
   }
 
   // ─── Entrada ───────────────────────────────────────────────────────────
-  function xDelPuntero() {
-    const rayo = ctx.raton.rayo.ray;
-    if (rayo.direction.z < -1e-4) xRaton = rayo.origin.x + rayo.direction.x * ((ZP - rayo.origin.z) / rayo.direction.z);
-    return xRaton;
+  // Altura a la que quedará apoyada una fruta de radio r soltada en (x, z): encima del montón
+  function alturaApoyo(x, z, r) {
+    let y = SUELO + r;
+    for (const f of pool) {
+      if (!f.vivo) continue;
+      const dx = f.x - x;
+      const dz = f.z - z;
+      const s = f.r + r;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < s * s) y = Math.max(y, f.y + Math.sqrt(s * s - d2));
+    }
+    return y;
   }
 
-  function colocarGuia(guia, x) {
+  // Coloca la guía: la fruta fantasma (con ratón), la línea y el aro de apoyo
+  function colocarGuia(guia, x, y, z, conFantasma) {
     const r = RADIOS[actual];
     guia.x = limitar(x, XMIN + r, XMAX - r);
-    guia.grupo.position.x = guia.x;
+    guia.z = limitar(z, ZMIN + r, ZMAX - r);
+    guia.y = Math.max(y, BORDE + r);
+    const apoyo = alturaApoyo(guia.x, guia.z, r);
+    guia.fantasma.visible = conFantasma;
+    guia.fantasma.position.set(guia.x, guia.y, guia.z);
+    guia.linea.visible = true;
+    guia.linea.position.set(guia.x, guia.y, guia.z);
+    guia.linea.scale.y = Math.max(0.001, guia.y - apoyo);
+    guia.aro.visible = true;
+    guia.aro.position.set(guia.x, apoyo - r * 0.55, guia.z);
+    guia.aro.scale.setScalar(r * 0.85);
+  }
+  function ocultarGuia(guia) {
+    guia.fantasma.visible = guia.linea.visible = guia.aro.visible = false;
   }
 
   function leerEntrada() {
@@ -616,21 +715,31 @@ export function iniciar(ctx) {
       for (const m of manos) {
         const visible = m.mano.activa && listo;
         m.fruta.visible = visible;
-        m.guia.grupo.visible = visible;
-        if (!m.mano.activa) continue;
-        if (visible) colocarGuia(m.guia, m.mano.posicion.x);
-        if (visible && m.mano.gatilloPulsado) soltar(m.guia.x, m.mano);
+        if (!visible) {
+          ocultarGuia(m.guia);
+          continue;
+        }
+        // La fruta cae desde donde está la mano (dentro de la boca del cajón)
+        m.fruta.getWorldPosition(m.punto);
+        colocarGuia(m.guia, m.punto.x, m.punto.y, m.punto.z, false);
+        if (m.mano.gatilloPulsado) soltar(m.guia.x, m.guia.y, m.guia.z, m.mano);
       }
       return;
     }
+    ocultarGuia(guias[1]);
     const guia = guias[0];
-    guia.grupo.visible = listo;
-    colocarGuia(guia, xDelPuntero());
+    if (!listo) {
+      ocultarGuia(guia);
+      return;
+    }
+    // Se apunta sobre la boca del cajón (en x y en z)
+    if (ctx.raton.rayo.ray.intersectPlane(planoBoca, pos)) apuntado.copy(pos);
+    colocarGuia(guia, apuntado.x, SPAWN, apuntado.z, true);
     if (ctx.tactil) {
       // En el móvil, la fruta cae al levantar el dedo
-      if (punteroAnterior && !ctx.raton.pulsado) soltar(guia.x, null);
+      if (punteroAnterior && !ctx.raton.pulsado) soltar(guia.x, guia.y, guia.z, null);
       punteroAnterior = ctx.raton.pulsado;
-    } else if (ctx.raton.clic) soltar(guia.x, null);
+    } else if (ctx.raton.clic) soltar(guia.x, guia.y, guia.z, null);
   }
 
   // ─── Dibujo de las frutas ──────────────────────────────────────────────
@@ -639,10 +748,9 @@ export function iniciar(ctx) {
       let n = 0;
       for (const f of pool) {
         if (!f.vivo || f.nivel !== nivel) continue;
-        pos.set(f.x, f.y, ZP);
-        quat.setFromAxisAngle(ejeZ, f.ang);
+        pos.set(f.x, f.y, f.z);
         escala.setScalar(Math.max(0.01, rebote(f.pop)));
-        matriz.compose(pos, quat, escala);
+        matriz.compose(pos, f.giro, escala);
         instancias[nivel].setMatrixAt(n++, matriz);
       }
       instancias[nivel].count = n;
@@ -651,9 +759,13 @@ export function iniciar(ctx) {
     for (const f of pool) {
       if (!f.vivo) continue;
       f.pop = Math.min(1, f.pop + dt / 0.4);
-      if (f.contacto) f.vang += (-(f.vx / f.r) * 0.6 - f.vang) * Math.min(1, dt * 10);
-      else f.vang *= 1 - Math.min(1, dt * 0.5);
-      f.ang += f.vang * dt;
+      // Rueda al moverse apoyada: gira sobre el eje perpendicular a su avance
+      const v = Math.hypot(f.vx, f.vz);
+      if (f.contacto && v > 0.01) {
+        eje.set(f.vz / v, 0, -f.vx / v);
+        quat.setFromAxisAngle(eje, (v / f.r) * dt);
+        f.giro.premultiply(quat);
+      }
     }
   }
 
@@ -722,11 +834,11 @@ export function iniciar(ctx) {
       }
     }
     matLinea.color.setHex(peligro > 0 && Math.floor(t * 8) % 2 ? 0xffffff : 0xff5a4a);
-    matLinea.opacity = peligro > 0 ? 0.9 : 0.55;
+    matLinea.opacity = peligro > 0 ? 0.95 : 0.6;
 
     if (!ctx.enVR()) colocarVista();
-    leerEntrada();
     mostrarSiguientes();
+    leerEntrada();
     dibujarFrutas(dt);
     frutaSiguiente.rotation.y += dt * 1.2;
     for (let i = 0; i < cadenaFrutas.length; i++) cadenaFrutas[i].rotation.y += dt * 0.6;

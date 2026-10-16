@@ -1272,10 +1272,10 @@ export default {
     },
     fusion: {
       titulo: 'Früchte-Fusion',
-      descripcion: 'An einem Marktstand steht eine oben offene Holzkiste. Lass Früchte von oben fallen: Berühren sich zwei gleiche, verschmelzen sie zur nächsten, größeren Frucht: Kirsche, Erdbeere, Traube, Orange, Apfel, Grapefruit, Melone und Wassermelone. Zwei Wassermelonen platzen in einem Regen aus Punkten. Wer Fusionen verkettet, vervielfacht seine Punkte. Türmen sich die Früchte über die rote Linie, läuft die Kiste über und es ist vorbei; sonst hast du 150 Sekunden.',
-      controlesVR: 'Jede Hand hält die nächste Frucht. Eine Führung über der Kiste zeigt auf Höhe deiner Hand, wo sie fällt: Positioniere sie und drücke den Abzug zum Fallenlassen.',
-      controlesEscritorio: 'Bewege die Maus, um zu wählen, wo die Frucht fällt, und klicke, um sie fallen zu lassen.',
-      controlesTactil: 'Ziehe den Finger, um zu wählen, wo die Frucht fällt, und hebe ihn zum Fallenlassen an.',
+      descripcion: 'An einem Marktstand steht eine oben offene Holzkiste. Lass Früchte von oben fallen: Berühren sich zwei gleiche, verschmelzen sie zur nächsten, größeren Frucht: Kirsche, Erdbeere, Traube, Orange, Apfel, Grapefruit, Melone und Wassermelone. Zwei Wassermelonen platzen in einem Regen aus Punkten. Wer Fusionen verkettet, vervielfacht seine Punkte. Türmen sich die Früchte über die rote Linie, läuft die Kiste über und es ist vorbei; sonst hast du 150 Sekunden. Es ist eine echte Kiste in 3D: Du wählst, wo jede Frucht fällt – in der Breite und in der Tiefe.',
+      controlesVR: 'Die Frucht liegt in deiner Hand: Halte sie über die Kiste, wo du willst (in Breite und Tiefe), und drücke den Abzug zum Fallenlassen. Ein Ring zeigt, wo sie landet.',
+      controlesEscritorio: 'Ziele mit der Maus über die Kiste, um zu wählen, wo die Frucht fällt (in Breite und Tiefe), und klicke, um sie fallen zu lassen. Ein Ring zeigt, wo sie landet.',
+      controlesTactil: 'Ziehe den Finger über die Kiste, um zu wählen, wo die Frucht fällt, und hebe ihn zum Fallenlassen an. Ein Ring zeigt, wo sie landet.',
       etiquetas: [
         'früchte', 'obst', 'verschmelzen', 'fusion', 'kombinieren', 'puzzle', 'physik', 'kiste', 'fallenlassen', 'kirsche',
         'erdbeere', 'traube', 'orange', 'apfel', 'grapefruit', 'melone', 'wassermelone', 'combo', 'kette', 'punkte',
@@ -1284,8 +1284,8 @@ export default {
       juego: {
         titulo: 'FRÜCHTE-FUSION',
         introVR: 'Halte die Hand über die Kiste und lass mit dem Abzug fallen',
-        introRaton: 'Bewege die Maus und klicke, um die Frucht fallen zu lassen',
-        introTactil: 'Ziehe den Finger und hebe ihn an, um die Frucht fallen zu lassen',
+        introRaton: 'Ziele über die Kiste und klicke, um die Frucht fallen zu lassen',
+        introTactil: 'Ziehe den Finger über die Kiste und hebe ihn an',
         siguiente: 'Nächste',
         combo: 'Combo x{n}!',
         gigante: 'Riesenwassermelone! +{n}',

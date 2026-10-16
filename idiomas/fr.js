@@ -1273,10 +1273,10 @@ export default {
     },
     fusion: {
       titulo: 'Fusion de Fruits',
-      descripcion: 'Sur un étal de marché, une caisse en bois est ouverte vers le haut. Lâche des fruits d\'en haut et, quand deux fruits identiques se touchent, ils fusionnent en le suivant, plus gros : cerise, fraise, raisin, orange, pomme, pamplemousse, melon et pastèque. Deux pastèques éclatent en une pluie de points. Enchaîne les fusions et tes points se multiplient. Si les fruits s\'empilent au-dessus de la ligne rouge, la caisse déborde et c\'est fini ; sinon, tu as 150 secondes.',
-      controlesVR: 'Chaque main tient le fruit suivant. Un guide au-dessus de la caisse montre où il tombera, à la hauteur de ta main : place-toi et appuie sur la gâchette pour le lâcher.',
-      controlesEscritorio: 'Déplace la souris pour choisir où tombe le fruit et clique pour le lâcher.',
-      controlesTactil: 'Fais glisser ton doigt pour choisir où tombe le fruit et lève-le pour le lâcher.',
+      descripcion: 'Sur un étal de marché, une caisse en bois est ouverte vers le haut. Lâche des fruits d\'en haut et, quand deux fruits identiques se touchent, ils fusionnent en le suivant, plus gros : cerise, fraise, raisin, orange, pomme, pamplemousse, melon et pastèque. Deux pastèques éclatent en une pluie de points. Enchaîne les fusions et tes points se multiplient. Si les fruits s\'empilent au-dessus de la ligne rouge, la caisse déborde et c\'est fini ; sinon, tu as 150 secondes. C’est une vraie caisse, en 3D : tu choisis où tombe chaque fruit, en largeur et en profondeur.',
+      controlesVR: 'Le fruit est dans ta main : place-le au-dessus de la caisse où tu veux (en largeur et en profondeur) et appuie sur la gâchette pour le lâcher. Un anneau montre où il se posera.',
+      controlesEscritorio: 'Vise avec la souris au-dessus de la caisse pour choisir où tombe le fruit (en largeur et en profondeur) et clique pour le lâcher. Un anneau montre où il se posera.',
+      controlesTactil: 'Fais glisser ton doigt au-dessus de la caisse pour choisir où tombe le fruit et lève-le pour le lâcher. Un anneau montre où il se posera.',
       etiquetas: [
         'fruits', 'fusion', 'fusionner', 'combiner', 'puzzle', 'physique', 'caisse', 'lâcher', 'cerise', 'fraise',
         'raisin', 'orange', 'pomme', 'pamplemousse', 'melon', 'pastèque', 'combo', 'chaîne', 'score',
@@ -1285,8 +1285,8 @@ export default {
       juego: {
         titulo: 'FUSION DE FRUITS',
         introVR: 'Place la main au-dessus de la caisse et lâche avec la gâchette',
-        introRaton: 'Déplace la souris et clique pour lâcher le fruit',
-        introTactil: 'Fais glisser ton doigt puis lève-le pour lâcher le fruit',
+        introRaton: 'Vise au-dessus de la caisse et clique pour lâcher le fruit',
+        introTactil: 'Fais glisser ton doigt sur la caisse puis lève-le',
         siguiente: 'Suivant',
         combo: 'Combo x{n} !',
         gigante: 'Pastèque géante ! +{n}',

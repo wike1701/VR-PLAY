@@ -1272,10 +1272,10 @@ export default {
     },
     fusion: {
       titulo: 'Fusione di Frutta',
-      descripcion: 'Su una bancarella del mercato c\'è una cassa di legno aperta in alto. Lascia cadere la frutta dall\'alto e, quando due frutti uguali si toccano, si fondono nel successivo, più grande: ciliegia, fragola, uva, arancia, mela, pompelmo, melone e anguria. Due angurie esplodono in una pioggia di punti. Se concateni le fusioni, i punti si moltiplicano. Se la frutta si accumula sopra la linea rossa, la cassa trabocca e finisce; altrimenti hai 150 secondi.',
-      controlesVR: 'Ogni mano tiene il frutto successivo. Una guida sopra la cassa mostra dove cadrà, all\'altezza della tua mano: posizionala e premi il grilletto per lasciarlo cadere.',
-      controlesEscritorio: 'Muovi il mouse per scegliere dove cade il frutto e fai clic per lasciarlo cadere.',
-      controlesTactil: 'Trascina il dito per scegliere dove cade il frutto e sollevalo per lasciarlo cadere.',
+      descripcion: 'Su una bancarella del mercato c\'è una cassa di legno aperta in alto. Lascia cadere la frutta dall\'alto e, quando due frutti uguali si toccano, si fondono nel successivo, più grande: ciliegia, fragola, uva, arancia, mela, pompelmo, melone e anguria. Due angurie esplodono in una pioggia di punti. Se concateni le fusioni, i punti si moltiplicano. Se la frutta si accumula sopra la linea rossa, la cassa trabocca e finisce; altrimenti hai 150 secondi. È una cassa vera, in 3D: scegli dove cade ogni frutto, in larghezza e in profondità.',
+      controlesVR: 'Il frutto è nella tua mano: portalo sopra la cassa dove vuoi (in larghezza e in profondità) e premi il grilletto per lasciarlo cadere. Un anello mostra dove si poserà.',
+      controlesEscritorio: 'Punta il mouse sopra la cassa per scegliere dove cade il frutto (in larghezza e in profondità) e fai clic per lasciarlo cadere. Un anello mostra dove si poserà.',
+      controlesTactil: 'Trascina il dito sopra la cassa per scegliere dove cade il frutto e sollevalo per lasciarlo cadere. Un anello mostra dove si poserà.',
       etiquetas: [
         'frutta', 'fusione', 'unire', 'combinare', 'puzzle', 'fisica', 'cassa', 'lasciar cadere', 'ciliegia', 'fragola',
         'uva', 'arancia', 'mela', 'pompelmo', 'melone', 'anguria', 'combo', 'catena', 'punti',
@@ -1284,8 +1284,8 @@ export default {
       juego: {
         titulo: 'FUSIONE DI FRUTTA',
         introVR: 'Porta la mano sopra la cassa e lascia cadere con il grilletto',
-        introRaton: 'Muovi il mouse e fai clic per lasciar cadere il frutto',
-        introTactil: 'Trascina il dito e sollevalo per lasciar cadere il frutto',
+        introRaton: 'Punta sopra la cassa e fai clic per lasciar cadere il frutto',
+        introTactil: 'Trascina il dito sulla cassa e sollevalo',
         siguiente: 'Prossimo',
         combo: 'Combo x{n}!',
         gigante: 'Anguria gigante! +{n}',
