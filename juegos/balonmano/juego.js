@@ -148,12 +148,11 @@ export function iniciar(ctx) {
     R(new THREE.MeshLambertMaterial({ map: texPared })),
   ));
 
-  // Gradas con público (cada asiento lleva un espectador pintado) detrás de la portería
-  const texGradas = R(ctx.texturaCanvas((g, tam, azar) => {
+  // Gradas (asientos pintados) detrás de la portería; el público de 3D se coloca encima
+  const texGradas = R(ctx.texturaCanvas((g, tam) => {
     g.fillStyle = '#5c586a';
     g.fillRect(0, 0, tam, tam);
     const asiento = tam / 4;
-    const camisetas = ['#e5483a', '#f4f4f4', '#2f6fe0', '#ffd23f', '#3ccf7a', '#ff9d3a'];
     for (let k = 0; k < 4; k++) {
       const x = k * asiento + asiento * 0.1;
       const ancho = asiento * 0.8;
@@ -162,14 +161,6 @@ export function iniciar(ctx) {
       // Contrahuella: respaldo y, casi siempre, una persona sentada
       g.fillStyle = '#2a4aa0';
       g.fillRect(x, tam * 0.52, ancho, tam * 0.26);
-      if (azar() < 0.8) {
-        g.fillStyle = camisetas[Math.floor(azar() * camisetas.length)];
-        g.fillRect(x + ancho * 0.12, tam * 0.64, ancho * 0.76, tam * 0.14);
-        g.fillStyle = `rgb(${200 + azar() * 40},${150 + azar() * 40},${110 + azar() * 30})`;
-        g.beginPath();
-        g.arc(x + ancho / 2, tam * 0.6, ancho * 0.2, 0, Math.PI * 2);
-        g.fill();
-      }
     }
     g.fillStyle = 'rgba(0,0,0,0.35)';
     g.fillRect(0, tam / 2 - 2, tam, 2);
@@ -197,6 +188,83 @@ export function iniciar(ctx) {
     ]),
     R(new THREE.MeshLambertMaterial({ map: texGradas })),
   ));
+
+  // Público: espectadores sentados (cuerpo, cabeza y dos brazos) en tres mallas instanciadas.
+  // Se mueven un poco siempre y se levantan a celebrar cuando entra un gol.
+  const CAMISETAS = [0xe5483a, 0xf4f4f4, 0x2f6fe0, 0xffd23f, 0x3ccf7a, 0xff9d3a, 0x8a4fd8];
+  const PIELES = [0xf2c9a0, 0xe0ac7c, 0xc68642, 0x8d5524, 0xffdbb4];
+  const sitios = [];                                  // { base, fase, ... } uno por espectador
+  function llenarGradas(largo, filas, fondoFila, altoFila, rotY, x, z) {
+    const giro = new THREE.Matrix4().makeRotationY(rotY).setPosition(x, 0, z);
+    for (let i = 0; i < filas; i++) {
+      for (let lx = -largo / 2 + 0.25; lx < largo / 2; lx += 0.5) {
+        if (Math.random() < 0.12) continue;           // algún asiento vacío
+        const local = new THREE.Matrix4().makeTranslation(lx, (i + 1) * altoFila, -(i + 0.5) * fondoFila);
+        sitios.push({
+          base: giro.clone().multiply(local),
+          fase: Math.random() * 6.28,
+          ganas: 0.6 + Math.random() * 0.6,           // unos celebran más que otros
+          camiseta: CAMISETAS[Math.floor(Math.random() * CAMISETAS.length)],
+          piel: PIELES[Math.floor(Math.random() * PIELES.length)],
+        });
+      }
+    }
+  }
+  llenarGradas(SALA_X * 2, 5, 0.45, 0.45, 0, 0, -8.7);
+  llenarGradas(11, 3, 0.45, 0.4, -Math.PI / 2, 7.65, -3);
+  llenarGradas(11, 3, 0.45, 0.4, Math.PI / 2, -7.65, -3);
+
+  const brazoGeo = R(colocar(new THREE.BoxGeometry(0.07, 0.3, 0.07), 0, -0.15, 0));   // pivota desde el hombro
+  const mallaCuerpos = new THREE.InstancedMesh(R(colocar(new THREE.BoxGeometry(0.3, 0.34, 0.2), 0, 0.17, 0)), R(new THREE.MeshLambertMaterial()), sitios.length);
+  const mallaCabezas = new THREE.InstancedMesh(R(new THREE.SphereGeometry(0.095, 8, 6)), R(new THREE.MeshLambertMaterial()), sitios.length);
+  const mallaBrazos = new THREE.InstancedMesh(brazoGeo, R(new THREE.MeshLambertMaterial()), sitios.length * 2);
+  const color = new THREE.Color();
+  sitios.forEach((s, i) => {
+    mallaCuerpos.setColorAt(i, color.setHex(s.camiseta));
+    mallaCabezas.setColorAt(i, color.setHex(s.piel));
+    mallaBrazos.setColorAt(i * 2, color.setHex(s.camiseta));
+    mallaBrazos.setColorAt(i * 2 + 1, color.setHex(s.camiseta));
+  });
+  for (const m of [mallaCuerpos, mallaCabezas, mallaBrazos]) {
+    m.frustumCulled = false;
+    raiz.add(m);
+  }
+  let ovacion = 0;                                    // 1 = todo el público en pie, baja sola
+  const pieza = new THREE.Object3D();
+  const matPieza = new THREE.Matrix4();
+
+  function moverPublico(dt, t) {
+    ovacion = Math.max(0, ovacion - dt * 0.4);
+    const fuerza = Math.min(1, ovacion * 1.5);
+    for (let i = 0; i < sitios.length; i++) {
+      const s = sitios[i];
+      const salto = ovacion > 0 ? Math.abs(Math.sin(t * 8 + s.fase)) * 0.14 * fuerza * s.ganas : 0;
+      const respiro = Math.sin(t * 1.6 + s.fase) * 0.008;
+      const alto = salto + respiro;
+      // Cuerpo
+      pieza.position.set(0, alto, 0);
+      pieza.rotation.set(0, 0, Math.sin(t * 1.1 + s.fase) * 0.03);
+      pieza.updateMatrix();
+      mallaCuerpos.setMatrixAt(i, matPieza.multiplyMatrices(s.base, pieza.matrix));
+      // Cabeza
+      pieza.position.set(0, 0.45 + alto, 0);
+      pieza.rotation.set(0, Math.sin(t * 0.7 + s.fase * 2) * 0.5 * (1 - fuerza), 0);
+      pieza.updateMatrix();
+      mallaCabezas.setMatrixAt(i, matPieza.multiplyMatrices(s.base, pieza.matrix));
+      // Brazos: caídos en reposo y arriba al celebrar
+      const alza = fuerza * s.ganas * (Math.PI * 0.85 + Math.sin(t * 10 + s.fase) * 0.25);
+      for (const lado of [-1, 1]) {
+        pieza.position.set(lado * 0.19, 0.3 + alto, 0);
+        pieza.rotation.set(0, 0, lado * (0.08 + Math.min(alza, Math.PI * 0.95)));
+        pieza.updateMatrix();
+        mallaBrazos.setMatrixAt(i * 2 + (lado > 0 ? 1 : 0), matPieza.multiplyMatrices(s.base, pieza.matrix));
+      }
+    }
+    mallaCuerpos.instanceMatrix.needsUpdate = true;
+    mallaCabezas.instanceMatrix.needsUpdate = true;
+    mallaBrazos.instanceMatrix.needsUpdate = true;
+  }
+  moverPublico(0, 0);
 
   // Vallas publicitarias detrás de la portería (solo franjas de color, sin texto)
   const texVallas = R(ctx.texturaCanvas((g, tam, azar) => {
@@ -537,6 +605,7 @@ export function iniciar(ctx) {
       else avisar(ctx.t('gol', { valor }));
       pintarDisco(n - 1, 0x3ddc84);
       ctx.sonido('ovacion');
+      ovacion = escuadra || racha >= 3 ? 1.6 : 1.2;
     } else {
       racha = 0;
       // Fallar se nota distinto: sin celebración, solo un sonido seco y una vibración corta
@@ -831,6 +900,7 @@ export function iniciar(ctx) {
     ctx.bloquearCambio(estadoBalon === 'mano'); // con el balón cogido no se puede pasar de juego
 
     moverPortero(dt);
+    moverPublico(dt, t);
     // La red se menea al entrar el balón
     meneoRed = Math.max(0, meneoRed - dt * 2.5);
     red.scale.set(1 + meneoRed * 0.05, 1 + Math.sin(t * 30) * meneoRed * 0.03, 1 + meneoRed * 0.05);
