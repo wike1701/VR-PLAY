@@ -18,7 +18,8 @@ const ALTO = 2;
 const POSTE = 0.04;
 const FONDO_RED = 0.9;
 const ALCANCE_AGARRE = 0.24;
-const FUERZA_VR = 1.25;
+const RAPIDEZ = 1.35;                // el balón sale más rápido y el portero reacciona igual de más rápido
+const FUERZA_VR = 1.25 * RAPIDEZ;
 const AYUDA = 0.5;                   // cuánto se corrige un buen lanzamiento VR hacia la portería
 const PUESTO_VR = new THREE.Vector3(0, 1.0, -0.35);
 const PUESTO_RATON = new THREE.Vector3(0, 1.3, -0.35);
@@ -481,8 +482,8 @@ export function iniciar(ctx) {
     de = { x: kx, y: ky };
     a = { x: objX, y: objY };
     tk = 0;
-    retardo = 0.13 + Math.random() * 0.06;
-    duracion = 0.15 + 0.22 * Math.hypot(objX - kx, (objY - ky) / 1.3);
+    retardo = (0.13 + Math.random() * 0.06) / RAPIDEZ;
+    duracion = (0.15 + 0.22 * Math.hypot(objX - kx, (objY - ky) / 1.3)) / RAPIDEZ;
   }
 
   function lanzar(origen, v) {
@@ -754,7 +755,7 @@ export function iniciar(ctx) {
         const giro = Math.random() * Math.PI * 2;
         const x = objX + Math.cos(giro) * error;
         const y = objY + Math.sin(giro) * error;
-        lanzar(PUESTO_RATON, velocidadHacia(PUESTO_RATON, x, y, 14 + carga * 8, tmp));
+        lanzar(PUESTO_RATON, velocidadHacia(PUESTO_RATON, x, y, (14 + carga * 8) * RAPIDEZ, tmp));
         carga = 0;
       }
     }
