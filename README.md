@@ -330,7 +330,3 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 npx wrangler d1 execute vrplay-foro --local --file bd/esquema.sql
 npx wrangler dev
 ```
-
-Te estoy escuchando a ti, a Rafa.
-
-1, 2, 3, 4, 5, 6, 7, 8, 9, 10
