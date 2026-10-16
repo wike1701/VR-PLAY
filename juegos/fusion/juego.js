@@ -9,7 +9,7 @@
 // Todo es en 3D: las frutas son esferas que chocan, ruedan y se amontonan por todo el cajón, y se elige
 // el punto de caída a lo ancho y a lo hondo. Una guía baja desde la fruta hasta un aro que marca dónde
 // quedará apoyada (encima del montón), para calcular bien la profundidad.
-// En VR: la fruta va en la mano y se suelta con el gatillo justo donde está la mano (encima del cajón).
+// En VR: la fruta espera en una bandeja; se coge con la mano (gatillo) y se suelta al dejar el gatillo sobre el cajón.
 // Con ratón: se apunta sobre la boca del cajón y un clic la suelta. En el móvil: se arrastra el dedo y la
 // fruta cae al levantarlo.
 import * as THREE from 'three';
@@ -347,8 +347,22 @@ export function iniciar(ctx) {
     const m = fruta(0);
     m.position.set(0, -0.01, -0.075);
     ctx.adjuntarAMano(mano, m);
-    return { mano, fruta: m, guia: guias[Math.min(i, 1)], punto: new THREE.Vector3() };
+    m.visible = false;
+    return { mano, fruta: m, guia: guias[Math.min(i, 1)], punto: new THREE.Vector3(), agarrando: false };
   });
+
+  // Bandeja donde espera la fruta: hay que ir a cogerla con la mano (gatillo) y llevarla al cajón
+  const BANDEJA = new THREE.Vector3(0, SPAWN - 0.04, ZC + MEDIO + 0.22);
+  const ALCANCE = 0.2;
+  const matBandeja = R(new THREE.MeshBasicMaterial({ color: 0x6d4c41 }));
+  const geoBandeja = R(new THREE.CylinderGeometry(0.075, 0.06, 0.012, 20));
+  const bandeja = new THREE.Mesh(geoBandeja, matBandeja);
+  bandeja.position.set(BANDEJA.x, BANDEJA.y - 0.09, BANDEJA.z);
+  bandeja.visible = false;
+  const frutaBandeja = fruta(0);
+  frutaBandeja.position.copy(BANDEJA);
+  frutaBandeja.visible = false;
+  raiz.add(bandeja, frutaBandeja);
 
   // ─── Estado ────────────────────────────────────────────────────────────
   const pool = [];
@@ -712,20 +726,35 @@ export function iniciar(ctx) {
   function leerEntrada() {
     const listo = estado === 'jugando' && recarga <= 0;
     if (ctx.enVR()) {
+      const ocupada = manos.some((h) => h.agarrando);
+      bandeja.visible = estado === 'jugando';
+      frutaBandeja.visible = listo && !ocupada;
       for (const m of manos) {
-        const visible = m.mano.activa && listo;
-        m.fruta.visible = visible;
-        if (!visible) {
+        if (!listo || !m.mano.activa) m.agarrando = false;
+        if (!m.agarrando && listo && !ocupada && m.mano.gatilloPulsado && m.mano.posicion.distanceTo(BANDEJA) < ALCANCE) {
+          m.agarrando = true;
+          ctx.vibrar(m.mano, 0.4, 50);
+          ctx.sonido('boton');
+        }
+        m.fruta.visible = m.agarrando;
+        if (!m.agarrando) {
           ocultarGuia(m.guia);
           continue;
         }
-        // La fruta cae desde donde está la mano (dentro de la boca del cajón)
+        // La fruta cae desde donde está la mano (sobre la boca del cajón) al soltar el gatillo
         m.fruta.getWorldPosition(m.punto);
         colocarGuia(m.guia, m.punto.x, m.punto.y, m.punto.z, false);
-        if (m.mano.gatilloPulsado) soltar(m.guia.x, m.guia.y, m.guia.z, m.mano);
+        if (!m.mano.gatillo) {
+          m.agarrando = false;
+          m.fruta.visible = false;
+          ocultarGuia(m.guia);
+          // Solo cae si la mano está sobre la boca; si no, la fruta vuelve a la bandeja
+          if (Math.abs(m.punto.x) < MEDIO + 0.1 && Math.abs(m.punto.z - ZC) < MEDIO + 0.1) soltar(m.guia.x, m.guia.y, m.guia.z, m.mano);
+        }
       }
       return;
     }
+    bandeja.visible = frutaBandeja.visible = false;
     ocultarGuia(guias[1]);
     const guia = guias[0];
     if (!listo) {
@@ -775,6 +804,7 @@ export function iniciar(ctx) {
     if (clave === vistaSiguiente) return;
     vistaSiguiente = clave;
     for (const m of manos) m.fruta.geometry = geoFruta[actual];
+    frutaBandeja.geometry = geoFruta[actual];
     for (const g of guias) g.fantasma.geometry = geoFruta[actual];
     frutaSiguiente.geometry = geoFruta[siguiente];
   }
