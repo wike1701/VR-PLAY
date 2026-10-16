@@ -124,6 +124,13 @@ const SONIDOS = {
   // Air Hockey: el disco contra la banda y la musiquilla de gol
   banda: () => { tono(1300, 900, 0.035, 'triangle', 0.16); ruido(0.03, 2600, 0.12, 1.4); },
   gol: () => { tono(660, 660, 0.09, 'square', 0.1); tono(880, 880, 0.09, 'square', 0.1, 0.1); tono(1320, 1320, 0.22, 'square', 0.1, 0.2); },
+  // Last Call: el licor que cae en el vaso, el hielo, la coctelera, el vaso por la barra, la caja y el vaso roto
+  verter: () => { ruido(0.32, 900, 0.3, 2.2); tono(420, 640, 0.3, 'sine', 0.05); },
+  hielo: () => { tono(2900, 2600, 0.05, 'triangle', 0.14); tono(3600, 3300, 0.04, 'sine', 0.1, 0.05); },
+  coctelera: () => { ruido(0.07, 3800, 0.35, 1.5); tono(2400, 2100, 0.03, 'triangle', 0.08); },
+  deslizar: () => ruido(0.45, 1400, 0.16, 0.6),
+  caja: () => { tono(1320, 1320, 0.07, 'square', 0.08); tono(1760, 1760, 0.3, 'triangle', 0.16, 0.07); ruido(0.08, 4000, 0.15, 1); },
+  cristal: () => { ruido(0.25, 5200, 0.55, 0.9); tono(3100, 2400, 0.12, 'triangle', 0.12); tono(4200, 3600, 0.09, 'sine', 0.08, 0.04); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

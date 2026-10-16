@@ -39,6 +39,7 @@ const LISTA = [
   { id: 'malabares', genero: 'habilidad' },
   { id: 'airhockey', genero: 'deportes' },
   { id: 'cinta', genero: 'reflejos' },
+  { id: 'bar', genero: 'habilidad' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

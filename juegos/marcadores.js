@@ -54,6 +54,8 @@ export const MARCADORES = {
   airhockey: { orden: 'mayor', unidad: 'diferencia', min: 1, max: 7, minSegundos: 20 },
   // Cinta Mecánica: 1 punto por objeto bien clasificado; sale uno cada 0,9 s como mucho (hasta 3 fallos)
   cinta: { orden: 'mayor', unidad: 'puntos', min: 0, max: 10000, maxPorSegundo: 1.5, minSegundos: 5 },
+  // Last Call: turno de 60 s; cada bebida da de 3 a 10 puntos (con la propina), el doble si es especial
+  bar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 55 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?
