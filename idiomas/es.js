@@ -1352,7 +1352,7 @@ export default {
     fusion: {
       titulo: 'Fusión de Frutas',
       descripcion: 'En un puesto de mercado hay una caja de madera abierta por arriba. Suelta frutas desde arriba y, cuando dos iguales se tocan, se funden en la siguiente, más grande: cereza, fresa, uva, naranja, manzana, pomelo, melón y sandía. Dos sandías se funden en un estallido de puntos. Si enlazas fusiones seguidas, los puntos se multiplican. Si la fruta se amontona por encima de la línea roja, la caja rebosa y se acaba; si no, tienes 150 segundos. Es un cajón de verdad, en 3D: eliges dónde cae cada fruta a lo ancho y a lo hondo.',
-      controlesVR: 'La fruta espera en la bandeja: cógela con la mano apretando el gatillo, llévala sobre la boca del cajón donde quieras (a lo ancho y a lo hondo) y suelta el gatillo para dejarla caer. Un aro marca dónde quedará apoyada.',
+      controlesVR: 'Coge con la mano la fruta «Siguiente» que hay junto al cajón apretando el gatillo (al cogerla reaparece otra), llévala sobre la boca del cajón donde quieras (a lo ancho y a lo hondo) y suelta el gatillo para dejarla caer. Un aro marca dónde quedará apoyada.',
       controlesEscritorio: 'Apunta con el ratón sobre la boca del cajón para elegir dónde cae la fruta (a lo ancho y a lo hondo) y haz clic para soltarla. Un aro marca dónde quedará apoyada.',
       controlesTactil: 'Arrastra el dedo sobre la boca del cajón para elegir dónde cae la fruta y levántalo para soltarla. Un aro marca dónde quedará apoyada.',
       etiquetas: [
@@ -1364,7 +1364,7 @@ export default {
       ],
       juego: {
         titulo: 'FUSIÓN DE FRUTAS',
-        introVR: 'Coge la fruta de la bandeja con el gatillo y suéltala sobre el cajón',
+        introVR: 'Coge la fruta siguiente con el gatillo y suéltala sobre el cajón',
         introRaton: 'Apunta sobre el cajón y haz clic para soltar la fruta',
         introTactil: 'Arrastra el dedo sobre el cajón y levántalo para soltar',
         siguiente: 'Siguiente',

@@ -1273,7 +1273,7 @@ export default {
     fusion: {
       titulo: 'Fusão de Frutas',
       descripcion: 'Numa banca de mercado há uma caixa de madeira aberta em cima. Larga frutas de cima e, quando duas iguais se tocam, fundem-se na seguinte, maior: cereja, morango, uva, laranja, maçã, toranja, melão e melancia. Duas melancias explodem numa chuva de pontos. Se encadeares fusões seguidas, os pontos multiplicam-se. Se a fruta se amontoar acima da linha vermelha, a caixa transborda e acabou; senão, tens 150 segundos. É uma caixa de verdade, em 3D: escolhes onde cai cada fruta, na largura e na profundidade.',
-      controlesVR: 'A fruta espera na bandeja: pega nela com a mão apertando o gatilho, leva-a sobre a caixa onde quiseres (na largura e na profundidade) e solta o gatilho para a deixar cair. Um aro mostra onde vai ficar.',
+      controlesVR: 'Pega com a mão na fruta «Seguinte» junto à caixa apertando o gatilho (ao pegá-la aparece outra), leva-a sobre a caixa onde quiseres (na largura e na profundidade) e solta o gatilho para a deixar cair. Um aro mostra onde vai ficar.',
       controlesEscritorio: 'Aponta com o rato sobre a caixa para escolher onde cai a fruta (na largura e na profundidade) e clica para a largar. Um aro mostra onde vai ficar.',
       controlesTactil: 'Arrasta o dedo sobre a caixa para escolher onde cai a fruta e levanta-o para a largar. Um aro mostra onde vai ficar.',
       etiquetas: [
@@ -1283,7 +1283,7 @@ export default {
       ],
       juego: {
         titulo: 'FUSÃO DE FRUTAS',
-        introVR: 'Pega na fruta da bandeja com o gatilho e solta-a sobre a caixa',
+        introVR: 'Pega na fruta seguinte com o gatilho e solta-a sobre a caixa',
         introRaton: 'Aponta sobre a caixa e clica para largar a fruta',
         introTactil: 'Arrasta o dedo sobre a caixa e levanta-o',
         siguiente: 'Seguinte',

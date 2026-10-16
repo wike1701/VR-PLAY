@@ -1273,7 +1273,7 @@ export default {
     fusion: {
       titulo: 'Früchte-Fusion',
       descripcion: 'An einem Marktstand steht eine oben offene Holzkiste. Lass Früchte von oben fallen: Berühren sich zwei gleiche, verschmelzen sie zur nächsten, größeren Frucht: Kirsche, Erdbeere, Traube, Orange, Apfel, Grapefruit, Melone und Wassermelone. Zwei Wassermelonen platzen in einem Regen aus Punkten. Wer Fusionen verkettet, vervielfacht seine Punkte. Türmen sich die Früchte über die rote Linie, läuft die Kiste über und es ist vorbei; sonst hast du 150 Sekunden. Es ist eine echte Kiste in 3D: Du wählst, wo jede Frucht fällt – in der Breite und in der Tiefe.',
-      controlesVR: 'Die Frucht liegt auf dem Tablett: Greif sie mit der Hand, indem du den Abzug drückst, trag sie über die Kiste, wohin du willst (in Breite und Tiefe), und lass den Abzug los, um sie fallen zu lassen. Ein Ring zeigt, wo sie landet.',
+      controlesVR: 'Greif die „Nächste“-Frucht neben der Kiste mit der Hand, indem du den Abzug drückst (gleich erscheint eine neue), trag sie über die Kiste, wohin du willst (in Breite und Tiefe), und lass den Abzug los, um sie fallen zu lassen. Ein Ring zeigt, wo sie landet.',
       controlesEscritorio: 'Ziele mit der Maus über die Kiste, um zu wählen, wo die Frucht fällt (in Breite und Tiefe), und klicke, um sie fallen zu lassen. Ein Ring zeigt, wo sie landet.',
       controlesTactil: 'Ziehe den Finger über die Kiste, um zu wählen, wo die Frucht fällt, und hebe ihn zum Fallenlassen an. Ein Ring zeigt, wo sie landet.',
       etiquetas: [
@@ -1283,7 +1283,7 @@ export default {
       ],
       juego: {
         titulo: 'FRÜCHTE-FUSION',
-        introVR: 'Greif die Frucht vom Tablett mit dem Abzug und lass sie über der Kiste los',
+        introVR: 'Greif die nächste Frucht mit dem Abzug und lass sie über der Kiste los',
         introRaton: 'Ziele über die Kiste und klicke, um die Frucht fallen zu lassen',
         introTactil: 'Ziehe den Finger über die Kiste und hebe ihn an',
         siguiente: 'Nächste',
