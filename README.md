@@ -332,3 +332,5 @@ npx wrangler dev
 ```
 
 Te estoy escuchando a ti, a Rafa.
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
