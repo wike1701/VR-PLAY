@@ -1270,5 +1270,28 @@ export default {
         fin: { one: 'BUM! {n} punto', other: 'BUM! {n} punti' },
       },
     },
+    fusion: {
+      titulo: 'Fusione di Frutta',
+      descripcion: 'Su una bancarella del mercato c\'è una cassa di legno aperta in alto. Lascia cadere la frutta dall\'alto e, quando due frutti uguali si toccano, si fondono nel successivo, più grande: ciliegia, fragola, uva, arancia, mela, pompelmo, melone e anguria. Due angurie esplodono in una pioggia di punti. Se concateni le fusioni, i punti si moltiplicano. Se la frutta si accumula sopra la linea rossa, la cassa trabocca e finisce; altrimenti hai 150 secondi.',
+      controlesVR: 'Ogni mano tiene il frutto successivo. Una guida sopra la cassa mostra dove cadrà, all\'altezza della tua mano: posizionala e premi il grilletto per lasciarlo cadere.',
+      controlesEscritorio: 'Muovi il mouse per scegliere dove cade il frutto e fai clic per lasciarlo cadere.',
+      controlesTactil: 'Trascina il dito per scegliere dove cade il frutto e sollevalo per lasciarlo cadere.',
+      etiquetas: [
+        'frutta', 'fusione', 'unire', 'combinare', 'puzzle', 'fisica', 'cassa', 'lasciar cadere', 'ciliegia', 'fragola',
+        'uva', 'arancia', 'mela', 'pompelmo', 'melone', 'anguria', 'combo', 'catena', 'punti',
+        'rilassante', 'coinvolgente', 'famiglia', 'bambini', 'facile', 'mercato', 'suika', 'merge',
+      ],
+      juego: {
+        titulo: 'FUSIONE DI FRUTTA',
+        introVR: 'Porta la mano sopra la cassa e lascia cadere con il grilletto',
+        introRaton: 'Muovi il mouse e fai clic per lasciar cadere il frutto',
+        introTactil: 'Trascina il dito e sollevalo per lasciar cadere il frutto',
+        siguiente: 'Prossimo',
+        combo: 'Combo x{n}!',
+        gigante: 'Anguria gigante! +{n}',
+        peligro: 'Attenzione, sta traboccando!',
+        fin: { one: 'Traboccata! {n} punto', other: 'Traboccata! {n} punti' },
+      },
+    },
   },
 };

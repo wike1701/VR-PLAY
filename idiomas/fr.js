@@ -1271,5 +1271,28 @@ export default {
         fin: { one: 'BOUM ! {n} point', other: 'BOUM ! {n} points' },
       },
     },
+    fusion: {
+      titulo: 'Fusion de Fruits',
+      descripcion: 'Sur un étal de marché, une caisse en bois est ouverte vers le haut. Lâche des fruits d\'en haut et, quand deux fruits identiques se touchent, ils fusionnent en le suivant, plus gros : cerise, fraise, raisin, orange, pomme, pamplemousse, melon et pastèque. Deux pastèques éclatent en une pluie de points. Enchaîne les fusions et tes points se multiplient. Si les fruits s\'empilent au-dessus de la ligne rouge, la caisse déborde et c\'est fini ; sinon, tu as 150 secondes.',
+      controlesVR: 'Chaque main tient le fruit suivant. Un guide au-dessus de la caisse montre où il tombera, à la hauteur de ta main : place-toi et appuie sur la gâchette pour le lâcher.',
+      controlesEscritorio: 'Déplace la souris pour choisir où tombe le fruit et clique pour le lâcher.',
+      controlesTactil: 'Fais glisser ton doigt pour choisir où tombe le fruit et lève-le pour le lâcher.',
+      etiquetas: [
+        'fruits', 'fusion', 'fusionner', 'combiner', 'puzzle', 'physique', 'caisse', 'lâcher', 'cerise', 'fraise',
+        'raisin', 'orange', 'pomme', 'pamplemousse', 'melon', 'pastèque', 'combo', 'chaîne', 'score',
+        'décontracté', 'relaxant', 'addictif', 'famille', 'enfants', 'facile', 'marché', 'suika', 'merge',
+      ],
+      juego: {
+        titulo: 'FUSION DE FRUITS',
+        introVR: 'Place la main au-dessus de la caisse et lâche avec la gâchette',
+        introRaton: 'Déplace la souris et clique pour lâcher le fruit',
+        introTactil: 'Fais glisser ton doigt puis lève-le pour lâcher le fruit',
+        siguiente: 'Suivant',
+        combo: 'Combo x{n} !',
+        gigante: 'Pastèque géante ! +{n}',
+        peligro: 'Attention, ça déborde !',
+        fin: { one: 'Débordement ! {n} point', other: 'Débordement ! {n} points' },
+      },
+    },
   },
 };

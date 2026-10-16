@@ -1265,5 +1265,28 @@ export default {
         fin: { one: 'BOOM! {n} point', other: 'BOOM! {n} points' },
       },
     },
+    fusion: {
+      titulo: 'Fruit Merge',
+      descripcion: 'A market stall has an open wooden crate. Drop fruit from above and, when two identical ones touch, they merge into the next, bigger one: cherry, strawberry, grape, orange, apple, grapefruit, melon and watermelon. Two watermelons burst into a shower of points. Chain merges back to back and your points multiply. If the fruit piles up above the red line the crate overflows and it\'s over; otherwise you have 150 seconds.',
+      controlesVR: 'Each hand holds the next fruit. A guide above the crate shows where it will fall, level with your hand: line it up and pull the trigger to drop it.',
+      controlesEscritorio: 'Move the mouse to choose where the fruit falls and click to drop it.',
+      controlesTactil: 'Drag your finger to choose where the fruit falls and lift it to drop.',
+      etiquetas: [
+        'fruit', 'merge', 'combine', 'match', 'puzzle', 'physics', 'crate', 'drop', 'cherry', 'strawberry',
+        'grape', 'orange', 'apple', 'grapefruit', 'melon', 'watermelon', 'combo', 'chain', 'score',
+        'casual', 'relaxing', 'addictive', 'family', 'kids', 'easy', 'market', 'suika', 'watermelon game',
+      ],
+      juego: {
+        titulo: 'FRUIT MERGE',
+        introVR: 'Hold your hand over the crate and drop with the trigger',
+        introRaton: 'Move the mouse and click to drop the fruit',
+        introTactil: 'Drag your finger and lift it to drop the fruit',
+        siguiente: 'Next',
+        combo: 'Combo x{n}!',
+        gigante: 'Giant watermelon! +{n}',
+        peligro: 'Careful, it\'s overflowing!',
+        fin: { one: 'Overflow! {n} point', other: 'Overflow! {n} points' },
+      },
+    },
   },
 };

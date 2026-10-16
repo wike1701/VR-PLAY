@@ -1270,5 +1270,28 @@ export default {
         fin: { one: 'BUM! {n} ponto', other: 'BUM! {n} pontos' },
       },
     },
+    fusion: {
+      titulo: 'Fusão de Frutas',
+      descripcion: 'Numa banca de mercado há uma caixa de madeira aberta em cima. Larga frutas de cima e, quando duas iguais se tocam, fundem-se na seguinte, maior: cereja, morango, uva, laranja, maçã, toranja, melão e melancia. Duas melancias explodem numa chuva de pontos. Se encadeares fusões seguidas, os pontos multiplicam-se. Se a fruta se amontoar acima da linha vermelha, a caixa transborda e acabou; senão, tens 150 segundos.',
+      controlesVR: 'Cada mão leva a fruta seguinte. Uma guia sobre a caixa mostra por onde vai cair, à altura da tua mão: posiciona-a e aperta o gatilho para a largar.',
+      controlesEscritorio: 'Mexe o rato para escolher onde cai a fruta e clica para a largar.',
+      controlesTactil: 'Arrasta o dedo para escolher onde cai a fruta e levanta-o para a largar.',
+      etiquetas: [
+        'frutas', 'fusão', 'juntar', 'combinar', 'puzzle', 'física', 'caixa', 'largar', 'cereja', 'morango',
+        'uva', 'laranja', 'maçã', 'toranja', 'melão', 'melancia', 'combo', 'cadeia', 'pontos',
+        'relaxante', 'viciante', 'família', 'crianças', 'fácil', 'mercado', 'suika', 'merge',
+      ],
+      juego: {
+        titulo: 'FUSÃO DE FRUTAS',
+        introVR: 'Põe a mão sobre a caixa e larga com o gatilho',
+        introRaton: 'Mexe o rato e clica para largar a fruta',
+        introTactil: 'Arrasta o dedo e levanta-o para largar a fruta',
+        siguiente: 'Seguinte',
+        combo: 'Combo x{n}!',
+        gigante: 'Melancia gigante! +{n}',
+        peligro: 'Cuidado, está a transbordar!',
+        fin: { one: 'Transbordou! {n} ponto', other: 'Transbordou! {n} pontos' },
+      },
+    },
   },
 };
