@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fc2ea"/>
+      <stop offset="0.45" stop-color="#cfe9f5"/>
+      <stop offset="1" stop-color="#8fbcd0"/>
+    </linearGradient>
+    <linearGradient id="agua" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa7c4"/>
+      <stop offset="1" stop-color="#1f5f7a"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#fff1c9" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#fff1c9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="casco" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8e2f15"/>
+      <stop offset="0.5" stop-color="#d9652f"/>
+      <stop offset="1" stop-color="#7a2812"/>
+    </linearGradient>
+    <linearGradient id="pala" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd977"/>
+      <stop offset="1" stop-color="#d99a20"/>
+    </linearGradient>
+    <radialGradient id="roca" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#b8b2a6"/>
+      <stop offset="1" stop-color="#5e594f"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Montañas y bosque al fondo -->
+  <path d="M0 150 L70 90 L120 130 L180 70 L250 135 L310 85 L400 140 V190 H0 Z" fill="#6f8f9c"/>
+  <path d="M0 175 L60 140 L110 165 L170 130 L230 168 L300 135 L400 170 V205 H0 Z" fill="#4c7a5a"/>
+  <g fill="#2f5a3c">
+    <path d="M20 200 l14 -40 l14 40 Z"/><path d="M48 202 l12 -34 l12 34 Z"/><path d="M330 200 l14 -42 l14 42 Z"/><path d="M360 202 l12 -34 l12 34 Z"/>
+  </g>
+  <!-- Orillas de hierba y el río en perspectiva -->
+  <path d="M0 200 H400 V400 H0 Z" fill="#5e9445"/>
+  <path d="M170 200 H230 L360 400 H40 Z" fill="url(#agua)"/>
+  <g stroke="#dff4ff" stroke-width="3" stroke-linecap="round" opacity="0.6" fill="none">
+    <path d="M190 226 q6 6 2 14"/><path d="M214 240 q6 6 2 14"/><path d="M160 290 q8 8 3 18"/><path d="M262 300 q8 8 3 18"/><path d="M120 350 q8 8 3 20"/>
+  </g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Rocas y tronco por delante -->
+  <ellipse cx="236" cy="246" rx="22" ry="12" fill="url(#roca)"/>
+  <ellipse cx="236" cy="252" rx="26" ry="4" fill="#ffffff" opacity="0.6"/>
+  <ellipse cx="168" cy="262" rx="15" ry="9" fill="url(#roca)"/>
+  <rect x="120" y="226" width="64" height="10" rx="5" fill="#6b4a2e" transform="rotate(-6 152 231)"/>
+  <!-- Canoa en primer plano -->
+  <ellipse cx="190" cy="396" rx="130" ry="18" fill="url(#sombra)"/>
+  <path d="M120 400 Q150 300 190 268 Q230 300 262 400 Z" fill="url(#casco)"/>
+  <path d="M136 400 Q160 316 190 286 Q220 316 246 400 Z" fill="#5a2210"/>
+  <path d="M120 400 Q150 300 190 268 Q230 300 262 400" fill="none" stroke="#e9c58c" stroke-width="6"/>
+  <rect x="150" y="360" width="82" height="9" fill="#a77a4c"/>
+  <!-- Remo hundiéndose en el agua, con la salpicadura -->
+  <path d="M352 120 L276 336" stroke="#a77a4c" stroke-width="10" stroke-linecap="round"/>
+  <rect x="336" y="108" width="34" height="9" rx="4" fill="#8a6038" transform="rotate(20 353 112)"/>
+  <ellipse cx="270" cy="352" rx="16" ry="38" fill="url(#pala)" transform="rotate(20 270 352)"/>
+  <g fill="#ff6a3d">
+    <path d="M240 340 q-16 -30 -6 -54 q4 24 18 40 Z"/><path d="M300 330 q18 -28 10 -52 q-6 24 -20 40 Z"/>
+  </g>
+  <g fill="#ffd0b8"><circle cx="232" cy="300" r="5"/><circle cx="312" cy="292" r="4.5"/><circle cx="252" cy="282" r="3.5"/><circle cx="292" cy="276" r="3"/></g>
+  <g fill="#e3f6ff"><circle cx="246" cy="320" r="6"/><circle cx="298" cy="314" r="5"/><circle cx="270" cy="300" r="4"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

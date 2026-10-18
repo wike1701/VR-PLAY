@@ -5,7 +5,7 @@
 //
 //   orden          'mayor' (más es mejor) o 'menor' (menos es mejor: tiempos, golpes)
 //   unidad         'puntos' | 'tiempo' (segundos, con décimas) | 'golpes' | 'diferencia' (al ganar a
-//                  la máquina: tus puntos menos los suyos; solo se envía si ganas) | 'recepciones'
+//                  la máquina: tus puntos menos los suyos; solo se envía si ganas) | 'recepciones' | 'metros'
 //   min, max       los valores posibles de una partida (contra trampas: el servidor rechaza lo demás)
 //   maxPorSegundo  en los juegos sin final fijo (sobrevivir), el máximo según lo que ha durado la partida
 //   minSegundos    lo mínimo que puede durar una partida, desde que se abre el juego o termina la anterior
@@ -54,6 +54,8 @@ export const MARCADORES = {
   airhockey: { orden: 'mayor', unidad: 'diferencia', min: 1, max: 7, minSegundos: 20 },
   // Cinta Mecánica: 1 punto por objeto bien clasificado; sale uno cada 0,9 s como mucho (hasta 3 fallos)
   cinta: { orden: 'mayor', unidad: 'puntos', min: 0, max: 10000, maxPorSegundo: 1.5, minSegundos: 5 },
+  // Canoa: metros recorridos río abajo hasta volcar 3 veces (la canoa no pasa de ~9 m/s)
+  canoa: { orden: 'mayor', unidad: 'metros', min: 0, max: 100000, maxPorSegundo: 10, minSegundos: 5 },
   // Last Call: turno de 60 s; cada bebida da de 3 a 10 puntos (con la propina), el doble si es especial
   bar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 55 },
   // ¡Que no explote!: 3 bombas (2, 3 y 4 módulos); por bomba, 100 por módulo + 5 por segundo que sobra - 20 por error

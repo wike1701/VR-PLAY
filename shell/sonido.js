@@ -131,6 +131,8 @@ const SONIDOS = {
   deslizar: () => ruido(0.45, 1400, 0.16, 0.6),
   caja: () => { tono(1320, 1320, 0.07, 'square', 0.08); tono(1760, 1760, 0.3, 'triangle', 0.16, 0.07); ruido(0.08, 4000, 0.15, 1); },
   cristal: () => { ruido(0.25, 5200, 0.55, 0.9); tono(3100, 2400, 0.12, 'triangle', 0.12); tono(4200, 3600, 0.09, 'sine', 0.08, 0.04); },
+  // Canoa: la pala que entra en el agua
+  remo: () => { ruido(0.22, 1300, 0.3, 0.7); ruido(0.12, 420, 0.25, 0.8); tono(260, 140, 0.1, 'sine', 0.12); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
@@ -269,6 +271,42 @@ const CONTINUOS = {
   },
   // Zumbido de mosquito (Matamosquitos): dos sierras agudas un poco desafinadas (el batido de las alas)
   // con vibrato. Sube de tono, de brillo y de volumen cuanto más cerca está el mosquito más cercano.
+  // Río (Canoa): rumor de agua; «valor» abre el filtro (más corriente, rápidos) y sube el volumen
+  rio() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const fuente = ac.createBufferSource();
+    fuente.buffer = obtenerRuido();
+    fuente.loop = true;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.Q.value = 0.7;
+    filtro.frequency.value = 500;
+    const ondas = ac.createGain();
+    ondas.gain.value = 0.8;
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 0.35;
+    const profundidad = ac.createGain();
+    profundidad.gain.value = 0.2;
+    lfo.connect(profundidad).connect(ondas.gain);
+    fuente.connect(filtro).connect(ondas).connect(salida).connect(maestro);
+    fuente.start();
+    lfo.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        filtro.frequency.setTargetAtTime(420 + valor * 1800, t, 0.2);
+        lfo.frequency.setTargetAtTime(0.3 + valor * 1.2, t, 0.2);
+        salida.gain.setTargetAtTime(volumen, t, 0.2);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        fuente.stop(t + 0.3);
+        lfo.stop(t + 0.3);
+      },
+    };
+  },
   mosquito() {
     const salida = ac.createGain();
     salida.gain.value = 0;
