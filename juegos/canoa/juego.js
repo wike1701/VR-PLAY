@@ -280,14 +280,14 @@ export function iniciar(ctx) {
   const remosVR = ctx.manos.map((mano) => {
     const remo = crearRemo();
     ctx.adjuntarAMano(mano, remo.grupo);
-    return { mano, ...remo, pos: new THREE.Vector3(), antes: new THREE.Vector3(), listo: false, dentro: false };
+    return { mano, ...remo, pos: new THREE.Vector3(), antes: new THREE.Vector3(), listo: false, dentro: false, fuerza: 0, tVibra: 0, tEstela: 0 };
   });
   // Ratón y móvil: los dos remos a los lados de la canoa, que se mueven solos al remar
   const remosRaton = [-1, 1].map((lado) => {
     const remo = crearRemo();
     remo.grupo.position.set(lado * 0.5, 0.8, 0.15);
     canoa.add(remo.grupo);
-    return { lado, ...remo, fase: 0 };
+    return { lado, ...remo, fase: 0, pos: new THREE.Vector3(), tVibra: 0, tEstela: 0 };
   });
 
   // ─── Marcador, en la proa ──────────────────────────────────────────────
@@ -324,6 +324,8 @@ export function iniciar(ctx) {
   let ultimoGolpe = 0;
   let chapoteo = 0;
   const rio = ctx.sonidoContinuo('rio');
+  const palada = ctx.sonidoContinuo('palada'); // el agua arrastrada por la pala
+  let tEspuma = 0;
   const matriz = new THREE.Matrix4();
   const quat = new THREE.Quaternion();
   const escala = new THREE.Vector3();
@@ -418,7 +420,7 @@ export function iniciar(ctx) {
       if (o) {
         const lado = hueco > 0 ? -1 : 1; // la orilla contraria al hueco
         const desde = lado * (medio + 0.4);
-        const hasta = hueco - lado * (HUECO / 2 + 0.2);
+        const hasta = hueco + lado * (HUECO / 2 + 0.25); // acaba en el borde del paso seguro
         o.activa = true;
         o.s = s0 + TRAMO / 2;
         o.x = centro(o.s) + (desde + hasta) / 2;
@@ -591,6 +593,29 @@ export function iniciar(ctx) {
   }
 
   // ─── Remar ─────────────────────────────────────────────────────────────
+  // El agua «agarra» la pala: mientras está dentro y va hacia atrás, empuja de forma progresiva (no de
+  // golpe), con una vibración suave y continua que se nota como resistencia, el sonido del agua
+  // arrastrada y una estela detrás de la pala. La entrada en el agua es suave.
+  function sentirPalada(r, mano, fuerza, dt, entra) {
+    if (entra) {
+      tmp.set(r.pos.x, AGUA_Y + 0.02, r.pos.z);
+      ctx.efectos.estallido(tmp, { color: 0xe3f6ff, cantidad: 4, fuerza: 0.45, gravedad: 4, vida: 0.35, tam: 0.016 });
+      ctx.sonido('remo');
+    }
+    r.tVibra -= dt;
+    r.tEstela -= dt;
+    if (fuerza > 0.05 && r.tVibra <= 0 && mano) {
+      ctx.vibrar(mano, 0.08 + fuerza * 0.3, 45);
+      r.tVibra = 0.05;
+    }
+    if (fuerza > 0.2 && r.tEstela <= 0) {
+      // Remolino detrás de la pala, a ras de agua
+      tmp.set(r.pos.x, AGUA_Y + 0.015, r.pos.z + 0.08);
+      ctx.efectos.estallido(tmp, { color: 0xd8f1ff, cantidad: 2 + Math.round(fuerza * 3), fuerza: 0.25, gravedad: 0.5, vida: 0.5, tam: 0.014 });
+      r.tEstela = 0.07;
+    }
+  }
+
   // VR: cuenta la pala dentro del agua yendo hacia atrás (cuanto más rápido, más fuerza)
   function remarVR(dt) {
     let izq = 0;
@@ -598,6 +623,7 @@ export function iniciar(ctx) {
     for (const r of remosVR) {
       if (!r.mano.activa) {
         r.listo = false;
+        r.fuerza = 0;
         continue;
       }
       r.punta.getWorldPosition(r.pos);
@@ -606,21 +632,19 @@ export function iniciar(ctx) {
         r.listo = true;
       }
       const atras = (r.pos.z - r.antes.z) / Math.max(dt, 1e-3);
-      const dentro = r.pos.y < AGUA_Y + 0.22;
-      if (dentro && !r.dentro && atras > 0.3 && chapoteo <= 0) {
-        // La pala entra en el agua
-        tmp.set(r.pos.x, AGUA_Y + 0.02, r.pos.z);
-        ctx.efectos.estallido(tmp, { color: 0xe3f6ff, cantidad: 8, fuerza: 1, gravedad: 6, vida: 0.4 });
-        ctx.sonido('remo');
-        ctx.vibrar(r.mano, 0.25, 30);
-        chapoteo = 0.15;
-      }
+      const dentro = r.pos.y < AGUA_Y + 0.2;
+      const entra = dentro && !r.dentro && chapoteo <= 0;
+      if (entra) chapoteo = 0.12;
       r.dentro = dentro;
-      const fuerza = dentro ? limitar((atras - 0.35) / 1.4, 0, 1) : 0;
-      if (r.mano.lado === 'left' || (!r.mano.lado && r === remosVR[0])) izq = Math.max(izq, fuerza);
-      else der = Math.max(der, fuerza);
+      // Fuerza progresiva: sube mientras tiras y baja al soltar (como el agua al apoyar la pala)
+      const objetivo = dentro ? limitar((atras - 0.12) / 1.1, 0, 1) : 0;
+      r.fuerza += (objetivo - r.fuerza) * Math.min(1, dt * (objetivo > r.fuerza ? 9 : 14));
+      sentirPalada(r, r.mano, r.fuerza, dt, entra);
+      if (r.mano.lado === 'left' || (!r.mano.lado && r === remosVR[0])) izq = Math.max(izq, r.fuerza);
+      else der = Math.max(der, r.fuerza);
       r.antes.copy(r.pos);
     }
+    palada.ajustar(Math.max(izq, der), Math.max(izq, der) * 0.22);
     return [izq, der];
   }
 
@@ -634,42 +658,39 @@ export function iniciar(ctx) {
     for (const remo of remosRaton) {
       const rema = lado === 2 || lado === remo.lado;
       const antes = remo.fase;
-      if (rema || remo.fase % 1 > 0.02) remo.fase += dt / 0.7; // termina la palada empezada
+      if (rema || remo.fase % 1 > 0.02) remo.fase += dt / 0.8; // termina la palada empezada
       const f = remo.fase % 1;
       // Palada: la pala entra por delante, va hacia atrás dentro del agua y sale por el aire
-      const enAgua = f < 0.55;
-      remo.grupo.rotation.x = enAgua ? 0.55 - (f / 0.55) * 1.1 : -0.55 + ((f - 0.55) / 0.45) * 1.1;
+      const enAgua = f < 0.6;
+      const u = enAgua ? f / 0.6 : (f - 0.6) / 0.4;
+      remo.grupo.rotation.x = enAgua ? 0.55 - suave(u) * 1.1 : -0.55 + suave(u) * 1.1;
       remo.grupo.rotation.z = remo.lado * (enAgua ? 0.35 : 0.6);
       remo.grupo.position.y = enAgua ? 0.8 : 0.95;
-      if (enAgua && rema) {
-        if (remo.lado < 0) izq = 0.85;
-        else der = 0.85;
-      }
-      if (Math.floor(antes) !== Math.floor(remo.fase) || (antes % 1 > 0.55 && f < 0.55 && rema)) {
-        // Entra en el agua
-        if (rema && chapoteo <= 0) {
-          remo.punta.getWorldPosition(tmp);
-          tmp.y = AGUA_Y + 0.02;
-          ctx.efectos.estallido(tmp, { color: 0xe3f6ff, cantidad: 6, fuerza: 0.8, gravedad: 6, vida: 0.4 });
-          ctx.sonido('remo');
-          chapoteo = 0.12;
-        }
-      }
+      // En el agua, la fuerza crece y decae a lo largo de la palada (más en el centro)
+      const fuerza = enAgua && rema ? 0.25 + 0.7 * Math.sin(u * Math.PI) : 0;
+      if (remo.lado < 0) izq = fuerza;
+      else der = fuerza;
+      remo.punta.getWorldPosition(remo.pos);
+      const entra = rema && f < 0.6 && (Math.floor(antes) !== Math.floor(remo.fase) || antes % 1 >= 0.6);
+      sentirPalada(remo, null, fuerza, dt, entra && chapoteo <= 0);
+      if (entra) chapoteo = 0.1;
     }
+    palada.ajustar(Math.max(izq, der), Math.max(izq, der) * 0.22);
     return [izq, der];
   }
 
   function moverCanoa(dt, izq, der) {
     // Lo remado en las últimas décimas: tolera que los dos brazos no vayan a la vez
-    actividadIzq = Math.max(actividadIzq * Math.exp(-dt / 0.35), izq);
-    actividadDer = Math.max(actividadDer * Math.exp(-dt / 0.35), der);
+    actividadIzq = Math.max(actividadIzq * Math.exp(-dt / 0.4), izq);
+    actividadDer = Math.max(actividadDer * Math.exp(-dt / 0.4), der);
     const ambos = Math.min(actividadIzq, actividadDer);
     let giro = actividadIzq - actividadDer;
     if (Math.abs(giro) < 0.18) giro = 0; // casi iguales: recto
-    // Velocidad: los dos brazos empujan mucho; uno solo, un poco
-    impulso += (ambos * 3.2 + (actividadIzq + actividadDer) * 0.35) * dt;
-    impulso = Math.min(impulso, 2.2);
-    impulso += (0 - impulso) * (1 - Math.exp(-dt * 0.55));
+    // Velocidad: con los dos brazos se acumula palada a palada (hasta +3,6 m/s); con uno solo, poco.
+    // Sin remar, se pierde despacio
+    impulso += (ambos * 4.6 + (actividadIzq + actividadDer) * 0.3) * dt;
+    impulso = Math.min(impulso, 3.6);
+    impulso += (0 - impulso) * (1 - Math.exp(-dt * 0.32));
     // Giro: remar con la izquierda gira a la izquierda (rumbo negativo)
     rumbo += -giro * 1.5 * maniobra * dt;
     // Sin remar de un lado, la corriente endereza la canoa poco a poco
@@ -912,6 +933,15 @@ export function iniciar(ctx) {
     dibujarRio();
     dibujarObstaculos();
     rio.ajustar(Math.min(1, v / 8 + enRapidos * 0.4), 0.05 + Math.min(0.2, v * 0.015) + enRapidos * 0.12);
+    // Con impulso de remar, la proa levanta espuma a los dos lados (más cuanto más rápido)
+    tEspuma -= dt;
+    if (estado === 'juego' && impulso > 0.6 && tEspuma <= 0) {
+      for (const lado of [-1, 1]) {
+        tmp.set(lado * 0.3 + Math.sin(rumbo * 0.6) * PROA, AGUA_Y + 0.03, -PROA * Math.cos(rumbo * 0.6) + 0.15);
+        ctx.efectos.estallido(tmp, { color: 0xf2fbff, cantidad: 1 + Math.round(impulso), fuerza: 0.5 + impulso * 0.25, gravedad: 3, vida: 0.45, tam: 0.016 });
+      }
+      tEspuma = 0.08;
+    }
     escribirMarcador();
   }
 

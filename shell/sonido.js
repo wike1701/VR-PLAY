@@ -132,7 +132,7 @@ const SONIDOS = {
   caja: () => { tono(1320, 1320, 0.07, 'square', 0.08); tono(1760, 1760, 0.3, 'triangle', 0.16, 0.07); ruido(0.08, 4000, 0.15, 1); },
   cristal: () => { ruido(0.25, 5200, 0.55, 0.9); tono(3100, 2400, 0.12, 'triangle', 0.12); tono(4200, 3600, 0.09, 'sine', 0.08, 0.04); },
   // Canoa: la pala que entra en el agua
-  remo: () => { ruido(0.22, 1300, 0.3, 0.7); ruido(0.12, 420, 0.25, 0.8); tono(260, 140, 0.1, 'sine', 0.12); },
+  remo: () => { tono(240, 150, 0.09, 'sine', 0.12); ruido(0.14, 900, 0.14, 1.1); }, // entrada suave de la pala
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
@@ -304,6 +304,32 @@ const CONTINUOS = {
         salida.gain.setTargetAtTime(0, t, 0.05);
         fuente.stop(t + 0.3);
         lfo.stop(t + 0.3);
+      },
+    };
+  },
+  // Palada (Canoa): el agua que arrastra la pala; sube con la fuerza de la palada
+  palada() {
+    const salida = ac.createGain();
+    salida.gain.value = 0;
+    const fuente = ac.createBufferSource();
+    fuente.buffer = obtenerRuido();
+    fuente.loop = true;
+    const filtro = ac.createBiquadFilter();
+    filtro.type = 'bandpass';
+    filtro.Q.value = 0.9;
+    filtro.frequency.value = 600;
+    fuente.connect(filtro).connect(salida).connect(maestro);
+    fuente.start();
+    return {
+      ajustar(valor, volumen) {
+        const t = ac.currentTime;
+        filtro.frequency.setTargetAtTime(450 + valor * 900, t, 0.06);
+        salida.gain.setTargetAtTime(volumen, t, 0.06);
+      },
+      parar() {
+        const t = ac.currentTime;
+        salida.gain.setTargetAtTime(0, t, 0.05);
+        fuente.stop(t + 0.3);
       },
     };
   },
