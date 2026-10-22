@@ -148,6 +148,19 @@ const SONIDOS = {
   tambor3: () => { tono(120, 55, 0.3, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
   pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
   bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
+  // Pesca: el corcho que cae al agua, el pez que muerde y el carrete
+  chapuzon: () => { ruido(0.25, 1200, 0.35, 0.8); tono(400, 160, 0.12, 'sine', 0.2); },
+  picada: () => { ruido(0.12, 900, 0.5, 1); tono(260, 120, 0.1, 'sine', 0.35); },
+  carrete: () => { tono(2600, 2600, 0.02, 'square', 0.04); },
+  // Bomberos: el chorro de la manguera, el vapor al apagar un fuego y el derrumbe de una ventana
+  chorro: () => { ruido(0.2, 2200, 0.07, 0.9); },
+  vapor: () => { ruido(0.4, 4200, 0.3, 1.2); tono(700, 300, 0.2, 'sine', 0.06); },
+  derrumbe: () => { ruido(0.7, 320, 0.7, 0.5); tono(110, 45, 0.5, 'sawtooth', 0.2); },
+  // Campo de prácticas: el golpe seco del driver
+  driver: () => { tono(1900, 900, 0.06, 'triangle', 0.35); ruido(0.08, 3800, 0.55, 1.2); tono(260, 120, 0.08, 'sine', 0.25); },
+  // Piñata: el palo contra el cartón y el papel que se rasga al romperse
+  carton: () => { tono(150, 70, 0.12, 'triangle', 0.45); ruido(0.1, 1300, 0.5, 0.8); },
+  rasgar: () => { ruido(0.45, 2600, 0.6, 0.7); tono(220, 70, 0.3, 'sawtooth', 0.15); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

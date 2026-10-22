@@ -76,6 +76,16 @@ export const MARCADORES = {
   aros: { orden: 'mayor', unidad: 'puntos', min: 0, max: 50, minSegundos: 10 },
   // Laberinto: 2 minutos; 100 por laberinto + hasta 60 por rapidez (como mucho unos 10 laberintos)
   laberinto: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 110 },
+  // Tambores: canción de 75 s; perfecto 3 y bien 1, por la racha (hasta x4). Unas 220 notas como mucho
+  tambores: { orden: 'mayor', unidad: 'puntos', min: 0, max: 3500, minSegundos: 70 },
+  // Pesca en el Lago: 90 s; 10 puntos por kilo de cada pez (como mucho unos 120 el más grande)
+  pesca: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, minSegundos: 85 },
+  // Bomberos: 10-15 puntos por fuego, sin límite de tiempo (acaba cuando se quema el edificio)
+  bomberos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 12, minSegundos: 5 },
+  // Campo de prácticas: 10 bolas, hasta 30 puntos por tiro y 80 si entra en el hoyo
+  golf: { orden: 'mayor', unidad: 'puntos', min: 0, max: 800, minSegundos: 30 },
+  // Piñata: 1-3 puntos por golpe y 10 + 5 por nivel al romperla, en 60 s
+  pinata: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, maxPorSegundo: 30, minSegundos: 55 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

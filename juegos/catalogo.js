@@ -51,6 +51,11 @@ const LISTA = [
   { id: 'latas', genero: 'deportes', pruebas: true },
   { id: 'aros', genero: 'habilidad', pruebas: true },
   { id: 'laberinto', genero: 'puzle', pruebas: true },
+  { id: 'tambores', genero: 'ritmo', pruebas: true },
+  { id: 'pesca', genero: 'habilidad', pruebas: true },
+  { id: 'bomberos', genero: 'disparos', pruebas: true },
+  { id: 'golf', genero: 'deportes', pruebas: true },
+  { id: 'pinata', genero: 'arcade', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

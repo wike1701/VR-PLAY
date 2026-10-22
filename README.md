@@ -97,6 +97,11 @@ juegos/
   latas/juego.js        Tumba Latas (en pruebas)
   aros/juego.js         Lanza Aros (en pruebas)
   laberinto/juego.js    Laberinto (en pruebas)
+  tambores/juego.js     Tambores (en pruebas)
+  pesca/juego.js        Pesca en el Lago (en pruebas)
+  bomberos/juego.js     Bomberos (en pruebas)
+  golf/juego.js         Campo de Prácticas (en pruebas)
+  pinata/juego.js       Piñata (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
