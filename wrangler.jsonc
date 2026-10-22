@@ -1,7 +1,7 @@
 // Configuración del Worker de VR Play en Cloudflare (se despliega solo con cada subida a main).
 // - La web son los archivos de la raíz del repositorio (menos lo que excluye .assetsignore).
 // - El programa de servidor/index.js solo se ejecuta para /api/* (el foro), las fichas de los juegos
-//   (/juego/*) y /sitemap.xml.
+//   (/juego/*), /sitemap.xml y /llms.txt.
 // - Las claves (ADMIN_TOKEN, SAL, RESEND_API_KEY, GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET) NO van aquí:
 //   se ponen como "Secret" en el panel de Cloudflare.
 // - CUENTAS: "1" enseña a todo el mundo el botón «Entrar» de las cuentas de usuario. Con "0" solo se ve
@@ -13,7 +13,7 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/juego/*", "/sitemap.xml"]
+    "run_worker_first": ["/api/*", "/juego/*", "/sitemap.xml", "/llms.txt"]
   },
   "d1_databases": [
     {

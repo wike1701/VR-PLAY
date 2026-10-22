@@ -38,6 +38,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
 <link rel="stylesheet" href="estilos/base.css">
+<!-- Datos estructurados de schema.org: qué es la web, para Google y los buscadores con IA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "VR Play",
+      "url": "https://vrplaygame.com/",
+      "description": "Juegos de realidad virtual gratis que se juegan en el navegador: con gafas Meta Quest, con el ratón o en el móvil.",
+      "inLanguage": ["es", "en", "fr", "de", "it", "pt", "ja", "ko", "zh"]
+    },
+    {
+      "@type": "Organization",
+      "name": "VR Play",
+      "url": "https://vrplaygame.com/",
+      "logo": "https://vrplaygame.com/iconos/apple-touch-icon.png"
+    }
+  ]
+}
+</script>
 <style>
   /* Salón recreativo nocturno: portada a pantalla completa con un muro de juegos que se desliza,
      un solo acento (el morado de la marca), grano fino y tarjetas que se iluminan bajo el cursor. */
@@ -543,6 +564,13 @@
   .paso.esquema { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px 22px; align-items: start; }
   .paso.esquema svg { width: 100%; height: auto; margin-top: 30px; }
 
+  /* ─── Preguntas frecuentes ─────────────────────────────────────────── */
+  .preguntas { padding-block: clamp(48px, 7vw, 88px) 0; }
+  .preguntas .seccion-titulo { margin-bottom: 20px; }
+  .preguntas details { max-width: 760px; border-bottom: 1px solid var(--line-suave); padding-block: 14px; }
+  .preguntas summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+  .preguntas details p { margin: 10px 0 0; color: var(--muted); max-width: 70ch; }
+
   /* ─── Franja «¿Tienes una idea de juego?» ──────────────────────────── */
   .idea-juego {
     position: relative;
@@ -602,6 +630,10 @@
   footer a { text-decoration: none; transition: color 0.2s; }
   footer a:hover { color: var(--fg); }
   footer p { margin: 0; }
+  /* Enlaces a la ficha de cada juego (/juego/<id>): los leen los buscadores */
+  .fichas { margin-bottom: 28px; }
+  .fichas h2 { margin: 0 0 10px; font-size: 0.95rem; color: var(--fg); }
+  .fichas ul { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; }
 
   /* ─── Pantallas pequeñas ───────────────────────────────────────────── */
   @media (max-width: 900px) {
@@ -713,6 +745,26 @@
       </article>
     </div>
 
+    <section class="preguntas" id="preguntas">
+      <h2 class="seccion-titulo" data-i18n="ficha.preguntas">Preguntas frecuentes</h2>
+      <details open>
+        <summary data-i18n="inicio.queEs">¿Qué es VR Play?</summary>
+        <p data-i18n="inicio.queEsTexto">VR Play es una web de juegos de realidad virtual gratis que se juegan en el navegador: con gafas Meta Quest, con el ratón en el ordenador o con el dedo en el móvil, sin descargas ni registro.</p>
+      </details>
+      <details>
+        <summary data-i18n="inicio.pGratis">¿Los juegos son gratis?</summary>
+        <p data-i18n="inicio.rGratis">Sí. Todos los juegos son gratis y no hace falta registrarse para jugar. Con una cuenta, tus favoritos se guardan en todos tus dispositivos.</p>
+      </details>
+      <details>
+        <summary data-i18n="inicio.pGafas">¿Con qué gafas funciona?</summary>
+        <p data-i18n="inicio.rGafas">Está pensada para las gafas Meta Quest y funciona en cualquier navegador compatible con WebXR. Sin gafas se juega con el ratón o en el móvil.</p>
+      </details>
+      <details>
+        <summary data-i18n="inicio.pNuevos">¿Salen juegos nuevos?</summary>
+        <p data-i18n="inicio.rNuevos">Sí. La gente propone ideas en el foro y las que más gustan se convierten en juegos nuevos.</p>
+      </details>
+    </section>
+
     <aside class="idea-juego">
       <div>
         <h2 data-i18n="inicio.creaTitulo">¿Tienes una idea de juego?</h2>
@@ -724,6 +776,10 @@
 </main>
 
 <footer class="contenedor">
+  <nav class="fichas" id="fichas" data-i18n-attr="aria-label:inicio.fichas" aria-label="Fichas de los juegos">
+    <h2 data-i18n="inicio.fichas">Fichas de los juegos</h2>
+    <ul></ul>
+  </nav>
   <div class="pie">
     <nav>
       <a href="foro.html" data-i18n="comun.sugerirJuego">Sugerir un juego</a>
@@ -996,6 +1052,13 @@
     $feed.replaceChildren(...datos.actividad.map(evento).filter(Boolean), ...sugeridos);
   }
   document.getElementById('jugar-ya').href = `play.html#${JUEGOS[0].id}`;
+
+  // Pie: un enlace a la ficha de cada juego publicado (/juego/<id>), para que los buscadores las encuentren
+  document.querySelector('#fichas ul').replaceChildren(...JUEGOS.map((j) => {
+    const li = document.createElement('li');
+    li.append(Object.assign(document.createElement('a'), { href: `/juego/${j.id}?lang=${document.documentElement.lang}`, textContent: j.titulo }));
+    return li;
+  }));
 
   // ─── Portada ───────────────────────────────────────────────────────────
   document.getElementById('cuantos-juegos').textContent = t('inicio.juegosN', { n: JUEGOS.length });

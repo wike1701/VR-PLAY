@@ -1,10 +1,12 @@
 // Fichas de los juegos y mapa del sitio, para los buscadores.
 //   GET /juego/:id            → la ficha del juego en HTML (?lang=xx para cada idioma)
 //   GET /sitemap.xml          → todas las páginas públicas en los 9 idiomas
+//   GET /llms.txt             → qué es la web y qué juegos tiene, en texto sencillo para las IA
+//                               (ChatGPT, Perplexity, Claude…); en inglés, o en otro idioma con ?lang=xx
 // Los juegos se abren con play.html#id, y lo que va detrás de # no lo lee Google: sin estas
 // fichas, los juegos no existen para los buscadores. El HTML sale ya escrito desde aquí (no
 // lo pinta JavaScript en el navegador) para que cualquier buscador o red social lo lea.
-// Los juegos en pruebas (los ocultos de juegosOcultos) no tienen ficha ni salen en el mapa.
+// Los juegos en pruebas (los ocultos de juegosOcultos) no tienen ficha ni salen en el mapa ni en llms.txt.
 import es from '../idiomas/es.js';
 import en from '../idiomas/en.js';
 import fr from '../idiomas/fr.js';
@@ -138,22 +140,52 @@ export async function ficha({ request, env, params }) {
   const otros = publicos.filter((j) => j.id !== juego.id);
   const relacionados = [...otros.filter((j) => j.genero === juego.genero), ...otros.filter((j) => j.genero !== juego.genero)].slice(0, JUEGOS_RELACIONADOS);
 
-  const etiquetas = (textos(juego.id, 'etiquetas') || []).slice(0, ETIQUETAS_VISIBLES);
+  const todasEtiquetas = textos(juego.id, 'etiquetas') || [];
+  const etiquetas = todasEtiquetas.slice(0, ETIQUETAS_VISIBLES);
+  // Frases claras que los buscadores y las IA puedan citar tal cual, y preguntas frecuentes
+  const datosTexto = { juego: titulo, genero };
+  const resumen = t('ficha.resumen', datosTexto);
+  const resumenWeb = t('ficha.resumenWeb', { n: publicos.length });
+  const preguntas = ['Gratis', 'Gafas', 'Quest', 'Descargar', 'Clasificacion']
+    .map((p) => [t(`ficha.p${p}`, datosTexto), t(`ficha.r${p}`, datosTexto)]);
+  // Datos estructurados de schema.org: el juego, sus preguntas frecuentes y las migas
   const datosEstructurados = {
     '@context': 'https://schema.org',
-    '@type': 'VideoGame',
-    name: titulo,
-    description: descripcion,
-    url: direccion,
-    image: imagen,
-    genre: genero,
-    inLanguage: idioma,
-    gamePlatform: ['Web browser', 'Meta Quest', 'PC', 'Mobile'],
-    applicationCategory: 'Game',
-    operatingSystem: 'Any',
-    playMode: 'SinglePlayer',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-    publisher: { '@type': 'Organization', name: 'VR Play', url: DOMINIO },
+    '@graph': [
+      {
+        '@type': 'VideoGame',
+        name: titulo,
+        description: descripcion,
+        abstract: resumen,
+        url: direccion,
+        image: imagen,
+        genre: genero,
+        keywords: todasEtiquetas.join(', '),
+        inLanguage: idioma,
+        gamePlatform: ['Web browser', 'Meta Quest', 'PC', 'Mobile'],
+        applicationCategory: 'Game',
+        operatingSystem: 'Any',
+        playMode: 'SinglePlayer',
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+        potentialAction: { '@type': 'PlayAction', target: `${DOMINIO}${jugar}` },
+        ...(cifras?.partidas ? { interactionStatistic: { '@type': 'InteractionCounter', interactionType: 'https://schema.org/PlayAction', userInteractionCount: cifras.partidas } } : {}),
+        publisher: { '@type': 'Organization', name: 'VR Play', url: DOMINIO },
+        isPartOf: { '@type': 'WebSite', name: 'VR Play', url: DOMINIO },
+      },
+      {
+        '@type': 'FAQPage',
+        inLanguage: idioma,
+        mainEntity: preguntas.map(([pregunta, respuesta]) => ({ '@type': 'Question', name: pregunta, acceptedAnswer: { '@type': 'Answer', text: respuesta } })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: t('comun.juegos'), item: conIdioma('/', elegido) },
+          { '@type': 'ListItem', position: 2, name: titulo, item: direccion },
+        ],
+      },
+    ],
   };
   const tituloPagina = t('ficha.tituloPagina', { juego: titulo });
   const metaDescripcion = `${descripcion} ${t('ficha.metaCola')}`;
@@ -226,6 +258,10 @@ ${alternativas(ruta)}
   .etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
   .etiquetas li { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
   .enlace-clasificacion { display: inline-block; margin-top: 18px; color: var(--accent-2); }
+  .sobre p { max-width: 70ch; margin: 0 0 12px; }
+  .preguntas { margin: 0; max-width: 70ch; }
+  .preguntas dt { font-weight: 700; margin-top: 16px; }
+  .preguntas dd { margin: 4px 0 0; color: var(--muted); }
   .otros { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
   .otros a { display: block; text-decoration: none; }
   .otros img { width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio-chico); background: var(--surface-2); display: block; }
@@ -274,6 +310,18 @@ ${alternativas(ruta)}
         <li><strong>${escapar(t('ficha.enMovil'))}</strong>${escapar(textos(juego.id, 'controlesTactil'))}</li>
       </ul>
       <a class="enlace-clasificacion" href="/clasificacion${lang}#${juego.id}">🏆 ${escapar(t('clasificacion.verCompleta'))}</a>
+
+      <section class="sobre">
+        <h2>${escapar(t('ficha.sobre', datosTexto))}</h2>
+        <p>${escapar(resumen)}</p>
+        <p>${escapar(t('ficha.partidas'))}</p>
+        <p>${escapar(resumenWeb)}</p>
+      </section>
+
+      <h2>${escapar(t('ficha.preguntas'))}</h2>
+      <dl class="preguntas">
+        ${preguntas.map(([pregunta, respuesta]) => `<dt>${escapar(pregunta)}</dt><dd>${escapar(respuesta)}</dd>`).join('\n        ')}
+      </dl>
 
       ${etiquetas.length ? `<h2>${escapar(t('ficha.etiquetas'))}</h2>
       <ul class="etiquetas">${etiquetas.map((e) => `<li>#${escapar(e)}</li>`).join('')}</ul>` : ''}
@@ -355,4 +403,45 @@ ${entradas.join('\n')}
 </urlset>
 `;
   return new Response(xml, { headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
+}
+
+// llms.txt (https://llmstxt.org): un resumen en Markdown para que las IA sepan qué es VR Play y
+// qué juegos tiene, con el enlace a la ficha de cada uno. Se genera aquí para que nunca incluya
+// los juegos en pruebas. Sin ?lang= sale en inglés, el idioma que más leen los rastreadores.
+export async function llms({ request, env }) {
+  const url = new URL(request.url);
+  const idioma = valido(url.searchParams.get('lang')) || 'en';
+  const t = traductor(idioma);
+  const publicos = await juegosPublicos(env, url);
+  const linea = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
+  const enlace = (texto, ruta) => `[${linea(texto).replace(/[[\]]/g, '')}](${conIdioma(ruta, idioma)})`;
+  const texto = `# VR Play
+
+> ${linea(t('ficha.resumenWeb', { n: publicos.length }))}
+
+${linea(t('inicio.queEsTexto'))}
+
+## ${linea(t('inicio.comoSeJuega'))}
+
+- ${linea(t('inicio.pasoQuestTitulo'))}: ${linea(t('inicio.pasoQuestTexto'))}
+- ${linea(t('inicio.cambiarTitulo'))}: ${linea(t('inicio.cambiarTexto'))}
+- ${linea(t('inicio.pasoSinGafasTitulo'))}: ${linea(t('inicio.pasoSinGafasTexto'))}
+- ${linea(t('ficha.partidas'))}
+
+## ${linea(t('comun.juegos'))}
+
+${publicos.map((j) => `- ${enlace(t(`juegos.${j.id}.titulo`), `/juego/${j.id}`)} (${linea(t(`generos.${j.genero}`))}): ${linea(t(`juegos.${j.id}.descripcion`))}`).join('\n')}
+
+## ${linea(t('ficha.paginas'))}
+
+- ${enlace(t('inicio.todosLosJuegos'), '/')}
+- ${enlace(t('clasificacion.titulos'), '/clasificacion')}
+- ${enlace(t('comun.sugerirJuego'), '/foro')}
+- ${enlace(t('comun.avisoLegal'), '/legal')}
+
+## ${linea(t('ficha.otrosIdiomas'))}
+
+${IDIOMAS.filter((codigo) => codigo !== idioma).map((codigo) => `- [${NOMBRES[codigo]}](${DOMINIO}/llms.txt?lang=${codigo})`).join('\n')}
+`;
+  return new Response(texto, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
 }

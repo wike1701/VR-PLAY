@@ -1,5 +1,7 @@
 // Comprueba que la estructura del proyecto sigue las normas de docs/ESTRUCTURA.md:
 //   - cada juego de juegos/catalogo.js tiene su carpeta con juego.js y su miniatura, y no sobran carpetas;
+//   - cada juego tiene su imagen para compartir (iconos/juegos/<id>.jpg; si falta, solo avisa,
+//     porque la ficha usa la general, pero conviene hacerla con herramientas/portadas-compartir.mjs);
 //   - en juegos/ solo hay carpetas de juegos y los datos compartidos (catalogo.js, marcadores.js);
 //   - en la raíz solo hay lo previsto (páginas, configuración y documentos principales);
 //   - todas las rutas locales de los import, src y href de las páginas y del código existen
@@ -11,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errores = [];
+const avisos = [];
 const relativa = (p) => path.relative(RAIZ, p).split(path.sep).join('/');
 
 // ─── Juegos ──────────────────────────────────────────────────────────────
@@ -23,6 +26,7 @@ const DATOS_JUEGOS = ['catalogo.js', 'marcadores.js'];
 for (const { id, miniatura } of juegos) {
   if (!fs.existsSync(path.join(RAIZ, 'juegos', id, 'juego.js'))) errores.push(`juegos/${id}/juego.js no existe (está en el catálogo)`);
   if (!fs.existsSync(path.join(RAIZ, miniatura))) errores.push(`${miniatura} no existe (miniatura de ${id})`);
+  if (!fs.existsSync(path.join(RAIZ, 'iconos/juegos', `${id}.jpg`))) avisos.push(`iconos/juegos/${id}.jpg no existe: hazla con node herramientas/portadas-compartir.mjs ${id}`);
 }
 for (const nombre of fs.readdirSync(path.join(RAIZ, 'juegos'))) {
   const ruta = path.join(RAIZ, 'juegos', nombre);
@@ -77,6 +81,7 @@ for (const archivo of archivos(RAIZ)) {
   }
 }
 
+if (avisos.length) console.warn('Avisos:\n' + avisos.map((a) => `  - ${a}`).join('\n'));
 if (errores.length) {
   console.error('Estructura con problemas:\n' + errores.map((e) => `  - ${e}`).join('\n'));
   process.exit(1);

@@ -1,6 +1,6 @@
 // Worker de VR Play. La web (HTML, juegos, imágenes) son archivos estáticos que Cloudflare
 // sirve solo; este programa únicamente atiende /api/* (el foro de sugerencias), las fichas de
-// los juegos (/juego/:id) y /sitemap.xml, porque wrangler.jsonc dice "run_worker_first". Cada ruta exporta sus manejadores
+// los juegos (/juego/:id), /sitemap.xml y /llms.txt, porque wrangler.jsonc dice "run_worker_first". Cada ruta exporta sus manejadores
 // como onRequestGet / onRequestPost / onRequestPatch({ request, env, params }), o una función
 // atender(contexto) que reparte ella misma (las cuentas).
 import * as config from './config.js';
@@ -23,6 +23,7 @@ import { prepararBD } from './bd.js';
 const PAGINAS = [
   [/^\/juego\/([a-z0-9_-]+)\/?$/, fichas.ficha],
   [/^\/sitemap\.xml$/, fichas.sitemap],
+  [/^\/llms\.txt$/, fichas.llms],
 ];
 
 const RUTAS = [
