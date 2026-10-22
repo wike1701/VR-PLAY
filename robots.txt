@@ -1,0 +1,10 @@
+# VR Play: qué pueden leer los buscadores. Las fichas de los juegos (/juego/<id>) y el mapa
+# del sitio los genera el Worker (servidor/fichas.js).
+User-agent: *
+Disallow: /api/
+Disallow: /admin
+Disallow: /cuenta
+Disallow: /entrar
+Disallow: /perfil
+
+Sitemap: https://vrplaygame.com/sitemap.xml

@@ -404,6 +404,18 @@ export default {
   legal: {
     tituloPagina: '법적 고지 및 개인정보 · VR Play',
   },
+  ficha: {
+    tituloPagina: '{juego}: 브라우저에서 즐기는 무료 VR 게임 · VR Play',
+    metaCola: '무료, 설치 필요 없음: Meta Quest 헤드셋, 마우스 또는 휴대폰으로.',
+    jugarGratis: '무료로 플레이',
+    sinDescargas: 'Meta Quest 브라우저, 컴퓨터, 휴대폰에서 작동합니다. 다운로드나 가입이 필요 없습니다.',
+    conGafas: 'VR 헤드셋',
+    conRaton: '마우스',
+    enMovil: '휴대폰',
+    etiquetas: '태그',
+    masJuegos: '다른 게임',
+    noEncontrado: '이 게임은 없거나 아직 공개되지 않았습니다.',
+  },
   partida: {
     puntosN: '{n}점',
     tiempoPuntos: '시간 종료! {n}점',

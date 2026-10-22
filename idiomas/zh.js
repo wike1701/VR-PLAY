@@ -404,6 +404,18 @@ export default {
   legal: {
     tituloPagina: '法律声明与隐私 · VR Play',
   },
+  ficha: {
+    tituloPagina: '{juego}：在浏览器中免费玩的虚拟现实游戏 · VR Play',
+    metaCola: '免费，无需安装：使用 Meta Quest 头显、鼠标或手机即可游玩。',
+    jugarGratis: '免费开玩',
+    sinDescargas: '可在 Meta Quest 浏览器、电脑和手机上运行。无需下载，无需注册。',
+    conGafas: '使用 VR 头显',
+    conRaton: '使用鼠标',
+    enMovil: '在手机上',
+    etiquetas: '标签',
+    masJuegos: '更多游戏',
+    noEncontrado: '这款游戏不存在或尚未发布。',
+  },
   partida: {
     puntosN: '{n} 分',
     tiempoPuntos: '时间到！{n} 分',
