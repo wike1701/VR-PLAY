@@ -16,6 +16,7 @@ clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o
 perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
 estilos/base.css        Sistema de diseño: colores, fuentes (Geist) y logo de todas las páginas
 estilos/cuenta.css      Estilos de entrar.html, cuenta.html, perfil.html y clasificacion.html
+estilos/fuentes/        Geist y Geist Mono (.woff2, licencia OFL), servidas desde la web y no desde Google Fonts
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
 servidor/               API del foro y de las cuentas (/api/*), fichas de los juegos (/juego/<id>) y sitemap.xml (index.js reparte las rutas)

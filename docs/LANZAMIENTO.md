@@ -12,9 +12,10 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 - [x] Página de **cookies**, o una nota que diga que no se usan, si sigue sin haberlas
 - [x] Página de **contacto**
 - [x] Enlazar las páginas legales en el pie de `index.html` y `foro.html` (todo está en `legal.html`)
-- [ ] Servir las fuentes desde la propia web, en vez de cargarlas desde Google Fonts (envía la IP a Google)
+- [x] Servir las fuentes desde la propia web, en vez de cargarlas desde Google Fonts (envía la IP a Google): `estilos/fuentes/`, 2026-10-22
 - [x] Ocultar el hueco «Espacio publicitario» hasta que haya anuncios (en `index.html`, con `hidden`; al poner anuncios, quitarlo y añadir el banner de consentimiento)
 - [ ] **Normas del foro** visibles junto al formulario
+- [x] Aviso junto al botón de publicar del foro: lo que escribes es público, edad mínima y enlace a la privacidad (2026-10-22)
 - [ ] Botón **«Denunciar»** en sugerencias y comentarios (con su tabla y una sección en `admin.html`)
 - [ ] Edad mínima indicada (14 años en España para dar el consentimiento uno mismo)
 - [ ] Aviso de seguridad en VR antes de jugar: espacio libre a tu alrededor y bajo tu responsabilidad (el texto ya está en `legal.html`; falta mostrarlo al entrar en VR)

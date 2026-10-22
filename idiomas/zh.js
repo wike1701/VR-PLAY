@@ -184,6 +184,7 @@ export default {
     opcional: '（可选）',
     publicarComentario: '发布评论',
     escribeAlgo: '发布前请先写点内容。',
+    avisoPublicar: '发布即表示你同意公开显示你写的内容和你的名字。须年满 14 岁。',
     antesDeEscribir: '写之前，先看看是否已经有人提过：如果有，就给它点 ♥ 并在那里评论。',
     reglasTitulo: '适合 VR Play 的游戏',
     reglas: [

@@ -28,9 +28,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
 <meta name="theme-color" content="#0a0b10">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="preload" href="estilos/fuentes/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos/base.css">
 <style>
   /* Mismo portal nocturno que el catálogo: lista de hilos, hilo con respuesta anclada y formulario guiado. */
@@ -273,6 +271,7 @@
   .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
   .aviso { margin: 0; font-size: 0.9rem; }
   .aviso.error { color: #ff8a80; }
+  .aviso-publicar { margin: 0; color: var(--muted); font-size: 0.85rem; }
   .reglas {
     margin: 0 0 20px;
     padding: 14px 18px;
@@ -542,6 +541,7 @@
       el('label', {}, t('foro.tuComentario'), el('textarea', { name: 'texto', required: true, minlength: 2, maxlength: 1500, placeholder: t('foro.comentarioEjemplo') })),
       campoNombre(),
       $captcha,
+      avisoPublicar(),
       el('div', { class: 'acciones' }, el('button', { class: 'boton', type: 'submit' }, t('foro.publicarComentario')), $aviso),
     );
     const captcha = await montarCaptcha($captcha);
@@ -607,6 +607,7 @@
       lista('lista-manos', MANOS),
       lista('lista-acciones', ACCIONES),
       $captcha,
+      avisoPublicar(),
       el('div', { class: 'acciones' },
         el('button', { class: 'boton', type: 'submit' }, t('foro.publicarSugerencia')),
         el('a', { class: 'boton secundario', href: '#/' }, t('foro.cancelar')),
@@ -668,6 +669,12 @@
     return el('label', {}, el('span', {}, `${t('foro.tuNombre')} `, el('small', {}, t('foro.opcional')),
       cuentasVisibles(cuenta) ? el('small', {}, ' · ', el('a', { href: `entrar.html?volver=${encodeURIComponent(location.pathname + location.hash)}` }, t('foro.entraParaFirmar'))) : null),
     el('input', { name: 'autor', maxlength: 40, autocomplete: 'nickname', placeholder: t('foro.anonimo') }));
+  }
+
+  // Antes de enviar: qué se publica, la edad mínima y la política de privacidad
+  function avisoPublicar() {
+    return el('p', { class: 'aviso-publicar' }, `${t('foro.avisoPublicar')} `,
+      el('a', { href: 'legal.html#privacidad' }, t('comun.privacidad')));
   }
 
   // El nombre se recuerda en este navegador para no tener que escribirlo cada vez

@@ -190,6 +190,7 @@ export default {
     opcional: '(opcional)',
     publicarComentario: 'Publicar comentario',
     escribeAlgo: 'Escribe algo antes de publicar.',
+    avisoPublicar: 'Al publicar, aceptas que lo que escribes y tu nombre se vean en público. Hay que tener 14 años o más.',
     antesDeEscribir: 'Antes de escribir, mira si ya lo ha sugerido alguien: si es así, dale ♥ y comenta allí.',
     reglasTitulo: 'Para que encaje en VR Play',
     reglas: [

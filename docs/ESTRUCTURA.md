@@ -66,7 +66,7 @@ VR-PLAY/
 | **`juegos/<id>/`** | `juego.js` (exporta `precargar` e `iniciar(ctx)`) y `miniatura.svg` | Todo el juego en su carpeta. Sin textos escritos a mano (van en `idiomas/`) y sin imports de `shell/`. |
 | **`juegos/`** (sueltos) | `catalogo.js` y `marcadores.js` | Solo datos de los juegos. El código va en `shell/`. |
 | **`idiomas/`** | Un archivo por idioma con **las mismas claves** que `es.js`; `legal/` con el texto legal traducido | Cualquier texto visible nuevo se añade aquí, en los 9 idiomas. |
-| **`estilos/`** | `base.css` (el sistema de diseño: colores, fuentes y logo de toda la web) y `cuenta.css` (entrar, cuenta, perfil y clasificación) | CSS que usa más de una página. Los colores y las fuentes **solo** se definen en `base.css`: las páginas usan sus variables (`var(--accent)`, `var(--font-body)`…) y no escriben colores a mano. |
+| **`estilos/`** | `base.css` (el sistema de diseño: colores, fuentes y logo de toda la web), `cuenta.css` (entrar, cuenta, perfil y clasificación) y `fuentes/` (Geist y Geist Mono en `.woff2`, con su licencia `OFL.txt`) | CSS que usa más de una página. Los colores y las fuentes **solo** se definen en `base.css`: las páginas usan sus variables (`var(--accent)`, `var(--font-body)`…) y no escriben colores a mano. |
 | **`servidor/`** | `index.js` (rutas), `comun.js` y `bd.js` (utilidades y tablas), y un archivo por recurso de la API | Un archivo por ruta o grupo de rutas, que exporta `onRequestGet`, `onRequestPost`… |
 | **`bd/`** | `esquema.sql` | Todas las tablas. `servidor/bd.js` crea las nuevas solo, la primera vez. |
 | **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `calidad.mjs`, `portadas-compartir.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
@@ -157,7 +157,7 @@ archivo que no existe. Al mover un archivo, es lo que avisa de los enlaces que q
 
 ## 10. Historial de este documento
 
-- **2026-10-22**: `robots.txt` en la raíz, `servidor/fichas.js` (fichas y sitemap), imágenes para compartir en `iconos/` y `herramientas/portadas-compartir.mjs`.
+- **2026-10-22**: las fuentes se sirven desde la web (`estilos/fuentes/`), sin Google Fonts. Antes, ese mismo día: `robots.txt` en la raíz, `servidor/fichas.js` (fichas y sitemap), imágenes para compartir en `iconos/` y `herramientas/portadas-compartir.mjs`.
 - **2026-10-13**: primera versión. Se crean `docs/` (con `LANZAMIENTO.md` y `PERFILES.md`, que estaban en la raíz) y
   `estilos/` (con `cuenta.css`), `en-pruebas.js` pasa de `juegos/` a `shell/` (es código del navegador, no un juego)
   y se añade `herramientas/estructura.mjs`.

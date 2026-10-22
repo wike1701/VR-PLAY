@@ -64,6 +64,8 @@ const PATRONES = [
   /\bimport\s+(?:[\w*{}\s,]+\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g,  // import … from './x.js'
   /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g,                     // import('./x.js')
   /\b(?:src|href)=["']([^"'#?:]+\.(?:js|css|svg|png|jpg|webmanifest|html))["']/g, // src="x.js", href="estilos/x.css"
+  /\burl\(\s*["']?([^"'()#?:]+\.(?:woff2|svg|png|jpg))["']?\s*\)/g,  // url("fuentes/x.woff2") en el CSS
+  /\bhref=["']([^"'#?:]+\.woff2)["']/g,                                // <link rel="preload" href="…woff2">
 ];
 // Los textos legales traducidos se insertan dentro de legal.html: sus enlaces se leen desde la raíz
 const baseDe = (archivo) => (relativa(archivo).startsWith('idiomas/legal/') ? RAIZ : path.dirname(archivo));

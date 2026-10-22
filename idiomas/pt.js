@@ -183,6 +183,7 @@ export default {
     opcional: '(opcional)',
     publicarComentario: 'Publicar comentário',
     escribeAlgo: 'Escreva algo antes de publicar.',
+    avisoPublicar: 'Ao publicar, você aceita que o que escreve e seu nome fiquem visíveis publicamente. É preciso ter 14 anos ou mais.',
     antesDeEscribir: 'Antes de escrever, veja se alguém já sugeriu: se sim, dê um ♥ e comente lá.',
     reglasTitulo: 'Para combinar com o VR Play',
     reglas: [
