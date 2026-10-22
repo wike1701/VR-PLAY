@@ -176,3 +176,19 @@ CREATE TABLE IF NOT EXISTS favoritos (
   creada     TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (usuario_id, juego)
 );
+
+-- Denuncias de sugerencias y comentarios (botón «Denunciar» del foro). Una por conexión y contenido.
+-- El administrador las revisa en admin.html: oculta el contenido o la da por revisada. El Worker la crea solo si falta.
+CREATE TABLE IF NOT EXISTS denuncias (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  tipo      TEXT NOT NULL,                       -- sugerencia | comentario
+  objeto_id INTEGER NOT NULL,                    -- id de la sugerencia o del comentario
+  motivo    TEXT NOT NULL,                       -- spam | ofensivo | datos_personales | ilegal | otro
+  detalle   TEXT NOT NULL DEFAULT '',            -- explicación opcional (hasta 500 caracteres)
+  ip        TEXT NOT NULL DEFAULT '',            -- huella de la IP (hash), contra el abuso
+  revisada  INTEGER NOT NULL DEFAULT 0,
+  creada    TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (tipo, objeto_id, ip)
+);
+CREATE INDEX IF NOT EXISTS denuncias_pendientes ON denuncias (revisada, tipo, objeto_id);
+CREATE INDEX IF NOT EXISTS denuncias_ip ON denuncias (ip, creada);

@@ -359,6 +359,7 @@
 
   /* Pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues) */
   .pestanas { display: flex; align-items: center; gap: 4px; margin: 0 0 18px; border-bottom: 1px solid var(--line-suave); }
+  .lista-pestanas { display: flex; align-items: center; gap: 4px; } /* el rol tablist solo puede tener pestañas dentro */
   .pestanas button {
     padding: 10px 16px;
     border: 0;
@@ -699,9 +700,11 @@
       <h2 data-i18n="inicio.todosLosJuegos">Todos los juegos</h2>
       <span class="contador" id="contador"></span>
     </div>
-    <div class="pestanas" id="pestanas" role="tablist" hidden>
-      <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
-      <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
+    <div class="pestanas" id="pestanas" hidden>
+      <div class="lista-pestanas" role="tablist">
+        <button type="button" role="tab" data-pestana="paraTi" aria-selected="true" data-i18n="inicio.paraTi">Para ti</button>
+        <button type="button" role="tab" data-pestana="seguidos" aria-selected="false" data-i18n="inicio.seguidos">Seguidos</button>
+      </div>
       <a class="enlace-clasificaciones" href="clasificacion.html">🏆 <span data-i18n="clasificacion.titulos">Clasificaciones</span></a>
     </div>
     <section class="feed" id="feed" hidden aria-live="polite"></section>

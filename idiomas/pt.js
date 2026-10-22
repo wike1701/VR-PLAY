@@ -115,6 +115,10 @@ export default {
       derecha: 'Mão direita atrás do ombro direito: próximo jogo',
       izquierda: 'Mão esquerda atrás do ombro esquerdo: pausa e menu',
       dejala: 'Deixe-a um segundo no botão, até a roda se completar',
+      seguridadTitulo: 'Antes de jogar',
+      seguridadEspacio: 'Libere o espaço ao seu redor',
+      seguridadLimite: 'Confira o limite dos seus óculos',
+      seguridadDescansos: 'Faça pausas e pare se ficar tonto',
     },
   },
   pausa: {
@@ -184,6 +188,19 @@ export default {
     publicarComentario: 'Publicar comentário',
     escribeAlgo: 'Escreva algo antes de publicar.',
     avisoPublicar: 'Ao publicar, você aceita que o que escreve e seu nome fiquem visíveis publicamente. É preciso ter 14 anos ou mais.',
+    denunciar: 'Denunciar',
+    denunciaMotivo: 'Qual é o problema?',
+    motivosDenuncia: {
+      spam: 'Spam ou publicidade',
+      ofensivo: 'Insultos ou ofensas',
+      datos_personales: 'Dados pessoais de alguém',
+      ilegal: 'Conteúdo ilegal',
+      otro: 'Outro motivo',
+    },
+    denunciaDetalle: 'Explique um pouco',
+    enviarDenuncia: 'Enviar denúncia',
+    denunciaEnviada: 'Obrigado. Vamos analisar o quanto antes.',
+    denunciaSinMotivo: 'Escolha qual é o problema.',
     antesDeEscribir: 'Antes de escrever, veja se alguém já sugeriu: se sim, dê um ♥ e comente lá.',
     reglasTitulo: 'Para combinar com o VR Play',
     reglas: [
@@ -220,6 +237,7 @@ export default {
       limite_comentarios: 'Você escreveu muitos comentários seguidos. Tente daqui a pouco.',
       limite_sugerencias: 'Você enviou muitas sugestões seguidas. Tente daqui a pouco.',
       limite_me_gusta: 'Muitas curtidas seguidas. Tente daqui a pouco.',
+      limite_denuncias: 'Você enviou muitas denúncias seguidas. Tente de novo daqui a pouco.',
       titulo_longitud: 'O título deve ter entre 4 e 80 caracteres.',
       descripcion_longitud: 'A descrição deve ter entre 20 e 2000 caracteres.',
       campo_largo: 'Algum campo é longo demais.',
@@ -409,6 +427,14 @@ export default {
       puesto: '🏆 {puesto}º lugar na classificação',
       tuMejor: 'Sua melhor marca: {valor}',
     },
+  },
+  // Página de error 404.html (cualquier dirección que no existe)
+  noEncontrada: {
+    tituloPagina: 'Página não encontrada · VR Play',
+    titulo: 'Esta página não existe',
+    texto: 'Talvez o link esteja escrito errado ou a página não exista mais. Os jogos continuam aqui.',
+    irAJuegos: 'Ir para os jogos',
+    sugerir: 'Sugerir um jogo',
   },
   legal: {
     tituloPagina: 'Aviso legal e privacidade · VR Play',

@@ -16,6 +16,7 @@ import * as adminUsuarios from './admin-usuarios.js';
 import * as perfiles from './perfiles.js';
 import * as clasificacion from './clasificacion.js';
 import * as fichas from './fichas.js';
+import * as denuncias from './denuncias.js';
 import { error } from './comun.js';
 import { prepararBD } from './bd.js';
 
@@ -33,6 +34,7 @@ const RUTAS = [
   [/^\/api\/sugerencias\/([^/]+)\/comentarios$/, comentarios],
   [/^\/api\/sugerencias\/([^/]+)\/me-gusta$/, meGusta],
   [/^\/api\/comentarios\/([^/]+)$/, comentario],
+  [/^\/api\/denuncias$/, denuncias],
   [/^\/api\/juegos-en-pruebas$/, juegosEnPruebas],
   [/^\/api\/juegos\/me-gusta$/, { onRequestGet: juegosMeGusta.onRequestGet }],
   [/^\/api\/juegos\/estadisticas$/, { onRequestGet: juegosMeGusta.estadisticas }],

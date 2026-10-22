@@ -116,6 +116,10 @@ export default {
       derecha: '右手を右肩のうしろへ：次のゲーム',
       izquierda: '左手を左肩のうしろへ：ポーズとメニュー',
       dejala: 'ボタンに1秒手を置き、輪がいっぱいになるまで待つ',
+      seguridadTitulo: 'プレイの前に',
+      seguridadEspacio: '周りのスペースを空けましょう',
+      seguridadLimite: 'ヘッドセットの境界を確認しましょう',
+      seguridadDescansos: '休憩をとり、気分が悪くなったら中断しましょう',
     },
   },
   pausa: {
@@ -185,6 +189,19 @@ export default {
     publicarComentario: 'コメントを投稿',
     escribeAlgo: '投稿する前に何か書いてください。',
     avisoPublicar: '投稿すると、書いた内容と名前が公開されることに同意したものとみなされます。14歳以上の方が対象です。',
+    denunciar: '報告',
+    denunciaMotivo: 'どのような問題ですか？',
+    motivosDenuncia: {
+      spam: 'スパム・宣伝',
+      ofensivo: '侮辱・不快な内容',
+      datos_personales: '他人の個人情報',
+      ilegal: '違法な内容',
+      otro: 'その他',
+    },
+    denunciaDetalle: '簡単に説明してください',
+    enviarDenuncia: '報告を送信',
+    denunciaEnviada: 'ありがとうございます。できるだけ早く確認します。',
+    denunciaSinMotivo: '問題の種類を選んでください。',
     antesDeEscribir: '書く前に、同じリクエストがないか確認してください。あれば♥を押して、そこにコメントしましょう。',
     reglasTitulo: 'VR Playに合うゲームの条件',
     reglas: [
@@ -221,6 +238,7 @@ export default {
       limite_comentarios: '連続してコメントしすぎています。しばらくしてからお試しください。',
       limite_sugerencias: '連続してリクエストを送りすぎています。しばらくしてからお試しください。',
       limite_me_gusta: '連続して「いいね」しすぎています。しばらくしてからお試しください。',
+      limite_denuncias: '続けて多くの報告が送信されました。しばらくしてからもう一度お試しください。',
       titulo_longitud: 'タイトルは4〜80文字で入力してください。',
       descripcion_longitud: '説明は20〜2000文字で入力してください。',
       campo_largo: '長すぎる項目があります。',
@@ -410,6 +428,14 @@ export default {
       puesto: '🏆 ランキング {puesto} 位',
       tuMejor: '自己ベスト：{valor}',
     },
+  },
+  // Página de error 404.html (cualquier dirección que no existe)
+  noEncontrada: {
+    tituloPagina: 'ページが見つかりません · VR Play',
+    titulo: 'このページは存在しません',
+    texto: 'リンクが間違っているか、ページが削除された可能性があります。ゲームはいつでも遊べます。',
+    irAJuegos: 'ゲーム一覧へ',
+    sugerir: 'ゲームを提案する',
   },
   legal: {
     tituloPagina: '法的情報とプライバシー · VR Play',

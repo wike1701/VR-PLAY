@@ -2,6 +2,7 @@
 // - La web son los archivos de la raíz del repositorio (menos lo que excluye .assetsignore).
 // - El programa de servidor/index.js solo se ejecuta para /api/* (el foro), las fichas de los juegos
 //   (/juego/*), /sitemap.xml y /llms.txt.
+// - Una dirección que no existe recibe 404.html (con estado 404). Las cabeceras de seguridad están en _headers.
 // - Las claves (ADMIN_TOKEN, SAL, RESEND_API_KEY, GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET) NO van aquí:
 //   se ponen como "Secret" en el panel de Cloudflare.
 // - CUENTAS: "1" enseña a todo el mundo el botón «Entrar» de las cuentas de usuario. Con "0" solo se ve
@@ -13,6 +14,7 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
+    "not_found_handling": "404-page",
     "run_worker_first": ["/api/*", "/juego/*", "/sitemap.xml", "/llms.txt"]
   },
   "d1_databases": [

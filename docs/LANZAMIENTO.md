@@ -16,9 +16,9 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 - [x] Ocultar el hueco «Espacio publicitario» hasta que haya anuncios (en `index.html`, con `hidden`; al poner anuncios, quitarlo y añadir el banner de consentimiento)
 - [ ] **Normas del foro** visibles junto al formulario
 - [x] Aviso junto al botón de publicar del foro: lo que escribes es público, edad mínima y enlace a la privacidad (2026-10-22)
-- [ ] Botón **«Denunciar»** en sugerencias y comentarios (con su tabla y una sección en `admin.html`)
-- [ ] Edad mínima indicada (14 años en España para dar el consentimiento uno mismo)
-- [ ] Aviso de seguridad en VR antes de jugar: espacio libre a tu alrededor y bajo tu responsabilidad (el texto ya está en `legal.html`; falta mostrarlo al entrar en VR)
+- [x] Botón **«Denunciar»** en sugerencias y comentarios (con su tabla y una sección en `admin.html`, 2026-10-22)
+- [x] Edad mínima indicada (14 años en España para dar el consentimiento uno mismo): en `legal.html`, al crear la cuenta y junto al botón de publicar del foro
+- [x] Aviso de seguridad en VR antes de jugar: espacio libre a tu alrededor y bajo tu responsabilidad (en `legal.html` y, al entrar en VR, 5 s antes de la ayuda de los botones)
 
 ## 2. Estabilidad (que no se rompa)
 
@@ -29,11 +29,11 @@ Marca cada punto con `[x]` cuando esté hecho. Los bloques van por orden de prio
 - [ ] Entorno de pruebas aparte (otro Worker con su propia base de datos) para probar antes de producción
 - [ ] Servir three.js desde la propia web, sin depender de jsDelivr
 - [ ] Versión en las URLs de los módulos (`juego.js?v=…`) o cabeceras de caché adecuadas, para que nadie se quede con una versión vieja
-- [ ] Archivo `_headers` con CSP, `X-Content-Type-Options`, `Referrer-Policy` y `Permissions-Policy` (permitiendo `xr-spatial-tracking`)
+- [x] Archivo `_headers` con `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` (sin limitar la VR) y HSTS. Sin CSP de momento: la web usa scripts en línea, importmap y CDN, y una CSP mal ajustada rompería los juegos
 - [ ] Que `README.md` y `docs/` no se publiquen (`.assetsignore`)
 - [ ] Copia de seguridad periódica de D1 (`wrangler d1 export`) además del historial de 30 días
 - [ ] Registro de errores del navegador: `window.onerror` y `unhandledrejection` que envíen a `/api/errores` (con límite por IP)
-- [ ] Página de error 404 propia
+- [x] Página de error 404 propia (`404.html`, con `not_found_handling` en `wrangler.jsonc`)
 - [ ] Probar los 19 juegos en Quest 2, Quest 3, Android, iPhone, Chrome, Firefox y Safari
 
 ## 3. Perfiles de usuario

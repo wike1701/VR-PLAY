@@ -61,7 +61,7 @@ VR-PLAY/
 
 | Carpeta | Qué hay | Normas |
 |---|---|---|
-| **raíz** | Las 9 páginas: `index` (portada), `play` (la shell VR), `foro`, `clasificacion`, `perfil`, `entrar`, `cuenta`, `legal` y `admin` | Solo páginas, configuración y documentos principales. Cada página lleva su CSS propio dentro; si es compartido, va en `estilos/`. |
+| **raíz** | Las 9 páginas: `index` (portada), `play` (la shell VR), `foro`, `clasificacion`, `perfil`, `entrar`, `cuenta`, `legal` y `admin`; `404.html` (direcciones que no existen, con rutas absolutas) y `_headers` (cabeceras de seguridad) | Solo páginas, configuración y documentos principales. Cada página lleva su CSS propio dentro; si es compartido, va en `estilos/`. |
 | **`shell/`** | `shell.js` (motor VR y cambio de juego), `boton-cambio.js`, `menu-pausa.js`, `catalogo-vr.js`, `graficos.js`, `efectos.js`, `paisaje.js`, `sonido.js`, `utilidades.js`, `pantalla-completa.js`, y los módulos que usan también las páginas: `cuenta.js`, `valoraciones.js`, `clasificacion.js`, `en-pruebas.js` | Código del navegador que comparten varias páginas o juegos. Un archivo por responsabilidad. |
 | **`juegos/<id>/`** | `juego.js` (exporta `precargar` e `iniciar(ctx)`) y `miniatura.svg` | Todo el juego en su carpeta. Sin textos escritos a mano (van en `idiomas/`) y sin imports de `shell/`. |
 | **`juegos/`** (sueltos) | `catalogo.js` y `marcadores.js` | Solo datos de los juegos. El código va en `shell/`. |
@@ -157,7 +157,7 @@ archivo que no existe. Al mover un archivo, es lo que avisa de los enlaces que q
 
 ## 10. Historial de este documento
 
-- **2026-10-22**: las fuentes se sirven desde la web (`estilos/fuentes/`), sin Google Fonts. Antes, ese mismo día: `robots.txt` en la raíz, `servidor/fichas.js` (fichas y sitemap), imágenes para compartir en `iconos/` y `herramientas/portadas-compartir.mjs`.
+- **2026-10-22**: `404.html`, `_headers` y `servidor/denuncias.js`; las fuentes se sirven desde la web (`estilos/fuentes/`), sin Google Fonts. Antes, ese mismo día: `robots.txt` en la raíz, `servidor/fichas.js` (fichas y sitemap), imágenes para compartir en `iconos/` y `herramientas/portadas-compartir.mjs`.
 - **2026-10-13**: primera versión. Se crean `docs/` (con `LANZAMIENTO.md` y `PERFILES.md`, que estaban en la raíz) y
   `estilos/` (con `cuenta.css`), `en-pruebas.js` pasa de `juegos/` a `shell/` (es código del navegador, no un juego)
   y se añade `herramientas/estructura.mjs`.

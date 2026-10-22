@@ -251,6 +251,14 @@
     font-weight: 600;
   }
   .comentario .texto { margin-top: 4px; }
+  /* Denunciar: un enlace discreto que abre un formulario pequeño debajo */
+  .denunciar { display: inline-grid; gap: 8px; }
+  .comentario .denunciar { margin-left: 8px; }
+  .boton-denunciar { padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: 0.82rem; text-decoration: underline; cursor: pointer; }
+  .boton-denunciar:hover { color: var(--fg); }
+  .form-denuncia { display: grid; gap: 8px; max-width: 420px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
+  .form-denuncia .acciones { gap: 8px; }
+  .denuncia-enviada { color: var(--muted); font-size: 0.82rem; }
 
   form { display: grid; gap: 14px; }
   .formulario { padding: 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
@@ -435,6 +443,50 @@
     return boton;
   }
 
+  // «Denunciar» una sugerencia o un comentario: motivo y, si quieres, una explicación. Lo revisa el administrador.
+  function botonDenunciar(tipo, id) {
+    const $caja = el('span', { class: 'denunciar' });
+    const $boton = el('button', { type: 'button', class: 'boton-denunciar', 'aria-expanded': 'false' }, t('foro.denunciar'));
+    $boton.addEventListener('click', () => {
+      $boton.setAttribute('aria-expanded', 'true');
+      const $aviso = el('p', { class: 'aviso', role: 'status' });
+      const $form = el('form', { class: 'form-denuncia', novalidate: true },
+        el('label', {}, t('foro.denunciaMotivo'),
+          el('select', { name: 'motivo', required: true }, el('option', { value: '' }, t('foro.eligeUno')),
+            Object.entries(t('foro.motivosDenuncia')).map(([k, v]) => el('option', { value: k }, v)))),
+        el('label', {}, el('span', {}, `${t('foro.denunciaDetalle')} `, el('small', {}, t('foro.opcional'))),
+          el('input', { name: 'detalle', maxlength: 500 })),
+        el('div', { class: 'acciones' },
+          el('button', { class: 'boton', type: 'submit' }, t('foro.enviarDenuncia')),
+          el('button', { class: 'boton secundario', type: 'button', onclick: cerrar }, t('foro.cancelar')),
+          $aviso));
+      function cerrar() {
+        $form.remove();
+        $boton.hidden = false;
+        $boton.setAttribute('aria-expanded', 'false');
+        $boton.focus();
+      }
+      $form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!$form.motivo.value) return avisar($aviso, t('foro.denunciaSinMotivo'), true);
+        const enviar = $form.querySelector('button[type="submit"]');
+        enviar.disabled = true;
+        try {
+          await api('/denuncias', { method: 'POST', datos: { tipo, id, motivo: $form.motivo.value, detalle: $form.detalle.value } });
+          $caja.replaceChildren(el('span', { class: 'denuncia-enviada', role: 'status' }, t('foro.denunciaEnviada')));
+        } catch (error) {
+          avisar($aviso, error.message, true);
+          enviar.disabled = false;
+        }
+      });
+      $boton.hidden = true;
+      $caja.append($form);
+      $form.motivo.focus();
+    });
+    $caja.append($boton);
+    return $caja;
+  }
+
   // ─── Captcha de Cloudflare (solo si está configurado en el servidor) ───
   let config = null;
   let cargaTurnstile = null;
@@ -572,7 +624,7 @@
         el('h1', {}, s.titulo),
         el('p', { class: 'texto' }, s.descripcion),
         ficha.length ? el('dl', { class: 'ficha' }, ficha.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v)))) : null,
-        el('div', { class: 'acciones' }, botonMeGusta(s, meGusta, true), anclada ? null : enlaceJuego(s)),
+        el('div', { class: 'acciones' }, botonMeGusta(s, meGusta, true), anclada ? null : enlaceJuego(s), botonDenunciar('sugerencia', s.id)),
       ),
       anclada ? el('section', { class: 'anclada', 'aria-label': t('foro.respuestaAnclada') },
         el('p', { class: 'sello' }, `📌 ${anclada.oficial ? t('foro.respuestaOficial') : t('foro.respuestaDe', { autor: firma(anclada.autor) })} · ${hace(anclada.creada)}`),
@@ -581,7 +633,8 @@
       el('h2', {}, t('foro.comentarios', { n: resto.length })),
       el('section', { class: 'comentarios' }, resto.length
         ? resto.map((c) => el('article', { class: `comentario${c.oficial ? ' oficial' : ''}` },
-          el('div', {}, el('span', { class: 'autor' }, ...firmaCon(c)), c.oficial ? el('span', { class: 'sello-oficial' }, t('foro.oficial')) : null, el('span', { class: 'cuando' }, hace(c.creada))),
+          el('div', {}, el('span', { class: 'autor' }, ...firmaCon(c)), c.oficial ? el('span', { class: 'sello-oficial' }, t('foro.oficial')) : null, el('span', { class: 'cuando' }, hace(c.creada)),
+            c.oficial ? null : botonDenunciar('comentario', c.id)),
           el('p', { class: 'texto' }, c.texto)))
         : el('p', { class: 'vacio' }, t('foro.sinComentarios'))),
       $formulario,
