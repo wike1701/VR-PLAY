@@ -404,6 +404,18 @@ export default {
   legal: {
     tituloPagina: '法的情報とプライバシー · VR Play',
   },
+  ficha: {
+    tituloPagina: '{juego}：ブラウザで遊べる無料VRゲーム · VR Play',
+    metaCola: '無料・インストール不要。Meta Quest、マウス、スマホで遊べます。',
+    jugarGratis: '無料で遊ぶ',
+    sinDescargas: 'Meta Questのブラウザ、パソコン、スマホで動きます。ダウンロードも登録も不要です。',
+    conGafas: 'VRヘッドセット',
+    conRaton: 'マウス',
+    enMovil: 'スマホ',
+    etiquetas: 'タグ',
+    masJuegos: 'ほかのゲーム',
+    noEncontrado: 'このゲームは存在しないか、まだ公開されていません。',
+  },
   partida: {
     puntosN: '{n}点',
     tiempoPuntos: 'タイムアップ！ {n}点',

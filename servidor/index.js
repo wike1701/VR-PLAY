@@ -1,6 +1,6 @@
 // Worker de VR Play. La web (HTML, juegos, imágenes) son archivos estáticos que Cloudflare
-// sirve solo; este programa únicamente atiende /api/* (el foro de sugerencias), porque
-// wrangler.jsonc dice "run_worker_first": ["/api/*"]. Cada ruta exporta sus manejadores
+// sirve solo; este programa únicamente atiende /api/* (el foro de sugerencias), las fichas de
+// los juegos (/juego/:id) y /sitemap.xml, porque wrangler.jsonc dice "run_worker_first". Cada ruta exporta sus manejadores
 // como onRequestGet / onRequestPost / onRequestPatch({ request, env, params }), o una función
 // atender(contexto) que reparte ella misma (las cuentas).
 import * as config from './config.js';
@@ -15,8 +15,15 @@ import * as cuenta from './cuenta.js';
 import * as adminUsuarios from './admin-usuarios.js';
 import * as perfiles from './perfiles.js';
 import * as clasificacion from './clasificacion.js';
+import * as fichas from './fichas.js';
 import { error } from './comun.js';
 import { prepararBD } from './bd.js';
+
+// Páginas para los buscadores, en HTML y XML (no son de la API)
+const PAGINAS = [
+  [/^\/juego\/([a-z0-9_-]+)\/?$/, fichas.ficha],
+  [/^\/sitemap\.xml$/, fichas.sitemap],
+];
 
 const RUTAS = [
   [/^\/api\/config$/, config],
@@ -43,6 +50,17 @@ const RUTAS = [
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    for (const [patron, manejador] of PAGINAS) {
+      const coincide = url.pathname.match(patron);
+      if (!coincide) continue;
+      if (!['GET', 'HEAD'].includes(request.method)) return new Response('Método no permitido.', { status: 405 });
+      try {
+        return await manejador({ request, env, params: { id: coincide[1] } });
+      } catch (e) {
+        console.error('Error en', url.pathname, e);
+        return new Response('Error del servidor. Prueba más tarde.', { status: 500 });
+      }
+    }
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
 
     // Las peticiones que cambian algo desde otra web se rechazan (protección contra CSRF)

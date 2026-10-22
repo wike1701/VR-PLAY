@@ -403,6 +403,18 @@ export default {
   legal: {
     tituloPagina: 'Aviso legal e privacidade · VR Play',
   },
+  ficha: {
+    tituloPagina: '{juego}: jogo de realidade virtual grátis no navegador · VR Play',
+    metaCola: 'Grátis e sem instalar: com óculos Meta Quest, com o rato ou no telemóvel.',
+    jugarGratis: 'Jogar grátis',
+    sinDescargas: 'Funciona no navegador dos óculos Meta Quest, no computador e no telemóvel. Sem downloads nem registo.',
+    conGafas: 'Com óculos VR',
+    conRaton: 'Com o rato',
+    enMovil: 'No telemóvel',
+    etiquetas: 'Etiquetas',
+    masJuegos: 'Mais jogos',
+    noEncontrado: 'Este jogo não existe ou ainda não foi publicado.',
+  },
   partida: {
     puntosN: { one: '{n} ponto', other: '{n} pontos' },
     tiempoPuntos: { one: 'Tempo! {n} ponto', other: 'Tempo! {n} pontos' },
