@@ -282,8 +282,16 @@
     );
     juegosEnPruebas().then((ids) => {
       if (!ids.size) return;
-      $pruebas.replaceChildren('🧪 En pruebas (fuera del catálogo): ',
-        [...ids].map((id) => el('a', { href: `play.html#${id}`, target: '_blank', rel: 'noopener' }, juegoDe(id)?.titulo || id)));
+      const enlace = (id) => el('a', { href: `play.html#${id}`, target: '_blank', rel: 'noopener' }, `▶ ${juegoDe(id)?.titulo || id}`);
+      const delForo = [...ids].filter((id) => !juegoDe(id)?.pruebas);
+      const marcados = [...ids].filter((id) => juegoDe(id)?.pruebas);
+      $pruebas.replaceChildren(
+        ...(delForo.length ? ['🧪 En pruebas (fuera del catálogo): ', ...delForo.map(enlace)] : []),
+        ...(marcados.length ? [
+          ...(delForo.length ? [el('br')] : []), `🆕 Juegos nuevos sin publicar (${marcados.length}): `, ...marcados.map(enlace), el('br'),
+          'Para publicar uno, quita su «pruebas: true» de juegos/catalogo.js (o pídeselo a Claude).',
+        ] : []),
+      );
       $pruebas.hidden = false;
     });
 

@@ -94,6 +94,21 @@ juegos/
   fusion/juego.js       Fusión de Frutas
   balonmano/juego.js    Penaltis de Balonmano
   canoa/juego.js        Canoa
+  torre/juego.js        Torre de Bloques (en pruebas)
+  huevos/juego.js       Atrapa Huevos (en pruebas)
+  latas/juego.js        Tumba Latas (en pruebas)
+  aros/juego.js         Lanza Aros (en pruebas)
+  laberinto/juego.js    Laberinto (en pruebas)
+  tambores/juego.js     Tambores (en pruebas)
+  pesca/juego.js        Pesca en el Lago (en pruebas)
+  bomberos/juego.js     Bomberos (en pruebas)
+  golf/juego.js         Campo de Prácticas (en pruebas)
+  pinata/juego.js       Piñata (en pruebas)
+  tortitas/juego.js     Tortitas al Vuelo (en pruebas)
+  nieve/juego.js        Bolas de Nieve (en pruebas)
+  skeeball/juego.js     Skee-Ball (en pruebas)
+  toques/juego.js       Toques con Pala (en pruebas)
+  fuerza/juego.js       Mazo de Feria (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
@@ -277,7 +292,7 @@ Para que funcione hace falta, una vez: instalar la app de Claude en el repositor
 
 - Cada sugerencia es un hilo con un **estado**: nueva, en estudio, en desarrollo, hecha, ya existe o descartada.
 - Cuando se hace un juego, la respuesta oficial de VR Play queda **anclada** arriba del hilo, con un botón «Jugar». El hilo **sigue abierto** para que la gente opine sobre el juego. Si hay otra respuesta oficial más tarde (por ejemplo, «Actualizado: …»), pasa a ser la anclada y la anterior queda en el historial.
-- **Juegos en pruebas.** Un juego enlazado a una sugerencia que aún no está hecha (nueva, en estudio o en desarrollo) no sale en el catálogo ni en la rotación aleatoria, aunque ya esté subido a main. Se juega con su enlace directo (`play.html#id`), por ejemplo desde «▶ Probar» en `admin.html`. Al pasar la sugerencia a «hecha», aparece solo. La lista la da `/api/juegos-en-pruebas`, y si el servidor no responde (en local) no se esconde nada. Un juego ya publicado por otra sugerencia (hecha o ya existe) no se esconde aunque tenga una mejora en desarrollo.
+- **Juegos en pruebas.** Un juego enlazado a una sugerencia que aún no está hecha (nueva, en estudio o en desarrollo) no sale en el catálogo ni en la rotación aleatoria, aunque ya esté subido a main. Se juega con su enlace directo (`play.html#id`), por ejemplo desde «▶ Probar» en `admin.html`. Al pasar la sugerencia a «hecha», aparece solo. La lista la da `/api/juegos-en-pruebas`, y si el servidor no responde (en local) no se esconde nada. Un juego ya publicado por otra sugerencia (hecha o ya existe) no se esconde aunque tenga una mejora en desarrollo. Un juego que no viene del foro se deja en pruebas con `pruebas: true` en su línea de `juegos/catalogo.js` (sale en `admin.html` como «Juegos nuevos sin publicar», con su enlace para probarlo; se esconde también en local); para publicarlo, se quita la marca.
 - Contra el spam: límites por hora y por IP (solo se guarda un hash de la IP), nombres reservados (nadie puede firmar como «VR Play») y, si se configura, el captcha invisible de Cloudflare (Turnstile).
 - La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs` o desde el navegador en `admin.html`: un panel con las sugerencias por estado (empieza por «en desarrollo»), incluidas las ocultas. La página es pública, pero sin la clave no muestra nada, porque el servidor la comprueba en cada petición. La clave se guarda solo en ese navegador, y solo si marcas «Recordar».
 

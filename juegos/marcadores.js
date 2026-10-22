@@ -66,6 +66,36 @@ export const MARCADORES = {
   // Penaltis de Balonmano: 10 lanzamientos; gol 10 (+5 a la escuadra), el doble desde el tercer gol seguido.
   // El máximo es 15 + 15 + 8 × 30 = 270; cada lanzamiento tarda al menos unos 3 s con el silbato y la pausa
   balonmano: { orden: 'mayor', unidad: 'puntos', min: 0, max: 270, minSegundos: 25 },
+  // Torre de Bloques: 1 punto por bloque y 2 si es perfecto; sin final fijo (hasta que uno no toca la torre)
+  torre: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 6, minSegundos: 3 },
+  // Atrapa Huevos: 1 punto por huevo y 5 el dorado; sin final fijo (hasta romper 3 o coger 3 podridos)
+  huevos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 6, minSegundos: 3 },
+  // Tumba Latas: 5 rondas; 1 por lata (42 en total) y por ronda 5 por tirarlas todas + 5 por pelota que sobra (como mucho 15)
+  latas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 120, minSegundos: 20 },
+  // Lanza Aros: 10 aros; cada uno vale de 1 a 4 según la fila de la botella y 5 la dorada
+  aros: { orden: 'mayor', unidad: 'puntos', min: 0, max: 50, minSegundos: 10 },
+  // Laberinto: 2 minutos; 100 por laberinto + hasta 60 por rapidez (como mucho unos 10 laberintos)
+  laberinto: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 110 },
+  // Tambores: canción de 75 s; perfecto 3 y bien 1, por la racha (hasta x4). Unas 220 notas como mucho
+  tambores: { orden: 'mayor', unidad: 'puntos', min: 0, max: 3500, minSegundos: 70 },
+  // Pesca en el Lago: 90 s; 10 puntos por kilo de cada pez (como mucho unos 120 el más grande)
+  pesca: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, minSegundos: 85 },
+  // Bomberos: 10-15 puntos por fuego, sin límite de tiempo (acaba cuando se quema el edificio)
+  bomberos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 12, minSegundos: 5 },
+  // Campo de prácticas: 10 bolas, hasta 30 puntos por tiro y 80 si entra en el hoyo
+  golf: { orden: 'mayor', unidad: 'puntos', min: 0, max: 800, minSegundos: 30 },
+  // Piñata: 1-3 puntos por golpe y 10 + 5 por nivel al romperla, en 60 s
+  pinata: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, maxPorSegundo: 30, minSegundos: 55 },
+  // Tortitas: hasta 15 puntos por vuelta y 10 por tortita servida, en 75 s
+  tortitas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1200, maxPorSegundo: 15, minSegundos: 70 },
+  // Bolas de nieve: 10-15 puntos por acierto, sin tiempo (acaba al recibir tres bolas)
+  nieve: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 5 },
+  // Skee-Ball: 9 bolas, de 10 a 100 puntos cada una
+  skeeball: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
+  // Toques con pala: 1-6 puntos por toque y 10 por estrella, sin tiempo (acaba al caer tres pelotas)
+  toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
+  // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
+  fuerza: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1400, minSegundos: 20 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

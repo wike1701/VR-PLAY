@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa0e0"/>
+      <stop offset="0.65" stop-color="#ffe2b8"/>
+      <stop offset="1" stop-color="#c98a5a"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#fff6e0" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#fff6e0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cuerpo" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ff8fb4"/>
+      <stop offset="1" stop-color="#c22f62"/>
+    </radialGradient>
+    <linearGradient id="pico" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6fd6f0"/>
+      <stop offset="1" stop-color="#1f8fb2"/>
+    </linearGradient>
+    <radialGradient id="golpe">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <rect x="0" y="250" width="400" height="80" fill="#f1e6d0"/>
+  <rect x="0" y="244" width="400" height="10" fill="#b5562e"/>
+  <rect x="0" y="330" width="400" height="70" fill="#c98a5a"/>
+  <!-- Papel picado -->
+  <path d="M0 30 Q200 80 400 30" fill="none" stroke="#7a5a3a" stroke-width="2"/>
+  <g>
+    <path d="M30 38 h24 v26 l-12 -6 l-12 6Z" fill="#e8457a"/><path d="M90 50 h24 v26 l-12 -6 l-12 6Z" fill="#f5c23a"/>
+    <path d="M150 57 h24 v26 l-12 -6 l-12 6Z" fill="#2fb6d8"/><path d="M226 57 h24 v26 l-12 -6 l-12 6Z" fill="#3fbf6a"/>
+    <path d="M286 50 h24 v26 l-12 -6 l-12 6Z" fill="#8a5ad6"/><path d="M346 38 h24 v26 l-12 -6 l-12 6Z" fill="#e8457a"/>
+  </g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Cuerda -->
+  <path d="M200 60 L212 118" stroke="#d8c8a0" stroke-width="4"/>
+  <ellipse cx="200" cy="372" rx="100" ry="14" fill="url(#sombra)"/>
+  <!-- Piñata de estrella -->
+  <g transform="rotate(12 215 200)">
+    <path d="M215 120 L235 160 L195 160Z" fill="url(#pico)"/>
+    <path d="M140 175 L185 170 L180 205Z" fill="url(#pico)"/>
+    <path d="M290 175 L245 170 L250 205Z" fill="url(#pico)"/>
+    <path d="M165 255 L192 225 L205 250Z" fill="url(#pico)"/>
+    <path d="M268 255 L240 225 L228 250Z" fill="url(#pico)"/>
+    <path d="M215 290 L200 250 L232 250Z" fill="url(#pico)"/>
+    <circle cx="215" cy="205" r="52" fill="url(#cuerpo)"/>
+    <g stroke="#ffffff" stroke-width="3" opacity="0.35"><path d="M170 190 h90"/><path d="M166 210 h98"/><path d="M172 230 h86"/></g>
+    <g fill="#ffd23f"><path d="M140 175 l-14 10 l6 4Z"/><path d="M290 175 l14 10 l-6 4Z"/><path d="M215 290 l-6 16 l12 0Z"/></g>
+  </g>
+  <!-- Golpe coral -->
+  <circle cx="160" cy="230" r="58" fill="url(#golpe)"/>
+  <g stroke="#ff6a3d" stroke-width="6" stroke-linecap="round"><path d="M122 200 l-22 -14"/><path d="M118 236 l-28 2"/><path d="M132 266 l-18 18"/></g>
+  <!-- Caramelos que caen -->
+  <g>
+    <rect x="120" y="300" width="22" height="12" rx="6" fill="#ffd23f" transform="rotate(30 131 306)"/>
+    <rect x="250" y="310" width="22" height="12" rx="6" fill="#4fc3f7" transform="rotate(-20 261 316)"/>
+    <rect x="200" y="330" width="22" height="12" rx="6" fill="#ff4f6d" transform="rotate(60 211 336)"/>
+    <rect x="300" y="280" width="22" height="12" rx="6" fill="#9ccc65" transform="rotate(10 311 286)"/>
+    <rect x="90" y="340" width="22" height="12" rx="6" fill="#ba68c8" transform="rotate(-40 101 346)"/>
+  </g>
+  <!-- Palo a rayas -->
+  <g transform="rotate(-38 60 360)">
+    <rect x="40" y="200" width="20" height="200" rx="9" fill="#f4efe6"/>
+    <g fill="#ff6a3d"><rect x="40" y="210" width="20" height="22"/><rect x="40" y="254" width="20" height="22"/><rect x="40" y="298" width="20" height="22"/><rect x="40" y="342" width="20" height="22"/></g>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a5fa8"/>
+      <stop offset="0.6" stop-color="#f09a66"/>
+      <stop offset="1" stop-color="#ffc08a"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="verde" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#174d30"/>
+      <stop offset="0.35" stop-color="#4fbf84"/>
+      <stop offset="1" stop-color="#14442a"/>
+    </linearGradient>
+    <linearGradient id="oro" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a5c08"/>
+      <stop offset="0.35" stop-color="#ffe08a"/>
+      <stop offset="1" stop-color="#8a5c08"/>
+    </linearGradient>
+    <linearGradient id="aro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb08f"/>
+      <stop offset="1" stop-color="#c2441c"/>
+    </linearGradient>
+    <linearGradient id="estela" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <g fill="#e9dcc6"><rect x="0" y="150" width="120" height="140"/><rect x="290" y="140" width="110" height="150"/></g>
+  <g fill="#b4532e"><rect x="-6" y="140" width="132" height="14"/><rect x="284" y="130" width="122" height="14"/></g>
+  <g fill="#2f5d8a"><rect x="24" y="186" width="26" height="36"/><rect x="74" y="186" width="26" height="36"/><rect x="314" y="176" width="26" height="36"/><rect x="360" y="176" width="26" height="36"/></g>
+  <path d="M0 60 Q200 130 400 60" fill="none" stroke="#3a2a20" stroke-width="2"/>
+  <g fill="#ffd23f"><circle cx="40" cy="74" r="6"/><circle cx="140" cy="98" r="6"/><circle cx="260" cy="98" r="6"/><circle cx="360" cy="74" r="6"/></g>
+  <g fill="#7ef0ff"><circle cx="90" cy="88" r="6"/><circle cx="200" cy="104" r="6"/><circle cx="310" cy="88" r="6"/></g>
+  <rect x="0" y="290" width="400" height="110" fill="#a8743f"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="350" rx="150" ry="14" fill="url(#sombra)"/>
+  <!-- Botellas -->
+  <path d="M70 350 V250 Q70 230 88 222 V180 h20 V222 Q126 230 126 250 V350Z" fill="url(#verde)"/>
+  <path d="M290 350 V250 Q290 230 308 222 V180 h20 V222 Q346 230 346 250 V350Z" fill="url(#verde)"/>
+  <path d="M164 356 V230 Q164 204 186 194 V140 h28 V194 Q236 204 236 230 V356Z" fill="url(#oro)"/>
+  <rect x="182" y="132" width="36" height="12" rx="3" fill="#c99630"/>
+  <ellipse cx="184" cy="260" rx="8" ry="40" fill="#ffffff" opacity="0.35"/>
+  <!-- Trayectoria coral y aro entrando por el cuello -->
+  <path d="M30 40 Q150 30 196 112 L210 110 Q160 18 30 22Z" fill="url(#estela)"/>
+  <ellipse cx="200" cy="172" rx="62" ry="18" fill="none" stroke="#7a2a10" stroke-width="16"/>
+  <ellipse cx="200" cy="168" rx="62" ry="18" fill="none" stroke="url(#aro)" stroke-width="14"/>
+  <path d="M186 186 h28 v-14 h-28Z" fill="url(#oro)"/>
+  <path d="M150 160 q50 -14 100 0" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.6"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

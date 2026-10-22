@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141a3a"/>
+      <stop offset="1" stop-color="#3a2056"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe2a8" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffe2a8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lata" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8f1d1d"/>
+      <stop offset="0.3" stop-color="#ff5a52"/>
+      <stop offset="0.55" stop-color="#e53935"/>
+      <stop offset="1" stop-color="#7a1414"/>
+    </linearGradient>
+    <linearGradient id="lataAzul" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#103d72"/>
+      <stop offset="0.3" stop-color="#5aa7f0"/>
+      <stop offset="0.55" stop-color="#1e88e5"/>
+      <stop offset="1" stop-color="#0c3060"/>
+    </linearGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.7" stop-color="#e9e4d6"/>
+      <stop offset="1" stop-color="#a39c8a"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Toldo a rayas -->
+  <g><rect x="0" y="0" width="400" height="56" fill="#f4efe6"/><g fill="#d6283a"><rect x="0" y="0" width="50" height="56"/><rect x="100" y="0" width="50" height="56"/><rect x="200" y="0" width="50" height="56"/><rect x="300" y="0" width="50" height="56"/></g></g>
+  <g fill="#ffd23f"><circle cx="30" cy="74" r="7"/><circle cx="110" cy="84" r="7"/><circle cx="270" cy="84" r="7"/><circle cx="370" cy="74" r="7"/></g>
+  <g fill="#7ef0ff"><circle cx="70" cy="82" r="7"/><circle cx="330" cy="82" r="7"/></g>
+  <rect x="0" y="300" width="400" height="100" fill="#6b3f22"/>
+  <rect x="40" y="300" width="320" height="14" fill="#8a5530"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="306" rx="150" ry="12" fill="url(#sombra)"/>
+  <!-- Pirámide de latas (la de arriba sale volando) -->
+  <g>
+    <rect x="80" y="220" width="70" height="84" rx="6" fill="url(#lata)"/><rect x="80" y="250" width="70" height="20" fill="#ffffff" opacity="0.85"/>
+    <rect x="165" y="220" width="70" height="84" rx="6" fill="url(#lataAzul)"/><rect x="165" y="250" width="70" height="20" fill="#ffffff" opacity="0.85"/>
+    <rect x="250" y="220" width="70" height="84" rx="6" fill="url(#lata)"/><rect x="250" y="250" width="70" height="20" fill="#ffffff" opacity="0.85"/>
+    <rect x="122" y="134" width="70" height="84" rx="6" fill="url(#lataAzul)"/><rect x="122" y="164" width="70" height="20" fill="#ffffff" opacity="0.85"/>
+  </g>
+  <!-- Impacto coral y lata que sale despedida -->
+  <circle cx="250" cy="170" r="70" fill="url(#impacto)"/>
+  <g fill="#ff6a3d"><path d="M262 120 l8 -30 l4 32Z"/><path d="M300 150 l30 -12 l-26 22Z"/><path d="M296 200 l30 10 l-30 0Z"/></g>
+  <g transform="rotate(32 300 110)"><rect x="268" y="66" width="64" height="80" rx="6" fill="url(#lata)"/><rect x="268" y="94" width="64" height="18" fill="#ffffff" opacity="0.85"/></g>
+  <!-- Pelota -->
+  <circle cx="232" cy="178" r="34" fill="url(#bola)"/>
+  <path d="M206 160 q26 18 50 -2" fill="none" stroke="#ff6a3d" stroke-width="5"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

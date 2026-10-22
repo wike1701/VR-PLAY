@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3a78"/>
+      <stop offset="0.55" stop-color="#ffb070"/>
+      <stop offset="1" stop-color="#9a7050"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#ffe2b8" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffe2b8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pista" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b8844a"/>
+      <stop offset="1" stop-color="#e0b070"/>
+    </linearGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#c08050"/>
+      <stop offset="1" stop-color="#5a3418"/>
+    </radialGradient>
+    <radialGradient id="brillo">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <g fill="#ffd23f"><circle cx="40" cy="40" r="5"/><circle cx="100" cy="56" r="5"/><circle cx="160" cy="64" r="5"/><circle cx="240" cy="64" r="5"/><circle cx="300" cy="56" r="5"/><circle cx="360" cy="40" r="5"/></g>
+  <g fill="#ff7ad9"><circle cx="70" cy="49" r="5"/><circle cx="200" cy="66" r="5"/><circle cx="330" cy="49" r="5"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Máquina: diana -->
+  <rect x="90" y="80" width="220" height="150" rx="10" fill="#1f3a7a"/>
+  <ellipse cx="200" cy="170" rx="88" ry="48" fill="#e8457a"/><ellipse cx="200" cy="170" rx="76" ry="40" fill="#10142a"/>
+  <ellipse cx="200" cy="170" rx="64" ry="34" fill="#2fb6d8"/><ellipse cx="200" cy="170" rx="52" ry="27" fill="#10142a"/>
+  <ellipse cx="200" cy="170" rx="40" ry="21" fill="#3fbf6a"/><ellipse cx="200" cy="170" rx="28" ry="14" fill="#10142a"/>
+  <ellipse cx="200" cy="170" rx="18" ry="9" fill="#ffd23f"/><ellipse cx="200" cy="170" rx="10" ry="5" fill="#10142a"/>
+  <ellipse cx="122" cy="108" rx="16" ry="9" fill="#ff6a3d"/><ellipse cx="278" cy="108" rx="16" ry="9" fill="#ff6a3d"/>
+  <!-- Pista -->
+  <path d="M150 230 L250 230 L330 400 L70 400Z" fill="url(#pista)"/>
+  <path d="M146 230 L70 400 L56 400 L136 230Z" fill="#1f3a7a"/><path d="M254 230 L330 400 L344 400 L264 230Z" fill="#1f3a7a"/>
+  <path d="M150 230 Q200 214 250 230 L250 240 L150 240Z" fill="#c8945a"/>
+  <ellipse cx="214" cy="300" rx="40" ry="8" fill="url(#sombra)"/>
+  <!-- Bola volando hacia el 50 -->
+  <circle cx="204" cy="176" r="46" fill="url(#brillo)"/>
+  <path d="M214 290 Q210 220 204 176" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 8" opacity="0.8"/>
+  <circle cx="205" cy="182" r="20" fill="url(#bola)"/>
+  <circle cx="198" cy="175" r="5" fill="#ffffff" opacity="0.4"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

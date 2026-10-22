@@ -4,6 +4,8 @@
 // idiomas/ (en la sección juegos.<id>). Los textos de aquí abajo ya llegan traducidos.
 // "genero" es una clave de la sección generos de los idiomas (arcade, deportes...).
 // La miniatura es juegos/<id>/miniatura.svg salvo que se indique otra (miniatura: 'juegos/<id>/miniatura.png').
+// "pruebas: true" deja el juego en pruebas aunque no venga del foro: no sale en el catálogo, ni en la
+// rotación ni en las clasificaciones, y se prueba desde admin.html. Para publicarlo, quita la marca.
 // El botón de cambio recorre todos los juegos en orden aleatorio, sin repetir hasta completar la vuelta.
 import { t, tOriginal } from '../idiomas/idiomas.js';
 
@@ -44,6 +46,21 @@ const LISTA = [
   { id: 'fusion', genero: 'puzle' },
   { id: 'balonmano', genero: 'deportes' },
   { id: 'canoa', genero: 'habilidad' },
+  { id: 'torre', genero: 'puzle', pruebas: true },
+  { id: 'huevos', genero: 'reflejos', pruebas: true },
+  { id: 'latas', genero: 'deportes', pruebas: true },
+  { id: 'aros', genero: 'habilidad', pruebas: true },
+  { id: 'laberinto', genero: 'puzle', pruebas: true },
+  { id: 'tambores', genero: 'ritmo', pruebas: true },
+  { id: 'pesca', genero: 'habilidad', pruebas: true },
+  { id: 'bomberos', genero: 'disparos', pruebas: true },
+  { id: 'golf', genero: 'deportes', pruebas: true },
+  { id: 'pinata', genero: 'arcade', pruebas: true },
+  { id: 'tortitas', genero: 'habilidad', pruebas: true },
+  { id: 'nieve', genero: 'disparos', pruebas: true },
+  { id: 'skeeball', genero: 'deportes', pruebas: true },
+  { id: 'toques', genero: 'habilidad', pruebas: true },
+  { id: 'fuerza', genero: 'habilidad', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:
@@ -51,12 +68,14 @@ const LISTA = [
 //   etiquetas  -> las del idioma (las 6 primeras se ven en la tarjeta del catálogo)
 //   busqueda   -> las del idioma más las originales en español (para el buscador por #)
 //   generoId   -> la clave del género (arcade, deportes...), igual en todos los idiomas
-export const JUEGOS = LISTA.map(({ id, genero, miniatura = `juegos/${id}/miniatura.svg` }) => {
+//   pruebas    -> true si está en pruebas por la marca de la lista (solo se ve desde admin.html)
+export const JUEGOS = LISTA.map(({ id, genero, pruebas = false, miniatura = `juegos/${id}/miniatura.svg` }) => {
   const texto = (campo) => t(`juegos.${id}.${campo}`);
   const etiquetas = texto('etiquetas');
   return {
     id,
     generoId: genero,
+    pruebas,
     genero: t(`generos.${genero}`),
     titulo: texto('titulo'),
     descripcion: texto('descripcion'),

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fa8d0"/>
+      <stop offset="0.6" stop-color="#e6eef6"/>
+      <stop offset="1" stop-color="#f4f8fc"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c8d8e8"/>
+    </radialGradient>
+    <radialGradient id="cuerpo" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#3a4458"/>
+      <stop offset="1" stop-color="#141822"/>
+    </radialGradient>
+    <radialGradient id="estalla">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <path d="M0 170 L70 100 L130 150 L200 80 L270 140 L330 95 L400 160 V200 H0Z" fill="#dbe6f0"/>
+  <g fill="#2f5a46"><path d="M20 220 l20 -60 l20 60Z"/><path d="M60 214 l16 -46 l16 46Z"/><path d="M320 220 l20 -64 l20 64Z"/><path d="M356 214 l16 -44 l16 44Z"/></g>
+  <rect x="0" y="210" width="400" height="190" fill="#f4f8fc"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="210" cy="312" rx="120" ry="14" fill="url(#sombra)"/>
+  <!-- Pingüino con gorro, golpeado -->
+  <g transform="rotate(-14 220 230)">
+    <ellipse cx="220" cy="230" rx="62" ry="80" fill="url(#cuerpo)"/>
+    <ellipse cx="220" cy="246" rx="44" ry="58" fill="#f6f6f2"/>
+    <circle cx="220" cy="160" r="44" fill="url(#cuerpo)"/>
+    <path d="M178 150 Q220 100 262 150Z" fill="#d6283a"/>
+    <circle cx="220" cy="112" r="12" fill="#f6f6f2"/>
+    <g stroke="#f6f6f2" stroke-width="5" stroke-linecap="round"><path d="M196 158 l12 8 M208 158 l-12 8"/><path d="M232 158 l12 8 M244 158 l-12 8"/></g>
+    <path d="M210 176 L230 176 L220 194Z" fill="#ff8a2a"/>
+    <ellipse cx="160" cy="232" rx="14" ry="38" fill="#1e2430" transform="rotate(30 160 232)"/>
+    <ellipse cx="280" cy="232" rx="14" ry="38" fill="#1e2430" transform="rotate(-30 280 232)"/>
+  </g>
+  <!-- Muro de nieve -->
+  <path d="M60 330 Q80 280 130 290 Q160 260 200 285 Q240 262 280 288 Q320 268 350 300 Q370 320 360 340 H60Z" fill="#f4f8fc" stroke="#c8d8e8" stroke-width="4"/>
+  <!-- Impacto de la bola, coral -->
+  <circle cx="190" cy="160" r="56" fill="url(#estalla)"/>
+  <g fill="#ffffff"><circle cx="160" cy="132" r="9"/><circle cx="214" cy="126" r="7"/><circle cx="150" cy="176" r="6"/><circle cx="200" cy="190" r="5"/></g>
+  <circle cx="180" cy="158" r="22" fill="url(#bola)"/>
+  <!-- Otra bola que llega -->
+  <circle cx="60" cy="90" r="18" fill="url(#bola)"/>
+  <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8"><path d="M20 70 l22 10"/><path d="M14 92 l26 0"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

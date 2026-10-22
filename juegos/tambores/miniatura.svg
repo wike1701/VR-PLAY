@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c0620"/>
+      <stop offset="1" stop-color="#2a1048"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd9f0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffd9f0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="casco" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5a0f88"/>
+      <stop offset="0.35" stop-color="#b36bff"/>
+      <stop offset="1" stop-color="#3a0860"/>
+    </linearGradient>
+    <linearGradient id="parche" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d9d2c4"/>
+    </linearGradient>
+    <linearGradient id="madera" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f6dcaa"/>
+      <stop offset="1" stop-color="#b98a4c"/>
+    </linearGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="haz" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2ee6d6" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#2ee6d6" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <path d="M60 0 L0 260 L140 260Z" fill="url(#haz)"/>
+  <path d="M340 0 L260 260 L400 260Z" fill="url(#haz)"/>
+  <g fill="#ffd23f"><circle cx="60" cy="12" r="12"/><circle cx="340" cy="12" r="12"/></g>
+  <rect x="0" y="330" width="400" height="70" fill="#2a1e1a"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="346" rx="160" ry="18" fill="url(#sombra)"/>
+  <!-- Tambor -->
+  <path d="M60 220 V320 Q200 368 340 320 V220Z" fill="url(#casco)"/>
+  <g fill="#e6eaf0"><rect x="84" y="226" width="10" height="104" rx="4"/><rect x="150" y="236" width="10" height="112" rx="4"/><rect x="240" y="236" width="10" height="112" rx="4"/><rect x="306" y="226" width="10" height="104" rx="4"/></g>
+  <ellipse cx="200" cy="220" rx="140" ry="46" fill="#cfd5dd"/>
+  <ellipse cx="200" cy="218" rx="128" ry="39" fill="url(#parche)"/>
+  <!-- Aro de luz que llega y el impacto coral -->
+  <ellipse cx="200" cy="214" rx="120" ry="34" fill="none" stroke="#b36bff" stroke-width="8" opacity="0.8"/>
+  <ellipse cx="218" cy="214" rx="90" ry="36" fill="url(#impacto)"/>
+  <g fill="#ff6a3d"><path d="M150 190 l-30 -26 l38 18Z"/><path d="M286 186 l34 -24 l-26 32Z"/><path d="M226 172 l6 -36 l8 38Z"/></g>
+  <!-- Baqueta golpeando -->
+  <g transform="rotate(-38 240 200)">
+    <rect x="232" y="40" width="18" height="168" rx="8" fill="url(#madera)"/>
+    <ellipse cx="241" cy="206" rx="12" ry="14" fill="#f6dcaa"/>
+    <rect x="231" y="44" width="20" height="40" rx="6" fill="#ff6a3d"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>
