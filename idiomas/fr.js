@@ -183,6 +183,7 @@ export default {
     opcional: '(facultatif)',
     publicarComentario: 'Publier le commentaire',
     escribeAlgo: 'Écris quelque chose avant de publier.',
+    avisoPublicar: 'En publiant, tu acceptes que ce que tu écris et ton nom soient visibles publiquement. Il faut avoir 14 ans ou plus.',
     antesDeEscribir: 'Avant d’écrire, vérifie si quelqu’un l’a déjà proposé : si c’est le cas, donne-lui un ♥ et commente là-bas.',
     reglasTitulo: 'Pour que ça colle à VR Play',
     reglas: [

@@ -183,6 +183,7 @@ export default {
     opcional: '(optional)',
     publicarComentario: 'Kommentar veröffentlichen',
     escribeAlgo: 'Schreib etwas, bevor du veröffentlichst.',
+    avisoPublicar: 'Mit dem Veröffentlichen erklärst du dich einverstanden, dass dein Text und dein Name öffentlich sichtbar sind. Du musst mindestens 14 Jahre alt sein.',
     antesDeEscribir: 'Schau vor dem Schreiben nach, ob es schon jemand vorgeschlagen hat: Wenn ja, gib ein ♥ und kommentiere dort.',
     reglasTitulo: 'Damit es zu VR Play passt',
     reglas: [

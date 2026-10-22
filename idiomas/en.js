@@ -183,6 +183,7 @@ export default {
     opcional: '(optional)',
     publicarComentario: 'Post comment',
     escribeAlgo: 'Write something before posting.',
+    avisoPublicar: 'By posting, you agree that what you write and your name will be shown publicly. You must be 14 or older.',
     antesDeEscribir: 'Before writing, check whether someone has already suggested it: if so, give it a ♥ and comment there.',
     reglasTitulo: 'To fit in VR Play',
     reglas: [

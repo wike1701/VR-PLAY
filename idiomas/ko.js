@@ -184,6 +184,7 @@ export default {
     opcional: '(선택)',
     publicarComentario: '댓글 올리기',
     escribeAlgo: '올리기 전에 내용을 입력하세요.',
+    avisoPublicar: '게시하면 작성한 내용과 이름이 공개되는 데 동의하는 것으로 봅니다. 14세 이상이어야 합니다.',
     antesDeEscribir: '쓰기 전에 이미 누군가 제안했는지 확인하세요. 있다면 ♥를 누르고 거기에 댓글을 남기세요.',
     reglasTitulo: 'VR Play에 어울리려면',
     reglas: [

@@ -184,6 +184,7 @@ export default {
     opcional: '（任意）',
     publicarComentario: 'コメントを投稿',
     escribeAlgo: '投稿する前に何か書いてください。',
+    avisoPublicar: '投稿すると、書いた内容と名前が公開されることに同意したものとみなされます。14歳以上の方が対象です。',
     antesDeEscribir: '書く前に、同じリクエストがないか確認してください。あれば♥を押して、そこにコメントしましょう。',
     reglasTitulo: 'VR Playに合うゲームの条件',
     reglas: [

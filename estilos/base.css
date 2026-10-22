@@ -2,8 +2,23 @@
    Sistema de diseño de VR Play: colores, tipografía y lo básico de todas las páginas.
    Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
    color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
-   Fuentes (se cargan en cada página): Geist y Geist Mono, de Google Fonts.
+   Fuentes: Geist y Geist Mono (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web
+   para no enviar la IP de cada visitante a terceros. Cada página precarga Geist con un <link rel="preload">.
    ───────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: "Geist";
+  src: url("fuentes/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fuentes/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   /* Fondos y superficies: grafito con un toque frío, de más profundo a más cercano */
   --bg: #0a0b10;
@@ -18,7 +33,7 @@
   /* Texto */
   --fg: #f4f5f8;
   --muted: #8e93a6;
-  --muted-2: #6b7086;
+  --muted-2: #8a8fa3;   /* todo texto sobre los fondos de arriba, con contraste 4,5:1 o más (WCAG AA) */
 
   /* Un solo acento: naranja coral. Sobre él, el texto va oscuro (--sobre-accent) para que se lea bien */
   --accent: #ff6a3d;
