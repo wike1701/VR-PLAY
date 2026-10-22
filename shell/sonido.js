@@ -161,6 +161,12 @@ const SONIDOS = {
   // Piñata: el palo contra el cartón y el papel que se rasga al romperse
   carton: () => { tono(150, 70, 0.12, 'triangle', 0.45); ruido(0.1, 1300, 0.5, 0.8); },
   rasgar: () => { ruido(0.45, 2600, 0.6, 0.7); tono(220, 70, 0.3, 'sawtooth', 0.15); },
+  // Tortitas: la masa que chisporrotea en la sartén
+  chisporroteo: () => { ruido(0.5, 5200, 0.12, 0.9); ruido(0.3, 2600, 0.06, 1.5); },
+  // Bolas de nieve: el golpe blando de una bola que se deshace
+  nieve: () => { ruido(0.16, 900, 0.55, 0.6); tono(180, 90, 0.08, 'sine', 0.25); },
+  // Mazo de feria: el disco que sube silbando por la torre
+  subida: () => { tono(300, 1400, 0.6, 'triangle', 0.1); ruido(0.4, 2400, 0.08, 1.2); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

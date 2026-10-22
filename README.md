@@ -102,6 +102,11 @@ juegos/
   bomberos/juego.js     Bomberos (en pruebas)
   golf/juego.js         Campo de Prácticas (en pruebas)
   pinata/juego.js       Piñata (en pruebas)
+  tortitas/juego.js     Tortitas al Vuelo (en pruebas)
+  nieve/juego.js        Bolas de Nieve (en pruebas)
+  skeeball/juego.js     Skee-Ball (en pruebas)
+  toques/juego.js       Toques con Pala (en pruebas)
+  fuerza/juego.js       Mazo de Feria (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

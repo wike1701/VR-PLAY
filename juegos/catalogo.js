@@ -56,6 +56,11 @@ const LISTA = [
   { id: 'bomberos', genero: 'disparos', pruebas: true },
   { id: 'golf', genero: 'deportes', pruebas: true },
   { id: 'pinata', genero: 'arcade', pruebas: true },
+  { id: 'tortitas', genero: 'habilidad', pruebas: true },
+  { id: 'nieve', genero: 'disparos', pruebas: true },
+  { id: 'skeeball', genero: 'deportes', pruebas: true },
+  { id: 'toques', genero: 'habilidad', pruebas: true },
+  { id: 'fuerza', genero: 'habilidad', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

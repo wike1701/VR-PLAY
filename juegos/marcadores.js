@@ -86,6 +86,16 @@ export const MARCADORES = {
   golf: { orden: 'mayor', unidad: 'puntos', min: 0, max: 800, minSegundos: 30 },
   // Piñata: 1-3 puntos por golpe y 10 + 5 por nivel al romperla, en 60 s
   pinata: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, maxPorSegundo: 30, minSegundos: 55 },
+  // Tortitas: hasta 15 puntos por vuelta y 10 por tortita servida, en 75 s
+  tortitas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1200, maxPorSegundo: 15, minSegundos: 70 },
+  // Bolas de nieve: 10-15 puntos por acierto, sin tiempo (acaba al recibir tres bolas)
+  nieve: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 5 },
+  // Skee-Ball: 9 bolas, de 10 a 100 puntos cada una
+  skeeball: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
+  // Toques con pala: 1-6 puntos por toque y 10 por estrella, sin tiempo (acaba al caer tres pelotas)
+  toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
+  // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
+  fuerza: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1400, minSegundos: 20 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

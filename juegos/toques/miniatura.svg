@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3f8fd8"/>
+      <stop offset="0.55" stop-color="#d8f0f8"/>
+      <stop offset="1" stop-color="#e6c890"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#fff8e0" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#fff8e0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="madera" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ecc48a"/>
+      <stop offset="1" stop-color="#b8844a"/>
+    </radialGradient>
+    <radialGradient id="toque">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="pelota"><circle cx="210" cy="140" r="34"/></clipPath>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <rect x="0" y="200" width="400" height="26" fill="#1f84c4"/>
+  <rect x="0" y="224" width="400" height="6" fill="#f2f7f7"/>
+  <rect x="0" y="230" width="400" height="170" fill="#e6c890"/>
+  <!-- Palmera -->
+  <path d="M340 230 Q330 150 350 90" fill="none" stroke="#8a5a34" stroke-width="10"/>
+  <g fill="#3f8a3a"><path d="M350 90 q-50 -10 -70 20 q40 -6 70 -20Z"/><path d="M350 90 q40 -20 50 10 q-30 -10 -50 -10Z"/><path d="M350 90 q0 -40 -30 -50 q20 30 30 50Z"/></g>
+  <!-- Sombrilla -->
+  <path d="M30 150 Q80 100 130 150Z" fill="#ff6a3d"/><path d="M55 150 Q80 110 80 150Z" fill="#f4efe6"/>
+  <rect x="78" y="150" width="4" height="90" fill="#f2efe8"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Estrella -->
+  <path d="M300 60 l9 20 l22 2 l-17 14 l6 21 l-20 -12 l-20 12 l6 -21 l-17 -14 l22 -2Z" fill="#ffd23f" stroke="#ff8a2a" stroke-width="3"/>
+  <ellipse cx="200" cy="360" rx="110" ry="14" fill="url(#sombra)"/>
+  <!-- Rastro de toques -->
+  <path d="M190 280 Q170 200 210 140" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 9" opacity="0.8"/>
+  <!-- Pala -->
+  <ellipse cx="190" cy="300" rx="92" ry="38" fill="#ff6a3d"/>
+  <ellipse cx="190" cy="296" rx="86" ry="33" fill="url(#madera)"/>
+  <rect x="170" y="324" width="36" height="76" rx="8" fill="#ff6a3d" transform="rotate(14 188 330)"/>
+  <!-- Pelota de colores con el destello del toque -->
+  <circle cx="210" cy="140" r="64" fill="url(#toque)"/>
+  <g clip-path="url(#pelota)">
+    <rect x="176" y="100" width="12" height="80" fill="#ffd23f"/><rect x="188" y="100" width="12" height="80" fill="#ffffff"/>
+    <rect x="200" y="100" width="12" height="80" fill="#2fb6d8"/><rect x="212" y="100" width="12" height="80" fill="#ffffff"/>
+    <rect x="224" y="100" width="12" height="80" fill="#e8457a"/><rect x="236" y="100" width="12" height="80" fill="#ffffff"/>
+  </g>
+  <circle cx="198" cy="128" r="8" fill="#ffffff" opacity="0.5"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>
