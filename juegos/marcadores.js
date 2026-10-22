@@ -66,6 +66,16 @@ export const MARCADORES = {
   // Penaltis de Balonmano: 10 lanzamientos; gol 10 (+5 a la escuadra), el doble desde el tercer gol seguido.
   // El máximo es 15 + 15 + 8 × 30 = 270; cada lanzamiento tarda al menos unos 3 s con el silbato y la pausa
   balonmano: { orden: 'mayor', unidad: 'puntos', min: 0, max: 270, minSegundos: 25 },
+  // Torre de Bloques: 1 punto por bloque y 2 si es perfecto; sin final fijo (hasta que uno no toca la torre)
+  torre: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 6, minSegundos: 3 },
+  // Atrapa Huevos: 1 punto por huevo y 5 el dorado; sin final fijo (hasta romper 3 o coger 3 podridos)
+  huevos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 6, minSegundos: 3 },
+  // Tumba Latas: 5 rondas; 1 por lata (42 en total) y por ronda 5 por tirarlas todas + 5 por pelota que sobra (como mucho 15)
+  latas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 120, minSegundos: 20 },
+  // Lanza Aros: 10 aros; cada uno vale de 1 a 4 según la fila de la botella y 5 la dorada
+  aros: { orden: 'mayor', unidad: 'puntos', min: 0, max: 50, minSegundos: 10 },
+  // Laberinto: 2 minutos; 100 por laberinto + hasta 60 por rapidez (como mucho unos 10 laberintos)
+  laberinto: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 110 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

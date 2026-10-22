@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5fa6dc"/>
+      <stop offset="1" stop-color="#cfe6f4"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Ciudad lejana -->
+  <g fill="#7f9bb6">
+    <rect x="0" y="250" width="46" height="150"/><rect x="50" y="214" width="40" height="186"/><rect x="300" y="226" width="44" height="174"/><rect x="348" y="262" width="52" height="138"/>
+  </g>
+  <g fill="#9cb4c9">
+    <rect x="20" y="290" width="60" height="110"/><rect x="320" y="296" width="70" height="104"/>
+  </g>
+  <!-- Grúa -->
+  <g fill="#e2a62a">
+    <rect x="318" y="70" width="12" height="190"/><rect x="200" y="64" width="190" height="10"/><rect x="360" y="74" width="26" height="18"/>
+  </g>
+  <rect x="0" y="372" width="400" height="28" fill="#8a7a62"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="378" rx="120" ry="16" fill="url(#sombra)"/>
+  <!-- Torre de bloques (vista de lado y algo de arriba) -->
+  <g>
+    <rect x="128" y="330" width="144" height="46" fill="#8e8e8a"/><polygon points="128,330 158,316 302,316 272,330" fill="#b4b4ae"/><polygon points="272,330 302,316 302,362 272,376" fill="#6c6c68"/>
+    <rect x="140" y="292" width="124" height="38" fill="#e9725a"/><polygon points="140,292 168,279 292,279 264,292" fill="#f39a84"/><polygon points="264,292 292,279 292,317 264,330" fill="#b8503c"/>
+    <rect x="146" y="254" width="114" height="38" fill="#f0a24c"/><polygon points="146,254 172,241 286,241 260,254" fill="#f7c27e"/><polygon points="260,254 286,241 286,279 260,292" fill="#bf7a2c"/>
+    <rect x="152" y="216" width="104" height="38" fill="#e8cf4e"/><polygon points="152,216 176,203 280,203 256,216" fill="#f4e48a"/><polygon points="256,216 280,203 280,241 256,254" fill="#b39c2a"/>
+    <rect x="156" y="178" width="96" height="38" fill="#8fcf5e"/><polygon points="156,178 178,166 274,166 252,178" fill="#b8e48e"/><polygon points="252,178 274,166 274,203 252,216" fill="#5e9a38"/>
+    <rect x="160" y="140" width="88" height="38" fill="#4fc3a8"/><polygon points="160,140 180,129 268,129 248,140" fill="#8ae0cc"/><polygon points="248,140 268,129 268,166 248,178" fill="#2e8d78"/>
+  </g>
+  <!-- Estela coral del bloque que se desliza y lo que se corta -->
+  <path d="M40 96 L150 86 L150 120 L40 112 Z" fill="url(#estela)"/>
+  <g transform="rotate(-6 290 120)">
+    <rect x="270" y="120" width="30" height="34" fill="#ff6a3d"/><polygon points="270,120 290,110 320,110 300,120" fill="#ff9a78"/><polygon points="300,120 320,110 320,144 300,154" fill="#c24a24"/>
+  </g>
+  <!-- Bloque que llega, recién soltado -->
+  <rect x="150" y="96" width="110" height="38" fill="#5aa7e6"/><polygon points="150,96 172,84 282,84 260,96" fill="#9ccdf4"/><polygon points="260,96 282,84 282,122 260,134" fill="#3576b0"/>
+  <ellipse cx="190" cy="100" rx="30" ry="6" fill="#ffffff" opacity="0.25"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

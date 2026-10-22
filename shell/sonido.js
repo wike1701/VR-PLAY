@@ -133,6 +133,21 @@ const SONIDOS = {
   cristal: () => { ruido(0.25, 5200, 0.55, 0.9); tono(3100, 2400, 0.12, 'triangle', 0.12); tono(4200, 3600, 0.09, 'sine', 0.08, 0.04); },
   // Canoa: la pala que entra en el agua
   remo: () => { tono(240, 150, 0.09, 'sine', 0.12); ruido(0.14, 900, 0.14, 1.1); }, // entrada suave de la pala
+  // Tumba Latas: la lata que sale volando y la que rebota en el suelo
+  lata: () => { tono(1900, 1250, 0.09, 'triangle', 0.22); tono(3100, 2500, 0.06, 'sine', 0.1); ruido(0.08, 4200, 0.3, 1.4); },
+  lataSuelo: () => { tono(900, 700, 0.05, 'triangle', 0.12); ruido(0.05, 3000, 0.16, 1.2); },
+  // Lanza Aros: el aro que entra en la botella
+  aro: () => { tono(2400, 2350, 0.25, 'sine', 0.14); tono(3600, 3550, 0.18, 'sine', 0.06, 0.02); ruido(0.05, 5000, 0.15, 1.5); },
+  // Laberinto: la bola que choca con la pared de madera y la que cae en un agujero
+  madera: () => { tono(520, 300, 0.05, 'triangle', 0.18); ruido(0.04, 1200, 0.2, 1.5); },
+  agujero: () => { tono(400, 120, 0.35, 'sine', 0.28); ruido(0.2, 500, 0.25, 0.8); },
+  // Tambores: los cuatro tambores de la batería (de agudo a grave) y el pulso del ritmo
+  tambor0: () => { tono(330, 210, 0.18, 'sine', 0.42); ruido(0.05, 2400, 0.25, 1.2); },
+  tambor1: () => { ruido(0.16, 3200, 0.42, 0.7); tono(240, 180, 0.08, 'triangle', 0.25); }, // caja
+  tambor2: () => { tono(200, 130, 0.24, 'sine', 0.48); ruido(0.05, 1500, 0.2, 1.2); },
+  tambor3: () => { tono(120, 55, 0.3, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
+  pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
+  bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
