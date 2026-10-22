@@ -167,12 +167,27 @@ const SONIDOS = {
   nieve: () => { ruido(0.16, 900, 0.55, 0.6); tono(180, 90, 0.08, 'sine', 0.25); },
   // Mazo de feria: el disco que sube silbando por la torre
   subida: () => { tono(300, 1400, 0.6, 'triangle', 0.1); ruido(0.4, 2400, 0.08, 1.2); },
+  // Xilófono: el golpe de la baqueta en la madera y el pulso de fondo (un taco de madera).
+  // Las ocho teclas (xilo0 … xilo7, de do a do agudo) se añaden debajo.
+  xiloPulso: () => { tono(1900, 1700, 0.025, 'triangle', 0.07); },
+  xiloPulsoFuerte: () => { tono(1500, 1300, 0.035, 'triangle', 0.1); tono(95, 70, 0.08, 'sine', 0.18); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
     tono(784, 784, 0.3, 'triangle', 0.3, 0.3);
   },
 };
+
+// Xilófono (do5 a do6): la nota se apaga rápido como la madera, con su armónico de 3× (el de
+// las teclas de xilófono, que suena brillante), un toque de 4× y el chasquido de la baqueta.
+[523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.5].forEach((f, i) => {
+  SONIDOS['xilo' + i] = () => {
+    tono(f, f, 0.55, 'sine', 0.36);
+    tono(f * 3, f * 3, 0.12, 'sine', 0.09);
+    tono(f * 4.1, f * 4.1, 0.05, 'sine', 0.04);
+    ruido(0.025, 3800, 0.16, 1.2);
+  };
+});
 
 export function sonido(nombre) {
   if (!ac || ac.state !== 'running') return;

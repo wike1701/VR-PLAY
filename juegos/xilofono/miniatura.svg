@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a3a78"/>
+      <stop offset="0.55" stop-color="#f08a6a"/>
+      <stop offset="1" stop-color="#ffc88e"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="volumen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#2a0a20" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="madera" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a6238"/>
+      <stop offset="1" stop-color="#4e2a16"/>
+    </linearGradient>
+    <linearGradient id="mango" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f6dcaa"/>
+      <stop offset="1" stop-color="#b98a4c"/>
+    </linearGradient>
+    <radialGradient id="cabeza" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffb08f"/>
+      <stop offset="0.5" stop-color="#ff6a3d"/>
+      <stop offset="1" stop-color="#b8361a"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#ff6a3d" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.75"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <path d="M0 250 Q70 205 150 232 Q230 196 300 226 Q360 206 400 222 V400 H0 Z" fill="#5d4a6e" opacity="0.8"/>
+  <path d="M60 300 V200 A140 140 0 0 1 340 200 V300 Z" fill="#f3e6cf" opacity="0.35"/>
+  <path d="M0 300 H400 V400 H0 Z" fill="#7a5034"/>
+  <path d="M0 300 H400 V308 H0 Z" fill="#5a3a26"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="205" cy="338" rx="165" ry="18" fill="url(#sombra)"/>
+  <g transform="rotate(-10 200 236)">
+    <path d="M56 182 L346 202 L346 214 L56 196 Z" fill="url(#madera)"/>
+    <path d="M56 278 L346 262 L346 274 L56 292 Z" fill="url(#madera)"/>
+    <rect x="66" y="148" width="27" height="176" rx="8" fill="#ff4f5e"/><rect x="66" y="148" width="27" height="176" rx="8" fill="url(#volumen)"/><ellipse cx="75" cy="164" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="100" y="152" width="27" height="167" rx="8" fill="#ff8a3d"/><rect x="100" y="152" width="27" height="167" rx="8" fill="url(#volumen)"/><ellipse cx="109" cy="168" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="134" y="157" width="27" height="158" rx="8" fill="#ffd23f"/><rect x="134" y="157" width="27" height="158" rx="8" fill="url(#volumen)"/><ellipse cx="143" cy="173" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="168" y="162" width="27" height="149" rx="8" fill="#b6f08f"/><rect x="168" y="162" width="27" height="149" rx="8" fill="url(#volumen)"/><ellipse cx="177" cy="178" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="202" y="166" width="27" height="140" rx="8" fill="#2ee6d6"/><rect x="202" y="166" width="27" height="140" rx="8" fill="url(#volumen)"/><ellipse cx="211" cy="182" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="236" y="170" width="27" height="131" rx="8" fill="#3d8bff"/><rect x="236" y="170" width="27" height="131" rx="8" fill="url(#volumen)"/><ellipse cx="245" cy="186" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="270" y="175" width="27" height="122" rx="8" fill="#9b6bff"/><rect x="270" y="175" width="27" height="122" rx="8" fill="url(#volumen)"/><ellipse cx="279" cy="191" rx="4" ry="9" fill="#ffffff" opacity="0.45"/><rect x="304" y="180" width="27" height="113" rx="8" fill="#ff6ec7"/><rect x="304" y="180" width="27" height="113" rx="8" fill="url(#volumen)"/><ellipse cx="313" cy="196" rx="4" ry="9" fill="#ffffff" opacity="0.45"/>
+  </g>
+  <path d="M120 52 Q150 150 186 196 Q172 150 160 70 Z" fill="url(#estela)"/>
+  <circle cx="190" cy="214" r="70" fill="url(#impacto)"/>
+  <g stroke="#ff6a3d" stroke-width="7" stroke-linecap="round">
+    <path d="M128 196 L104 188"/><path d="M146 252 L124 270"/><path d="M236 252 L256 270"/><path d="M200 278 L202 304"/>
+  </g>
+  <path d="M352 22 L366 34 L210 196 L198 186 Z" fill="url(#mango)"/>
+  <path d="M352 22 L366 34 L382 18 L368 6 Z" fill="#2a2a30"/>
+  <circle cx="196" cy="196" r="27" fill="url(#cabeza)"/>
+  <ellipse cx="186" cy="185" rx="9" ry="6" fill="#ffffff" opacity="0.45"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

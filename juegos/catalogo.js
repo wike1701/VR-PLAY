@@ -61,6 +61,7 @@ const LISTA = [
   { id: 'skeeball', genero: 'deportes', pruebas: true },
   { id: 'toques', genero: 'habilidad', pruebas: true },
   { id: 'fuerza', genero: 'habilidad', pruebas: true },
+  { id: 'xilofono', genero: 'ritmo', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:
