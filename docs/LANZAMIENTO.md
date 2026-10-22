@@ -66,8 +66,9 @@ La especificación completa está en `docs/PERFILES.md`.
 
 - [x] Dominio propio, con el Worker conectado (`vrplaygame.com`)
 - [ ] Que `www.vrplaygame.com` y la dirección antigua `…workers.dev` lleven a `vrplaygame.com`
-- [ ] `meta description` y Open Graph (imagen al compartir) en todas las páginas
-- [ ] `sitemap.xml` y `robots.txt` (con `admin.html` excluido)
+- [x] `meta description` y Open Graph (imagen al compartir) en las páginas públicas, y una ficha indexable por juego (`/juego/<id>`, ver «Buscadores y enlaces compartidos» en el README)
+- [x] `sitemap.xml` (lo genera el Worker) y `robots.txt` (con `admin.html` excluido)
+- [ ] Dar de alta el sitemap en Google Search Console
 - [ ] Tutorial la primera vez que se entra en VR: cómo cambiar de juego y cómo pausar
 - [ ] Ajustes: altura, mano dominante (zurdos), jugar sentado, volumen
 - [x] Clasificaciones por juego (`clasificacion.html`, menú de pausa y perfil)

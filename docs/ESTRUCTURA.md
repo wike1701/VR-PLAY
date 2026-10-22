@@ -12,7 +12,7 @@ VR Play son dos programas en un mismo repositorio, desplegados juntos en un Work
 - **La web**: archivos estáticos (HTML y módulos JavaScript), sin paso de compilación. Lo que hay en el
   repositorio es exactamente lo que se publica, menos lo que excluye `.assetsignore`. three.js se carga
   desde la CDN de jsDelivr (versión fija 0.160.0) con el `importmap` de cada página.
-- **El servidor** (`servidor/`): solo atiende `/api/*`. Guarda los datos en Cloudflare D1.
+- **El servidor** (`servidor/`): atiende `/api/*`, las fichas de los juegos (`/juego/<id>`) y `/sitemap.xml`. Guarda los datos en Cloudflare D1.
 
 La organización es **por capas**, y dentro de los juegos, **por funcionalidad** (una carpeta por juego):
 
@@ -34,8 +34,8 @@ servidor/  ───────────┴──►  juegos/marcadores.js, 
 ```
 VR-PLAY/
 ├── *.html                  Páginas públicas (su dirección no se cambia: ver §4)
-├── favicon.svg, manifest.webmanifest
-├── iconos/                 Iconos PNG de la app instalada
+├── favicon.svg, manifest.webmanifest, robots.txt
+├── iconos/                 Iconos PNG de la app instalada e imágenes para compartir (compartir.jpg, juegos/<id>.jpg)
 ├── estilos/                Hojas de estilo compartidas entre páginas
 ├── shell/                  Código común del navegador (VR, juegos, cuenta, idiomas en uso…)
 ├── juegos/
@@ -46,7 +46,7 @@ VR-PLAY/
 │   ├── detectar.js, idiomas.js   Elegir idioma y traducir
 │   ├── <código>.js         Todos los textos de un idioma (es.js es el original)
 │   └── legal/<código>.html Texto legal traducido (se inserta en legal.html)
-├── servidor/               API del Worker (/api/*), index.js reparte las rutas
+├── servidor/               API del Worker (/api/*), fichas y sitemap; index.js reparte las rutas
 ├── bd/esquema.sql          Tablas de la base de datos (D1)
 ├── herramientas/           Scripts de terminal (Node) y la guía de la rutina diaria
 ├── docs/                   Documentos de diseño y planificación (no se publican)
@@ -69,7 +69,7 @@ VR-PLAY/
 | **`estilos/`** | `base.css` (el sistema de diseño: colores, fuentes y logo de toda la web) y `cuenta.css` (entrar, cuenta, perfil y clasificación) | CSS que usa más de una página. Los colores y las fuentes **solo** se definen en `base.css`: las páginas usan sus variables (`var(--accent)`, `var(--font-body)`…) y no escriben colores a mano. |
 | **`servidor/`** | `index.js` (rutas), `comun.js` y `bd.js` (utilidades y tablas), y un archivo por recurso de la API | Un archivo por ruta o grupo de rutas, que exporta `onRequestGet`, `onRequestPost`… |
 | **`bd/`** | `esquema.sql` | Todas las tablas. `servidor/bd.js` crea las nuevas solo, la primera vez. |
-| **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `calidad.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
+| **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `calidad.mjs`, `portadas-compartir.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
 | **`docs/`** | `ESTRUCTURA.md` (este), `CALIDAD.md` (estándar de calidad y rendimiento de los juegos), `PORTADAS.md` (estándar de las portadas), `PERFILES.md` (especificación de cuentas), `LANZAMIENTO.md` (lista de lanzamiento) | Documentos de diseño, especificaciones y planes. No se publican. |
 | **`.claude/skills/`** | Skills de terceros con su licencia y un `README.md` | Ver ese README antes de añadir una. |
 
@@ -80,13 +80,14 @@ Todos los archivos están en `servidor/`, sin subcarpetas. Por grupos:
 - **Base**: `index.js` (reparte las rutas), `comun.js` (respuestas, límites, huellas), `bd.js` (tablas), `config.js` (`/api/config`).
 - **Foro**: `sugerencias.js`, `sugerencia.js`, `comentarios.js`, `comentario.js`, `me-gusta.js`, `juegos-en-pruebas.js`.
 - **Juegos**: `juegos-me-gusta.js` (me gusta, partidas y estadísticas), `clasificacion.js`.
+- **Buscadores**: `fichas.js` (`/juego/:id` en HTML y `/sitemap.xml`; están en `PAGINAS` de `index.js`, no en `RUTAS`).
 - **Cuentas**: `cuenta.js`, `sesion.js`, `google.js`, `correo.js`, `perfiles.js` (perfiles, seguir y feed), `admin-usuarios.js`.
 
 ## 4. Dónde va cada cosa nueva
 
 | Quiero añadir… | Va en… | Y además… |
 |---|---|---|
-| Un **juego** | `juegos/<id>/juego.js` y `juegos/<id>/miniatura.svg` | Su línea en `juegos/catalogo.js` y `juegos/marcadores.js`, sus textos en **todos** los `idiomas/*.js` (`juegos.<id>`), su línea en el README. Ver «Añadir un juego nuevo» del README y `CLAUDE.md`. |
+| Un **juego** | `juegos/<id>/juego.js` y `juegos/<id>/miniatura.svg` | Su línea en `juegos/catalogo.js` y `juegos/marcadores.js`, sus textos en **todos** los `idiomas/*.js` (`juegos.<id>`), su línea en el README y su imagen para compartir (`node herramientas/portadas-compartir.mjs` → `iconos/juegos/<id>.jpg`). Ver «Añadir un juego nuevo» del README y `CLAUDE.md`. |
 | Una **página** | `<nombre>.html` en la raíz | Con `idiomas/detectar.js` en el `<head>`, sus textos en `idiomas/`, y su `hreflang` si es pública. Su nombre **no se cambia después**: es su dirección pública. |
 | **CSS compartido** | `estilos/<nombre>.css` | Enlazado con `href="estilos/<nombre>.css"`. |
 | Código del navegador **para varias páginas o juegos** | `shell/<nombre>.js` | Si es para los juegos, que llegue a través de `ctx` (en `shell/shell.js`). |
@@ -156,6 +157,7 @@ archivo que no existe. Al mover un archivo, es lo que avisa de los enlaces que q
 
 ## 10. Historial de este documento
 
+- **2026-10-22**: `robots.txt` en la raíz, `servidor/fichas.js` (fichas y sitemap), imágenes para compartir en `iconos/` y `herramientas/portadas-compartir.mjs`.
 - **2026-10-13**: primera versión. Se crean `docs/` (con `LANZAMIENTO.md` y `PERFILES.md`, que estaban en la raíz) y
   `estilos/` (con `cuenta.css`), `en-pruebas.js` pasa de `juegos/` a `shell/` (es código del navegador, no un juego)
   y se añade `herramientas/estructura.mjs`.

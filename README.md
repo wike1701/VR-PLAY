@@ -18,19 +18,21 @@ estilos/base.css        Sistema de diseño: colores, fuentes (Geist) y logo de t
 estilos/cuenta.css      Estilos de entrar.html, cuenta.html, perfil.html y clasificacion.html
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
-servidor/               API del foro y de las cuentas: solo atiende /api/* (index.js reparte las rutas)
+servidor/               API del foro y de las cuentas (/api/*), fichas de los juegos (/juego/<id>) y sitemap.xml (index.js reparte las rutas)
 bd/esquema.sql          Tablas de la base de datos del foro y de las cuentas (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificación
 herramientas/estructura.mjs  Comprobar la estructura: juegos completos, raíz limpia y ninguna ruta rota
 herramientas/calidad.mjs  Comprobar el estándar de calidad y rendimiento de cada juego (docs/CALIDAD.md)
+herramientas/portadas-compartir.mjs  Hacer las imágenes JPEG para compartir cada juego (iconos/juegos/<id>.jpg)
 docs/                   ESTRUCTURA.md (dónde va cada cosa), PERFILES.md (cuentas) y LANZAMIENTO.md (lista de lanzamiento)
 .claude/skills/         Skills de Claude Code del proyecto (ver su README)
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
-iconos/                 Iconos PNG de la app (Android e iPhone)
+iconos/                 Iconos PNG de la app (Android e iPhone), compartir.jpg y juegos/<id>.jpg (imágenes al compartir un enlace)
+robots.txt              Qué pueden leer los buscadores (y dónde está el sitemap)
 play.html               Página de juego (la "shell" VR)
 legal.html              Aviso legal, privacidad, cookies y contacto (el original, en español)
 idiomas/
@@ -111,6 +113,17 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - En el móvil se juega con el dedo, también en vertical: la shell abre el campo de visión para que quepa lo importante a lo ancho, y cada juego del catálogo tiene su texto `controlesTactil`. En los juegos, `ctx.tactil` indica si la pantalla es táctil (para decir «toca» en vez de «haz clic»).
 - Pantalla completa en el móvil: en Android el primer toque en el juego la activa (o el botón ⛶); solo quedan el juego y dos botones flotantes (⏭ siguiente, ✕ salir). En iPhone Safari no lo permite: hay que usar Compartir → «Añadir a pantalla de inicio», y desde ese icono se abre sin barras.
 
+## Buscadores y enlaces compartidos
+
+Los juegos se abren con `play.html#topos`, y lo que va detrás de `#` no lo lee Google. Por eso cada juego tiene además su **ficha**, una página normal que los buscadores pueden indexar:
+
+- **`/juego/<id>`** (por ejemplo, `vrplaygame.com/juego/topos?lang=en`): portada, título, género, descripción, partidas y «me gusta», el botón «Jugar gratis» (lleva a `play.html#id`), los controles con gafas, ratón y móvil, las etiquetas, el enlace a la clasificación y otros juegos parecidos. La genera el Worker (`servidor/fichas.js`) con el HTML ya escrito, en el idioma de `?lang=` (sin él, en el del navegador). Lleva `hreflang`, `canonical`, Open Graph y datos estructurados `VideoGame` de schema.org. Los textos son los del juego (`juegos.<id>`) y los de `ficha` en `idiomas/`.
+- **`/sitemap.xml`**: la portada, el foro, las clasificaciones, el aviso legal y todas las fichas, en los 9 idiomas. También lo genera el Worker.
+- **Juegos en pruebas**: ni ficha (dan 404) ni sitemap. Son los que tienen `pruebas: true` en `juegos/catalogo.js` o una sugerencia del foro sin terminar (`/api/juegos-en-pruebas`). En cuanto se publican, aparecen solos.
+- **`robots.txt`**: deja fuera `admin`, `cuenta`, `entrar`, `perfil` y la API. Esas páginas llevan además `noindex`.
+- **Al compartir un enlace** (WhatsApp, redes sociales) sale una imagen: la de la ficha es `iconos/juegos/<id>.jpg` (la portada del juego en 1200×630) y la del resto de páginas, `iconos/compartir.jpg`. Las redes no aceptan SVG, por eso son JPEG. **Al añadir un juego**, haz la suya con `node herramientas/portadas-compartir.mjs` (necesita Playwright; solo hace las que faltan). Si se olvida, la ficha usa la general.
+- **Después de publicar** conviene dar de alta `https://vrplaygame.com/sitemap.xml` en Google Search Console (una sola vez).
+
 ## Probarlo en tu ordenador
 
 Los módulos JavaScript necesitan un servidor; no funcionan abriendo el archivo con doble clic. Desde esta carpeta:
@@ -164,7 +177,7 @@ export function iniciar(ctx) {
 }
 ```
 
-2. Añade su portada cuadrada (`juegos/<id>/miniatura.svg`) siguiendo [`docs/PORTADAS.md`](docs/PORTADAS.md), para que sea de la misma familia que las demás. `node herramientas/calidad.mjs` comprueba lo técnico.
+2. Añade su portada cuadrada (`juegos/<id>/miniatura.svg`) siguiendo [`docs/PORTADAS.md`](docs/PORTADAS.md), para que sea de la misma familia que las demás. `node herramientas/calidad.mjs` comprueba lo técnico. Después, su imagen para compartir: `node herramientas/portadas-compartir.mjs` (ver «Buscadores y enlaces compartidos»).
 3. Añade la entrada en `juegos/catalogo.js` con su género (una clave de `generos` en los idiomas: `arcade`, `deportes`, `disparos`…):
 
 ```js
