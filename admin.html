@@ -148,7 +148,7 @@
   const $salir = document.getElementById('salir');
   let clave = '';
   let pestana = 'desarrollo';
-  let seccion = 'sugerencias'; // o 'usuarios'
+  let seccion = 'sugerencias'; // o 'denuncias' o 'usuarios'
 
   // La clave se guarda en este navegador solo si lo pides (localStorage) y, si no,
   // únicamente mientras la pestaña esté abierta (sessionStorage).
@@ -258,7 +258,7 @@
   // Botones para pasar de las sugerencias a los usuarios
   function menuSecciones() {
     return el('div', { class: 'secciones', role: 'group', 'aria-label': 'Sección' },
-      [['sugerencias', 'Sugerencias'], ['usuarios', 'Usuarios']].map(([id, nombre]) => el('button', {
+      [['sugerencias', 'Sugerencias'], ['denuncias', 'Denuncias'], ['usuarios', 'Usuarios']].map(([id, nombre]) => el('button', {
         type: 'button', class: 'chip', 'aria-pressed': String(id === seccion),
         onclick: () => { seccion = id; verPanel(); },
       }, nombre)));
@@ -267,6 +267,7 @@
   async function verPanel() {
     $salir.hidden = false;
     if (seccion === 'usuarios') return verUsuarios();
+    if (seccion === 'denuncias') return verDenuncias();
     const $pestanas = el('div', { class: 'pestanas', role: 'group', 'aria-label': 'Estado' });
     const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
     const $pruebas = el('p', { class: 'pruebas', hidden: true });
@@ -432,6 +433,60 @@
     });
 
     $hilo.replaceChildren(...(lista.length ? lista : [el('p', { class: 'aviso' }, 'Sin comentarios.')]), $formulario);
+  }
+
+  // ─── Denuncias ─────────────────────────────────────────────────────────
+  // Lo que la gente ha denunciado con el botón «Denunciar» del foro, agrupado por sugerencia o comentario
+  const MOTIVOS = { spam: 'Spam', ofensivo: 'Ofensivo', datos_personales: 'Datos personales', ilegal: 'Ilegal', otro: 'Otro' };
+
+  async function verDenuncias() {
+    const $lista = el('section', { class: 'lista' }, el('p', { class: 'vacio' }, 'Cargando…'));
+    $vista.replaceChildren(menuSecciones(), el('h1', {}, 'Denuncias'),
+      el('p', { class: 'entradilla' }, 'Sugerencias y comentarios denunciados que aún no has revisado. «Ocultar» lo quita del foro (se puede deshacer desde Sugerencias); «No hace falta» la da por revisada y lo deja como está. Si es algo ilegal, ocúltalo cuanto antes.'),
+      $lista);
+    let denuncias;
+    try {
+      ({ denuncias } = await api('/denuncias'));
+    } catch (e) {
+      $lista.replaceChildren(el('p', { class: 'vacio' }, e.message));
+      return;
+    }
+    $lista.replaceChildren(...(denuncias.length ? denuncias.map(tarjetaDenuncia) : [el('p', { class: 'vacio' }, 'No hay denuncias pendientes.')]));
+  }
+
+  function tarjetaDenuncia(d) {
+    const $aviso = el('p', { class: 'aviso', role: 'status' });
+    const revisar = async (boton, ocultar) => {
+      boton.disabled = true;
+      try {
+        if (ocultar) {
+          const ruta = d.tipo === 'sugerencia' ? `/sugerencias/${d.id}` : `/comentarios/${d.id}`;
+          await api(ruta, { method: 'PATCH', datos: d.tipo === 'sugerencia' ? { oculta: true } : { oculto: true } });
+        }
+        await api('/denuncias', { method: 'PATCH', datos: { tipo: d.tipo, id: d.id } });
+        verDenuncias();
+      } catch (e) {
+        avisar($aviso, e.message, 'error');
+        boton.disabled = false;
+      }
+    };
+    const motivos = Object.entries((d.motivos || '').split(',').reduce((n, m) => ({ ...n, [m]: (n[m] || 0) + 1 }), {}))
+      .map(([m, n]) => `${MOTIVOS[m] || m}${n > 1 ? ` ×${n}` : ''}`).join(', ');
+    const existe = d.texto !== null;
+    return el('article', { class: `tarjeta${d.oculto ? ' oculta' : ''}` },
+      el('h3', {}, d.tipo === 'sugerencia' ? 'Sugerencia: ' : 'Comentario en ',
+        d.sugerencia_id ? el('a', { href: `foro.html#/s/${d.sugerencia_id}`, target: '_blank', rel: 'noopener' }, d.titulo || `#${d.sugerencia_id}`) : '(ya no existe)',
+        d.oculto ? el('span', { class: 'marca-oculta' }, ' OCULTO') : null),
+      existe ? el('p', { class: 'descripcion' }, d.texto) : null,
+      el('div', { class: 'detalles' },
+        el('span', {}, `De ${d.autor ?? '?'}`),
+        el('span', {}, `${d.veces} ${d.veces === 1 ? 'denuncia' : 'denuncias'}: ${motivos}`),
+        el('span', {}, `La última ${hace(d.ultima)}`)),
+      d.detalles ? el('p', { class: 'descripcion' }, `Explicaciones: ${d.detalles}`) : null,
+      el('div', { class: 'controles' },
+        existe && !d.oculto ? el('button', { type: 'button', class: 'boton mini peligro', onclick: (e) => revisar(e.currentTarget, true) }, 'Ocultar') : null,
+        el('button', { type: 'button', class: 'boton mini secundario', onclick: (e) => revisar(e.currentTarget, false) }, d.oculto || !existe ? 'Dar por revisada' : 'No hace falta')),
+      $aviso);
   }
 
   // ─── Usuarios ──────────────────────────────────────────────────────────

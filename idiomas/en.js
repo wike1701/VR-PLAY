@@ -115,6 +115,10 @@ export default {
       derecha: 'Right hand behind your right shoulder: next game',
       izquierda: 'Left hand behind your left shoulder: pause and menu',
       dejala: 'Hold it on the button for one second, until the wheel fills up',
+      seguridadTitulo: 'Before you play',
+      seguridadEspacio: 'Clear the space around you',
+      seguridadLimite: 'Check your headset boundary',
+      seguridadDescansos: 'Take breaks and stop if you feel dizzy',
     },
   },
   pausa: {
@@ -184,6 +188,19 @@ export default {
     publicarComentario: 'Post comment',
     escribeAlgo: 'Write something before posting.',
     avisoPublicar: 'By posting, you agree that what you write and your name will be shown publicly. You must be 14 or older.',
+    denunciar: 'Report',
+    denunciaMotivo: 'What is the problem?',
+    motivosDenuncia: {
+      spam: 'Spam or advertising',
+      ofensivo: 'Insults or offensive content',
+      datos_personales: "Someone's personal data",
+      ilegal: 'Illegal content',
+      otro: 'Other reason',
+    },
+    denunciaDetalle: 'Explain it briefly',
+    enviarDenuncia: 'Send report',
+    denunciaEnviada: "Thanks. We'll review it as soon as possible.",
+    denunciaSinMotivo: 'Choose what the problem is.',
     antesDeEscribir: 'Before writing, check whether someone has already suggested it: if so, give it a ♥ and comment there.',
     reglasTitulo: 'To fit in VR Play',
     reglas: [
@@ -220,6 +237,7 @@ export default {
       limite_comentarios: 'You’ve written a lot of comments in a row. Please try again in a while.',
       limite_sugerencias: 'You’ve sent a lot of suggestions in a row. Please try again in a while.',
       limite_me_gusta: 'Too many likes in a row. Please try again in a while.',
+      limite_denuncias: "You've sent many reports in a row. Try again in a while.",
       titulo_longitud: 'The title must be between 4 and 80 characters long.',
       descripcion_longitud: 'The description must be between 20 and 2000 characters long.',
       campo_largo: 'One of the fields is too long.',
@@ -409,6 +427,14 @@ export default {
       puesto: '🏆 Rank {puesto} on the leaderboard',
       tuMejor: 'Your best: {valor}',
     },
+  },
+  // Página de error 404.html (cualquier dirección que no existe)
+  noEncontrada: {
+    tituloPagina: 'Page not found · VR Play',
+    titulo: "This page doesn't exist",
+    texto: 'The link may be mistyped or the page may no longer exist. The games are still here.',
+    irAJuegos: 'Go to the games',
+    sugerir: 'Suggest a game',
   },
   legal: {
     tituloPagina: 'Legal notice and privacy · VR Play',

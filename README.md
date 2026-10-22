@@ -9,7 +9,9 @@ Resumen de los archivos. Las normas de dónde va cada cosa nueva están en [`doc
 ```
 index.html              Portada: pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues)
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
-admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
+admin.html              Panel de administración del foro, de las denuncias y de las cuentas (pide la clave ADMIN_TOKEN)
+404.html                Página para las direcciones que no existen (Cloudflare la sirve con estado 404; rutas absolutas)
+_headers                Cabeceras de seguridad de los archivos estáticos (nosniff, Referrer-Policy, Permissions-Policy, HSTS)
 entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
 cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
 clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o #topos/mes): el top 100 y tu puesto
@@ -299,6 +301,7 @@ Para que funcione hace falta, una vez: instalar la app de Claude en el repositor
 - **Juegos en pruebas.** Un juego enlazado a una sugerencia que aún no está hecha (nueva, en estudio o en desarrollo) no sale en el catálogo ni en la rotación aleatoria, aunque ya esté subido a main. Se juega con su enlace directo (`play.html#id`), por ejemplo desde «▶ Probar» en `admin.html`. Al pasar la sugerencia a «hecha», aparece solo. La lista la da `/api/juegos-en-pruebas`, y si el servidor no responde (en local) no se esconde nada. Un juego ya publicado por otra sugerencia (hecha o ya existe) no se esconde aunque tenga una mejora en desarrollo. Un juego que no viene del foro se deja en pruebas con `pruebas: true` en su línea de `juegos/catalogo.js` (sale en `admin.html` como «Juegos nuevos sin publicar», con su enlace para probarlo; se esconde también en local); para publicarlo, se quita la marca.
 - Contra el spam: límites por hora y por IP (solo se guarda un hash de la IP), nombres reservados (nadie puede firmar como «VR Play») y, si se configura, el captcha invisible de Cloudflare (Turnstile).
 - La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs` o desde el navegador en `admin.html`: un panel con las sugerencias por estado (empieza por «en desarrollo»), incluidas las ocultas. La página es pública, pero sin la clave no muestra nada, porque el servidor la comprueba en cada petición. La clave se guarda solo en ese navegador, y solo si marcas «Recordar».
+- **Denuncias.** Cada sugerencia y cada comentario (salvo las respuestas oficiales) tienen un botón «Denunciar»: se elige el motivo (spam, ofensivo, datos personales, ilegal u otro) y, si se quiere, se explica. Va a la tabla `denuncias` (`/api/denuncias`, una por conexión y contenido, como mucho 10 por hora). En `admin.html`, pestaña «Denuncias», salen agrupadas por contenido: «Ocultar» lo quita del foro y «No hace falta» la da por revisada.
 
 ### Ponerlo en marcha (una vez)
 

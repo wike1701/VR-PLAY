@@ -116,6 +116,10 @@ export default {
       derecha: '右手伸到右肩后：下一个游戏',
       izquierda: '左手伸到左肩后：暂停与菜单',
       dejala: '手在按钮上停留一秒，直到圆环填满',
+      seguridadTitulo: '开始之前',
+      seguridadEspacio: '清空你周围的空间',
+      seguridadLimite: '检查头显的安全边界',
+      seguridadDescansos: '适当休息，感到头晕就停下来',
     },
   },
   pausa: {
@@ -185,6 +189,19 @@ export default {
     publicarComentario: '发布评论',
     escribeAlgo: '发布前请先写点内容。',
     avisoPublicar: '发布即表示你同意公开显示你写的内容和你的名字。须年满 14 岁。',
+    denunciar: '举报',
+    denunciaMotivo: '有什么问题？',
+    motivosDenuncia: {
+      spam: '垃圾信息或广告',
+      ofensivo: '辱骂或冒犯内容',
+      datos_personales: '他人的个人信息',
+      ilegal: '违法内容',
+      otro: '其他原因',
+    },
+    denunciaDetalle: '简单说明一下',
+    enviarDenuncia: '提交举报',
+    denunciaEnviada: '谢谢。我们会尽快处理。',
+    denunciaSinMotivo: '请选择问题类型。',
     antesDeEscribir: '写之前，先看看是否已经有人提过：如果有，就给它点 ♥ 并在那里评论。',
     reglasTitulo: '适合 VR Play 的游戏',
     reglas: [
@@ -221,6 +238,7 @@ export default {
       limite_comentarios: '你连续发了太多评论，请稍后再试。',
       limite_sugerencias: '你连续发了太多建议，请稍后再试。',
       limite_me_gusta: '连续点赞次数过多，请稍后再试。',
+      limite_denuncias: '你连续提交了太多举报。请稍后再试。',
       titulo_longitud: '标题长度必须在 4 到 80 个字符之间。',
       descripcion_longitud: '描述长度必须在 20 到 2000 个字符之间。',
       campo_largo: '有字段内容过长。',
@@ -410,6 +428,14 @@ export default {
       puesto: '🏆 排行榜第 {puesto} 名',
       tuMejor: '你的最佳成绩：{valor}',
     },
+  },
+  // Página de error 404.html (cualquier dirección que no existe)
+  noEncontrada: {
+    tituloPagina: '页面未找到 · VR Play',
+    titulo: '此页面不存在',
+    texto: '链接可能写错了，或者页面已不存在。游戏都还在。',
+    irAJuegos: '去玩游戏',
+    sugerir: '推荐一个游戏',
   },
   legal: {
     tituloPagina: '法律声明与隐私 · VR Play',

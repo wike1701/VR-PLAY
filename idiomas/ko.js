@@ -116,6 +116,10 @@ export default {
       derecha: '오른손을 오른쪽 어깨 뒤로: 다음 게임',
       izquierda: '왼손을 왼쪽 어깨 뒤로: 일시정지 및 메뉴',
       dejala: '버튼에 1초 동안 손을 두세요. 원이 다 찰 때까지',
+      seguridadTitulo: '플레이 전에',
+      seguridadEspacio: '주변 공간을 비우세요',
+      seguridadLimite: '헤드셋 경계를 확인하세요',
+      seguridadDescansos: '쉬어 가며 하고, 어지러우면 멈추세요',
     },
   },
   pausa: {
@@ -185,6 +189,19 @@ export default {
     publicarComentario: '댓글 올리기',
     escribeAlgo: '올리기 전에 내용을 입력하세요.',
     avisoPublicar: '게시하면 작성한 내용과 이름이 공개되는 데 동의하는 것으로 봅니다. 14세 이상이어야 합니다.',
+    denunciar: '신고',
+    denunciaMotivo: '어떤 문제가 있나요?',
+    motivosDenuncia: {
+      spam: '스팸 또는 광고',
+      ofensivo: '욕설 또는 불쾌한 내용',
+      datos_personales: '다른 사람의 개인정보',
+      ilegal: '불법 콘텐츠',
+      otro: '기타',
+    },
+    denunciaDetalle: '간단히 설명해 주세요',
+    enviarDenuncia: '신고 보내기',
+    denunciaEnviada: '감사합니다. 최대한 빨리 확인하겠습니다.',
+    denunciaSinMotivo: '어떤 문제인지 선택하세요.',
     antesDeEscribir: '쓰기 전에 이미 누군가 제안했는지 확인하세요. 있다면 ♥를 누르고 거기에 댓글을 남기세요.',
     reglasTitulo: 'VR Play에 어울리려면',
     reglas: [
@@ -221,6 +238,7 @@ export default {
       limite_comentarios: '댓글을 연속으로 너무 많이 썼어요. 잠시 후 다시 시도하세요.',
       limite_sugerencias: '제안을 연속으로 너무 많이 보냈어요. 잠시 후 다시 시도하세요.',
       limite_me_gusta: '좋아요를 연속으로 너무 많이 눌렀어요. 잠시 후 다시 시도하세요.',
+      limite_denuncias: '신고를 너무 많이 연속으로 보냈습니다. 잠시 후 다시 시도하세요.',
       titulo_longitud: '제목은 4~80자로 써 주세요.',
       descripcion_longitud: '설명은 20~2000자로 써 주세요.',
       campo_largo: '너무 긴 항목이 있어요.',
@@ -410,6 +428,14 @@ export default {
       puesto: '🏆 순위표 {puesto}위',
       tuMejor: '내 최고 기록: {valor}',
     },
+  },
+  // Página de error 404.html (cualquier dirección que no existe)
+  noEncontrada: {
+    tituloPagina: '페이지를 찾을 수 없음 · VR Play',
+    titulo: '존재하지 않는 페이지입니다',
+    texto: '링크가 잘못되었거나 페이지가 더 이상 없을 수 있습니다. 게임은 그대로 있어요.',
+    irAJuegos: '게임으로 가기',
+    sugerir: '게임 제안하기',
   },
   legal: {
     tituloPagina: '법적 고지 및 개인정보 · VR Play',

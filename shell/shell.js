@@ -597,16 +597,20 @@ aviso.mesh.visible = false;
 escena.add(aviso.mesh);
 let tiempoAviso = 0;
 let colocarAviso = false;
+let avisoSiguiente = null; // [lineas, segundos] que salen al acabar el aviso actual
 
-function mostrarAviso(lineas, segundos) {
+function mostrarAviso(lineas, segundos, despues = null) {
   aviso.escribir(lineas);
   tiempoAviso = segundos;
   colocarAviso = true;
+  avisoSiguiente = despues;
 }
 function ocultarAviso() {
   tiempoAviso = 0;
+  avisoSiguiente = null;
 }
 function actualizarAviso(dt) {
+  if (tiempoAviso <= 0 && avisoSiguiente && renderer.xr.isPresenting) mostrarAviso(...avisoSiguiente);
   if (tiempoAviso <= 0 || !renderer.xr.isPresenting) {
     aviso.mesh.visible = false;
     return;
@@ -910,12 +914,18 @@ function alEntrarVR() {
   reanudar();
   boton.reiniciar();
   botonPausa.reiniciar();
+  // Primero, la seguridad (espacio libre y descansos); después, cómo se usan los botones de los hombros
   mostrarAviso([
+    { texto: t('jugar.vr.seguridadTitulo'), tam: 1.1, color: '#ff8a62' },
+    { texto: t('jugar.vr.seguridadEspacio'), tam: 0.75 },
+    { texto: t('jugar.vr.seguridadLimite'), tam: 0.75 },
+    { texto: t('jugar.vr.seguridadDescansos'), tam: 0.75 },
+  ], 5, [[
     { texto: t('jugar.vr.botones'), tam: 1.1, color: '#b9a8ff' },
     { texto: t('jugar.vr.derecha'), tam: 0.75 },
     { texto: t('jugar.vr.izquierda'), tam: 0.75 },
     { texto: t('jugar.vr.dejala'), tam: 0.65 },
-  ], 9);
+  ], 9]);
 }
 
 function alSalirVR() {

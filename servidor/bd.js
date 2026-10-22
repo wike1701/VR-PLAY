@@ -56,6 +56,14 @@ const TABLAS = [
   `CREATE TABLE IF NOT EXISTS partidas_recientes (
     ip TEXT NOT NULL, juego TEXT NOT NULL, creada TEXT NOT NULL DEFAULT (datetime('now')))`,
   'CREATE INDEX IF NOT EXISTS partidas_recientes_ip ON partidas_recientes (ip, juego, creada)',
+  // Denuncias del foro: una por conexión y contenido; el administrador las revisa en admin.html
+  `CREATE TABLE IF NOT EXISTS denuncias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, tipo TEXT NOT NULL, objeto_id INTEGER NOT NULL,
+    motivo TEXT NOT NULL, detalle TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '',
+    revisada INTEGER NOT NULL DEFAULT 0, creada TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (tipo, objeto_id, ip))`,
+  'CREATE INDEX IF NOT EXISTS denuncias_pendientes ON denuncias (revisada, tipo, objeto_id)',
+  'CREATE INDEX IF NOT EXISTS denuncias_ip ON denuncias (ip, creada)',
 ];
 
 // Índices que necesitan las columnas nuevas (se crean después de añadirlas)
