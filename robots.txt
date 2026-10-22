@@ -1,6 +1,26 @@
-# VR Play: qué pueden leer los buscadores. Las fichas de los juegos (/juego/<id>) y el mapa
-# del sitio los genera el Worker (servidor/fichas.js).
+# VR Play: qué pueden leer los buscadores. Las fichas de los juegos (/juego/<id>), el mapa
+# del sitio y /llms.txt (el resumen de la web para las IA) los genera el Worker (servidor/fichas.js).
 User-agent: *
+Disallow: /api/
+Disallow: /admin
+Disallow: /cuenta
+Disallow: /entrar
+Disallow: /perfil
+
+# Rastreadores de buscadores con IA (ChatGPT, Perplexity, Claude, Gemini, Apple, Meta…): pueden
+# leer lo mismo que los demás. Van aparte para dejar claro que son bienvenidos.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
 Disallow: /api/
 Disallow: /admin
 Disallow: /cuenta

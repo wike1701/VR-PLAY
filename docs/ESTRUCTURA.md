@@ -12,7 +12,7 @@ VR Play son dos programas en un mismo repositorio, desplegados juntos en un Work
 - **La web**: archivos estáticos (HTML y módulos JavaScript), sin paso de compilación. Lo que hay en el
   repositorio es exactamente lo que se publica, menos lo que excluye `.assetsignore`. three.js se carga
   desde la CDN de jsDelivr (versión fija 0.160.0) con el `importmap` de cada página.
-- **El servidor** (`servidor/`): atiende `/api/*`, las fichas de los juegos (`/juego/<id>`) y `/sitemap.xml`. Guarda los datos en Cloudflare D1.
+- **El servidor** (`servidor/`): atiende `/api/*`, las fichas de los juegos (`/juego/<id>`), `/sitemap.xml` y `/llms.txt`. Guarda los datos en Cloudflare D1.
 
 La organización es **por capas**, y dentro de los juegos, **por funcionalidad** (una carpeta por juego):
 
@@ -80,7 +80,7 @@ Todos los archivos están en `servidor/`, sin subcarpetas. Por grupos:
 - **Base**: `index.js` (reparte las rutas), `comun.js` (respuestas, límites, huellas), `bd.js` (tablas), `config.js` (`/api/config`).
 - **Foro**: `sugerencias.js`, `sugerencia.js`, `comentarios.js`, `comentario.js`, `me-gusta.js`, `juegos-en-pruebas.js`.
 - **Juegos**: `juegos-me-gusta.js` (me gusta, partidas y estadísticas), `clasificacion.js`.
-- **Buscadores**: `fichas.js` (`/juego/:id` en HTML y `/sitemap.xml`; están en `PAGINAS` de `index.js`, no en `RUTAS`).
+- **Buscadores**: `fichas.js` (`/juego/:id` en HTML, `/sitemap.xml` y `/llms.txt`; están en `PAGINAS` de `index.js`, no en `RUTAS`).
 - **Cuentas**: `cuenta.js`, `sesion.js`, `google.js`, `correo.js`, `perfiles.js` (perfiles, seguir y feed), `admin-usuarios.js`.
 
 ## 4. Dónde va cada cosa nueva
