@@ -1309,7 +1309,7 @@ export default {
     bomba: {
       titulo: 'Non esplodere!',
       descripcion: 'Una bomba sul tavolo di un bunker e un conto alla rovescia. Ogni modulo ha il suo indizio: taglia i fili nell\'ordine del piccolo schermo, premi il pulsante del colore della luce, metti le leve come dicono le loro luci e gira la manopola fino al suo colore. Ogni errore toglie secondi e, al secondo, il timer accelera. Sono 3 bombe, sempre più difficili; se una esplode, è finita.',
-      controlesVR: 'Hai una pinza in ogni mano: avvicina la punta a un filo, un pulsante o una leva e premi il grilletto. La manopola si prende con il grilletto e si gira con il polso; lasciala quando la freccia indica il suo colore.',
+      controlesVR: 'Usi le mani libere: avvicina il dito a un pulsante o a una leva e premi il grilletto. Quando c\'è da tagliare dei fili, compare una pinza in ogni mano: avvicina la punta a un filo e premi il grilletto. La manopola si prende con il grilletto e si gira con il polso; lasciala quando la freccia indica il suo colore.',
       controlesEscritorio: 'Clicca i fili per tagliarli, i pulsanti per premerli e le leve per spostarle. Ogni clic sulla manopola la gira di uno scatto.',
       controlesTactil: 'Tocca i fili per tagliarli, i pulsanti per premerli e le leve per spostarle. Ogni tocco sulla manopola la gira di uno scatto.',
       etiquetas: [
@@ -1320,7 +1320,7 @@ export default {
       ],
       juego: {
         titulo: 'NON ESPLODERE!',
-        introVR: 'Avvicina la pinza a ogni pezzo e premi il grilletto',
+        introVR: 'Avvicina la mano a ogni pezzo e premi il grilletto (le pinze compaiono da sole per i fili)',
         introRaton: 'Clicca fili, pulsanti, leve e manopola',
         introTactil: 'Tocca fili, pulsanti, leve e manopola',
         marcador: { one: 'Bomba {b}/{total} · {n} punto', other: 'Bomba {b}/{total} · {n} punti' },

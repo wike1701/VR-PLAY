@@ -1309,7 +1309,7 @@ export default {
     bomba: {
       titulo: 'Não Exploda!',
       descripcion: 'Uma bomba na mesa de um bunker e uma contagem regressiva. Cada módulo tem a sua pista: corte os fios na ordem da telinha, aperte o botão da cor da luz, deixe as alavancas como pedem as suas luzes e gire o disco até a sua cor. Cada erro tira segundos e, no segundo, o relógio acelera. São 3 bombas, cada uma mais difícil; se uma explodir, acabou.',
-      controlesVR: 'Você segura um alicate em cada mão: aproxime a ponta de um fio, botão ou alavanca e aperte o gatilho. O disco se pega com o gatilho e se gira com o pulso; solte-o quando a seta apontar a sua cor.',
+      controlesVR: 'Você usa as mãos livres: aproxime o dedo de um botão ou alavanca e aperte o gatilho. Quando há fios para cortar, aparece um alicate em cada mão: aproxime a ponta de um fio e aperte o gatilho. O disco se pega com o gatilho e se gira com o pulso; solte-o quando a seta apontar a sua cor.',
       controlesEscritorio: 'Clique nos fios para cortá-los, nos botões para apertá-los e nas alavancas para movê-las. Cada clique no disco o gira um passo.',
       controlesTactil: 'Toque nos fios para cortá-los, nos botões para apertá-los e nas alavancas para movê-las. Cada toque no disco o gira um passo.',
       etiquetas: [
@@ -1320,7 +1320,7 @@ export default {
       ],
       juego: {
         titulo: 'NÃO EXPLODA!',
-        introVR: 'Aproxime o alicate de cada peça e aperte o gatilho',
+        introVR: 'Aproxime a mão de cada peça e aperte o gatilho (os alicates aparecem sozinhos nos fios)',
         introRaton: 'Clique fios, botões, alavancas e disco',
         introTactil: 'Toque fios, botões, alavancas e disco',
         marcador: { one: 'Bomba {b}/{total} · {n} ponto', other: 'Bomba {b}/{total} · {n} pontos' },

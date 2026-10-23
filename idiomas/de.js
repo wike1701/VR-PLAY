@@ -1309,7 +1309,7 @@ export default {
     bomba: {
       titulo: 'Nicht explodieren!',
       descripcion: 'Eine Bombe auf dem Tisch eines Bunkers und ein Countdown. Jedes Modul hat seinen Hinweis: Schneide die Kabel in der Reihenfolge des kleinen Bildschirms durch, drück den Knopf in der Farbe des Lichts, stell die Hebel so, wie ihre Lichter es sagen, und dreh das Rad auf seine Farbe. Jeder Fehler kostet Sekunden, und beim zweiten läuft die Uhr schneller. Es sind 3 Bomben, jede schwerer; explodiert eine, ist es vorbei.',
-      controlesVR: 'Du hältst in jeder Hand eine Zange: Führ die Spitze an ein Kabel, einen Knopf oder einen Hebel und drück den Abzug. Das Rad greifst du mit dem Abzug und drehst es mit dem Handgelenk; lass es los, wenn der Pfeil auf seine Farbe zeigt.',
+      controlesVR: 'Du benutzt deine freien Hände: Führ den Finger an einen Knopf oder Hebel und drück den Abzug. Wenn Kabel zu durchtrennen sind, erscheint in jeder Hand eine Zange: Führ die Spitze an ein Kabel und drück den Abzug. Das Rad greifst du mit dem Abzug und drehst es mit dem Handgelenk; lass es los, wenn der Pfeil auf seine Farbe zeigt.',
       controlesEscritorio: 'Klicke auf die Kabel, um sie durchzuschneiden, auf die Knöpfe, um sie zu drücken, und auf die Hebel, um sie umzulegen. Jeder Klick auf das Rad dreht es einen Schritt.',
       controlesTactil: 'Tippe auf die Kabel, um sie durchzuschneiden, auf die Knöpfe, um sie zu drücken, und auf die Hebel, um sie umzulegen. Jedes Tippen auf das Rad dreht es einen Schritt.',
       etiquetas: [
@@ -1320,7 +1320,7 @@ export default {
       ],
       juego: {
         titulo: 'NICHT EXPLODIEREN!',
-        introVR: 'Führ die Zange an jedes Teil und drück den Abzug',
+        introVR: 'Führ die Hand an jedes Teil und drück den Abzug (bei Kabeln erscheinen die Zangen von selbst)',
         introRaton: 'Klick Kabel, Knöpfe, Hebel und Rad',
         introTactil: 'Tipp Kabel, Knöpfe, Hebel und Rad',
         marcador: { one: 'Bombe {b}/{total} · {n} Punkt', other: 'Bombe {b}/{total} · {n} Punkte' },

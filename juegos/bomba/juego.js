@@ -8,8 +8,8 @@
 // va más rápido. Una partida son 3 bombas, cada una más difícil (2, 3 y 4 módulos); si una explota, se
 // acaba. Los puntos: 100 por módulo, 5 por segundo que sobra y 20 menos por error.
 //
-// En VR: llevas unos alicates en cada mano; acercas la punta y aprietas el gatillo para cortar, pulsar o
-// mover una palanca. La rueda se coge con el gatillo y se gira con la muñeca. Con ratón o en el móvil:
+// En VR: usas las manos libres (acercas la punta y aprietas el gatillo para pulsar o mover una palanca);
+// solo cuando hay cables por cortar te salen unos alicates en cada mano. La rueda se coge con el gatillo y se gira con la muñeca. Con ratón o en el móvil:
 // tocas cada pieza; cada toque en la rueda la gira un paso.
 import * as THREE from 'three';
 
@@ -554,7 +554,7 @@ export function iniciar(ctx) {
     alicates.add(new THREE.Mesh(geoEje, matAcero));
     alicates.position.set(0, -0.01, -0.03);
     ctx.adjuntarAMano(mano, alicates);
-    return { mano, mitades, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
+    return { mano, alicates, mitades, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
   });
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -800,7 +800,10 @@ export function iniciar(ctx) {
 
   // ─── VR ────────────────────────────────────────────────────────────────
   function actualizarVR(dt) {
+    // Los alicates solo salen en las manos cuando hay cables por cortar; el resto del tiempo, manos libres
+    const hayCables = estado === 'bomba' && cables.activo && !cables.resuelto;
     manos.forEach((m) => {
+      m.alicates.visible = hayCables;
       const cerrado = m.mano.gatillo ? 0 : 0.22;
       m.mitades[0].rotation.y = cerrado;
       m.mitades[1].rotation.y = -cerrado;

@@ -1310,7 +1310,7 @@ export default {
     bomba: {
       titulo: 'Pas d\'explosion !',
       descripcion: 'Une bombe sur la table d\'un bunker et un compte à rebours. Chaque module a son indice : coupe les fils dans l\'ordre du petit écran, appuie sur le bouton de la couleur du voyant, place les leviers comme l\'indiquent leurs voyants et tourne la molette jusqu\'à sa couleur. Chaque erreur coûte des secondes et, à la deuxième, le chrono s\'accélère. Il y a 3 bombes, de plus en plus difficiles ; si l\'une explose, c\'est fini.',
-      controlesVR: 'Tu tiens une pince dans chaque main : approche la pointe d\'un fil, d\'un bouton ou d\'un levier et appuie sur la gâchette. Attrape la molette avec la gâchette et tourne-la avec le poignet ; lâche-la quand la flèche montre sa couleur.',
+      controlesVR: 'Tu utilises tes mains libres : approche le doigt d\'un bouton ou d\'un levier et appuie sur la gâchette. Quand il faut couper des fils, une pince apparaît dans chaque main : approche la pointe d\'un fil et appuie sur la gâchette. Attrape la molette avec la gâchette et tourne-la avec le poignet ; lâche-la quand la flèche montre sa couleur.',
       controlesEscritorio: 'Clique sur les fils pour les couper, sur les boutons pour appuyer et sur les leviers pour les basculer. Chaque clic sur la molette la tourne d\'un cran.',
       controlesTactil: 'Touche les fils pour les couper, les boutons pour appuyer et les leviers pour les basculer. Chaque toucher sur la molette la tourne d\'un cran.',
       etiquetas: [
@@ -1321,7 +1321,7 @@ export default {
       ],
       juego: {
         titulo: 'PAS D\'EXPLOSION !',
-        introVR: 'Approche la pince de chaque pièce et appuie sur la gâchette',
+        introVR: 'Approche la main de chaque pièce et appuie sur la gâchette (les pinces apparaissent toutes seules pour les fils)',
         introRaton: 'Clique fils, boutons, leviers et molette',
         introTactil: 'Touche fils, boutons, leviers et molette',
         marcador: { one: 'Bombe {b}/{total} · {n} point', other: 'Bombe {b}/{total} · {n} points' },
