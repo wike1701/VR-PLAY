@@ -552,12 +552,21 @@ export function iniciar(ctx) {
     alicates.add(new THREE.Mesh(geoEje, matAcero));
     return { alicates, mitades };
   }
+  const matPiel = R(new THREE.MeshLambertMaterial({ color: 0xe0b08c }));
+  const geoPalma = R(new THREE.BoxGeometry(0.07, 0.025, 0.08).translate(0, 0, 0.01));
+  const geoDedo = R(new THREE.CapsuleGeometry(0.009, 0.06, 4, 8).rotateX(Math.PI / 2).translate(0, -0.01, -0.06));
+  const geoPunta = R(new THREE.SphereGeometry(0.008, 12, 8).translate(0, -0.01, -0.092));
   const manos = ctx.manos.map((mano) => {
     const { alicates, mitades } = crearAlicates();
     alicates.position.set(0, -0.01, -0.03);
     alicates.visible = false;
     ctx.adjuntarAMano(mano, alicates);
-    return { mano, alicates, mitades, tiene: false, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
+    // Mano visible: palma y dedo con una punta que se ilumina al tener una pieza al alcance
+    const matPunta = R(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    const dedo = new THREE.Group();
+    dedo.add(new THREE.Mesh(geoPalma, matPiel), new THREE.Mesh(geoDedo, matPiel), new THREE.Mesh(geoPunta, matPunta));
+    ctx.adjuntarAMano(mano, dedo);
+    return { mano, dedo, matPunta, alicates, mitades, tiene: false, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
   });
 
   // Los alicates descansan sobre la mesa: se cogen con el gatillo cuando toca cortar cables y vuelven solos
@@ -817,6 +826,8 @@ export function iniciar(ctx) {
     alicatesMesa.visible = hayCables && !manos.some((m) => m.tiene);
     manos.forEach((m) => {
       m.alicates.visible = m.tiene;
+      m.dedo.visible = m.mano.activa && !m.tiene;
+      m.matPunta.color.setHex(0xffffff);
       const cerrado = m.mano.gatillo ? 0 : 0.22;
       m.mitades[0].rotation.y = cerrado;
       m.mitades[1].rotation.y = -cerrado;
@@ -832,9 +843,10 @@ export function iniciar(ctx) {
         if (!m.mano.gatillo) soltarRueda(m);
         return;
       }
-      if (!m.mano.gatilloPulsado || estado !== 'bomba' || aparicion < 1) return;
+      if (estado !== 'bomba' || aparicion < 1) return;
+      const pulsa = m.mano.gatilloPulsado;
       // Coger los alicates de la mesa
-      if (alicatesMesa.visible && !m.tiene && m.punta.distanceTo(alicatesMesa.position) < R_COGER) {
+      if (pulsa && alicatesMesa.visible &&!m.tiene && m.punta.distanceTo(alicatesMesa.position) < R_COGER) {
         m.tiene = true;
         alicatesMesa.visible = false;
         ctx.vibrar(m.mano, 0.4, 40);
@@ -857,6 +869,8 @@ export function iniciar(ctx) {
         }
       }
       if (!mejor) return;
+      m.matPunta.color.setHex(0x69f0ae); // pieza al alcance
+      if (!pulsa) return;
       if (mejor.modulo.tipo === 'rueda') {
         m.agarre = rueda;
         m.quatInicial.copy(m.quat);
