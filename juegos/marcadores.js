@@ -103,6 +103,9 @@ export const MARCADORES = {
   // Frontón de Ping Pong: 1 punto por golpe dentro de la zona de la pared y +5 por diana; sin final fijo
   // (hasta que la bola sale, no llega, bota dos veces o se escapa)
   fronton: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
+  // Leñador: 1 punto por hachazo; sin final fijo (hasta que te da una rama o se acaba la barra de tiempo).
+  // La barra obliga a ir cada vez más deprisa (hasta unos 3,75 hachazos por segundo); con ratón o dos dedos se puede ir mucho más rápido
+  lenador: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 14, minSegundos: 2 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

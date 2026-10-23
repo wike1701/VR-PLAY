@@ -173,6 +173,9 @@ const SONIDOS = {
   xiloPulsoFuerte: () => { tono(1500, 1300, 0.035, 'triangle', 0.1); tono(95, 70, 0.08, 'sine', 0.18); },
   // Frontón: la diana que aparece en la pared (dos notas que suben)
   dianaAparece: () => { tono(880, 1320, 0.09, 'triangle', 0.14); tono(1320, 1760, 0.12, 'sine', 0.1, 0.08); },
+  // Leñador: el hacha que se clava en la madera y la rama que te da
+  hachazo: () => { tono(190, 85, 0.1, 'triangle', 0.45); ruido(0.07, 1300, 0.5, 0.9); tono(900, 600, 0.03, 'square', 0.06); },
+  rama: () => { ruido(0.3, 2600, 0.5, 0.6); tono(140, 50, 0.3, 'sine', 0.5); ruido(0.2, 500, 0.4, 0.8); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

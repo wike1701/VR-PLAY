@@ -1865,5 +1865,28 @@ export default {
         resumen: 'Colpi: {golpes} · Bersagli: {dianas} · Record: {record}',
       },
     },
+    lenador: {
+      titulo: 'Taglialegna',
+      descripcion: 'Un albero enorme in una radura del bosco, con rami a sinistra e a destra. Hai un’ascia in ogni mano: tagliare con la sinistra è tagliare da sinistra, e con la destra da destra. Ogni colpo porta via il pezzo in basso e l’albero scende. Se tagli dal lato in cui c’è un ramo alla tua altezza, o da quello in cui sta per scendere il prossimo, il ramo ti colpisce ed è finita. La barra del tempo si svuota da sola e ogni colpo la riempie, ma si svuota sempre più in fretta. Ogni colpo vale 1 punto: fin dove arrivi?',
+      controlesVR: 'Un’ascia in ogni mano: colpisci il tronco all’altezza del petto con la mano del lato senza ramo (né alla tua altezza né appena sopra).',
+      controlesEscritorio: 'Fai clic sulla metà sinistra o destra dello schermo per tagliare da quel lato. Taglia sempre dal lato senza ramo.',
+      controlesTactil: 'Tocca la metà sinistra o destra dello schermo per tagliare da quel lato. Taglia sempre dal lato senza ramo.',
+      etiquetas: [
+        'taglialegna', 'ascia', 'albero', 'tagliare', 'rami', 'riflessi', 'infinito', 'tronco', 'legno', 'bosco',
+        'sinistra', 'destra', 'velocità', 'tempo', 'arcade', 'schivare', 'esercizio', 'braccia', 'coordinazione',
+        'natura', 'sfida', 'record', 'timberman',
+      ],
+      juego: {
+        titulo: 'TAGLIALEGNA',
+        intro: 'Taglia con la mano del lato senza ramo',
+        introRaton: 'Clic a sinistra o a destra: taglia dal lato senza ramo',
+        introTactil: 'Tocca a sinistra o a destra: taglia dal lato senza ramo',
+        marcador: 'Punti: {puntos}',
+        estado: 'Livello {n}',
+        rama: 'Ti ha colpito un ramo!',
+        tiempo: 'Tempo scaduto!',
+        nivel: 'Livello {n}! Più veloce',
+      },
+    },
   },
 };

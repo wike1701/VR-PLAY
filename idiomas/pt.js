@@ -1865,5 +1865,28 @@ export default {
         resumen: 'Golpes: {golpes} · Alvos: {dianas} · Recorde: {record}',
       },
     },
+    lenador: {
+      titulo: 'Lenhador',
+      descripcion: 'Uma árvore enorme numa clareira da floresta, com ramos à esquerda e à direita. Tens um machado em cada mão: cortar com a esquerda é cortar pela esquerda, e com a direita pela direita. Cada machadada leva o pedaço de baixo e a árvore desce. Se cortares do lado onde há um ramo à tua altura, ou onde vai descer o seguinte, o ramo acerta-te e acaba. A barra de tempo esvazia-se sozinha e cada machadada enche-a, mas esvazia-se cada vez mais depressa. Cada machadada vale 1 ponto: até onde consegues chegar?',
+      controlesVR: 'Um machado em cada mão: bate no tronco à altura do peito com a mão do lado sem ramo (nem à tua altura nem logo acima).',
+      controlesEscritorio: 'Clica na metade esquerda ou direita do ecrã para cortar desse lado. Corta sempre do lado sem ramo.',
+      controlesTactil: 'Toca na metade esquerda ou direita do ecrã para cortar desse lado. Corta sempre do lado sem ramo.',
+      etiquetas: [
+        'lenhador', 'machado', 'árvore', 'cortar', 'ramos', 'reflexos', 'infinito', 'tronco', 'madeira', 'floresta',
+        'esquerda', 'direita', 'rapidez', 'tempo', 'arcade', 'desviar', 'exercício', 'braços', 'coordenação',
+        'natureza', 'desafio', 'recorde', 'timberman',
+      ],
+      juego: {
+        titulo: 'LENHADOR',
+        intro: 'Corta com a mão do lado sem ramo',
+        introRaton: 'Clica à esquerda ou à direita: corta do lado sem ramo',
+        introTactil: 'Toca à esquerda ou à direita: corta do lado sem ramo',
+        marcador: 'Pontos: {puntos}',
+        estado: 'Nível {n}',
+        rama: 'Um ramo acertou-te!',
+        tiempo: 'Acabou o tempo!',
+        nivel: 'Nível {n}! Mais rápido',
+      },
+    },
   },
 };

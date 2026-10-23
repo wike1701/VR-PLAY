@@ -1861,5 +1861,28 @@ export default {
         resumen: 'Hits: {golpes} · Targets: {dianas} · Best: {record}',
       },
     },
+    lenador: {
+      titulo: 'Lumberjack',
+      descripcion: 'A huge tree in a forest clearing, with branches on the left and right. You hold an axe in each hand: chopping with your left hand chops from the left, and with your right from the right. Each chop takes off the bottom piece and the tree drops down. If you chop from the side where there is a branch at your height, or where the next one is coming down, the branch hits you and it’s over. The time bar drains by itself and every chop refills it, but it drains faster and faster. Every chop is worth 1 point: how far can you go?',
+      controlesVR: 'An axe in each hand: hit the trunk at chest height with the hand on the side without a branch (neither at your height nor just above).',
+      controlesEscritorio: 'Click the left or right half of the screen to chop from that side. Always chop from the side without a branch.',
+      controlesTactil: 'Tap the left or right half of the screen to chop from that side. Always chop from the side without a branch.',
+      etiquetas: [
+        'lumberjack', 'axe', 'tree', 'chop', 'branches', 'reflexes', 'endless', 'trunk', 'wood', 'forest', 'timber',
+        'left', 'right', 'speed', 'time', 'arcade', 'dodge', 'workout', 'arms', 'coordination', 'nature',
+        'challenge', 'high score', 'timberman',
+      ],
+      juego: {
+        titulo: 'LUMBERJACK',
+        intro: 'Chop with the hand on the side without a branch',
+        introRaton: 'Click left or right: chop from the side without a branch',
+        introTactil: 'Tap left or right: chop from the side without a branch',
+        marcador: 'Score: {puntos}',
+        estado: 'Level {n}',
+        rama: 'A branch hit you!',
+        tiempo: 'Time’s up!',
+        nivel: 'Level {n}! Faster',
+      },
+    },
   },
 };

@@ -1865,5 +1865,28 @@ export default {
         resumen: 'Schläge: {golpes} · Ziele: {dianas} · Rekord: {record}',
       },
     },
+    lenador: {
+      titulo: 'Holzfäller',
+      descripcion: 'Ein riesiger Baum auf einer Waldlichtung, mit Ästen links und rechts. Du hältst in jeder Hand eine Axt: Mit links schlägst du von links, mit rechts von rechts. Jeder Schlag nimmt das unterste Stück weg und der Baum rutscht nach. Schlägst du von der Seite, auf der ein Ast auf deiner Höhe ist oder der nächste herunterkommt, trifft dich der Ast und es ist vorbei. Die Zeitleiste leert sich von selbst und jeder Schlag füllt sie auf, aber sie leert sich immer schneller. Jeder Schlag bringt 1 Punkt: Wie weit kommst du?',
+      controlesVR: 'Eine Axt in jeder Hand: Schlag den Stamm auf Brusthöhe mit der Hand auf der Seite ohne Ast (weder auf deiner Höhe noch direkt darüber).',
+      controlesEscritorio: 'Klick auf die linke oder rechte Bildschirmhälfte, um von dieser Seite zu schlagen. Schlag immer von der Seite ohne Ast.',
+      controlesTactil: 'Tippe auf die linke oder rechte Bildschirmhälfte, um von dieser Seite zu schlagen. Schlag immer von der Seite ohne Ast.',
+      etiquetas: [
+        'holzfäller', 'axt', 'baum', 'fällen', 'äste', 'reflexe', 'endlos', 'stamm', 'holz', 'wald', 'links',
+        'rechts', 'tempo', 'zeit', 'arcade', 'ausweichen', 'training', 'arme', 'koordination', 'natur',
+        'herausforderung', 'rekord', 'timberman',
+      ],
+      juego: {
+        titulo: 'HOLZFÄLLER',
+        intro: 'Schlag mit der Hand auf der Seite ohne Ast',
+        introRaton: 'Klick links oder rechts: schlag von der Seite ohne Ast',
+        introTactil: 'Tippe links oder rechts: schlag von der Seite ohne Ast',
+        marcador: 'Punkte: {puntos}',
+        estado: 'Stufe {n}',
+        rama: 'Ein Ast hat dich getroffen!',
+        tiempo: 'Die Zeit ist um!',
+        nivel: 'Stufe {n}! Schneller',
+      },
+    },
   },
 };
