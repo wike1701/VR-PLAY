@@ -1606,27 +1606,6 @@ bomberos: {
         lejos: 'A {m} m: fuori dal green',
       },
     },
-    pinata: {
-      titulo: 'Pentolaccia',
-      descripcion: 'Una festa in un cortile nel tardo pomeriggio, con festoni di carta e una torta sul tavolo. Una pentolaccia a stella pende da una corda e qualcuno la muove: colpiscila con il bastone finché si rompe e piovono caramelle. Poi ne arriva una più dura che si muove di più. Hai 60 secondi. Ogni colpo vale da 1 a 3 punti a seconda della forza, e ogni pentolaccia rotta 10 più 5 per livello.',
-      controlesVR: 'Tieni il bastone in mano. Colpisci la pentolaccia: più veloce va il bastone, più forte è il colpo e più punti vale.',
-      controlesEscritorio: 'Clicca sulla pentolaccia per colpirla. Se la prendi mentre si muove veloce, il colpo vale di più.',
-      controlesTactil: 'Tocca la pentolaccia per colpirla. Se la prendi mentre si muove veloce, il colpo vale di più.',
-      etiquetas: [
-        'pentolaccia', 'piñata', 'festa', 'compleanno', 'caramelle', 'colpire', 'bastone', 'stella',
-        'messico', 'bambini', 'famiglia', 'corda', 'rompere', 'forza', 'riflessi', 'mira', 'veloce',
-        'divertente', 'casual', 'facile', 'arcade', 'azione', 'colorato', 'punti',
-      ],
-      juego: {
-        titulo: 'PENTOLACCIA',
-        intro: 'Colpisci forte con il bastone!',
-        introRaton: 'Clicca sulla pentolaccia per colpire',
-        introTactil: 'Tocca la pentolaccia per colpire',
-        aguante: 'Pentolaccia {barra}',
-        rota: 'Rotta! Siamo a {n}',
-        fin: 'Tempo! {n} punti · {rotas} pentolacce',
-      },
-    },
     tortitas: {
       titulo: 'Pancake al Volo',
       descripcion: 'Una cucina con la finestra aperta sul mattino e una padella con un pancake. Il lato di sotto si dora pian piano: quando è al punto giusto, lancialo in aria, fallo girare e riprendilo con la padella. Con entrambi i lati cotti va da solo nel piatto e ne arriva un altro. Se cade o brucia, è perso. 75 secondi per fare la pila più alta.',

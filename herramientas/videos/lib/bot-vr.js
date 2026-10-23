@@ -4,7 +4,7 @@
 // juego pone su martillo, raqueta o espada en el mando y detecta los golpes con su propia física.
 // Ve el juego con window.__fabrica: busca en el mundo 3D los objetos pequeños que se mueven o
 // acaban de moverse, al alcance del brazo, y según el modo de lib/estrategias.mjs (campo vr):
-//   golpear  martillazo de arriba abajo sobre el objeto (topos, latas, piñata…)
+//   golpear  martillazo de arriba abajo sobre el objeto (topos, latas…)
 //   barrer   tajo rápido que lo atraviesa de lado a lado (fruta)
 //   seguir   lleva la mano a la bola (porteros, palas)
 //   lanzar   coge con el gatillo, echa el brazo atrás y suelta hacia delante (canastas, bolos…)

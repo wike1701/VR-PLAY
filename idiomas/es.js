@@ -1704,28 +1704,6 @@ bomberos: {
         lejos: 'A {m} m: fuera del green',
       },
     },
-    pinata: {
-      titulo: 'Piñata',
-      descripcion: 'Una fiesta en un patio a media tarde, con banderines de papel picado y un pastel en la mesa. Una piñata de estrella cuelga de una cuerda y alguien la mueve: dale con el palo hasta romperla y lloverán caramelos. Después viene otra más dura que se mueve más. Tienes 60 segundos. Cada golpe vale de 1 a 3 puntos según lo fuerte que sea, y cada piñata rota, 10 más 5 por nivel.',
-      controlesVR: 'Llevas el palo en la mano. Golpea la piñata: cuanto más rápido pase el palo, más fuerte es el golpe y más puntos da.',
-      controlesEscritorio: 'Haz clic en la piñata para darle con el palo. Si la pillas moviéndose rápido, el golpe vale más.',
-      controlesTactil: 'Toca la piñata para darle con el palo. Si la pillas moviéndose rápido, el golpe vale más.',
-      etiquetas: [
-        'piñata', 'fiesta', 'cumpleaños', 'caramelos', 'golpear', 'palo', 'estrella', 'méxico',
-        'papel picado', 'celebración', 'niños', 'familia', 'patio', 'cuerda', 'romper', 'fuerza', 'golpes',
-        'reflejos', 'puntería', 'rápido', 'divertido', 'casual', 'fácil', 'arcade', 'acción', 'colores',
-        'dulces', 'puntos', 'récord', 'contrarreloj', 'tarde', 'pinata', 'party', 'candy',
-      ],
-      juego: {
-        titulo: 'PIÑATA',
-        intro: '¡Dale fuerte con el palo!',
-        introRaton: 'Clic en la piñata para golpear',
-        introTactil: 'Toca la piñata para golpear',
-        aguante: 'Piñata {barra}',
-        rota: '¡Rota! Ya van {n}',
-        fin: '¡Tiempo! {n} puntos · {rotas} piñatas',
-      },
-    },
     tortitas: {
       titulo: 'Tortitas al Vuelo',
       descripcion: 'Una cocina con la ventana abierta a la mañana y una sartén con una tortita. La cara de abajo se va dorando: cuando esté en su punto, lánzala al aire, que dé la vuelta y recógela con la sartén. Con las dos caras hechas va sola al plato y llega otra. Si se te cae o se quema, la pierdes. 75 segundos para hacer la pila más alta.',
