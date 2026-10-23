@@ -98,7 +98,7 @@ juegos/
   balonmano/juego.js    Penaltis de Balonmano
   canoa/juego.js        Canoa
   torre/juego.js        Torre de Bloques
-  huevos/juego.js       Atrapa Huevos (en pruebas)
+  huevos/juego.js       Atrapa Huevos
   latas/juego.js        Tumba Latas
   aros/juego.js         Lanza Aros (en pruebas)
   laberinto/juego.js    Laberinto
