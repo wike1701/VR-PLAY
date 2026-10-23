@@ -22,11 +22,11 @@ const R_BOLA = 0.022;
 const REBOTE_MESA = 0.88;
 const REBOTE_PALA = 0.65;
 const FUERZA_PALA = 0.7;               // parte de la velocidad de la pala que pasa a la bola
-const R_PALA = 0.08;
+const R_PALA = 0.12;                   // más grande que una de verdad (0,08) para que sea más fácil
 const GROSOR_PALA = 0.012;
 const AYUDA = 0.6;                     // cuánto se corrige un golpe VR hacia la zona de la pared
 const Z_PALA_RATON = Z_CERCA + 0.2;    // plano en el que se mueve la pala con ratón
-const R_CONTACTO_RATON = 0.15;
+const R_CONTACTO_RATON = 0.22;
 const GOLPES_NIVEL = 10;               // cada 10 golpes, un nivel más
 const N_ESTELA = 12;
 const N_ONDAS = 4;
@@ -333,7 +333,7 @@ export function iniciar(ctx) {
   const matGomaRoja = R(new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.8 }));
   const matGomaNegra = R(new THREE.MeshLambertMaterial({ color: 0x1b1b1b }));
   const matCanto = R(new THREE.MeshBasicMaterial({ color: 0xff6a3d, toneMapped: false }));
-  const CENTRO_HOJA = new THREE.Vector3(0, 0.01, -0.13);
+  const CENTRO_HOJA = new THREE.Vector3(0, 0.01, -0.17); // la hoja, por delante del mango
 
   function crearPala() {
     const pala = new THREE.Group();
