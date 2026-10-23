@@ -191,6 +191,12 @@ export function iniciar(ctx) {
 
   const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
 
+  // Manos visibles: así se ve el aro que cogen
+  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
+  geoMano.scale(1, 0.6, 1.3);
+  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
+  for (const mano of ctx.manos) ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
+
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.0, alto: 0.3 });
   marcador.mesh.position.set(0, 1.45, -2.55);
