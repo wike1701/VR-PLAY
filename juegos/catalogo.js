@@ -46,7 +46,7 @@ const LISTA = [
   { id: 'fusion', genero: 'puzle' },
   { id: 'balonmano', genero: 'deportes' },
   { id: 'canoa', genero: 'habilidad' },
-  { id: 'torre', genero: 'puzle', pruebas: true },
+  { id: 'torre', genero: 'puzle' },
   { id: 'huevos', genero: 'reflejos', pruebas: true },
   { id: 'latas', genero: 'deportes', pruebas: true },
   { id: 'aros', genero: 'habilidad', pruebas: true },

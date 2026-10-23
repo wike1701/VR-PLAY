@@ -97,7 +97,7 @@ juegos/
   fusion/juego.js       Fusión de Frutas
   balonmano/juego.js    Penaltis de Balonmano
   canoa/juego.js        Canoa
-  torre/juego.js        Torre de Bloques (en pruebas)
+  torre/juego.js        Torre de Bloques
   huevos/juego.js       Atrapa Huevos (en pruebas)
   latas/juego.js        Tumba Latas (en pruebas)
   aros/juego.js         Lanza Aros (en pruebas)
