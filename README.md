@@ -109,7 +109,7 @@ juegos/
   tortitas/juego.js     Tortitas al Vuelo (en pruebas)
   nieve/juego.js        Bolas de Nieve (en pruebas)
   skeeball/juego.js     Skee-Ball (en pruebas)
-  toques/juego.js       Toques con Pala (en pruebas)
+  toques/juego.js       Toques con Pala
   fuerza/juego.js       Mazo de Feria (en pruebas)
   xilofono/juego.js     Xilófono
   fronton/juego.js      Frontón de Ping Pong
