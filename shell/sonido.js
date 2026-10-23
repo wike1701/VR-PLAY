@@ -159,8 +159,6 @@ const SONIDOS = {
   chisporroteo: () => { ruido(0.5, 5200, 0.12, 0.9); ruido(0.3, 2600, 0.06, 1.5); },
   // Bolas de nieve: el golpe blando de una bola que se deshace
   nieve: () => { ruido(0.16, 900, 0.55, 0.6); tono(180, 90, 0.08, 'sine', 0.25); },
-  // Mazo de feria: el disco que sube silbando por la torre
-  subida: () => { tono(300, 1400, 0.6, 'triangle', 0.1); ruido(0.4, 2400, 0.08, 1.2); },
   // Xilófono: el golpe de la baqueta en la madera y el pulso de fondo (un taco de madera).
   // Las ocho teclas (xilo0 … xilo7, de do a do agudo) se añaden debajo.
   xiloPulso: () => { tono(1900, 1700, 0.025, 'triangle', 0.07); },

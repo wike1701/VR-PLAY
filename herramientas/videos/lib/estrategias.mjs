@@ -49,7 +49,6 @@ export const ESTRATEGIAS = {
   baloncesto: { modo: 'mantener', punto: [0.5, 0.4], pulsar: [0.6, 1.1], esperar: [1.5, 2.5] },
   balonmano: { modo: 'mantener', punto: [0.5, 0.4], pulsar: [0.6, 1.1], esperar: [1.5, 2.5] },
   skeeball: { modo: 'mantener', punto: [0.5, 0.4], pulsar: [0.5, 1], esperar: [1.5, 2.5] },
-  fuerza: { modo: 'mantener', pulsar: [0.6, 1.4], esperar: [1.5, 2.5] },
   carreras: { modo: 'mantener', pulsar: [2, 4], esperar: [0.3, 0.6], balanceo: 0.15 },
   slot: { modo: 'mantener', pulsar: [1, 2], esperar: [0.4, 0.8] },
   canoa: { modo: 'mantener', pulsar: [1.5, 3], esperar: [0.2, 0.4], balanceo: 0.2 },

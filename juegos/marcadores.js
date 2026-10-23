@@ -90,8 +90,6 @@ export const MARCADORES = {
   skeeball: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
   // Toques con pala: 1-6 puntos por toque y 10 por estrella, sin tiempo (acaba al caer tres pelotas)
   toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
-  // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
-  fuerza: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1400, minSegundos: 20 },
   // Xilófono: perfecto 3 y bien 1 por la racha (hasta x4), y 10 × el número de la canción al completarla
   // (como mucho 150); sin final fijo (hasta perder 3 notas). Simulando partidas perfectas sale de 28 puntos/s
   // a los 5 minutos a 43 en una hora, cuando ya va a la velocidad máxima
