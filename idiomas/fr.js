@@ -1833,6 +1833,8 @@ export default {
           cascabeles: 'Vive le vent',
           susana: 'Oh ! Susanna',
           granja: 'Dans la ferme de Mathurin',
+          jacques: 'Frère Jacques',
+          cumple: 'Joyeux anniversaire',
         },
       },
     },

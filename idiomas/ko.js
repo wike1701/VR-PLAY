@@ -1789,6 +1789,8 @@ export default {
           cascabeles: '징글벨',
           susana: '오 수재너',
           granja: '맥도널드 할아버지 농장',
+          jacques: '자크 수사님',
+          cumple: '생일 축하합니다',
         },
       },
     },

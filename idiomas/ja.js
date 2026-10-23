@@ -1799,6 +1799,8 @@ export default {
           cascabeles: 'ジングルベル',
           susana: 'おおスザンナ',
           granja: 'ゆかいな牧場',
+          jacques: 'フレール・ジャック',
+          cumple: 'ハッピーバースデー',
         },
       },
     },

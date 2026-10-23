@@ -1832,6 +1832,8 @@ export default {
           cascabeles: 'Jingle Bells',
           susana: 'Oh! Susanna',
           granja: 'Old MacDonald hat ’ne Farm',
+          jacques: 'Bruder Jakob',
+          cumple: 'Happy Birthday',
         },
       },
     },

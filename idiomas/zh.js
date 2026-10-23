@@ -1775,6 +1775,8 @@ export default {
           cascabeles: '铃儿响叮当',
           susana: '噢！苏珊娜',
           granja: '王老先生有块地',
+          jacques: '雅克兄弟',
+          cumple: '生日快乐',
         },
       },
     },

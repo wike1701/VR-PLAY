@@ -1939,6 +1939,8 @@ export default {
           cascabeles: 'Jingle Bells',
           susana: '¡Oh, Susana!',
           granja: 'En la granja del viejo MacDonald',
+          jacques: 'Fray Santiago',
+          cumple: 'Cumpleaños feliz',
         },
       },
     },

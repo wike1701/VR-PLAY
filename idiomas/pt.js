@@ -1832,6 +1832,8 @@ export default {
           cascabeles: 'Jingle Bells',
           susana: 'Oh! Susana',
           granja: 'O velho MacDonald',
+          jacques: 'Frei Tiago',
+          cumple: 'Parabéns pra você',
         },
       },
     },

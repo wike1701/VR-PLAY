@@ -34,7 +34,7 @@ const COLORES = [0xff3d6e, 0xff7a2e, 0xffd23f, 0x6dff7a, 0x2ee6d6, 0x3d8bff, 0x9
 const LETRAS = 'cdefgabC'; // en las partituras de abajo: c = do … b = si, C = do agudo; r = silencio
 
 // Canciones de dominio público que caben en una octava de do mayor. Cada nota: letra y
-// duración en pulsos (1 si no se pone). La primera es la más fácil; las demás van al azar.
+// duración en pulsos (1 si no se pone). Se reparten por niveles (abajo).
 const CANCIONES = [
   { id: 'estrellita', bpm: 96, partitura: 'c c g g a a g2 f f e e d d c2 g g f f e e d2 g g f f e e d2 c c g g a a g2 f f e e d d c2' },
   { id: 'corderito', bpm: 104, partitura: 'e d c d e e e2 d d d2 e g g2 e d c d e e e e d d e d c4' },
@@ -45,6 +45,15 @@ const CANCIONES = [
   { id: 'cascabeles', bpm: 116, partitura: 'e e e2 e e e2 e g c1.5 d0.5 e4 f f f1.5 f0.5 f e e e0.5 e0.5 e d d e d2 g2 e e e2 e e e2 e g c1.5 d0.5 e4 f f f f f e e e0.5 e0.5 g g f d c4' },
   { id: 'susana', bpm: 112, partitura: 'c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d c d3 c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d d c3 f2 a2 a2 a1.5 g0.5 g g e c d3 c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d d c3' },
   { id: 'granja', bpm: 112, partitura: 'g g g d e e d2 b b a a g3 d g g g d e e d2 b b a a g4' },
+  { id: 'jacques', bpm: 100, partitura: 'c d e c c d e c e f g2 e f g2 g a g f e c g a g f e c c g c2 c g c2' },
+  { id: 'cumple', bpm: 100, partitura: 'c0.75 c0.25 d c f e2 c0.75 c0.25 d c g f2 c0.75 c0.25 C a f e d2 b0.75 b0.25 a f g f2' },
+];
+// Niveles: cada uno son tres canciones distintas (en orden al azar), de más fáciles a más
+// difíciles. Pasados los niveles, siguen todas las canciones mezcladas.
+const NIVELES = [
+  ['estrellita', 'corderito', 'jacques'],
+  ['pollitos', 'cumple', 'alegria'],
+  ['londres', 'rema', 'granja'],
 ];
 // Lo que acelera cada canción completada y lo poco que llega a tardar una nota
 const ACELERA = 0.07;
@@ -431,9 +440,9 @@ export function iniciar(ctx) {
   const multiplicador = () => Math.min(4, 1 + Math.floor(racha / 10));
 
   function siguienteCancion(n) {
-    if (n === 0) return PARTITURAS[0];
-    if (!bolsa.length) {
-      bolsa = PARTITURAS.slice(1);
+    const nivel = Math.floor(n / 3);
+    if (nivel < NIVELES.length ? n % 3 === 0 : !bolsa.length) {
+      bolsa = nivel < NIVELES.length ? NIVELES[nivel].map((id) => PARTITURAS.find((p) => p.id === id)) : PARTITURAS.slice();
       for (let i = bolsa.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [bolsa[i], bolsa[j]] = [bolsa[j], bolsa[i]];

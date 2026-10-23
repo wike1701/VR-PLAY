@@ -1832,6 +1832,8 @@ export default {
           cascabeles: 'Jingle Bells',
           susana: 'Oh! Susanna',
           granja: 'Nella vecchia fattoria',
+          jacques: 'Fra Martino',
+          cumple: 'Tanti auguri a te',
         },
       },
     },
