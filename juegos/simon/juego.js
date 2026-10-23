@@ -74,27 +74,24 @@ export function iniciar(ctx) {
 
   // ─── Salón recreativo ──────────────────────────────────────────────────
   ctx.sueloBase(false);
-  // Moqueta de recreativa: fondo oscuro con formas de colores
-  const texMoqueta = R(ctx.texturaCanvas((g, tam, azar) => {
-    g.fillStyle = '#120a22';
+  // Suelo futurista: placa oscura con una cuadrícula de neón
+  const texMoqueta = R(ctx.texturaCanvas((g, tam) => {
+    g.fillStyle = '#080614';
     g.fillRect(0, 0, tam, tam);
-    const colores = ['#ff3d7f', '#2ee6d6', '#ffd23f', '#7a5cff'];
-    for (let i = 0; i < 40; i++) {
-      g.strokeStyle = colores[i % 4];
-      g.globalAlpha = 0.22 + azar() * 0.22;
-      g.lineWidth = 1.5 + azar() * 1.5;
-      const x = azar() * tam;
-      const y = azar() * tam;
-      const r = 4 + azar() * 10;
-      g.beginPath();
-      if (i % 3 === 0) g.arc(x, y, r, 0, Math.PI * 2);
-      else if (i % 3 === 1) { g.moveTo(x - r, y); g.lineTo(x, y - r); g.lineTo(x + r, y); }
-      else { g.moveTo(x - r, y - r / 2); g.quadraticCurveTo(x, y + r, x + r, y - r / 2); }
-      g.stroke();
-    }
+    g.strokeStyle = '#2ee6d6';
+    g.globalAlpha = 0.85;
+    g.lineWidth = 3;
+    g.strokeRect(1.5, 1.5, tam - 3, tam - 3);
+    g.strokeStyle = '#ff3d7f';
+    g.globalAlpha = 0.25;
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(tam / 2, 0); g.lineTo(tam / 2, tam);
+    g.moveTo(0, tam / 2); g.lineTo(tam, tam / 2);
+    g.stroke();
     g.globalAlpha = 1;
-  }, { tam: 256, repetir: [14, 14], semilla: 31 }));
-  const suelo = new THREE.Mesh(R(new THREE.PlaneGeometry(10, 10)), R(new THREE.MeshLambertMaterial({ map: texMoqueta })));
+  }, { tam: 256, repetir: [10, 10], semilla: 31 }));
+  const suelo = new THREE.Mesh(R(new THREE.PlaneGeometry(10, 10)), R(new THREE.MeshLambertMaterial({ map: texMoqueta, emissive: 0xffffff, emissiveMap: texMoqueta, emissiveIntensity: 0.35 })));
   suelo.rotation.x = -Math.PI / 2;
   raiz.add(suelo);
   // Paredes y techo oscuros
@@ -121,6 +118,13 @@ export function iniciar(ctx) {
     );
     raiz.add(malla);
   }
+  // Barras de luz verticales en la pared del fondo, como un ecualizador futurista
+  const barrasLuz = [];
+  for (let i = 0; i < 13; i++) {
+    const alto = 0.5 + ((i * 7) % 5) * 0.25;
+    barrasLuz.push(colocar(new THREE.BoxGeometry(0.05, alto, 0.03), -3 + i * 0.5, 0.9 + alto / 2, -3.36));
+  }
+  raiz.add(new THREE.Mesh(fusionar(barrasLuz), R(new THREE.MeshBasicMaterial({ color: 0x7a5cff, toneMapped: false }))));
   // Máquinas recreativas a lo largo de las paredes: mueble, pantalla encendida y cartel
   const PUESTOS = [];
   for (let i = 0; i < 6; i++) PUESTOS.push([-2.5 + i, -3.0, 0]);
@@ -197,6 +201,32 @@ export function iniciar(ctx) {
   aroCentro.position.y = 0.046;
   consola.add(centro, aroCentro);
 
+  // Aro de neón en el borde de la consola y anillos holográficos que flotan encima
+  const aroBorde = new THREE.Mesh(R(new THREE.TorusGeometry(R_CONSOLA + 0.006, 0.008, 8, 64)), R(new THREE.MeshBasicMaterial({ color: 0x2ee6d6, toneMapped: false })));
+  aroBorde.rotation.x = Math.PI / 2;
+  consola.add(aroBorde);
+  const anillosHolo = [0.34, 0.26, 0.18].map((radio, i) => {
+    const anillo = new THREE.Mesh(
+      R(new THREE.TorusGeometry(radio, 0.004, 6, 64, Math.PI * (1.4 + i * 0.15))),
+      R(new THREE.MeshBasicMaterial({ color: i === 1 ? 0xff3d7f : 0x2ee6d6, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })),
+    );
+    anillo.rotation.x = Math.PI / 2;
+    anillo.position.y = 0.3 + i * 0.12;
+    consola.add(anillo);
+    return anillo;
+  });
+  // Anillos de luz en el suelo alrededor del pedestal
+  const anillosSuelo = [0.6, 0.85].map((radio, i) => {
+    const anillo = new THREE.Mesh(
+      R(new THREE.RingGeometry(radio, radio + 0.025, 64)),
+      R(new THREE.MeshBasicMaterial({ color: i ? 0xff3d7f : 0x2ee6d6, transparent: true, opacity: 0.8, toneMapped: false })),
+    );
+    anillo.rotation.x = -Math.PI / 2;
+    anillo.position.set(CONSOLA.x, 0.006, CONSOLA.z);
+    raiz.add(anillo);
+    return anillo;
+  });
+
   // Teclas: un sector de corona extruido con bisel, cada una de su color
   const teclas = TECLAS.map((def, i) => {
     const a0 = THREE.MathUtils.degToRad(def.desde) + HUECO;
@@ -219,7 +249,12 @@ export function iniciar(ctx) {
     // Centro de la tecla (para los efectos)
     const am = (a0 + a1) / 2;
     const rm = (R_DENTRO + R_FUERA) / 2;
-    return { ...def, malla, material, luz: 0, pulsada: 0, centro: new THREE.Vector3(Math.cos(am) * rm, ALTO_TECLA + 0.02, -Math.sin(am) * rm) };
+    // Rayo de luz holográfico que sube de la tecla cuando se enciende
+    const materialRayo = R(new THREE.MeshBasicMaterial({ color: def.claro, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+    const rayo = new THREE.Mesh(R(colocar(new THREE.CylinderGeometry(0.05, 0.1, 0.8, 16, 1, true), 0, 0.4, 0)), materialRayo);
+    rayo.position.set(Math.cos(am) * rm, ALTO_TECLA, -Math.sin(am) * rm);
+    consola.add(rayo);
+    return { ...def, malla, material, materialRayo, luz: 0, pulsada: 0, centro: new THREE.Vector3(Math.cos(am) * rm, ALTO_TECLA + 0.02, -Math.sin(am) * rm) };
   });
   const mallasTeclas = teclas.map((t) => t.malla);
 
@@ -273,7 +308,8 @@ export function iniciar(ctx) {
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let espera = ESPERA_TECLA;
-  let parpadeo = 0;       // al fallar, todas las teclas parpadean
+  let tiempo = 0;
+  let parpadeo = 0;      // al fallar, todas las teclas parpadean
 
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
@@ -451,6 +487,11 @@ export function iniciar(ctx) {
       empezarPartida();
     }
 
+    // Anillos holográficos girando y anillos del suelo pulsando
+    tiempo += dt;
+    anillosHolo.forEach((a, i) => { a.rotation.z = tiempo * (i % 2 ? -0.9 : 0.7) + i; });
+    anillosSuelo.forEach((a, i) => { a.material.opacity = 0.55 + 0.25 * Math.sin(tiempo * 2 + i * 2); });
+
     // Luz y hundimiento de cada tecla
     parpadeo = Math.max(0, parpadeo - dt);
     const todas = parpadeo > 0 && Math.floor(parpadeo * 7) % 2 === 0;
@@ -460,6 +501,7 @@ export function iniciar(ctx) {
       if (!mostrando) t.luz = Math.max(0, t.luz - dt * 5);
       const luz = todas ? 0.8 : t.luz;
       t.material.emissiveIntensity = 0.04 + luz * 1.1;
+      t.materialRayo.opacity = luz * 0.55;
       t.pulsada = Math.max(0, t.pulsada - dt);
       t.malla.position.y = 0.006 - (t.pulsada > 0 || mostrando ? 0.008 : 0);
     }
