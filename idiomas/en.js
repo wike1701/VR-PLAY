@@ -1305,7 +1305,7 @@ export default {
     bomba: {
       titulo: 'Don\'t Explode!',
       descripcion: 'A bomb on a bunker table and a countdown. Each module has its clue: cut the wires in the order on the little screen, press the button matching the light, set the levers as their lights say and turn the dial to its colour. Every mistake costs seconds and, on the second one, the clock speeds up. There are 3 bombs, each harder than the last; if one explodes, it\'s over.',
-      controlesVR: 'You use your bare hands: bring a finger to a button or lever and pull the trigger. When there are wires to cut, pliers appear in each hand: bring the tip to a wire and pull the trigger. Grab the dial with the trigger and turn it with your wrist; let go when the arrow points at its colour.',
+      controlesVR: 'You use your bare hands: bring a finger to a button or lever and pull the trigger. When there are wires to cut, pick up the pliers from the table with the trigger: bring the tip to a wire and pull the trigger. Grab the dial with the trigger and turn it with your wrist; let go when the arrow points at its colour.',
       controlesEscritorio: 'Click the wires to cut them, the buttons to press them and the levers to flip them. Each click on the dial turns it one step.',
       controlesTactil: 'Tap the wires to cut them, the buttons to press them and the levers to flip them. Each tap on the dial turns it one step.',
       etiquetas: [
@@ -1315,7 +1315,7 @@ export default {
       ],
       juego: {
         titulo: 'DON\'T EXPLODE!',
-        introVR: 'Bring your hand to each part and pull the trigger (pliers appear on their own for wires)',
+        introVR: 'Bring your hand to each part and pull the trigger (for wires, pick up the pliers from the table)',
         introRaton: 'Click wires, buttons, levers and dial',
         introTactil: 'Tap wires, buttons, levers and dial',
         marcador: { one: 'Bomb {b}/{total} · {n} point', other: 'Bomb {b}/{total} · {n} points' },

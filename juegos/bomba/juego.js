@@ -9,7 +9,7 @@
 // acaba. Los puntos: 100 por módulo, 5 por segundo que sobra y 20 menos por error.
 //
 // En VR: usas las manos libres (acercas la punta y aprietas el gatillo para pulsar o mover una palanca);
-// solo cuando hay cables por cortar te salen unos alicates en cada mano. La rueda se coge con el gatillo y se gira con la muñeca. Con ratón o en el móvil:
+// solo cuando hay cables por cortar coges los alicates de la mesa. La rueda se coge con el gatillo y se gira con la muñeca. Con ratón o en el móvil:
 // tocas cada pieza; cada toque en la rueda la gira un paso.
 import * as THREE from 'three';
 
@@ -540,22 +540,33 @@ export function iniciar(ctx) {
   const matMango = R(new THREE.MeshLambertMaterial({ color: 0xc62828 }));
   const matAcero = R(new THREE.MeshStandardMaterial({ color: 0xc9d1d8, metalness: 0.9, roughness: 0.25 }));
   const geoEje = R(new THREE.CylinderGeometry(0.007, 0.007, 0.018, 12));
-  const manos = ctx.manos.map((mano) => {
+  function crearAlicates() {
     const alicates = new THREE.Group();
     const mitades = [1, -1].map((lado) => {
       const m = new THREE.Group();
-      const mango = new THREE.Mesh(geoMango, matMango);
-      const boca = new THREE.Mesh(geoBoca, matAcero);
-      m.add(mango, boca);
+      m.add(new THREE.Mesh(geoMango, matMango), new THREE.Mesh(geoBoca, matAcero));
       m.scale.x = lado;
       alicates.add(m);
       return m;
     });
     alicates.add(new THREE.Mesh(geoEje, matAcero));
+    return { alicates, mitades };
+  }
+  const manos = ctx.manos.map((mano) => {
+    const { alicates, mitades } = crearAlicates();
     alicates.position.set(0, -0.01, -0.03);
+    alicates.visible = false;
     ctx.adjuntarAMano(mano, alicates);
-    return { mano, alicates, mitades, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
+    return { mano, alicates, mitades, tiene: false, punta: new THREE.Vector3(), agarre: null, ruedaInicial: 0, quat: new THREE.Quaternion(), quatInicial: new THREE.Quaternion() };
   });
+
+  // Los alicates descansan sobre la mesa: se cogen con el gatillo cuando toca cortar cables y vuelven solos
+  const alicatesMesa = crearAlicates().alicates;
+  alicatesMesa.position.set(0.45, MESA_Y + 0.012, BOMBA_Z + 0.12);
+  alicatesMesa.rotation.set(0, 0.5, 0);
+  alicatesMesa.visible = false;
+  raiz.add(alicatesMesa);
+  const R_COGER = 0.1;
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const panel = ctx.crearPanel({ ancho: 0.82, alto: 0.22 });
@@ -800,10 +811,12 @@ export function iniciar(ctx) {
 
   // ─── VR ────────────────────────────────────────────────────────────────
   function actualizarVR(dt) {
-    // Los alicates solo salen en las manos cuando hay cables por cortar; el resto del tiempo, manos libres
+    // Los alicates están en la mesa: solo se ven con cables por cortar y, si no los lleva una mano, vuelven a la mesa
     const hayCables = estado === 'bomba' && cables.activo && !cables.resuelto;
+    if (!hayCables) manos.forEach((m) => { m.tiene = false; });
+    alicatesMesa.visible = hayCables && !manos.some((m) => m.tiene);
     manos.forEach((m) => {
-      m.alicates.visible = hayCables;
+      m.alicates.visible = m.tiene;
       const cerrado = m.mano.gatillo ? 0 : 0.22;
       m.mitades[0].rotation.y = cerrado;
       m.mitades[1].rotation.y = -cerrado;
@@ -820,12 +833,21 @@ export function iniciar(ctx) {
         return;
       }
       if (!m.mano.gatilloPulsado || estado !== 'bomba' || aparicion < 1) return;
+      // Coger los alicates de la mesa
+      if (alicatesMesa.visible && !m.tiene && m.punta.distanceTo(alicatesMesa.position) < R_COGER) {
+        m.tiene = true;
+        alicatesMesa.visible = false;
+        ctx.vibrar(m.mano, 0.4, 40);
+        ctx.sonido('clac');
+        return;
+      }
       // La pieza más cercana a la punta
       let mejor = null;
       let distancia = R_TOCAR;
       for (const p of piezas) {
         const d = p.userData.pieza;
         if (!d.modulo.activo || d.modulo.resuelto) continue;
+        if (d.modulo.tipo === 'cables' && !m.tiene) continue; // los cables solo se cortan con los alicates
         d.modulo.grupo.localToWorld(tmp.copy(d.punto));
         const dist = tmp.distanceTo(m.punta);
         const limite = d.modulo.tipo === 'rueda' ? R_TOCAR + 0.02 : R_TOCAR;

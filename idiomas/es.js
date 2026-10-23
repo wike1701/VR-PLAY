@@ -1388,7 +1388,7 @@ export default {
     bomba: {
       titulo: '¡Que no explote!',
       descripcion: 'Una bomba en la mesa de un búnker y una cuenta atrás. Cada módulo tiene su pista: corta los cables en el orden de la pantallita, pulsa el botón del color de la luz, deja las palancas como piden sus luces y gira la rueda hasta su color. Cada error quita segundos y, al segundo, el reloj se acelera. Son 3 bombas, cada una más difícil; si una explota, se acabó.',
-      controlesVR: 'Usas las manos libres: acerca el dedo a un botón o palanca y aprieta el gatillo. Cuando toca cortar cables, te salen unos alicates en cada mano: acerca la punta a un cable y aprieta el gatillo. La rueda se coge con el gatillo y se gira con la muñeca; suéltala cuando la flecha señale su color.',
+      controlesVR: 'Usas las manos libres: acerca el dedo a un botón o palanca y aprieta el gatillo. Cuando toca cortar cables, coge los alicates de la mesa con el gatillo: acerca la punta a un cable y aprieta el gatillo. La rueda se coge con el gatillo y se gira con la muñeca; suéltala cuando la flecha señale su color.',
       controlesEscritorio: 'Haz clic en los cables para cortarlos, en los botones para pulsarlos y en las palancas para moverlas. Cada clic en la rueda la gira un paso.',
       controlesTactil: 'Toca los cables para cortarlos, los botones para pulsarlos y las palancas para moverlas. Cada toque en la rueda la gira un paso.',
       etiquetas: [
@@ -1400,7 +1400,7 @@ export default {
       ],
       juego: {
         titulo: '¡QUE NO EXPLOTE!',
-        introVR: 'Acerca la mano a cada pieza y aprieta el gatillo (los alicates salen solos con los cables)',
+        introVR: 'Acerca la mano a cada pieza y aprieta el gatillo (con los cables, coge los alicates de la mesa)',
         introRaton: 'Haz clic en cables, botones, palancas y rueda',
         introTactil: 'Toca cables, botones, palancas y rueda',
         marcador: { one: 'Bomba {b}/{total} · {n} punto', other: 'Bomba {b}/{total} · {n} puntos' },
