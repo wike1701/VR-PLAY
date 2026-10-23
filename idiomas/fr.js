@@ -1329,6 +1329,8 @@ export default {
         ayudaBotones: 'Boutons : appuie sur la couleur du voyant',
         ayudaPalancas: 'Leviers : en haut si allumé, en bas sinon',
         ayudaRueda: 'Molette : tourne-la jusqu\'à la couleur de l\'écran',
+        ayudaSimon: 'Simon : répète la séquence de lumières',
+        ayudaCodigo: 'Code : appuie sur les symboles dans l\'ordre de l\'écran',
         modulo: 'Module désamorcé !',
         error: 'Erreur ! −{n} s',
         trampa: 'Piège ! Le chrono s\'accélère',

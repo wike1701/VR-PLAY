@@ -1328,6 +1328,8 @@ export default {
         ayudaBotones: 'Botões: aperte o da cor da luz',
         ayudaPalancas: 'Alavancas: para cima onde há luz, para baixo onde não',
         ayudaRueda: 'Disco: gire-o até a cor da tela',
+        ayudaSimon: 'Simon: repita a sequência de luzes',
+        ayudaCodigo: 'Código: aperte os símbolos na ordem da tela',
         modulo: 'Módulo desarmado!',
         error: 'Erro! −{n} s',
         trampa: 'Armadilha! O relógio acelera',

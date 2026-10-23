@@ -1328,6 +1328,8 @@ export default {
         ayudaBotones: 'Pulsanti: premi quello del colore della luce',
         ayudaPalancas: 'Leve: su dove c\'è luce, giù dove no',
         ayudaRueda: 'Manopola: girala fino al colore dello schermo',
+        ayudaSimon: 'Simon: ripeti la sequenza di luci',
+        ayudaCodigo: 'Codice: premi i simboli nell\'ordine dello schermo',
         modulo: 'Modulo disinnescato!',
         error: 'Errore! −{n} s',
         trampa: 'Trappola! Il timer va più veloce',

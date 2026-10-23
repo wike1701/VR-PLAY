@@ -4,6 +4,8 @@
 //   · Botones: hay que pulsar el botón del color de la luz, tres veces seguidas (la luz cambia).
 //   · Palancas: arriba las que tienen la luz encendida y abajo las demás.
 //   · Rueda: se gira hasta que la flecha señala el color de la pantallita.
+//   · Simón: los botones se encienden en una secuencia de 4 y hay que repetirla.
+//   · Código: la pantallita muestra 3 símbolos y se pulsan las teclas con esos símbolos, en ese orden.
 // Cada bomba se genera al azar. Un error resta segundos y, al segundo error, salta una trampa: el reloj
 // va más rápido. Una partida son 3 bombas, cada una más difícil (2, 3 y 4 módulos); si una explota, se
 // acaba. Los puntos: 100 por módulo, 5 por segundo que sobra y 20 menos por error.
@@ -24,7 +26,7 @@ const RANURAS = [[-0.14, 0.1], [0.14, 0.1], [-0.14, -0.06], [0.14, -0.06]]; // x
 const BOMBAS = [{ modulos: 2, tiempo: 35 }, { modulos: 3, tiempo: 45 }, { modulos: 4, tiempo: 55 }];
 const CASTIGO = 6;               // segundos que quita un error
 const R_TOCAR = 0.035;           // distancia de la punta de los alicates para tocar una pieza (VR)
-const TIPOS = ['cables', 'botones', 'palancas', 'rueda'];
+const TIPOS = ['cables', 'botones', 'palancas', 'rueda', 'simon', 'codigo'];
 
 // Colores de los cables y botones, y los 8 de la rueda
 const COLORES = { rojo: 0xe53935, azul: 0x1e88e5, amarillo: 0xfdd835, verde: 0x43a047, blanco: 0xf5f5f5, negro: 0x2b2b2b };
@@ -433,7 +435,74 @@ export function iniciar(ctx) {
     rueda.angulo = 0;        // ángulo que se ve (con animación)
     rueda.objetivo = 0;
   }
-  const modulos = { cables, botones, palancas, rueda };
+  // Simón: 4 botones de colores que se encienden en una secuencia de 4; hay que repetirla
+  const simon = crearModulo('simon');
+  {
+    const base = [];
+    for (let i = 0; i < 4; i++) base.push(new THREE.CylinderGeometry(0.023, 0.025, 0.01, 18).translate(-0.078 + i * 0.052, 0.017, 0.022));
+    simon.grupo.add(new THREE.Mesh(R(fusionar(base)), R(new THREE.MeshLambertMaterial({ color: 0x181b1e }))));
+    const geoBoton = R(new THREE.CylinderGeometry(0.018, 0.019, 0.014, 20).translate(0, 0.007, 0));
+    simon.teclas = COLORES_BOTON.map((color, i) => {
+      const malla = new THREE.Mesh(geoBoton, R(new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.05, emissive: color, emissiveIntensity: 0.12 })));
+      malla.position.set(-0.078 + i * 0.052, 0.022, 0.022);
+      simon.grupo.add(malla);
+      pieza(malla, simon, i, new THREE.Vector3(-0.078 + i * 0.052, 0.035, 0.022));
+      return { malla, hundido: 0, luz: 0 };
+    });
+    simon.progreso = [0, 1, 2, 3].map((i) => {
+      const l = new THREE.Mesh(geoLedPeq, R(new THREE.MeshBasicMaterial({ color: 0x333333, toneMapped: false })));
+      l.position.set(-0.039 + i * 0.026, 0.016, -0.045);
+      simon.grupo.add(l);
+      return l;
+    });
+  }
+
+  // Código: una pantallita con 3 símbolos y 6 teclas con símbolos (cada bomba en otro orden); se pulsan en el orden de la pantalla
+  const SIMBOLOS = 6;
+  const COLOR_SIMBOLO = ['#ff7043', '#4fc3f7', '#ffee58', '#9ccc65', '#ba68c8', '#f5f5f5'];
+  function dibujarSimbolo(g, tipo, x, y, r, color) {
+    g.fillStyle = color;
+    g.strokeStyle = color;
+    g.lineWidth = r * 0.34;
+    g.beginPath();
+    if (tipo === 0) g.arc(x, y, r, 0, Math.PI * 2);
+    else if (tipo === 1) { g.moveTo(x, y - r); g.lineTo(x + r, y + r * 0.8); g.lineTo(x - r, y + r * 0.8); g.closePath(); }
+    else if (tipo === 2) g.rect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7);
+    else if (tipo === 3) for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + (k * Math.PI) / 5; const rr = k % 2 ? r * 0.45 : r * 1.1; g[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+    else if (tipo === 4) { g.moveTo(x, y - r * 1.1); g.lineTo(x + r * 0.8, y); g.lineTo(x, y + r * 1.1); g.lineTo(x - r * 0.8, y); g.closePath(); }
+    if (tipo !== 5) g.fill();
+    else { g.moveTo(x - r, y - r); g.lineTo(x + r, y + r); g.moveTo(x + r, y - r); g.lineTo(x - r, y + r); g.stroke(); }
+  }
+  const codigo = crearModulo('codigo');
+  {
+    const base = [];
+    for (let i = 0; i < 6; i++) base.push(new THREE.CylinderGeometry(0.019, 0.021, 0.008, 16).translate(-0.08 + (i % 3) * 0.05, 0.016, i < 3 ? 0.005 : 0.052));
+    codigo.grupo.add(new THREE.Mesh(R(fusionar(base)), R(new THREE.MeshLambertMaterial({ color: 0x181b1e }))));
+    const geoTecla = R(new THREE.CylinderGeometry(0.0155, 0.0165, 0.012, 16).translate(0, 0.006, 0));
+    const geoCara = R(new THREE.CircleGeometry(0.0135, 16).rotateX(-Math.PI / 2).translate(0, 0.0125, 0));
+    const matTecla = R(new THREE.MeshLambertMaterial({ color: 0xd7d3c4 }));
+    codigo.caras = [];
+    codigo.teclas = [0, 1, 2, 3, 4, 5].map((i) => {
+      const x = -0.08 + (i % 3) * 0.05;
+      const z = i < 3 ? 0.005 : 0.052;
+      const malla = new THREE.Mesh(geoTecla, matTecla);
+      malla.position.set(x, 0.02, z);
+      const lienzo = document.createElement('canvas');
+      lienzo.width = lienzo.height = 64;
+      const tex = R(new THREE.CanvasTexture(lienzo));
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const cara = new THREE.Mesh(geoCara, R(new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })));
+      malla.add(cara);
+      codigo.grupo.add(malla);
+      pieza(malla, codigo, i, new THREE.Vector3(x, 0.036, z));
+      codigo.caras.push({ g: lienzo.getContext('2d'), tex });
+      return { malla, hundido: 0, simbolo: i };
+    });
+    codigo.pantalla = crearPantalla(ctx, 0.12, 0.034, 192);
+    codigo.pantalla.malla.position.set(-0.03, 0.0125, -0.05);
+    codigo.grupo.add(codigo.pantalla.malla);
+  }
+  const modulos = { cables, botones, palancas, rueda, simon, codigo };
 
   // ─── Pistas de cada módulo ─────────────────────────────────────────────
   function prepararCables() {
@@ -518,7 +587,44 @@ export function iniciar(ctx) {
     g.stroke();
     rueda.pantalla.tex.needsUpdate = true;
   }
-  const PREPARAR = { cables: prepararCables, botones: prepararBotones, palancas: prepararPalancas, rueda: prepararRueda };
+  function prepararSimon() {
+    simon.secuencia = [0, 1, 2, 3].map(() => entero(4));
+    simon.paso = 0;
+    simon.reloj = 0;
+    simon.pausa = 0;
+    simon.progreso.forEach((l) => l.material.color.setHex(0x333333));
+  }
+
+  function dibujarPantallaCodigo() {
+    const { g, w, h } = codigo.pantalla;
+    g.fillStyle = '#0d1a12';
+    g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#3cff8a';
+    g.lineWidth = 3;
+    g.strokeRect(3, 3, w - 6, h - 6);
+    codigo.orden.forEach((s, k) => {
+      g.globalAlpha = k < codigo.paso ? 0.25 : 1;
+      dibujarSimbolo(g, s, w * (0.2 + k * 0.3), h / 2, h * 0.26, COLOR_SIMBOLO[s]);
+    });
+    g.globalAlpha = 1;
+    codigo.pantalla.tex.needsUpdate = true;
+  }
+  function prepararCodigo() {
+    // Los símbolos de las teclas, en otro orden cada vez, y 3 distintos que pulsar
+    const simbolos = barajar([...Array(SIMBOLOS).keys()]);
+    codigo.teclas.forEach((t, i) => {
+      t.simbolo = simbolos[i];
+      const { g, tex } = codigo.caras[i];
+      g.fillStyle = '#1b1f23';
+      g.fillRect(0, 0, 64, 64);
+      dibujarSimbolo(g, simbolos[i], 32, 32, 17, COLOR_SIMBOLO[simbolos[i]]);
+      tex.needsUpdate = true;
+    });
+    codigo.orden = barajar([...Array(SIMBOLOS).keys()]).slice(0, 3);
+    codigo.paso = 0;
+    dibujarPantallaCodigo();
+  }
+  const PREPARAR = { cables: prepararCables, botones: prepararBotones, palancas: prepararPalancas, rueda: prepararRueda, simon: prepararSimon, codigo: prepararCodigo };
 
   // ─── Alicates en cada mano (VR) ────────────────────────────────────────
   // Dos mitades que giran sobre el eje: mango de goma roja y boca de acero que se cierra con el gatillo
@@ -607,7 +713,7 @@ export function iniciar(ctx) {
 
   function avisar(texto, color, duracion = 1.5) { aviso = { texto, color, tiempo: duracion }; }
 
-  const AYUDAS = { cables: 'ayudaCables', botones: 'ayudaBotones', palancas: 'ayudaPalancas', rueda: 'ayudaRueda' };
+  const AYUDAS = { cables: 'ayudaCables', botones: 'ayudaBotones', palancas: 'ayudaPalancas', rueda: 'ayudaRueda', simon: 'ayudaSimon', codigo: 'ayudaCodigo' };
   function escribirMarcador() {
     let lineas;
     if (estado === 'intro') {
@@ -792,6 +898,33 @@ export function iniciar(ctx) {
       ctx.sonido('toc');
       if (mano) ctx.vibrar(mano, 0.3, 30);
       if (palancas.interruptores.every((x) => x.arriba === x.objetivo)) moduloResuelto(m, mano);
+    } else if (m.tipo === 'simon') {
+      const b = simon.teclas[datos.indice];
+      b.hundido = 1;
+      m.grupo.localToWorld(tmp.copy(datos.punto));
+      if (simon.secuencia[simon.paso] === datos.indice) {
+        simon.progreso[simon.paso].material.color.setHex(COLOR_LED_VERDE);
+        simon.paso++;
+        simon.pausa = 3; // mientras tocas, la secuencia espera
+        if (simon.paso >= simon.secuencia.length) moduloResuelto(m, mano);
+        else ctx.efectos.impacto('pequeño', { pos: tmp, mano, color: COLORES_BOTON[datos.indice], sonido: 'boton' });
+      } else {
+        simon.paso = 0;
+        simon.reloj = 0;
+        simon.pausa = 0;
+        simon.progreso.forEach((l) => l.material.color.setHex(0x333333));
+        error(m, mano);
+      }
+    } else if (m.tipo === 'codigo') {
+      const t = codigo.teclas[datos.indice];
+      t.hundido = 1;
+      m.grupo.localToWorld(tmp.copy(datos.punto));
+      if (t.simbolo === codigo.orden[codigo.paso]) {
+        codigo.paso++;
+        dibujarPantallaCodigo();
+        if (codigo.paso >= codigo.orden.length) moduloResuelto(m, mano);
+        else ctx.efectos.impacto('pequeño', { pos: tmp, mano, color: 0xb9f6ca, sonido: 'boton' });
+      } else error(m, mano);
     } else if (m.tipo === 'rueda' && !mano) {
       // Con ratón, cada toque la gira un paso (en VR se coge y se gira con la muñeca)
       rueda.paso = (rueda.paso + 1) % 8;
@@ -911,6 +1044,24 @@ export function iniciar(ctx) {
     if (botones.cambio > 0) {
       botones.cambio -= dt;
       if (botones.cambio <= 0 && !botones.resuelto) botones.luz.material.color.setHex(COLORES_BOTON[botones.secuencia[botones.paso]]);
+    }
+    // Simón: repite la secuencia encendiendo los botones (se calla un rato mientras tocas)
+    if (simon.activo && !simon.resuelto) {
+      if (simon.pausa > 0) simon.pausa -= dt;
+      else simon.reloj += dt;
+      const ciclo = simon.secuencia.length * 0.7 + 2;
+      const t = simon.reloj % ciclo;
+      const encendido = simon.pausa <= 0 && t < simon.secuencia.length * 0.7 && t % 0.7 < 0.5 ? simon.secuencia[Math.floor(t / 0.7)] : -1;
+      simon.teclas.forEach((b, i) => { b.luz = i === encendido ? 1 : 0; });
+    } else for (const b of simon.teclas) b.luz = 0;
+    for (const b of simon.teclas) {
+      b.hundido = Math.max(0, b.hundido - dt * 6);
+      b.malla.position.y = 0.022 - b.hundido * 0.007;
+      b.malla.material.emissiveIntensity = 0.12 + b.luz * 1.3 + b.hundido * 0.5;
+    }
+    for (const t of codigo.teclas) {
+      t.hundido = Math.max(0, t.hundido - dt * 6);
+      t.malla.position.y = 0.02 - t.hundido * 0.006;
     }
     for (const p of palancas.interruptores) {
       const objetivo = p.arriba ? -0.8 : 0.8;

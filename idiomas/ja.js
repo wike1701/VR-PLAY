@@ -1313,6 +1313,8 @@ export default {
         ayudaBotones: 'ボタン：ランプと同じ色を押そう',
         ayudaPalancas: 'レバー：ランプが点灯なら上、消灯なら下',
         ayudaRueda: 'ダイヤル：画面の色まで回そう',
+        ayudaSimon: 'サイモン：光る順番をまねしよう',
+        ayudaCodigo: 'コード：画面の順番どおりにマークを押そう',
         modulo: 'モジュール解除！',
         error: 'ミス！ −{n} 秒',
         trampa: 'トラップ！ 時計が速くなった',

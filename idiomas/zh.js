@@ -1290,6 +1290,8 @@ export default {
         ayudaBotones: '按钮：按下和灯同色的那个',
         ayudaPalancas: '拨杆：灯亮的拨上，灯灭的拨下',
         ayudaRueda: '旋钮：转到屏幕上的颜色',
+        ayudaSimon: '记忆灯：重复灯光的顺序',
+        ayudaCodigo: '密码：按屏幕上的顺序按下符号',
         modulo: '模块已拆除！',
         error: '出错！−{n} 秒',
         trampa: '陷阱！时钟变快了',

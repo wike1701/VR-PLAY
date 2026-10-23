@@ -1323,6 +1323,8 @@ export default {
         ayudaBotones: 'Buttons: press the one matching the light',
         ayudaPalancas: 'Levers: up where lit, down where not',
         ayudaRueda: 'Dial: turn it to the colour on the screen',
+        ayudaSimon: 'Simon: repeat the sequence of lights',
+        ayudaCodigo: 'Code: press the symbols in the order on the screen',
         modulo: 'Module defused!',
         error: 'Mistake! −{n} s',
         trampa: 'Trap! The clock runs faster',

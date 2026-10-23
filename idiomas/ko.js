@@ -1303,6 +1303,8 @@ export default {
         ayudaBotones: '버튼: 불빛과 같은 색을 누르세요',
         ayudaPalancas: '레버: 불이 켜진 곳은 위, 꺼진 곳은 아래',
         ayudaRueda: '다이얼: 화면의 색까지 돌리세요',
+        ayudaSimon: '사이먼: 불빛 순서를 따라 하세요',
+        ayudaCodigo: '코드: 화면의 순서대로 기호를 누르세요',
         modulo: '모듈 해체!',
         error: '실수! −{n}초',
         trampa: '함정! 시계가 빨라져요',

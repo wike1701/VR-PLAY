@@ -1328,6 +1328,8 @@ export default {
         ayudaBotones: 'Knöpfe: den in der Farbe des Lichts drücken',
         ayudaPalancas: 'Hebel: oben bei Licht, sonst unten',
         ayudaRueda: 'Rad: auf die Farbe des Bildschirms drehen',
+        ayudaSimon: 'Simon: die Lichterfolge nachmachen',
+        ayudaCodigo: 'Code: die Symbole in der Reihenfolge des Bildschirms drücken',
         modulo: 'Modul entschärft!',
         error: 'Fehler! −{n} s',
         trampa: 'Falle! Die Uhr läuft schneller',
