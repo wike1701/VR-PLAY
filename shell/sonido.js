@@ -171,6 +171,8 @@ const SONIDOS = {
   // Las ocho teclas (xilo0 … xilo7, de do a do agudo) se añaden debajo.
   xiloPulso: () => { tono(1900, 1700, 0.025, 'triangle', 0.07); },
   xiloPulsoFuerte: () => { tono(1500, 1300, 0.035, 'triangle', 0.1); tono(95, 70, 0.08, 'sine', 0.18); },
+  // Frontón: la diana que aparece en la pared (dos notas que suben)
+  dianaAparece: () => { tono(880, 1320, 0.09, 'triangle', 0.14); tono(1320, 1760, 0.12, 'sine', 0.1, 0.08); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

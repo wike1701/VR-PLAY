@@ -113,6 +113,7 @@ juegos/
   toques/juego.js       Toques con Pala (en pruebas)
   fuerza/juego.js       Mazo de Feria (en pruebas)
   xilofono/juego.js     Xilófono
+  fronton/juego.js      Frontón de Ping Pong (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

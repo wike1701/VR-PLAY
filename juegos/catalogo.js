@@ -62,6 +62,7 @@ const LISTA = [
   { id: 'toques', genero: 'habilidad', pruebas: true },
   { id: 'fuerza', genero: 'habilidad', pruebas: true },
   { id: 'xilofono', genero: 'ritmo' },
+  { id: 'fronton', genero: 'deportes', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

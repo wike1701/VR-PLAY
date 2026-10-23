@@ -100,6 +100,9 @@ export const MARCADORES = {
   // (como mucho 150); sin final fijo (hasta perder 3 notas). Simulando partidas perfectas sale de 28 puntos/s
   // a los 5 minutos a 43 en una hora, cuando ya va a la velocidad máxima
   xilofono: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 5 },
+  // Frontón de Ping Pong: 1 punto por golpe dentro de la zona de la pared y +5 por diana; sin final fijo
+  // (hasta que la bola sale, no llega, bota dos veces o se escapa)
+  fronton: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?
