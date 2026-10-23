@@ -1919,8 +1919,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Leñador',
-      descripcion: 'Un árbol enorme en un claro del bosque, con ramas a la izquierda y a la derecha. Llevas un hacha en cada mano: cortar con la izquierda es cortar desde la izquierda, y con la derecha desde la derecha. Cada hachazo se lleva el trozo de abajo y el árbol baja. Si cortas del lado en el que hay una rama a tu altura, o en el que va a bajar la siguiente, la rama te da y se acaba. La barra de tiempo se vacía sola y cada hachazo la rellena, pero cada vez se vacía más deprisa. Cada hachazo vale 1 punto: ¿hasta dónde llegas?',
-      controlesVR: 'Un hacha en cada mano: golpea el tronco a la altura del pecho con la mano del lado en el que no hay rama (ni a tu altura ni justo encima).',
+      descripcion: 'Un árbol enorme en un claro del bosque, con ramas a la izquierda y a la derecha. Llevas un hacha en cada mano: cortar con la izquierda es cortar desde la izquierda, y con la derecha desde la derecha. Cada hachazo se lleva el trozo de abajo y el árbol baja. Si golpeas del lado en el que hay una rama a tu altura, la rama te da y se acaba (una rama más arriba no hace nada hasta que la golpeas). La barra de tiempo se vacía sola y cada hachazo la rellena, pero cada vez se vacía más deprisa. Cada hachazo vale 1 punto: ¿hasta dónde llegas?',
+      controlesVR: 'Un hacha en cada mano: golpea el tronco a la altura del pecho con la mano del lado en el que no hay rama a tu altura (las de más arriba no importan todavía).',
       controlesEscritorio: 'Haz clic en la mitad izquierda o derecha de la pantalla para cortar desde ese lado. Corta siempre del lado sin rama.',
       controlesTactil: 'Toca la mitad izquierda o derecha de la pantalla para cortar desde ese lado. Corta siempre del lado sin rama.',
       etiquetas: [

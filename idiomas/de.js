@@ -1812,8 +1812,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Holzfäller',
-      descripcion: 'Ein riesiger Baum auf einer Waldlichtung, mit Ästen links und rechts. Du hältst in jeder Hand eine Axt: Mit links schlägst du von links, mit rechts von rechts. Jeder Schlag nimmt das unterste Stück weg und der Baum rutscht nach. Schlägst du von der Seite, auf der ein Ast auf deiner Höhe ist oder der nächste herunterkommt, trifft dich der Ast und es ist vorbei. Die Zeitleiste leert sich von selbst und jeder Schlag füllt sie auf, aber sie leert sich immer schneller. Jeder Schlag bringt 1 Punkt: Wie weit kommst du?',
-      controlesVR: 'Eine Axt in jeder Hand: Schlag den Stamm auf Brusthöhe mit der Hand auf der Seite ohne Ast (weder auf deiner Höhe noch direkt darüber).',
+      descripcion: 'Ein riesiger Baum auf einer Waldlichtung, mit Ästen links und rechts. Du hältst in jeder Hand eine Axt: Mit links schlägst du von links, mit rechts von rechts. Jeder Schlag nimmt das unterste Stück weg und der Baum rutscht nach. Schlägst du von der Seite, auf der ein Ast auf deiner Höhe ist, trifft dich der Ast und es ist vorbei (Äste weiter oben sind harmlos, bis du sie triffst). Die Zeitleiste leert sich von selbst und jeder Schlag füllt sie auf, aber sie leert sich immer schneller. Jeder Schlag bringt 1 Punkt: Wie weit kommst du?',
+      controlesVR: 'Eine Axt in jeder Hand: Schlag den Stamm auf Brusthöhe mit der Hand auf der Seite ohne Ast auf deiner Höhe (Äste weiter oben zählen noch nicht).',
       controlesEscritorio: 'Klick auf die linke oder rechte Bildschirmhälfte, um von dieser Seite zu schlagen. Schlag immer von der Seite ohne Ast.',
       controlesTactil: 'Tippe auf die linke oder rechte Bildschirmhälfte, um von dieser Seite zu schlagen. Schlag immer von der Seite ohne Ast.',
       etiquetas: [

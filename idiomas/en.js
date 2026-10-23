@@ -1808,8 +1808,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Lumberjack',
-      descripcion: 'A huge tree in a forest clearing, with branches on the left and right. You hold an axe in each hand: chopping with your left hand chops from the left, and with your right from the right. Each chop takes off the bottom piece and the tree drops down. If you chop from the side where there is a branch at your height, or where the next one is coming down, the branch hits you and it’s over. The time bar drains by itself and every chop refills it, but it drains faster and faster. Every chop is worth 1 point: how far can you go?',
-      controlesVR: 'An axe in each hand: hit the trunk at chest height with the hand on the side without a branch (neither at your height nor just above).',
+      descripcion: 'A huge tree in a forest clearing, with branches on the left and right. You hold an axe in each hand: chopping with your left hand chops from the left, and with your right from the right. Each chop takes off the bottom piece and the tree drops down. If you chop from the side where there is a branch at your height, the branch hits you and it’s over (branches higher up are harmless until you hit them). The time bar drains by itself and every chop refills it, but it drains faster and faster. Every chop is worth 1 point: how far can you go?',
+      controlesVR: 'An axe in each hand: hit the trunk at chest height with the hand on the side without a branch at your height (branches higher up don’t matter yet).',
       controlesEscritorio: 'Click the left or right half of the screen to chop from that side. Always chop from the side without a branch.',
       controlesTactil: 'Tap the left or right half of the screen to chop from that side. Always chop from the side without a branch.',
       etiquetas: [

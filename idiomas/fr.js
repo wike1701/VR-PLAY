@@ -1813,8 +1813,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Bûcheron',
-      descripcion: 'Un arbre immense dans une clairière, avec des branches à gauche et à droite. Tu tiens une hache dans chaque main : couper avec la gauche, c’est couper depuis la gauche, et avec la droite depuis la droite. Chaque coup emporte le morceau du bas et l’arbre descend. Si tu coupes du côté où il y a une branche à ta hauteur, ou là où la suivante va descendre, la branche te frappe et c’est fini. La barre de temps se vide toute seule et chaque coup la remplit, mais elle se vide de plus en plus vite. Chaque coup vaut 1 point : jusqu’où iras-tu ?',
-      controlesVR: 'Une hache dans chaque main : frappe le tronc à hauteur de poitrine avec la main du côté sans branche (ni à ta hauteur, ni juste au-dessus).',
+      descripcion: 'Un arbre immense dans une clairière, avec des branches à gauche et à droite. Tu tiens une hache dans chaque main : couper avec la gauche, c’est couper depuis la gauche, et avec la droite depuis la droite. Chaque coup emporte le morceau du bas et l’arbre descend. Si tu coupes du côté où il y a une branche à ta hauteur, la branche te frappe et c’est fini (les branches plus haut sont inoffensives tant que tu ne les frappes pas). La barre de temps se vide toute seule et chaque coup la remplit, mais elle se vide de plus en plus vite. Chaque coup vaut 1 point : jusqu’où iras-tu ?',
+      controlesVR: 'Une hache dans chaque main : frappe le tronc à hauteur de poitrine avec la main du côté sans branche à ta hauteur (celles plus haut ne comptent pas encore).',
       controlesEscritorio: 'Clique sur la moitié gauche ou droite de l’écran pour couper de ce côté. Coupe toujours du côté sans branche.',
       controlesTactil: 'Touche la moitié gauche ou droite de l’écran pour couper de ce côté. Coupe toujours du côté sans branche.',
       etiquetas: [

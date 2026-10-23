@@ -2,8 +2,8 @@
 // Un árbol enorme delante de ti, en un claro del bosque al atardecer, con ramas a la izquierda y
 // a la derecha. Llevas un hacha en cada mano: cortar con la izquierda es cortar desde la
 // izquierda, y con la derecha desde la derecha. Cada hachazo se lleva el trozo de abajo y el
-// árbol baja un trozo. Si cortas del lado en el que hay una rama a tu altura, o del lado en el
-// que va a bajar la siguiente, la rama te da y se acaba. La barra de tiempo se vacía sola y
+// árbol baja un trozo. Si golpeas del lado en el que hay una rama a tu altura, la rama te da
+// y se acaba (una rama más arriba no hace nada hasta que la golpeas). La barra de tiempo se vacía sola y
 // cada hachazo la rellena un poco, pero cada vez se vacía más deprisa. Sin final fijo.
 // Sin gafas: clic (o toque) en la mitad izquierda o derecha de la pantalla.
 import * as THREE from 'three';
@@ -369,8 +369,9 @@ export function iniciar(ctx) {
   function hachazo(lado, mano) {
     if (estado === 'fin') return;
     if (estado === 'espera') empezar();
-    // La rama del trozo que cortas (a tu altura) o la del siguiente (que baja) te dan si están de tu lado
-    const golpeada = pila[0].lado === lado || pila[1].lado === lado;
+    // Solo muere quien golpea por el lado de la rama del trozo que corta (a su altura);
+    // una rama que baja por encima no hace daño hasta que se golpea
+    const golpeada = pila[0].lado === lado;
     // El trozo de abajo sale volando hacia el otro lado y la pila baja
     const t = pila.shift();
     // Si se corta muy deprisa no quedan trozos libres: se reutiliza el que lleva más tiempo volando

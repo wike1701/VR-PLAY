@@ -1812,8 +1812,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Lenhador',
-      descripcion: 'Uma árvore enorme numa clareira da floresta, com ramos à esquerda e à direita. Tens um machado em cada mão: cortar com a esquerda é cortar pela esquerda, e com a direita pela direita. Cada machadada leva o pedaço de baixo e a árvore desce. Se cortares do lado onde há um ramo à tua altura, ou onde vai descer o seguinte, o ramo acerta-te e acaba. A barra de tempo esvazia-se sozinha e cada machadada enche-a, mas esvazia-se cada vez mais depressa. Cada machadada vale 1 ponto: até onde consegues chegar?',
-      controlesVR: 'Um machado em cada mão: bate no tronco à altura do peito com a mão do lado sem ramo (nem à tua altura nem logo acima).',
+      descripcion: 'Uma árvore enorme numa clareira da floresta, com ramos à esquerda e à direita. Tens um machado em cada mão: cortar com a esquerda é cortar pela esquerda, e com a direita pela direita. Cada machadada leva o pedaço de baixo e a árvore desce. Se cortares do lado onde há um ramo à tua altura, o ramo acerta-te e acaba (os ramos mais acima são inofensivos até lhes bateres). A barra de tempo esvazia-se sozinha e cada machadada enche-a, mas esvazia-se cada vez mais depressa. Cada machadada vale 1 ponto: até onde consegues chegar?',
+      controlesVR: 'Um machado em cada mão: bate no tronco à altura do peito com a mão do lado sem ramo à tua altura (os de mais acima ainda não contam).',
       controlesEscritorio: 'Clica na metade esquerda ou direita do ecrã para cortar desse lado. Corta sempre do lado sem ramo.',
       controlesTactil: 'Toca na metade esquerda ou direita do ecrã para cortar desse lado. Corta sempre do lado sem ramo.',
       etiquetas: [

@@ -1812,8 +1812,8 @@ bomberos: {
     },
     lenador: {
       titulo: 'Taglialegna',
-      descripcion: 'Un albero enorme in una radura del bosco, con rami a sinistra e a destra. Hai un’ascia in ogni mano: tagliare con la sinistra è tagliare da sinistra, e con la destra da destra. Ogni colpo porta via il pezzo in basso e l’albero scende. Se tagli dal lato in cui c’è un ramo alla tua altezza, o da quello in cui sta per scendere il prossimo, il ramo ti colpisce ed è finita. La barra del tempo si svuota da sola e ogni colpo la riempie, ma si svuota sempre più in fretta. Ogni colpo vale 1 punto: fin dove arrivi?',
-      controlesVR: 'Un’ascia in ogni mano: colpisci il tronco all’altezza del petto con la mano del lato senza ramo (né alla tua altezza né appena sopra).',
+      descripcion: 'Un albero enorme in una radura del bosco, con rami a sinistra e a destra. Hai un’ascia in ogni mano: tagliare con la sinistra è tagliare da sinistra, e con la destra da destra. Ogni colpo porta via il pezzo in basso e l’albero scende. Se tagli dal lato in cui c’è un ramo alla tua altezza, il ramo ti colpisce ed è finita (i rami più in alto sono innocui finché non li colpisci). La barra del tempo si svuota da sola e ogni colpo la riempie, ma si svuota sempre più in fretta. Ogni colpo vale 1 punto: fin dove arrivi?',
+      controlesVR: 'Un’ascia in ogni mano: colpisci il tronco all’altezza del petto con la mano del lato senza ramo alla tua altezza (quelli più in alto non contano ancora).',
       controlesEscritorio: 'Fai clic sulla metà sinistra o destra dello schermo per tagliare da quel lato. Taglia sempre dal lato senza ramo.',
       controlesTactil: 'Tocca la metà sinistra o destra dello schermo per tagliare da quel lato. Taglia sempre dal lato senza ramo.',
       etiquetas: [
