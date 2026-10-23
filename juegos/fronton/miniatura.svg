@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05060e"/>
+      <stop offset="0.6" stop-color="#141832"/>
+      <stop offset="1" stop-color="#0b0d1c"/>
+    </linearGradient>
+    <linearGradient id="pared" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16223a"/>
+      <stop offset="1" stop-color="#0c3a44"/>
+    </linearGradient>
+    <linearGradient id="mesa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a4a94"/>
+      <stop offset="1" stop-color="#0e2c62"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.38" r="0.5">
+      <stop offset="0" stop-color="#9ff4ea" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#9ff4ea" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="goma" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ff6b5e"/>
+      <stop offset="0.55" stop-color="#d32f2f"/>
+      <stop offset="1" stop-color="#7a1414"/>
+    </radialGradient>
+    <linearGradient id="mango" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f6dcaa"/>
+      <stop offset="1" stop-color="#a87a40"/>
+    </linearGradient>
+    <radialGradient id="bola" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ffd2b0"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#ff6a3d" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Gradas con asientos de colores -->
+  <g opacity="0.75">
+    <rect x="0" y="182" width="400" height="10" fill="#2ee6d6"/>
+    <rect x="0" y="196" width="400" height="10" fill="#ff3dd0"/>
+    <rect x="0" y="210" width="400" height="10" fill="#ffd23f"/>
+  </g>
+  <rect x="0" y="222" width="400" height="12" fill="#3d8bff" opacity="0.6"/>
+  <!-- Pared de LED con su marco de neón -->
+  <rect x="78" y="52" width="244" height="214" fill="url(#pared)"/>
+  <rect x="98" y="72" width="204" height="168" fill="none" stroke="#2ee6d6" stroke-width="6"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Media mesa -->
+  <path d="M110 240 H290 L372 360 H28 Z" fill="url(#mesa)"/>
+  <path d="M110 240 H290 L372 360 H28 Z" fill="none" stroke="#f2f4f8" stroke-width="5"/>
+  <path d="M200 240 V360" stroke="#f2f4f8" stroke-width="3"/>
+  <ellipse cx="200" cy="378" rx="170" ry="14" fill="url(#sombra)"/>
+  <!-- Diana en la pared, con el impacto -->
+  <circle cx="246" cy="128" r="40" fill="#ff3d6e"/>
+  <circle cx="246" cy="128" r="30" fill="#ffffff"/>
+  <circle cx="246" cy="128" r="20" fill="#ff3d6e"/>
+  <circle cx="246" cy="128" r="10" fill="#ffd23f"/>
+  <circle cx="236" cy="134" r="30" fill="url(#impacto)"/>
+  <!-- Trayectoria de la bola desde la pala -->
+  <path d="M150 290 Q190 170 236 132 Q196 186 160 300 Z" fill="url(#estela)"/>
+  <circle cx="240" cy="131" r="11" fill="url(#bola)"/>
+  <!-- Pala en primer plano -->
+  <g transform="translate(-40 -60) scale(1.3) rotate(-28 122 300)">
+    <rect x="108" y="330" width="28" height="74" rx="10" fill="url(#mango)"/>
+    <ellipse cx="122" cy="292" rx="62" ry="66" fill="#3a2a1a"/>
+    <ellipse cx="122" cy="290" rx="58" ry="62" fill="url(#goma)"/>
+    <ellipse cx="102" cy="262" rx="18" ry="12" fill="#ffffff" opacity="0.25"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

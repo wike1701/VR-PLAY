@@ -46,11 +46,11 @@ const LISTA = [
   { id: 'fusion', genero: 'puzle' },
   { id: 'balonmano', genero: 'deportes' },
   { id: 'canoa', genero: 'habilidad' },
-  { id: 'torre', genero: 'puzle', pruebas: true },
-  { id: 'huevos', genero: 'reflejos', pruebas: true },
-  { id: 'latas', genero: 'deportes', pruebas: true },
+  { id: 'torre', genero: 'puzle' },
+  { id: 'latas', genero: 'deportes' },
+  { id: 'huevos', genero: 'reflejos' },
   { id: 'aros', genero: 'habilidad', pruebas: true },
-  { id: 'laberinto', genero: 'puzle', pruebas: true },
+  { id: 'laberinto', genero: 'puzle' },
   { id: 'tambores', genero: 'ritmo', pruebas: true },
   { id: 'pesca', genero: 'habilidad', pruebas: true },
   { id: 'bomberos', genero: 'disparos', pruebas: true },
@@ -61,6 +61,9 @@ const LISTA = [
   { id: 'skeeball', genero: 'deportes', pruebas: true },
   { id: 'toques', genero: 'habilidad', pruebas: true },
   { id: 'fuerza', genero: 'habilidad', pruebas: true },
+  { id: 'xilofono', genero: 'ritmo' },
+  { id: 'fronton', genero: 'deportes' },
+  { id: 'lenador', genero: 'reflejos' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

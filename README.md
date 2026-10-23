@@ -98,11 +98,11 @@ juegos/
   fusion/juego.js       Fusión de Frutas
   balonmano/juego.js    Penaltis de Balonmano
   canoa/juego.js        Canoa
-  torre/juego.js        Torre de Bloques (en pruebas)
-  huevos/juego.js       Atrapa Huevos (en pruebas)
-  latas/juego.js        Tumba Latas (en pruebas)
+  torre/juego.js        Torre de Bloques
+  huevos/juego.js       Atrapa Huevos
+  latas/juego.js        Tumba Latas
   aros/juego.js         Lanza Aros (en pruebas)
-  laberinto/juego.js    Laberinto (en pruebas)
+  laberinto/juego.js    Laberinto
   tambores/juego.js     Tambores (en pruebas)
   pesca/juego.js        Pesca en el Lago (en pruebas)
   bomberos/juego.js     Bomberos (en pruebas)
@@ -113,6 +113,9 @@ juegos/
   skeeball/juego.js     Skee-Ball (en pruebas)
   toques/juego.js       Toques con Pala (en pruebas)
   fuerza/juego.js       Mazo de Feria (en pruebas)
+  xilofono/juego.js     Xilófono
+  fronton/juego.js      Frontón de Ping Pong
+  lenador/juego.js      Leñador
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

@@ -96,6 +96,16 @@ export const MARCADORES = {
   toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
   // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
   fuerza: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1400, minSegundos: 20 },
+  // Xilófono: perfecto 3 y bien 1 por la racha (hasta x4), y 10 × el número de la canción al completarla
+  // (como mucho 150); sin final fijo (hasta perder 3 notas). Simulando partidas perfectas sale de 28 puntos/s
+  // a los 5 minutos a 43 en una hora, cuando ya va a la velocidad máxima
+  xilofono: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 5 },
+  // Frontón de Ping Pong: 1 punto por golpe dentro de la zona de la pared y +5 por diana; sin final fijo
+  // (hasta que la bola sale, no llega, bota dos veces o se escapa)
+  fronton: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
+  // Leñador: 1 punto por hachazo; sin final fijo (hasta que te da una rama o se acaba la barra de tiempo).
+  // La barra obliga a ir cada vez más deprisa (hasta unos 3,75 hachazos por segundo); con ratón o dos dedos se puede ir mucho más rápido
+  lenador: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 14, minSegundos: 2 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

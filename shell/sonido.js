@@ -142,10 +142,10 @@ const SONIDOS = {
   madera: () => { tono(520, 300, 0.05, 'triangle', 0.18); ruido(0.04, 1200, 0.2, 1.5); },
   agujero: () => { tono(400, 120, 0.35, 'sine', 0.28); ruido(0.2, 500, 0.25, 0.8); },
   // Tambores: los cuatro tambores de la batería (de agudo a grave) y el pulso del ritmo
-  tambor0: () => { tono(330, 210, 0.18, 'sine', 0.42); ruido(0.05, 2400, 0.25, 1.2); },
+  tambor0: () => { tono(420, 280, 0.14, 'sine', 0.42); ruido(0.05, 2400, 0.25, 1.2); },
   tambor1: () => { ruido(0.16, 3200, 0.42, 0.7); tono(240, 180, 0.08, 'triangle', 0.25); }, // caja
   tambor2: () => { tono(200, 130, 0.24, 'sine', 0.48); ruido(0.05, 1500, 0.2, 1.2); },
-  tambor3: () => { tono(120, 55, 0.3, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
+  tambor3: () => { tono(110, 50, 0.34, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
   pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
   bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
   // Pesca: el corcho que cae al agua, el pez que muerde y el carrete
@@ -167,12 +167,32 @@ const SONIDOS = {
   nieve: () => { ruido(0.16, 900, 0.55, 0.6); tono(180, 90, 0.08, 'sine', 0.25); },
   // Mazo de feria: el disco que sube silbando por la torre
   subida: () => { tono(300, 1400, 0.6, 'triangle', 0.1); ruido(0.4, 2400, 0.08, 1.2); },
+  // Xilófono: el golpe de la baqueta en la madera y el pulso de fondo (un taco de madera).
+  // Las ocho teclas (xilo0 … xilo7, de do a do agudo) se añaden debajo.
+  xiloPulso: () => { tono(1900, 1700, 0.025, 'triangle', 0.07); },
+  xiloPulsoFuerte: () => { tono(1500, 1300, 0.035, 'triangle', 0.1); tono(95, 70, 0.08, 'sine', 0.18); },
+  // Frontón: la diana que aparece en la pared (dos notas que suben)
+  dianaAparece: () => { tono(880, 1320, 0.09, 'triangle', 0.14); tono(1320, 1760, 0.12, 'sine', 0.1, 0.08); },
+  // Leñador: el hacha que se clava en la madera y la rama que te da
+  hachazo: () => { tono(190, 85, 0.1, 'triangle', 0.45); ruido(0.07, 1300, 0.5, 0.9); tono(900, 600, 0.03, 'square', 0.06); },
+  rama: () => { ruido(0.3, 2600, 0.5, 0.6); tono(140, 50, 0.3, 'sine', 0.5); ruido(0.2, 500, 0.4, 0.8); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
     tono(784, 784, 0.3, 'triangle', 0.3, 0.3);
   },
 };
+
+// Xilófono (do5 a do6): la nota se apaga rápido como la madera, con su armónico de 3× (el de
+// las teclas de xilófono, que suena brillante), un toque de 4× y el chasquido de la baqueta.
+[523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.5].forEach((f, i) => {
+  SONIDOS['xilo' + i] = () => {
+    tono(f, f, 0.55, 'sine', 0.36);
+    tono(f * 3, f * 3, 0.12, 'sine', 0.09);
+    tono(f * 4.1, f * 4.1, 0.05, 'sine', 0.04);
+    ruido(0.025, 3800, 0.16, 1.2);
+  };
+});
 
 export function sonido(nombre) {
   if (!ac || ac.state !== 'running') return;

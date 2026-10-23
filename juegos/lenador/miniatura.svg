@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a7fc0"/>
+      <stop offset="0.6" stop-color="#ffc58f"/>
+      <stop offset="1" stop-color="#f2b27a"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="corteza" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a5a36"/>
+      <stop offset="0.45" stop-color="#6b4228"/>
+      <stop offset="1" stop-color="#3a2416"/>
+    </linearGradient>
+    <linearGradient id="mango" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0c88a"/>
+      <stop offset="1" stop-color="#a8743e"/>
+    </linearGradient>
+    <linearGradient id="acero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8edf2"/>
+      <stop offset="0.5" stop-color="#8a929e"/>
+      <stop offset="1" stop-color="#4a505a"/>
+    </linearGradient>
+    <radialGradient id="hojas" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#7cc25a"/>
+      <stop offset="1" stop-color="#2f6a2a"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.9"/>
+      <stop offset="0.4" stop-color="#ff6a3d" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Montes y pinos al fondo -->
+  <path d="M0 250 Q80 190 160 236 Q240 188 320 228 Q370 210 400 220 V400 H0 Z" fill="#4f6b55"/>
+  <g fill="#2f5a3a">
+    <path d="M30 300 L60 210 L90 300 Z"/><path d="M330 300 L362 200 L394 300 Z"/><path d="M290 300 L314 236 L338 300 Z"/>
+  </g>
+  <rect x="0" y="300" width="400" height="100" fill="#5d8a3e"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="356" rx="120" ry="16" fill="url(#sombra)"/>
+  <!-- Tronco con sus trozos y una rama a la izquierda arriba -->
+  <rect x="152" y="0" width="96" height="356" fill="url(#corteza)"/>
+  <g stroke="#2a180c" stroke-width="4" opacity="0.6">
+    <path d="M160 0 V356"/><path d="M178 0 V356"/><path d="M214 0 V356"/><path d="M236 0 V356"/>
+  </g>
+  <g fill="#3a2416"><rect x="152" y="96" width="96" height="5"/><rect x="152" y="196" width="96" height="5"/></g>
+  <path d="M152 70 L46 52 L44 70 L152 92 Z" fill="#5a3a24"/>
+  <circle cx="58" cy="54" r="34" fill="url(#hojas)"/>
+  <circle cx="100" cy="44" r="26" fill="url(#hojas)"/>
+  <!-- Trozo cortado que sale volando a la derecha -->
+  <g transform="rotate(22 322 206)">
+    <rect x="276" y="178" width="92" height="58" rx="6" fill="url(#corteza)"/>
+    <ellipse cx="368" cy="207" rx="12" ry="29" fill="#e8c48c"/>
+    <ellipse cx="368" cy="207" rx="6" ry="15" fill="none" stroke="#b07a46" stroke-width="3"/>
+  </g>
+  <!-- Hachazo: astillas y estela coral -->
+  <circle cx="160" cy="250" r="54" fill="url(#impacto)"/>
+  <path d="M40 300 Q90 236 156 246 Q100 262 52 316 Z" fill="#ff6a3d" opacity="0.8"/>
+  <g fill="#ff6a3d">
+    <path d="M146 222 L128 196 L138 220 Z"/><path d="M144 268 L122 288 L140 264 Z"/><path d="M132 240 L104 236 L130 246 Z"/>
+  </g>
+  <!-- Hacha clavada -->
+  <path d="M30 360 L44 372 L170 246 L158 236 Z" fill="url(#mango)"/>
+  <path d="M30 360 L44 372 L56 360 L42 348 Z" fill="#c62828"/>
+  <path d="M150 222 L192 214 Q206 248 192 284 L150 268 Z" fill="url(#acero)"/>
+  <path d="M186 216 Q200 248 186 282" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.8"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

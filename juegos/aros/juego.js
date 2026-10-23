@@ -11,7 +11,7 @@ import * as THREE from 'three';
 export async function precargar() {}
 
 const N_AROS = 10;
-const R_ARO = 0.078;
+const R_ARO = 0.05;   // aros más chicos: la boca libre baja de unos 6 a unos 3 cm
 const TUBO_ARO = 0.009;
 const R_CUELLO = 0.014;
 const ALTO_BOTELLA = 0.27;
@@ -190,6 +190,12 @@ export function iniciar(ctx) {
   });
 
   const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
+
+  // Manos visibles: así se ve el aro que cogen
+  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
+  geoMano.scale(1, 0.6, 1.3);
+  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
+  for (const mano of ctx.manos) ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.0, alto: 0.3 });

@@ -18,10 +18,10 @@ const R_PUNTA = 0.016;
 const N_AROS = 28;
 // Los cuatro tambores: posición del centro del parche, radio, inclinación y color
 const TAMBORES = [
-  { x: -0.4, y: 0.92, z: -0.42, r: 0.15, giro: 0.5, color: 0x2ee6d6, sonido: 'tambor0' },
-  { x: -0.13, y: 0.82, z: -0.38, r: 0.17, giro: 0.38, color: 0xffd23f, sonido: 'tambor1' },
-  { x: 0.15, y: 0.82, z: -0.38, r: 0.17, giro: 0.38, color: 0xff6a3d, sonido: 'tambor2' },
-  { x: 0.43, y: 0.74, z: -0.42, r: 0.2, giro: 0.3, color: 0xb36bff, sonido: 'tambor3' },
+  { x: -0.47, y: 0.85, z: -0.4, r: 0.13, giro: 0.36, color: 0x2ee6d6, sonido: 'tambor0' },
+  { x: -0.17, y: 0.85, z: -0.4, r: 0.15, giro: 0.36, color: 0xffd23f, sonido: 'tambor1' },
+  { x: 0.15, y: 0.85, z: -0.4, r: 0.15, giro: 0.36, color: 0xff6a3d, sonido: 'tambor2' },
+  { x: 0.52, y: 0.85, z: -0.4, r: 0.2, giro: 0.36, color: 0xb36bff, sonido: 'tambor3' },
 ];
 
 export function iniciar(ctx) {
