@@ -179,8 +179,29 @@ export function iniciar(ctx) {
   // Historial de posiciones de cada mano para la velocidad del lanzamiento
   const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
 
+  // Manos visibles (guantes): palma y cuatro dedos curvados alrededor de la bola que sostienes
+  const matGuante = R(new THREE.MeshLambertMaterial({ color: 0xd6283a }));
+  const geoPalma = R(new THREE.BoxGeometry(0.075, 0.03, 0.08).translate(0, 0, 0.02));
+  const geoDedoMano = R(new THREE.CapsuleGeometry(0.011, 0.04, 4, 8).rotateX(Math.PI / 2));
+  const geoPulgar = R(new THREE.CapsuleGeometry(0.012, 0.035, 4, 8).rotateX(Math.PI / 2));
+  for (const mano of ctx.manos) {
+    const guante = new THREE.Group();
+    guante.add(new THREE.Mesh(geoPalma, matGuante));
+    for (let i = 0; i < 4; i++) {
+      const dedo = new THREE.Mesh(geoDedoMano, matGuante);
+      dedo.position.set(-0.027 + i * 0.018, -0.005, -0.045);
+      dedo.rotation.x = 0.35;
+      guante.add(dedo);
+    }
+    const pulgar = new THREE.Mesh(geoPulgar, matGuante);
+    pulgar.position.set(0.045, 0.0, -0.01);
+    pulgar.rotation.y = -0.5;
+    guante.add(pulgar);
+    ctx.adjuntarAMano(mano, guante);
+  }
+
   // ─── Marcador ──────────────────────────────────────────────────────────
-  const marcador = ctx.crearPanel({ ancho: 1.1, alto: 0.32 });
+  const marcador =ctx.crearPanel({ ancho: 1.1, alto: 0.32 });
   marcador.mesh.position.set(-1.3, 1.75, -2.2);
   marcador.mesh.rotation.y = 0.3;
   raiz.add(marcador.mesh);
