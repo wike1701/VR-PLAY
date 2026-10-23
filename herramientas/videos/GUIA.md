@@ -95,7 +95,7 @@ Cada juego tiene su forma de jugar en `lib/estrategias.mjs`. En VR (`lib/bot-vr.
 | `clic` | apunta y hace clic | topos, globos… |
 | `seguir` | lleva el puntero a la bola | portero, pingpong… |
 | `barrer` | corta deprisa a través de la fruta y esquiva las bombas | fruta |
-| `mantener` | pulsa, espera y suelta | baloncesto, golf… |
+| `mantener` | pulsa, espera y suelta | baloncesto… |
 
 Probados de verdad: **topos** y **fruta** (también en VR). Los de puzle o ritmo (simon, bomba, tambores…) están como `pendiente`, y `--todos` los salta avisando.
 
