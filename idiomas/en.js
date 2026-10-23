@@ -1790,14 +1790,14 @@ export default {
     },
     xilofono: {
       titulo: 'Xylophone',
-      descripcion: 'A colourful xylophone on a park bandstand at sunset. Tiles in each key’s colour slide down a ramp of light: hit the key just as its tile reaches the line and its note rings out, so you are the one playing the song. It is endless: when a song ends another one starts, faster every time, from “Twinkle, Twinkle, Little Star” to “Ode to Joy” or “Jingle Bells”. A perfect hit is worth 3 and a good one 1, multiplied by your streak (up to x4). Every song you finish gives a bonus and a life back; miss three notes and the game is over.',
-      controlesVR: 'A mallet in each hand: hit the coloured key just as its tile reaches the line. Hitting with no tile breaks your streak.',
+      descripcion: 'Eight neon glass keys float in front of you in a world of light: a grid floor rushing towards you, a tunnel of arches pulsing to the beat and a neon sun on the horizon. Notes in each key’s colour fly down eight light lanes: hit the key just as its note reaches the line and it rings out, so you are the one playing the song. It is endless: when a song ends another one starts, faster every time, from “Twinkle, Twinkle, Little Star” to “Ode to Joy” or “Jingle Bells”. A perfect hit is worth 3 and a good one 1, multiplied by your streak (up to x4). Every song you finish gives a bonus and a life back; miss three notes and the game is over.',
+      controlesVR: 'A light mallet in each hand: hit the neon key just as its note reaches the line. Hitting with no note breaks your streak.',
       controlesEscritorio: 'Click the key (or its lane) just as its tile reaches the line.',
       controlesTactil: 'Tap the key (or its lane) just as its tile reaches the line.',
       etiquetas: [
         'rhythm', 'xylophone', 'piano tiles', 'music', 'songs', 'notes', 'mallets', 'melody', 'instrument',
         'endless', 'tiles', 'music game', 'percussion', 'marimba', 'glockenspiel', 'beat', 'streak', 'combo',
-        'perfect', 'reflexes', 'coordination', 'park', 'concert', 'colourful', 'relaxing', 'family', 'kids', 'score',
+        'perfect', 'reflexes', 'coordination', 'neon', 'futuristic', 'colourful', 'synthwave', 'family', 'kids', 'score',
       ],
       juego: {
         titulo: 'XYLOPHONE',

@@ -1794,14 +1794,14 @@ export default {
     },
     xilofono: {
       titulo: 'Xilofono',
-      descripcion: 'Uno xilofono colorato sul palco di un parco al tramonto. Lungo una rampa di luce scendono tessere del colore di ogni tasto: colpisci il tasto proprio quando la sua tessera arriva alla linea e suona la sua nota, quindi sei tu a suonare la canzone. È infinito: finita una canzone ne comincia un’altra, ogni volta più veloce, da «Brilla brilla la stellina» all’«Inno alla gioia» o «Jingle Bells». Un colpo perfetto vale 3 e uno buono 1, moltiplicato per la serie (fino a x4). Ogni canzone completata dà un premio e ti restituisce una vita; con tre note perse la partita finisce.',
-      controlesVR: 'Una bacchetta in ogni mano: colpisci il tasto colorato proprio quando la sua tessera arriva alla linea. Colpire senza tessera interrompe la serie.',
+      descripcion: 'Otto tasti di vetro al neon fluttuano davanti a te in un mondo di luce: un pavimento a griglia che corre verso di te, un tunnel di archi che pulsano a ritmo e un sole al neon all’orizzonte. Lungo otto corsie di luce arrivano note del colore di ogni tasto: colpisci il tasto proprio quando la sua nota arriva alla linea e suona, quindi sei tu a suonare la canzone. È infinito: finita una canzone ne comincia un’altra, ogni volta più veloce, da «Brilla brilla la stellina» all’«Inno alla gioia» o «Jingle Bells». Un colpo perfetto vale 3 e uno buono 1, moltiplicato per la serie (fino a x4). Ogni canzone completata dà un premio e ti restituisce una vita; con tre note perse la partita finisce.',
+      controlesVR: 'Una bacchetta di luce in ogni mano: colpisci il tasto al neon proprio quando la sua nota arriva alla linea. Colpire senza nota interrompe la serie.',
       controlesEscritorio: 'Fai clic sul tasto (o sulla sua corsia) proprio quando la sua tessera arriva alla linea.',
       controlesTactil: 'Tocca il tasto (o la sua corsia) proprio quando la sua tessera arriva alla linea.',
       etiquetas: [
         'ritmo', 'xilofono', 'piano tiles', 'musica', 'canzoni', 'note', 'bacchette', 'melodia', 'strumento',
         'infinito', 'tessere', 'gioco musicale', 'percussioni', 'marimba', 'tempo', 'serie', 'combo', 'perfetto',
-        'riflessi', 'coordinazione', 'parco', 'tramonto', 'colorato', 'rilassante', 'famiglia', 'bambini', 'punti',
+        'riflessi', 'coordinazione', 'neon', 'futuristico', 'colorato', 'synthwave', 'famiglia', 'bambini', 'punti',
       ],
       juego: {
         titulo: 'XILOFONO',

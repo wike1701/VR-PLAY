@@ -1795,14 +1795,14 @@ export default {
     },
     xilofono: {
       titulo: 'Xylophone',
-      descripcion: 'Un xylophone multicolore sur le kiosque à musique d’un parc au coucher du soleil. Des tuiles de la couleur de chaque lame descendent une rampe de lumière : frappe la lame juste quand sa tuile atteint la ligne et sa note retentit, c’est donc toi qui joues la chanson. C’est sans fin : quand une chanson se termine, une autre commence, toujours plus rapide, d’« Ah ! vous dirai-je, maman » à l’« Hymne à la joie » ou « Vive le vent ». Un coup parfait vaut 3 et un bon coup 1, multiplié par la série (jusqu’à x4). Chaque chanson terminée donne un bonus et te rend une vie ; trois notes manquées et la partie est finie.',
-      controlesVR: 'Une mailloche dans chaque main : frappe la lame colorée juste quand sa tuile atteint la ligne. Frapper sans tuile casse la série.',
+      descripcion: 'Huit lames de verre néon flottent devant toi dans un monde de lumière : un sol quadrillé qui fonce vers toi, un tunnel d’arches qui battent au rythme et un soleil néon à l’horizon. Des notes de la couleur de chaque lame arrivent par huit couloirs de lumière : frappe la lame juste quand sa note atteint la ligne et elle retentit, c’est donc toi qui joues la chanson. C’est sans fin : quand une chanson se termine, une autre commence, toujours plus rapide, d’« Ah ! vous dirai-je, maman » à l’« Hymne à la joie » ou « Vive le vent ». Un coup parfait vaut 3 et un bon coup 1, multiplié par la série (jusqu’à x4). Chaque chanson terminée donne un bonus et te rend une vie ; trois notes manquées et la partie est finie.',
+      controlesVR: 'Une mailloche de lumière dans chaque main : frappe la lame néon juste quand sa note atteint la ligne. Frapper sans note casse la série.',
       controlesEscritorio: 'Clique sur la lame (ou son couloir) juste quand sa tuile atteint la ligne.',
       controlesTactil: 'Touche la lame (ou son couloir) juste quand sa tuile atteint la ligne.',
       etiquetas: [
         'rythme', 'xylophone', 'piano tiles', 'musique', 'chansons', 'notes', 'mailloches', 'mélodie', 'instrument',
         'sans fin', 'tuiles', 'jeu musical', 'percussion', 'marimba', 'tempo', 'série', 'combo', 'parfait',
-        'réflexes', 'coordination', 'parc', 'kiosque', 'coloré', 'relaxant', 'famille', 'enfants', 'score',
+        'réflexes', 'coordination', 'néon', 'futuriste', 'coloré', 'synthwave', 'famille', 'enfants', 'score',
       ],
       juego: {
         titulo: 'XYLOPHONE',

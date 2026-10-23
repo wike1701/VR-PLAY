@@ -1,11 +1,13 @@
 // XILÓFONO
-// Un xilófono de colores en el escenario de un parque al atardecer. Por una rampa llegan
-// fichas de luz, cada una por el carril de una tecla: golpea esa tecla justo cuando la ficha
-// llega y suena su nota, así que eres tú quien toca la canción (si fallas, la nota no suena).
-// Como Piano Tiles, es infinito: al acabar una canción empieza otra sola, cada vez más
-// rápida. «¡Perfecto!» vale 3 y «Bien» 1, multiplicado por la racha (hasta x4), y cada
-// canción completada da un premio y devuelve una vida. Tres notas perdidas y se acaba.
-// En VR llevas una baqueta en cada mano; sin gafas, haz clic (o toca) en la tecla o su carril.
+// Ocho teclas de cristal de neón flotan delante de ti, sobre una plataforma en un mundo de
+// luz (suelo de cuadrícula que corre hacia ti, sol de neón en el horizonte, arcos de luz que
+// laten con el ritmo). Por ocho carriles de luz llegan notas brillantes, cada una del color
+// de su tecla: golpea la tecla justo cuando su nota llega a la línea y suena, así que eres
+// tú quien toca la canción (si fallas, esa nota no suena). Es infinito: al acabar una
+// canción empieza otra sola, cada vez más rápida. «¡Perfecto!» vale 3 y «Bien» 1,
+// multiplicado por la racha (hasta x4), y cada canción completada da un premio y devuelve
+// una vida. Tres notas perdidas y se acaba.
+// En VR llevas una baqueta de luz en cada mano; sin gafas, haz clic (o toca) en la tecla o su carril.
 import * as THREE from 'three';
 
 // Sin archivos externos: todo se genera con código.
@@ -18,14 +20,17 @@ const N = 8;              // teclas: do, re, mi, fa, sol, la, si y do agudo
 const PASO = 0.105;       // distancia entre teclas (m)
 const ANCHO_TECLA = 0.088;
 const GROSOR_TECLA = 0.022;
-const LARGO_RAMPA = 3.0;
-const SUBIDA_RAMPA = 0.36; // la rampa sube hacia el fondo, como una pista de luz
+const LARGO_PISTA = 8;    // las notas vienen de lejos, como en los juegos de ritmo de VR
+const SUBIDA_PISTA = 1.2; // y bajan un poco hasta las teclas
 const N_FICHAS = 48;
-const LARGO_FICHA = 0.24;
+const LARGO_FICHA = 0.2;
 const LARGO_BAQUETA = 0.34;
 const R_CABEZA = 0.021;
-// Colores de xilófono de juguete, de grave a agudo
-const COLORES = [0xff4f5e, 0xff8a3d, 0xffd23f, 0x7ed957, 0x2ee6d6, 0x3d8bff, 0x9b6bff, 0xff6ec7];
+const N_ARCOS = 8;
+const N_RAYOS = 10;
+const N_MOTAS = 180;
+// Un color de neón por tecla, de grave a agudo
+const COLORES = [0xff3d6e, 0xff7a2e, 0xffd23f, 0x6dff7a, 0x2ee6d6, 0x3d8bff, 0x9b6bff, 0xff5ce1];
 const LETRAS = 'cdefgabC'; // en las partituras de abajo: c = do … b = si, C = do agudo; r = silencio
 
 // Canciones de dominio público que caben en una octava de do mayor. Cada nota: letra y
@@ -41,7 +46,7 @@ const CANCIONES = [
   { id: 'susana', bpm: 112, partitura: 'c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d c d3 c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d d c3 f2 a2 a2 a1.5 g0.5 g g e c d3 c0.5 d0.5 e g g1.5 a0.5 g e c1.5 d0.5 e e d d c3' },
   { id: 'granja', bpm: 112, partitura: 'g g g d e e d2 b b a a g3 d g g g d e e d2 b b a a g4' },
 ];
-// Lo que acelera cada canción completada y lo poco que llega a tardar una ficha
+// Lo que acelera cada canción completada y lo poco que llega a tardar una nota
 const ACELERA = 0.07;
 const MAX_ACELERA = 2.0;
 const LLEGADA_INICIAL = 2.3;
@@ -64,18 +69,19 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (r) => ctx.recurso(r);
 
-  ctx.fondo(0xf6b98a, {
-    cenit: 0x5f86c4, horizonte: 0xffcf9e, nubes: 0.4, sol: [0.35, 0.14, -1], niebla: [22, 80],
-    paisaje: { tipo: 'colinas', color: 0x58744f, radio: 75 },
+  ctx.fondo(0x14082e, {
+    cenit: 0x04020c, horizonte: 0x4a1270, suelo: 0x06030f, estrellas: 0.9, niebla: [14, 70],
+    paisaje: { tipo: 'ciudad', color: 0x1a0d33, radio: 72 },
   });
   ctx.sueloBase(false);
-  ctx.vistaEscritorio(new THREE.Vector3(0, 1.5, 0.38), new THREE.Vector3(0, 0.95, -1.5));
+  ctx.vistaEscritorio(new THREE.Vector3(0, 1.5, 0.38), new THREE.Vector3(0, 1.0, -1.6));
 
   const matrizTmp = new THREE.Matrix4();
   const eulerTmp = new THREE.Euler();
   const colorTmp = new THREE.Color();
   const blanco = new THREE.Color(0xffffff);
-  const rojo = new THREE.Color(0xff2a2a);
+  const rojo = new THREE.Color(0xff2a3a);
+  const negro = new THREE.Color(0x000000);
   function colocar(geo, x, y, z, rx = 0, ry = 0, rz = 0) {
     matrizTmp.makeRotationFromEuler(eulerTmp.set(rx, ry, rz)).setPosition(x, y, z);
     return geo.applyMatrix4(matrizTmp);
@@ -117,269 +123,270 @@ export function iniciar(ctx) {
     geo.setIndex(new THREE.BufferAttribute(indices, 1));
     return R(geo);
   }
-  function rectanguloRedondo(ancho, alto, radio) {
-    const s = new THREE.Shape();
-    const x = -ancho / 2;
-    const y = -alto / 2;
-    s.moveTo(x + radio, y);
-    s.lineTo(x + ancho - radio, y);
-    s.quadraticCurveTo(x + ancho, y, x + ancho, y + radio);
-    s.lineTo(x + ancho, y + alto - radio);
-    s.quadraticCurveTo(x + ancho, y + alto, x + ancho - radio, y + alto);
-    s.lineTo(x + radio, y + alto);
-    s.quadraticCurveTo(x, y + alto, x, y + alto - radio);
-    s.lineTo(x, y + radio);
-    s.quadraticCurveTo(x, y, x + radio, y);
+  function rectanguloRedondo(ancho, alto, radio, hueco = 0) {
+    const forma = (an, al, r) => {
+      const s = new THREE.Path();
+      const x = -an / 2;
+      const y = -al / 2;
+      s.moveTo(x + r, y);
+      s.lineTo(x + an - r, y);
+      s.quadraticCurveTo(x + an, y, x + an, y + r);
+      s.lineTo(x + an, y + al - r);
+      s.quadraticCurveTo(x + an, y + al, x + an - r, y + al);
+      s.lineTo(x + r, y + al);
+      s.quadraticCurveTo(x, y + al, x, y + al - r);
+      s.lineTo(x, y + r);
+      s.quadraticCurveTo(x, y, x + r, y);
+      return s;
+    };
+    const s = new THREE.Shape(forma(ancho, alto, radio).getPoints(4));
+    if (hueco > 0) s.holes.push(forma(ancho - hueco * 2, alto - hueco * 2, Math.max(0.002, radio - hueco)));
     return s;
   }
-
-  // ─── Escenario: un templete de música en un parque ─────────────────────
-  const cesped = new THREE.Mesh(
-    R(new THREE.CircleGeometry(60, 40)),
-    R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.cesped(0x5b8a45, { tam: 512, repetir: [26, 26], semilla: 171 })) })),
-  );
-  cesped.rotation.x = -Math.PI / 2;
-  raiz.add(cesped);
-  // Tarima redonda de tablas con su escalón
-  const matTablas = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.tablas(0xb07a4a, { tablas: 14, repetir: [2, 2], semilla: 172 })) }));
-  const tarima = new THREE.Mesh(fusionar([
-    colocar(new THREE.CylinderGeometry(3.4, 3.4, 0.12, 40), 0, 0.06, -1.2),
-    colocar(new THREE.CylinderGeometry(3.7, 3.7, 0.06, 40), 0, 0.03, -1.2),
-  ]), matTablas);
-  raiz.add(tarima);
-  // Concha acústica al fondo: media cúpula con franjas
-  const texConcha = R(ctx.texturaCanvas((g, tam) => {
-    g.fillStyle = '#f3e6cf';
+  // Brillo suave (para halos y reflejos de luz): blanco en el centro y transparente en el borde
+  const texBrillo = R(ctx.texturaCanvas((g, tam) => {
+    const grad = g.createRadialGradient(tam / 2, tam / 2, 0, tam / 2, tam / 2, tam / 2);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.35, 'rgba(255,255,255,0.45)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
     g.fillRect(0, 0, tam, tam);
-    for (let i = 0; i < 12; i++) {
-      g.fillStyle = i % 2 ? '#e8d3b0' : '#f7ecd8';
-      g.fillRect((i * tam) / 12, 0, tam / 12, tam);
-    }
-    g.fillStyle = 'rgba(120, 70, 40, 0.18)';
-    for (let i = 0; i <= 12; i++) g.fillRect((i * tam) / 12 - 1, 0, 2, tam);
-  }, { tam: 256 }));
-  const geoConcha = R(new THREE.SphereGeometry(4.2, 28, 12, Math.PI, Math.PI, 0, Math.PI / 2));
-  const concha = new THREE.Mesh(geoConcha, R(new THREE.MeshLambertMaterial({ map: texConcha, side: THREE.DoubleSide })));
-  concha.position.set(0, 0.12, -4.6);
-  concha.scale.set(1, 1.05, 0.75);
-  raiz.add(concha);
-  // Columnas, barandilla y farolas del templete (madera pintada, fusionadas)
-  const piezasMadera = [];
-  for (const lado of [-1, 1]) {
-    for (const z of [0.6, -1.2]) {
-      piezasMadera.push(colocar(new THREE.CylinderGeometry(0.07, 0.08, 2.9, 12), lado * 3.1, 1.57, z));
-      piezasMadera.push(colocar(new THREE.CylinderGeometry(0.12, 0.12, 0.12, 12), lado * 3.1, 3.04, z));
-    }
-    piezasMadera.push(colocar(new THREE.BoxGeometry(0.06, 0.06, 1.9), lado * 3.15, 0.95, -0.3));
-    piezasMadera.push(colocar(new THREE.BoxGeometry(0.06, 0.06, 1.9), lado * 3.15, 0.55, -0.3));
-    for (let k = 0; k < 7; k++) piezasMadera.push(colocar(new THREE.BoxGeometry(0.03, 0.42, 0.03), lado * 3.15, 0.74, 0.6 - k * 0.3));
-  }
-  raiz.add(new THREE.Mesh(fusionar(piezasMadera), R(new THREE.MeshLambertMaterial({ color: 0xf0ebe0 }))));
-  // Guirnaldas de bombillas de columna a columna (una malla con colores por vértice)
-  const bombillas = [];
-  const coloresBombillas = [];
-  const puntosCable = [];
-  const tramos = [[[-3.1, 2.95, 0.6], [3.1, 2.95, 0.6]], [[-3.1, 2.95, -1.2], [3.1, 2.95, -1.2]], [[-3.1, 2.95, 0.6], [-3.1, 2.95, -1.2]], [[3.1, 2.95, 0.6], [3.1, 2.95, -1.2]]];
-  tramos.forEach(([a, b], k) => {
-    let anterior = null;
-    for (let i = 0; i <= 14; i++) {
-      const u = i / 14;
-      const x = a[0] + (b[0] - a[0]) * u;
-      const z = a[2] + (b[2] - a[2]) * u;
-      const y = a[1] - Math.sin(u * Math.PI) * 0.35;
-      const punto = new THREE.Vector3(x, y, z);
-      if (anterior) puntosCable.push(anterior, punto);
-      if (i > 0 && i < 14) {
-        bombillas.push(colocar(new THREE.SphereGeometry(0.035, 8, 6), x, y - 0.05, z));
-        coloresBombillas.push(COLORES[(i + k * 3) % COLORES.length]);
-      }
-      anterior = punto;
-    }
-  });
-  raiz.add(new THREE.LineSegments(R(new THREE.BufferGeometry().setFromPoints(puntosCable)), R(new THREE.LineBasicMaterial({ color: 0x3a2c26 }))));
-  raiz.add(new THREE.Mesh(fusionar(bombillas, coloresBombillas), R(new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }))));
-  raiz.add(ctx.arboles([
-    { x: -7, z: -9, escala: 1.5 }, { x: 7.5, z: -10, escala: 1.7 }, { x: -11, z: -2, escala: 1.3 },
-    { x: 11, z: -3, escala: 1.4 }, { x: -9, z: 6, escala: 1.4 }, { x: 9, z: 7, escala: 1.5 },
-    { x: 0, z: 11, escala: 1.6 }, { x: -14, z: -12, escala: 1.8 }, { x: 15, z: -13, escala: 1.6 },
-  ], { tipo: 'frondoso', semilla: 17 }));
+  }, { tam: 128 }));
+  // Material de luz que se suma (los neones): con el color de instancia en negro no se ve
+  const luzSumada = (opciones = {}) => R(new THREE.MeshBasicMaterial({
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, ...opciones,
+  }));
 
-  // ─── Xilófono ──────────────────────────────────────────────────────────
+  // ─── Mundo de neón ─────────────────────────────────────────────────────
+  // Suelo de cuadrícula que corre hacia el jugador (da sensación de viaje)
+  const texCuadricula = R(ctx.texturaCanvas((g, tam) => {
+    g.fillStyle = '#05030c';
+    g.fillRect(0, 0, tam, tam);
+    g.strokeStyle = '#b13cff';
+    g.lineWidth = 3;
+    g.strokeRect(1.5, 1.5, tam - 3, tam - 3);
+    g.strokeStyle = 'rgba(46, 230, 214, 0.35)';
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(tam / 2, 0); g.lineTo(tam / 2, tam);
+    g.moveTo(0, tam / 2); g.lineTo(tam, tam / 2);
+    g.stroke();
+  }, { tam: 256, repetir: [40, 40], semilla: 181 }));
+  const suelo = new THREE.Mesh(
+    R(new THREE.PlaneGeometry(80, 80)),
+    R(new THREE.MeshBasicMaterial({ map: texCuadricula, color: 0x8a7aa8 })),
+  );
+  suelo.rotation.x = -Math.PI / 2;
+  raiz.add(suelo);
+  // Sol de neón en el horizonte, partido en franjas, detrás de la ciudad
+  const texSol = R(ctx.texturaCanvas((g, tam) => {
+    const grad = g.createLinearGradient(0, 0, 0, tam);
+    grad.addColorStop(0, '#ffe36e');
+    grad.addColorStop(0.5, '#ff6a3d');
+    grad.addColorStop(1, '#d1209a');
+    g.fillStyle = grad;
+    g.beginPath();
+    g.arc(tam / 2, tam / 2, tam / 2 - 2, 0, Math.PI * 2);
+    g.fill();
+    g.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 7; i++) {
+      const y = tam * (0.55 + i * 0.065);
+      g.fillRect(0, y, tam, 3 + i * 1.6);
+    }
+  }, { tam: 256 }));
+  const sol = new THREE.Mesh(R(new THREE.PlaneGeometry(34, 34)), R(new THREE.MeshBasicMaterial({ map: texSol, transparent: true, depthWrite: false, fog: false, toneMapped: false })));
+  sol.position.set(0, 9, -88);
+  raiz.add(sol);
+  // Plataforma hexagonal donde está el jugador, con borde de neón
+  const plataforma = new THREE.Mesh(
+    R(new THREE.CylinderGeometry(1.25, 1.35, 0.08, 6)),
+    R(new THREE.MeshStandardMaterial({ color: 0x15122a, roughness: 0.25, metalness: 0.8 })),
+  );
+  plataforma.position.set(0, 0.04, -0.2);
+  plataforma.rotation.y = Math.PI / 6;
+  raiz.add(plataforma);
+  const bordePlataforma = new THREE.Mesh(R(new THREE.TorusGeometry(1.3, 0.012, 6, 6)), R(new THREE.MeshBasicMaterial({ color: 0x2ee6d6, toneMapped: false })));
+  bordePlataforma.rotation.set(Math.PI / 2, 0, Math.PI / 6);
+  bordePlataforma.position.set(0, 0.085, -0.2);
+  raiz.add(bordePlataforma);
+  // Motas de luz que vienen hacia ti (una sola llamada de dibujo)
+  const posMotas = new Float32Array(N_MOTAS * 3);
+  for (let i = 0; i < N_MOTAS; i++) {
+    posMotas[i * 3] = (Math.random() - 0.5) * 14;
+    posMotas[i * 3 + 1] = 0.2 + Math.random() * 5;
+    posMotas[i * 3 + 2] = -30 + Math.random() * 32;
+  }
+  const geoMotas = R(new THREE.BufferGeometry());
+  geoMotas.setAttribute('position', new THREE.BufferAttribute(posMotas, 3));
+  const motas = new THREE.Points(geoMotas, R(new THREE.PointsMaterial({ color: 0xbfa8ff, size: 0.035, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })));
+  motas.frustumCulled = false;
+  raiz.add(motas);
+  // Rayos de luz a los lados, que se encienden con el pulso
+  const rayos = new THREE.InstancedMesh(R(new THREE.CylinderGeometry(0.02, 0.02, 14, 6, 1, true)), luzSumada(), N_RAYOS);
+  const coloresRayos = [];
+  for (let i = 0; i < N_RAYOS; i++) {
+    const lado = i % 2 ? 1 : -1;
+    const fila = Math.floor(i / 2);
+    matrizTmp.makeRotationFromEuler(eulerTmp.set(0.12 * fila - 0.25, 0, lado * (0.35 + fila * 0.08))).setPosition(lado * (4.5 + fila * 1.2), 5, -6 - fila * 4.5);
+    rayos.setMatrixAt(i, matrizTmp);
+    coloresRayos.push(new THREE.Color(i % 4 < 2 ? 0x2ee6d6 : 0xff3dd0));
+    rayos.setColorAt(i, negro);
+  }
+  raiz.add(rayos);
+
+  // ─── Teclas flotantes ──────────────────────────────────────────────────
   const xilofono = new THREE.Group();
-  xilofono.position.set(0, 0.86, -0.42);
+  xilofono.position.set(0, 0.88, -0.42);
   raiz.add(xilofono);
   const X = (i) => (i - (N - 1) / 2) * PASO;
   const LARGOS = Array.from({ length: N }, (_, i) => 0.3 - i * 0.013); // las graves, más largas
   const ARRIBA = GROSOR_TECLA; // altura de la cara de arriba de las teclas sobre el grupo
-  // Teclas: una malla instanciada (una llamada de dibujo para las 8) con veta de madera lacada
+  // Cada tecla: un bloque de cristal oscuro de su color, que se enciende al golpearlo
   const geoTecla = R(new THREE.ExtrudeGeometry(rectanguloRedondo(ANCHO_TECLA, GROSOR_TECLA, 0.007), { depth: 1, bevelEnabled: false, curveSegments: 3 }));
   geoTecla.translate(0, GROSOR_TECLA / 2, -0.5);
-  const texTecla = R(ctx.texturas.madera(0xf2f2f2, { tam: 256, semilla: 173 }));
-  texTecla.center.set(0.5, 0.5);
-  texTecla.rotation = Math.PI / 2; // la veta a lo largo de la tecla
-  const teclas = new THREE.InstancedMesh(geoTecla, R(new THREE.MeshStandardMaterial({ map: texTecla, roughness: 0.32, metalness: 0 })), N);
-  teclas.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const estadoTeclas = Array.from({ length: N }, (_, i) => ({ luz: 0, golpe: 0, error: 0, color: new THREE.Color(COLORES[i]) }));
-  function pintarTeclas() {
-    for (let i = 0; i < N; i++) {
-      const e = estadoTeclas[i];
-      const bajada = e.golpe > 0 ? Math.sin((e.golpe / 0.12) * Math.PI) * 0.005 : 0;
-      matrizTmp.makeScale(1, 1, LARGOS[i]).setPosition(X(i), -bajada, 0);
-      teclas.setMatrixAt(i, matrizTmp);
-      colorTmp.copy(e.color).lerp(blanco, e.luz * 0.55).lerp(rojo, e.error);
-      teclas.setColorAt(i, colorTmp);
-    }
-    teclas.instanceMatrix.needsUpdate = true;
-    teclas.instanceColor.needsUpdate = true;
+  // Borde de neón alrededor de la cara de arriba
+  const geoBorde = R(new THREE.ShapeGeometry(rectanguloRedondo(ANCHO_TECLA + 0.008, 1, 0.01, 0.006)));
+  geoBorde.rotateX(-Math.PI / 2);
+  const teclas = COLORES.map((color, i) => {
+    // Phong: el brillo de cristal sin el coste de MeshStandardMaterial (son 8 materiales)
+    const material = R(new THREE.MeshPhongMaterial({
+      color: new THREE.Color(color).multiplyScalar(0.35), specular: 0x9a9ab0, shininess: 90,
+      emissive: color, emissiveIntensity: 0.25,
+    }));
+    const malla = new THREE.Mesh(geoTecla, material);
+    malla.scale.z = LARGOS[i];
+    malla.position.x = X(i);
+    malla.userData.tecla = i;
+    const borde = new THREE.Mesh(geoBorde, R(new THREE.MeshBasicMaterial({ color, toneMapped: false })));
+    borde.scale.z = LARGOS[i] + 0.008;
+    borde.position.set(X(i), ARRIBA + 0.0015, 0);
+    xilofono.add(malla, borde);
+    return { malla, material, borde, color: new THREE.Color(color), luz: 0, golpe: 0, error: 0 };
+  });
+  // Halo bajo cada tecla (el «motor» que la hace flotar) y columna de luz al golpearla
+  const geoHalo = R(new THREE.PlaneGeometry(1, 1));
+  geoHalo.rotateX(-Math.PI / 2);
+  const halos = new THREE.InstancedMesh(geoHalo, luzSumada({ map: texBrillo }), N);
+  const geoColumna = R(new THREE.CylinderGeometry(0.035, 0.05, 0.7, 10, 1, true));
+  geoColumna.translate(0, 0.35, 0);
+  const columnas = new THREE.InstancedMesh(geoColumna, luzSumada({ side: THREE.DoubleSide }), N);
+  for (let i = 0; i < N; i++) {
+    matrizTmp.makeScale(0.2, 1, LARGOS[i] + 0.12).setPosition(X(i), -0.06, 0);
+    halos.setMatrixAt(i, matrizTmp);
+    matrizTmp.makeScale(1, 1, 1).setPosition(X(i), ARRIBA, 0);
+    columnas.setMatrixAt(i, matrizTmp);
+    columnas.setColorAt(i, negro);
+    halos.setColorAt(i, negro);
   }
-  pintarTeclas();
-  xilofono.add(teclas);
-  // Marco: dos largueros que se cierran hacia las agudas, con fieltro, clavijas y patas en X
-  const piezasMarco = [];
-  const piezasFieltro = [];
-  const piezasClavijas = [];
-  const xIzq = X(0) - PASO * 0.7;
-  const xDer = X(N - 1) + PASO * 0.7;
-  for (const lado of [-1, 1]) {
-    const zIzq = lado * LARGOS[0] * 0.28;
-    const zDer = lado * LARGOS[N - 1] * 0.28;
-    const largo = Math.hypot(xDer - xIzq, zDer - zIzq);
-    const giro = -Math.atan2(zDer - zIzq, xDer - xIzq);
-    piezasMarco.push(colocar(new THREE.BoxGeometry(largo, 0.03, 0.03), (xIzq + xDer) / 2, -0.016, (zIzq + zDer) / 2, 0, giro, 0));
-    piezasFieltro.push(colocar(new THREE.BoxGeometry(largo, 0.004, 0.022), (xIzq + xDer) / 2, -0.001, (zIzq + zDer) / 2, 0, giro, 0));
-    for (let i = 0; i <= N; i++) {
-      const x = X(i) - PASO / 2;
-      const z = lado * (0.3 - (i - 0.5) * 0.013) * 0.28;
-      piezasClavijas.push(colocar(new THREE.CylinderGeometry(0.0035, 0.0035, 0.03, 6), x, 0.01, z));
-    }
-  }
-  // Travesaños y patas
-  piezasMarco.push(colocar(new THREE.BoxGeometry(0.03, 0.03, LARGOS[0] * 0.56 + 0.03), xIzq, -0.016, 0));
-  piezasMarco.push(colocar(new THREE.BoxGeometry(0.03, 0.03, LARGOS[N - 1] * 0.56 + 0.03), xDer, -0.016, 0));
-  for (const x of [xIzq + 0.03, xDer - 0.03]) {
-    piezasMarco.push(colocar(new THREE.CylinderGeometry(0.012, 0.014, 1.0, 8), x, -0.43, 0, 0.32, 0, 0));
-    piezasMarco.push(colocar(new THREE.CylinderGeometry(0.012, 0.014, 1.0, 8), x, -0.43, 0, -0.32, 0, 0));
-  }
-  piezasMarco.push(colocar(new THREE.CylinderGeometry(0.01, 0.01, xDer - xIzq - 0.06, 8), 0, -0.6, 0, 0, 0, Math.PI / 2));
-  xilofono.add(new THREE.Mesh(fusionar(piezasMarco), R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x6b3f24, { tam: 128, semilla: 174 })) }))));
-  xilofono.add(new THREE.Mesh(fusionar(piezasFieltro), R(new THREE.MeshLambertMaterial({ color: 0xa32a2a }))));
-  xilofono.add(new THREE.Mesh(fusionar(piezasClavijas), R(new THREE.MeshStandardMaterial({ color: 0xd8b25a, roughness: 0.3, metalness: 1 }))));
-  const sombraXilofono = ctx.crearSombra({ radio: 0.62, opacidad: 0.45 });
-  sombraXilofono.position.set(0, 0.125, -0.42);
-  sombraXilofono.scale.set(1, 1, 0.5);
-  raiz.add(sombraXilofono);
+  xilofono.add(halos, columnas);
+  const sombraTeclas = ctx.crearSombra({ radio: 0.6, opacidad: 0.5 });
+  sombraTeclas.position.set(0, 0.09, -0.42);
+  sombraTeclas.scale.set(1, 1, 0.45);
+  raiz.add(sombraTeclas);
 
-  // ─── Rampa de luz por la que llegan las fichas ─────────────────────────
+  // ─── Carriles de luz por los que llegan las notas ──────────────────────
   // El grupo «pista» empieza en el borde lejano de las teclas y su eje -Z sube hacia el fondo.
   const pista = new THREE.Group();
   pista.position.set(0, ARRIBA + 0.004, -LARGOS[0] / 2 - 0.012);
-  pista.rotation.x = Math.atan(SUBIDA_RAMPA / LARGO_RAMPA);
+  pista.rotation.x = Math.atan(SUBIDA_PISTA / LARGO_PISTA);
   xilofono.add(pista);
   const anchoPista = N * PASO;
+  // Cristal oscuro bajo los carriles (solo se ve un poco) y que recibe los clics del ratón
   const texPista = R(ctx.texturaCanvas((g, tam) => {
-    const alto = tam;
-    const grad = g.createLinearGradient(0, 0, 0, alto);
-    grad.addColorStop(0, '#2a1f3d');
-    grad.addColorStop(1, '#141020');
+    const grad = g.createLinearGradient(0, 0, 0, tam);
+    grad.addColorStop(0, 'rgba(20, 8, 40, 0.0)');
+    grad.addColorStop(0.3, 'rgba(20, 8, 40, 0.55)');
+    grad.addColorStop(1, 'rgba(20, 8, 40, 0.75)');
     g.fillStyle = grad;
-    g.fillRect(0, 0, tam, alto);
-    for (let i = 0; i < N; i++) {
-      const c = new THREE.Color(COLORES[i]);
-      const x0 = (i / N) * tam;
-      const gc = g.createLinearGradient(0, 0, 0, alto);
-      gc.addColorStop(0, `rgba(${c.r * 255 | 0},${c.g * 255 | 0},${c.b * 255 | 0},0.05)`);
-      gc.addColorStop(1, `rgba(${c.r * 255 | 0},${c.g * 255 | 0},${c.b * 255 | 0},0.28)`);
-      g.fillStyle = gc;
-      g.fillRect(x0 + 3, 0, tam / N - 6, alto);
-      g.fillStyle = 'rgba(255, 240, 220, 0.35)';
-      g.fillRect(x0 - 1, 0, 2, alto);
-    }
-    g.fillRect(tam - 2, 0, 2, alto);
-  }, { tam: 256 }));
-  const rampa = new THREE.Mesh(R(new THREE.PlaneGeometry(anchoPista, LARGO_RAMPA)), R(new THREE.MeshBasicMaterial({ map: texPista })));
-  rampa.rotation.x = -Math.PI / 2;
-  rampa.position.z = -LARGO_RAMPA / 2;
-  pista.add(rampa);
-  // Bordes de la rampa y la línea de golpe (donde hay que dar), que late con el pulso
-  const bordes = new THREE.Mesh(fusionar([
-    colocar(new THREE.BoxGeometry(0.02, 0.025, LARGO_RAMPA), -anchoPista / 2 - 0.01, 0.006, -LARGO_RAMPA / 2),
-    colocar(new THREE.BoxGeometry(0.02, 0.025, LARGO_RAMPA), anchoPista / 2 + 0.01, 0.006, -LARGO_RAMPA / 2),
-    colocar(new THREE.BoxGeometry(anchoPista + 0.04, 0.4, 0.03), 0, -0.2, -LARGO_RAMPA - 0.015),
-  ]), R(new THREE.MeshLambertMaterial({ color: 0x3a2f4a })));
-  pista.add(bordes);
+    g.fillRect(0, 0, tam, tam);
+  }, { tam: 64 }));
+  const cristal = new THREE.Mesh(R(new THREE.PlaneGeometry(anchoPista, LARGO_PISTA)), R(new THREE.MeshBasicMaterial({ map: texPista, transparent: true, depthWrite: false })));
+  cristal.rotation.x = -Math.PI / 2;
+  cristal.position.z = -LARGO_PISTA / 2;
+  pista.add(cristal);
+  // Líneas de neón: una tenue en el centro de cada carril y separadores blancos
+  const lineas = [];
+  const coloresLineas = [];
+  for (let i = 0; i < N; i++) {
+    lineas.push(colocar(new THREE.BoxGeometry(0.006, 0.002, LARGO_PISTA), X(i), 0.002, -LARGO_PISTA / 2));
+    coloresLineas.push(new THREE.Color(COLORES[i]).multiplyScalar(0.55));
+  }
+  for (let i = 0; i <= N; i++) {
+    lineas.push(colocar(new THREE.BoxGeometry(i % N === 0 ? 0.012 : 0.003, 0.002, LARGO_PISTA), X(i) - PASO / 2, 0.002, -LARGO_PISTA / 2));
+    coloresLineas.push(new THREE.Color(i % N === 0 ? 0x2ee6d6 : 0x6a5a90));
+  }
+  pista.add(new THREE.Mesh(fusionar(lineas, coloresLineas), R(new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }))));
+  // La línea de golpe, que late con el pulso
   const matLinea = R(new THREE.MeshBasicMaterial({ color: 0xff6a3d, toneMapped: false }));
-  const linea = new THREE.Mesh(R(new THREE.BoxGeometry(anchoPista + 0.04, 0.008, 0.012)), matLinea);
+  const linea = new THREE.Mesh(R(new THREE.BoxGeometry(anchoPista + 0.06, 0.006, 0.012)), matLinea);
   linea.position.set(0, 0.004, -0.006);
   pista.add(linea);
-  // Patas de la rampa hasta la tarima
-  const patasRampa = [];
-  for (const x of [-anchoPista / 2, anchoPista / 2]) {
-    for (const d of [1.2, 2.6]) {
-      const y = 0.86 + ARRIBA + (d / LARGO_RAMPA) * SUBIDA_RAMPA;
-      patasRampa.push(colocar(new THREE.CylinderGeometry(0.012, 0.012, y - 0.12, 6), x, (y + 0.12) / 2, -0.42 - LARGOS[0] / 2 - d));
-    }
-  }
-  raiz.add(new THREE.Mesh(fusionar(patasRampa), R(new THREE.MeshLambertMaterial({ color: 0x2b2433 }))));
+  // Arcos de luz alrededor de los carriles, como un túnel que late con el ritmo
+  const geoArco = R(new THREE.TorusGeometry(0.85, 0.012, 4, 4));
+  geoArco.rotateZ(Math.PI / 4); // un cuadrado con la base plana
+  const arcos = new THREE.InstancedMesh(geoArco, luzSumada(), N_ARCOS);
+  const distArco = (k) => 1.4 + k * ((LARGO_PISTA - 1.4) / (N_ARCOS - 1));
+  pista.add(arcos);
 
-  // Fichas: una malla instanciada con el color de su tecla
-  const geoFicha = R(new THREE.ExtrudeGeometry(rectanguloRedondo(PASO * 0.86, LARGO_FICHA, 0.02), { depth: 0.02, bevelEnabled: false, curveSegments: 4 }));
-  geoFicha.rotateX(-Math.PI / 2); // tumbada sobre la rampa, de grosor hacia arriba
-  geoFicha.translate(0, 0.002, -LARGO_FICHA / 2); // su borde cercano es el que marca el momento del golpe
+  // Notas: bloques de neón del color de su tecla, con su reflejo en el cristal
+  const geoFicha = R(new THREE.ExtrudeGeometry(rectanguloRedondo(PASO * 0.82, LARGO_FICHA, 0.02), { depth: 0.024, bevelEnabled: false, curveSegments: 4 }));
+  geoFicha.rotateX(-Math.PI / 2); // tumbada sobre el carril, de grosor hacia arriba
+  geoFicha.translate(0, 0.003, -LARGO_FICHA / 2); // su borde cercano es el que marca el momento del golpe
   const fichas = new THREE.InstancedMesh(geoFicha, R(new THREE.MeshBasicMaterial({ toneMapped: false })), N_FICHAS);
-  fichas.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  fichas.setColorAt(0, colorTmp.set(0xffffff));
-  fichas.instanceColor.setUsage(THREE.DynamicDrawUsage);
-  fichas.frustumCulled = false;
-  fichas.count = 0;
-  pista.add(fichas);
+  const geoReflejo = R(new THREE.PlaneGeometry(PASO * 2.2, LARGO_FICHA * 2.2));
+  geoReflejo.rotateX(-Math.PI / 2);
+  geoReflejo.translate(0, 0.001, -LARGO_FICHA / 2);
+  const reflejos = new THREE.InstancedMesh(geoReflejo, luzSumada({ map: texBrillo }), N_FICHAS);
+  for (const malla of [fichas, reflejos]) {
+    malla.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    malla.setColorAt(0, negro);
+    malla.instanceColor.setUsage(THREE.DynamicDrawUsage);
+    malla.frustumCulled = false;
+    malla.count = 0;
+    pista.add(malla);
+  }
   const ocultaFicha = new THREE.Matrix4().makeScale(0, 0, 0);
-  const fichasLibres = []; // índices de fichas sin usar
+  const fichasLibres = []; // índices de notas sin usar
   for (let i = N_FICHAS - 1; i >= 0; i--) fichasLibres.push(i);
 
-  // ─── Baquetas de xilófono: mango de ratán y cabeza de hilo ─────────────
+  // ─── Baquetas de luz: mango de metal con anillo de neón y cabeza brillante ─
   const perfilMango = [
-    [0.0001, 0], [0.0085, 0.002], [0.0095, 0.012], [0.0085, 0.03], [0.0068, 0.05], [0.0055, 0.2], [0.005, LARGO_BAQUETA - 0.012], [0.0001, LARGO_BAQUETA - 0.01],
+    [0.0001, 0], [0.009, 0.002], [0.0098, 0.012], [0.0092, 0.07], [0.0072, 0.085], [0.0055, 0.2], [0.005, LARGO_BAQUETA - 0.012], [0.0001, LARGO_BAQUETA - 0.01],
   ].map(([r, y]) => new THREE.Vector2(r, y));
-  const geoMango = R(new THREE.LatheGeometry(perfilMango, 12));
+  const geoMango = R(new THREE.LatheGeometry(perfilMango, 14));
   geoMango.rotateX(-Math.PI / 2);
   geoMango.translate(0, 0, 0.07);
   const geoCabeza = R(new THREE.SphereGeometry(R_CABEZA, 16, 12));
-  const geoTope = R(new THREE.CylinderGeometry(0.0105, 0.0095, 0.022, 12));
-  geoTope.rotateX(-Math.PI / 2);
-  const texHilo = R(ctx.texturaCanvas((g, tam) => {
-    g.fillStyle = '#ff6a3d';
-    g.fillRect(0, 0, tam, tam);
-    for (let i = 0; i < 40; i++) {
-      g.strokeStyle = i % 2 ? 'rgba(120, 20, 0, 0.35)' : 'rgba(255, 220, 190, 0.35)';
-      g.lineWidth = 2;
-      g.beginPath();
-      g.moveTo(0, (i * tam) / 40);
-      g.lineTo(tam, (i * tam) / 40 + 6);
-      g.stroke();
-    }
-  }, { tam: 128 }));
-  const matMango = R(new THREE.MeshStandardMaterial({ map: R(ctx.texturas.madera(0xe2c08a, { tam: 128, semilla: 175 })), roughness: 0.5 }));
-  const matCabeza = R(new THREE.MeshStandardMaterial({ map: texHilo, roughness: 0.95, emissive: 0x3a1000 }));
-  const matTope = R(new THREE.MeshLambertMaterial({ color: 0x2a2a30 }));
+  const geoAnillo = R(new THREE.TorusGeometry(0.0105, 0.0022, 6, 18));
+  const geoHaloCabeza = R(new THREE.PlaneGeometry(0.11, 0.11));
+  const matMango = R(new THREE.MeshStandardMaterial({ color: 0x2a2d3c, roughness: 0.25, metalness: 0.9 }));
   const CABEZA_EN_MANO = new THREE.Vector3(0, 0, 0.07 - LARGO_BAQUETA + 0.01 - R_CABEZA * 0.6);
-  function crearBaqueta() {
+  function crearBaqueta(color) {
     const g = new THREE.Group();
     const mango = new THREE.Mesh(geoMango, matMango);
-    const cabeza = new THREE.Mesh(geoCabeza, matCabeza);
+    const cabeza = new THREE.Mesh(geoCabeza, R(new THREE.MeshBasicMaterial({ color: new THREE.Color(color).lerp(new THREE.Color(0xffffff), 0.25), toneMapped: false })));
     cabeza.position.copy(CABEZA_EN_MANO);
-    const tope = new THREE.Mesh(geoTope, matTope);
-    tope.position.z = 0.075;
-    g.add(mango, cabeza, tope);
-    return g;
+    const matNeon = R(new THREE.MeshBasicMaterial({ color, toneMapped: false }));
+    const anillos = [0.0, 0.055].map((z) => {
+      const a = new THREE.Mesh(geoAnillo, matNeon);
+      a.position.z = z;
+      return a;
+    });
+    // Halo de la cabeza: siempre de cara a quien mira (se orienta en cada fotograma)
+    const halo = new THREE.Mesh(geoHaloCabeza, luzSumada({ map: texBrillo, color, opacity: 0.6 }));
+    halo.position.copy(CABEZA_EN_MANO);
+    g.add(mango, cabeza, ...anillos, halo);
+    return { grupo: g, halo };
   }
-  const baquetas = ctx.manos.map((mano) => {
-    const b = crearBaqueta();
-    b.rotation.x = -0.55; // un poco hacia abajo, como se cogen
-    ctx.adjuntarAMano(mano, b);
-    return { mano, objeto: b, cabeza: new THREE.Vector3(), anterior: new THREE.Vector3(), armada: true, velocidad: 0 };
+  const COLOR_MANO = [0x2ee6d6, 0xff6a3d];
+  const baquetas = ctx.manos.map((mano, k) => {
+    const { grupo, halo } = crearBaqueta(COLOR_MANO[k % 2]);
+    grupo.rotation.x = -0.55; // un poco hacia abajo, como se cogen
+    ctx.adjuntarAMano(mano, grupo);
+    return { mano, objeto: grupo, halo, cabeza: new THREE.Vector3(), anterior: new THREE.Vector3(), armada: true, velocidad: 0 };
   });
-  const baquetaRaton = crearBaqueta();
-  raiz.add(baquetaRaton);
+  const baquetaRaton = crearBaqueta(0xff6a3d);
+  raiz.add(baquetaRaton.grupo);
   let golpeRaton = 0;
   let teclaRaton = 3;
 
@@ -388,8 +395,8 @@ export function iniciar(ctx) {
   marcador.mesh.position.set(-1.05, 1.62, -1.35);
   marcador.mesh.rotation.y = 0.45;
   raiz.add(marcador.mesh);
-  const cartel = ctx.crearPanel({ ancho: 2.1, alto: 0.42 });
-  cartel.mesh.position.set(0, 2.2, -3.6);
+  const cartel = ctx.crearPanel({ ancho: 2.6, alto: 0.52 });
+  cartel.mesh.position.set(0, 3.0, -6.2);
   raiz.add(cartel.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
@@ -409,12 +416,17 @@ export function iniciar(ctx) {
   let siguienteNota = 0;
   let siguientePulso = 0;
   let pulsoLinea = 0;
+  let pulsoArcos = 0;
+  let fiesta = 0;      // al completar una canción, todo se enciende un momento
+  let alarma = 0;      // al perder una nota, los arcos se ponen rojos
+  let velocidad = 3;   // a lo que corre el suelo (m/s), según lo rápido que llegan las notas
   let bolsa = [];
   const notas = [];     // { t, tecla, llegada, hecha, ficha }
   const pulsos = [];    // { t, fuerte }
-  const canciones = []; // { id, n, inicio, ultima, fin, llegada, completada, anunciada }
+  const canciones = []; // { id, n, inicio, ultima, fin, llegada, completada }
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
+  const camaraPos = new THREE.Vector3();
 
   const multiplicador = () => Math.min(4, 1 + Math.floor(racha / 10));
 
@@ -442,7 +454,7 @@ export function iniciar(ctx) {
     for (let k = 0; k < p.pulsos; k++) pulsos.push({ t: inicio + k * pulso, fuerte: k % 4 === 0 });
     for (const nota of p.notas) notas.push({ t: inicio + nota.pulso * pulso, tecla: nota.tecla, llegada, hecha: false, ficha: -1 });
     const ultima = inicio + p.notas[p.notas.length - 1].pulso * pulso;
-    canciones.push({ id: p.id, n, inicio, ultima, fin: inicio + p.pulsos * pulso, llegada, completada: false, anunciada: false });
+    canciones.push({ id: p.id, n, inicio, ultima, fin: inicio + p.pulsos * pulso, llegada, completada: false });
   }
 
   function empezarPartida() {
@@ -477,8 +489,9 @@ export function iniciar(ctx) {
       ctx.guardar('record', record);
     }
     if (nuevoRecord) {
-      tmp.set(0, 0.95, -0.6);
+      tmp.set(0, 1.0, -0.6);
       ctx.efectos.impacto('grande', { pos: tmp, color: 0xffd23f, sonido: 'ovacion' });
+      fiesta = 1.5;
     } else {
       ctx.sonido('zumbador');
     }
@@ -486,10 +499,11 @@ export function iniciar(ctx) {
     cartel.mesh.visible = true;
   }
 
-  // ─── Fichas en la pista ────────────────────────────────────────────────
+  // ─── Notas en la pista ─────────────────────────────────────────────────
   function soltarFicha(nota) {
     if (nota.ficha < 0) return;
     fichas.setMatrixAt(nota.ficha, ocultaFicha);
+    reflejos.setMatrixAt(nota.ficha, ocultaFicha);
     fichasLibres.push(nota.ficha);
     nota.ficha = -1;
   }
@@ -497,17 +511,13 @@ export function iniciar(ctx) {
   function perderNota(nota) {
     nota.hecha = true;
     soltarFicha(nota);
-    const e = estadoTeclas[nota.tecla];
-    e.error = 1;
+    teclas[nota.tecla].error = 1;
     vidas -= 1;
-    if (racha >= 10) {
-      aviso = ctx.t('rachaRota');
-    } else {
-      aviso = ctx.t('notaPerdida');
-    }
+    aviso = racha >= 10 ? ctx.t('rachaRota') : ctx.t('notaPerdida');
     colorAviso = '#ff8a80';
     tiempoAviso = 1.0;
     racha = 0;
+    alarma = 1;
     // Fallar se nota distinto: sin partículas de celebración, un zumbido y un tirón en las dos manos
     ctx.sonido('fallo');
     for (const m of ctx.manos) ctx.vibrar(m, 0.5, 90);
@@ -517,9 +527,9 @@ export function iniciar(ctx) {
 
   // Golpe en una tecla en el instante «tiempo» (suena siempre: es un instrumento)
   function golpear(i, mano, fuerza = 1) {
-    const e = estadoTeclas[i];
-    e.golpe = 0.12;
-    e.luz = Math.max(e.luz, 0.45);
+    const tecla = teclas[i];
+    tecla.golpe = 0.12;
+    tecla.luz = Math.max(tecla.luz, 0.5);
     ctx.sonido('xilo' + i);
     if (estado !== 'juego') {
       ctx.vibrar(mano, 0.15 + 0.2 * fuerza, 25);
@@ -553,7 +563,7 @@ export function iniciar(ctx) {
     const perfecto = dif <= PERFECTO;
     const suma = (perfecto ? 3 : 1) * multiplicador();
     puntos += suma;
-    e.luz = 1;
+    tecla.luz = perfecto ? 1.3 : 1;
     const hito = racha % 10 === 0 && racha <= 30;
     ctx.efectos.impacto(hito ? 'medio' : 'pequeño', { pos: tmp, mano, color: COLORES[i] });
     ctx.efectos.texto(tmp, `+${suma}`, { color: perfecto ? '#ffe08a' : '#ffffff', tam: perfecto ? 0.95 : 0.7 });
@@ -576,6 +586,7 @@ export function iniciar(ctx) {
     aviso = ctx.t(vidaExtra ? 'completadaVida' : 'completada', { n: premio });
     colorAviso = '#ffd23f';
     tiempoAviso = 2.2;
+    fiesta = 1.5;
   }
 
   function actualizarMarcador() {
@@ -604,7 +615,7 @@ export function iniciar(ctx) {
         ? { texto: aviso, tam: 0.78, color: colorAviso }
         : { texto: ctx.t('estado', { n: racha, vidas: corazones }), tam: 0.78, color: '#cfd8dc' },
     ]);
-    // El cartel del fondo anuncia cada canción mientras llegan sus primeras fichas
+    // El cartel del fondo anuncia cada canción mientras llegan sus primeras notas
     let c = null;
     for (const k of canciones) {
       if (!k.completada && tiempo < k.ultima + BIEN) {
@@ -645,14 +656,13 @@ export function iniciar(ctx) {
   }
 
   // ─── Ratón y pantalla táctil: la tecla o su carril ─────────────────────
-  const objetivos = [teclas, rampa];
+  const objetivos = [cristal, ...teclas.map((k) => k.malla)];
   function raton(dt) {
-    baquetaRaton.visible = ctx.raton.dentro || ctx.tactil;
+    baquetaRaton.grupo.visible = ctx.raton.dentro || ctx.tactil;
     const choque = ctx.raton.rayo.intersectObjects(objetivos, false)[0];
     if (choque) {
-      let i;
-      if (choque.object === teclas) i = choque.instanceId;
-      else {
+      let i = choque.object.userData.tecla;
+      if (i === undefined) {
         xilofono.worldToLocal(tmp.copy(choque.point));
         i = Math.round(tmp.x / PASO + (N - 1) / 2);
       }
@@ -668,12 +678,13 @@ export function iniciar(ctx) {
     tmp.set(X(teclaRaton), ARRIBA + R_CABEZA + 0.002 + 0.08 * (1 - bajada), 0.02);
     xilofono.localToWorld(tmp);
     // El mango sube hacia el jugador: el eje -Z de la baqueta apunta a la tecla
+    const grupo = baquetaRaton.grupo;
     tmp2.set(tmp.x + 0.1, tmp.y + 0.16, tmp.z + 0.26);
-    baquetaRaton.position.copy(tmp2);
-    baquetaRaton.lookAt(tmp2.multiplyScalar(2).sub(tmp));
+    grupo.position.copy(tmp2);
+    grupo.lookAt(tmp2.multiplyScalar(2).sub(tmp));
     // Y se coloca para que sea la cabeza (no el centro del grupo) la que queda sobre la tecla
-    tmp2.copy(CABEZA_EN_MANO).applyQuaternion(baquetaRaton.quaternion);
-    baquetaRaton.position.copy(tmp).sub(tmp2);
+    tmp2.copy(CABEZA_EN_MANO).applyQuaternion(grupo.quaternion);
+    grupo.position.copy(tmp).sub(tmp2);
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
@@ -684,13 +695,15 @@ export function iniciar(ctx) {
 
     if (estado === 'juego') {
       tiempo += dt;
-      // Pulso de fondo (un toque de madera) y la línea de golpe que late con él
+      // Pulso de fondo (un toque seco) y la línea de golpe y los arcos que laten con él
       while (siguientePulso < pulsos.length && pulsos[siguientePulso].t <= tiempo) {
-        ctx.sonido(pulsos[siguientePulso].fuerte ? 'xiloPulsoFuerte' : 'xiloPulso');
-        pulsoLinea = pulsos[siguientePulso].fuerte ? 1 : 0.6;
+        const fuerte = pulsos[siguientePulso].fuerte;
+        ctx.sonido(fuerte ? 'xiloPulsoFuerte' : 'xiloPulso');
+        pulsoLinea = fuerte ? 1 : 0.6;
+        pulsoArcos = fuerte ? 1 : 0.55;
         siguientePulso++;
       }
-      // Fichas que aparecen, se acercan y se pasan
+      // Notas que aparecen, se acercan y se pasan
       for (let k = siguienteNota; k < notas.length && estado === 'juego'; k++) {
         const n = notas[k];
         const falta = n.t - tiempo;
@@ -706,10 +719,14 @@ export function iniciar(ctx) {
           const u = Math.max(0, falta) / n.llegada;
           const entra = Math.min(1, (1 - u) / 0.08);
           const escala = entra < 1 ? entra * (1 + 0.25 * Math.sin(entra * Math.PI)) : 1;
-          matrizTmp.makeScale(escala, escala, escala).setPosition(X(n.tecla), 0, -u * LARGO_RAMPA);
+          matrizTmp.makeScale(escala, escala, escala).setPosition(X(n.tecla), 0, -u * LARGO_PISTA);
           fichas.setMatrixAt(n.ficha, matrizTmp);
-          fichas.setColorAt(n.ficha, colorTmp.set(COLORES[n.tecla]).lerp(blanco, falta < BIEN ? 0.35 : 0));
+          reflejos.setMatrixAt(n.ficha, matrizTmp);
+          const cerca = falta < BIEN ? 0.45 : 0;
+          fichas.setColorAt(n.ficha, colorTmp.set(COLORES[n.tecla]).lerp(blanco, cerca));
+          reflejos.setColorAt(n.ficha, colorTmp.set(COLORES[n.tecla]).multiplyScalar(0.5 + cerca));
         }
+        velocidad = LARGO_PISTA / n.llegada;
       }
       while (siguienteNota < notas.length && notas[siguienteNota].hecha) siguienteNota++;
       if (estado === 'juego') {
@@ -728,35 +745,91 @@ export function iniciar(ctx) {
         }
         if (canciones.length > 4) canciones.shift();
       }
-      fichas.count = N_FICHAS;
-      fichas.instanceMatrix.needsUpdate = true;
-      fichas.instanceColor.needsUpdate = true;
+      for (const malla of [fichas, reflejos]) {
+        malla.count = N_FICHAS;
+        malla.instanceMatrix.needsUpdate = true;
+        malla.instanceColor.needsUpdate = true;
+      }
     } else {
       fichas.count = 0;
+      reflejos.count = 0;
+      velocidad += (1.5 - velocidad) * Math.min(1, dt);
     }
 
     if (ctx.enVR()) {
-      baquetaRaton.visible = false;
+      baquetaRaton.grupo.visible = false;
       baquetasVR(dt);
     } else {
       raton(dt);
     }
-
-    // Teclas que se iluminan y bajan un poco al golpearlas
-    for (const e of estadoTeclas) {
-      e.luz = Math.max(0, e.luz - dt * 3.5);
-      e.golpe = Math.max(0, e.golpe - dt);
-      e.error = Math.max(0, e.error - dt * 2.5);
-    }
-    pintarTeclas();
-    pulsoLinea = Math.max(0, pulsoLinea - dt * 4);
-    linea.scale.y = 1 + pulsoLinea * 1.5;
-    matLinea.color.setHex(0xff6a3d).lerp(blanco, pulsoLinea * 0.5);
-    rampa.material.color.setScalar(0.85 + pulsoLinea * 0.15 + Math.sin(t * 0.8) * 0.02);
+    animarMundo(dt, t);
     actualizarMarcador();
   }
 
-  for (let i = 0; i < N_FICHAS; i++) fichas.setMatrixAt(i, ocultaFicha);
+  // Las teclas, los arcos, los rayos, el suelo y las motas: todo late y se mueve con la música
+  function animarMundo(dt, t) {
+    pulsoLinea = Math.max(0, pulsoLinea - dt * 4);
+    pulsoArcos = Math.max(0, pulsoArcos - dt * 3);
+    fiesta = Math.max(0, fiesta - dt);
+    alarma = Math.max(0, alarma - dt * 2);
+    // Teclas: flotan un poco, se encienden y bajan al golpearlas
+    xilofono.position.y = 0.88 + Math.sin(t * 1.3) * 0.003;
+    for (let i = 0; i < N; i++) {
+      const k = teclas[i];
+      k.luz = Math.max(0, k.luz - dt * 3.5);
+      k.golpe = Math.max(0, k.golpe - dt);
+      k.error = Math.max(0, k.error - dt * 2.5);
+      const bajada = k.golpe > 0 ? Math.sin((k.golpe / 0.12) * Math.PI) * 0.005 : 0;
+      k.malla.position.y = -bajada;
+      k.borde.position.y = ARRIBA + 0.0015 - bajada;
+      k.material.emissive.copy(k.color).lerp(blanco, k.luz * 0.4).lerp(rojo, k.error);
+      k.material.emissiveIntensity = 0.25 + k.luz * 1.6 + k.error * 1.2 + fiesta * 0.4;
+      halos.setColorAt(i, colorTmp.copy(k.color).multiplyScalar(0.35 + k.luz * 0.9 + pulsoLinea * 0.15));
+      columnas.setColorAt(i, colorTmp.copy(k.color).multiplyScalar(Math.min(1, k.luz) * 0.8));
+      matrizTmp.makeScale(1, 0.3 + Math.min(1, k.luz) * 1.2, 1).setPosition(X(i), ARRIBA, 0);
+      columnas.setMatrixAt(i, matrizTmp);
+    }
+    halos.instanceColor.needsUpdate = true;
+    columnas.instanceColor.needsUpdate = true;
+    columnas.instanceMatrix.needsUpdate = true;
+    // Arcos del túnel: laten con el pulso, giran despacio y se ponen rojos al fallar
+    for (let k = 0; k < N_ARCOS; k++) {
+      const escala = 1 + pulsoArcos * 0.06 * (1 - k / N_ARCOS) + fiesta * 0.08;
+      matrizTmp.makeRotationZ(Math.sin(t * 0.4 + k * 0.6) * 0.08).scale(tmp.set(escala, escala, 1)).setPosition(0, 0.62, -distArco(k));
+      arcos.setMatrixAt(k, matrizTmp);
+      colorTmp.set(k % 2 ? 0xff3dd0 : 0x2ee6d6).lerp(blanco, fiesta * 0.5).lerp(rojo, alarma);
+      arcos.setColorAt(k, colorTmp.multiplyScalar(0.35 + pulsoArcos * 0.65 + fiesta * 0.5));
+    }
+    arcos.instanceMatrix.needsUpdate = true;
+    arcos.instanceColor.needsUpdate = true;
+    // Rayos a los lados: se encienden con los pulsos fuertes y del todo al completar una canción
+    for (let i = 0; i < N_RAYOS; i++) {
+      const v = Math.max(fiesta, pulsoArcos > 0.9 ? 0.7 : pulsoArcos * 0.25);
+      rayos.setColorAt(i, colorTmp.copy(coloresRayos[i]).multiplyScalar(v));
+    }
+    rayos.instanceColor.needsUpdate = true;
+    // Línea de golpe
+    linea.scale.y = 1 + pulsoLinea * 1.5;
+    matLinea.color.setHex(0xff6a3d).lerp(blanco, pulsoLinea * 0.5);
+    // El suelo y las motas corren hacia el jugador, más deprisa cuanto más rápida es la canción
+    texCuadricula.offset.y = (texCuadricula.offset.y + dt * velocidad * 0.12) % 1; // cada casilla mide 2 m
+    const atr = geoMotas.attributes.position;
+    for (let i = 0; i < N_MOTAS; i++) {
+      let z = atr.array[i * 3 + 2] + dt * velocidad * 1.5;
+      if (z > 2) z -= 32;
+      atr.array[i * 3 + 2] = z;
+    }
+    atr.needsUpdate = true;
+    // Los halos de las cabezas de las baquetas miran siempre a la cámara
+    ctx.camara.getWorldPosition(camaraPos);
+    for (const b of baquetas) b.halo.lookAt(camaraPos);
+    baquetaRaton.halo.lookAt(camaraPos);
+  }
+
+  for (let i = 0; i < N_FICHAS; i++) {
+    fichas.setMatrixAt(i, ocultaFicha);
+    reflejos.setMatrixAt(i, ocultaFicha);
+  }
   actualizarMarcador();
 
   return {

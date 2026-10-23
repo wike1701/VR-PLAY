@@ -1899,15 +1899,15 @@ export default {
     },
     xilofono: {
       titulo: 'Xilófono',
-      descripcion: 'Un xilófono de colores en el templete de un parque al atardecer. Por una rampa de luz llegan fichas del color de cada tecla: golpea la tecla justo cuando su ficha llega a la línea y suena su nota, así que eres tú quien toca la canción. Es infinito: al terminar una canción empieza otra, cada vez más rápida, de «Estrellita» al «Himno de la alegría» o «Jingle Bells». Un golpe perfecto vale 3 y uno bueno 1, multiplicado por la racha (hasta x4). Cada canción completada da un premio y te devuelve una vida; con tres notas perdidas se acaba la partida.',
-      controlesVR: 'Una baqueta en cada mano: golpea la tecla de colores justo cuando su ficha llega a la línea. Golpear sin ficha rompe la racha.',
+      descripcion: 'Ocho teclas de cristal de neón flotan delante de ti en un mundo de luz: suelo de cuadrícula que corre hacia ti, túnel de arcos que laten con el ritmo y un sol de neón en el horizonte. Por ocho carriles de luz llegan notas del color de cada tecla: golpéala justo cuando su nota llega a la línea y suena, así que eres tú quien toca la canción. Es infinito: al terminar una canción empieza otra, cada vez más rápida, de «Estrellita» al «Himno de la alegría» o «Jingle Bells». Un golpe perfecto vale 3 y uno bueno 1, multiplicado por la racha (hasta x4). Cada canción completada da un premio y te devuelve una vida; con tres notas perdidas se acaba la partida.',
+      controlesVR: 'Una baqueta de luz en cada mano: golpea la tecla de neón justo cuando su nota llega a la línea. Golpear sin nota rompe la racha.',
       controlesEscritorio: 'Haz clic en la tecla (o en su carril) justo cuando su ficha llega a la línea.',
       controlesTactil: 'Toca la tecla (o su carril) justo cuando su ficha llega a la línea.',
       etiquetas: [
         'ritmo', 'xilófono', 'música', 'piano tiles', 'canciones', 'notas', 'baquetas', 'melodía', 'tocar',
         'instrumento', 'teclas', 'fichas', 'infinito', 'sin fin', 'cada vez más rápido', 'percusión', 'marimba',
         'metalófono', 'canción', 'golpear', 'compás', 'racha', 'combo', 'perfecto', 'reflejos', 'coordinación',
-        'parque', 'atardecer', 'concierto', 'escenario', 'luces', 'colores', 'relajante', 'familia', 'niños',
+        'neón', 'futurista', 'flotante', 'synthwave', 'luces', 'colores', 'luces de neón', 'familia', 'niños',
         'fácil', 'reto', 'puntos', 'récord', 'xylophone', 'rhythm', 'music game', 'tiles', 'endless',
       ],
       juego: {

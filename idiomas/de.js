@@ -1794,14 +1794,14 @@ export default {
     },
     xilofono: {
       titulo: 'Xylophon',
-      descripcion: 'Ein buntes Xylophon im Musikpavillon eines Parks bei Sonnenuntergang. Über eine Lichtrampe rutschen Kacheln in der Farbe jeder Klangplatte heran: Schlag die Platte genau dann, wenn ihre Kachel die Linie erreicht, und ihr Ton erklingt – du spielst das Lied selbst. Es ist endlos: Ist ein Lied vorbei, beginnt das nächste, jedes Mal schneller, von „Funkel, funkel, kleiner Stern“ bis zur „Ode an die Freude“ oder „Jingle Bells“. Ein perfekter Schlag bringt 3 Punkte, ein guter 1, multipliziert mit deiner Serie (bis x4). Jedes geschaffte Lied gibt einen Bonus und ein Leben zurück; nach drei verpassten Tönen ist das Spiel vorbei.',
-      controlesVR: 'Ein Schlägel in jeder Hand: Schlag die bunte Platte genau dann, wenn ihre Kachel die Linie erreicht. Schläge ohne Kachel brechen die Serie.',
+      descripcion: 'Acht Klangplatten aus Neonglas schweben vor dir in einer Welt aus Licht: ein Gitterboden, der auf dich zurast, ein Tunnel aus Bögen, die im Takt pulsieren, und eine Neonsonne am Horizont. Über acht Lichtbahnen kommen Noten in der Farbe jeder Platte: Schlag die Platte genau dann, wenn ihre Note die Linie erreicht, und sie erklingt – du spielst das Lied selbst. Es ist endlos: Ist ein Lied vorbei, beginnt das nächste, jedes Mal schneller, von „Funkel, funkel, kleiner Stern“ bis zur „Ode an die Freude“ oder „Jingle Bells“. Ein perfekter Schlag bringt 3 Punkte, ein guter 1, multipliziert mit deiner Serie (bis x4). Jedes geschaffte Lied gibt einen Bonus und ein Leben zurück; nach drei verpassten Noten ist das Spiel vorbei.',
+      controlesVR: 'Ein Lichtschlägel in jeder Hand: Schlag die Neonplatte genau dann, wenn ihre Note die Linie erreicht. Schläge ohne Note brechen die Serie.',
       controlesEscritorio: 'Klick auf die Platte (oder ihre Bahn), genau wenn ihre Kachel die Linie erreicht.',
       controlesTactil: 'Tippe auf die Platte (oder ihre Bahn), genau wenn ihre Kachel die Linie erreicht.',
       etiquetas: [
         'rhythmus', 'xylophon', 'piano tiles', 'musik', 'lieder', 'noten', 'schlägel', 'melodie', 'instrument',
         'endlos', 'kacheln', 'musikspiel', 'percussion', 'marimba', 'glockenspiel', 'takt', 'serie', 'combo',
-        'perfekt', 'reflexe', 'koordination', 'park', 'bunt', 'entspannend', 'familie', 'kinder', 'punkte',
+        'perfekt', 'reflexe', 'koordination', 'neon', 'futuristisch', 'synthwave', 'familie', 'kinder', 'punkte',
       ],
       juego: {
         titulo: 'XYLOPHON',

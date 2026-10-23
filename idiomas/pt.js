@@ -1794,14 +1794,14 @@ export default {
     },
     xilofono: {
       titulo: 'Xilofone',
-      descripcion: 'Um xilofone colorido no coreto de um parque ao pôr do sol. Por uma rampa de luz descem peças da cor de cada tecla: bate na tecla mesmo quando a sua peça chega à linha e ouve-se a nota, por isso és tu quem toca a canção. É infinito: quando uma canção acaba começa outra, cada vez mais rápida, de «Brilha, brilha, estrelinha» ao «Hino da Alegria» ou «Jingle Bells». Um golpe perfeito vale 3 e um bom 1, multiplicado pela sequência (até x4). Cada canção completa dá um prémio e devolve uma vida; com três notas perdidas o jogo acaba.',
-      controlesVR: 'Uma baqueta em cada mão: bate na tecla colorida mesmo quando a sua peça chega à linha. Bater sem peça quebra a sequência.',
+      descripcion: 'Oito teclas de vidro néon flutuam à tua frente num mundo de luz: um chão quadriculado que corre na tua direção, um túnel de arcos que pulsam ao ritmo e um sol néon no horizonte. Por oito faixas de luz chegam notas da cor de cada tecla: bate na tecla mesmo quando a sua nota chega à linha e ouve-se, por isso és tu quem toca a canção. É infinito: quando uma canção acaba começa outra, cada vez mais rápida, de «Brilha, brilha, estrelinha» ao «Hino da Alegria» ou «Jingle Bells». Um golpe perfeito vale 3 e um bom 1, multiplicado pela sequência (até x4). Cada canção completa dá um prémio e devolve uma vida; com três notas perdidas o jogo acaba.',
+      controlesVR: 'Uma baqueta de luz em cada mão: bate na tecla néon mesmo quando a sua nota chega à linha. Bater sem nota quebra a sequência.',
       controlesEscritorio: 'Clica na tecla (ou na sua faixa) mesmo quando a sua peça chega à linha.',
       controlesTactil: 'Toca na tecla (ou na sua faixa) mesmo quando a sua peça chega à linha.',
       etiquetas: [
         'ritmo', 'xilofone', 'piano tiles', 'música', 'canções', 'notas', 'baquetas', 'melodia', 'instrumento',
         'infinito', 'peças', 'jogo musical', 'percussão', 'marimba', 'tempo', 'sequência', 'combo', 'perfeito',
-        'reflexos', 'coordenação', 'parque', 'pôr do sol', 'colorido', 'relaxante', 'família', 'crianças', 'pontos',
+        'reflexos', 'coordenação', 'néon', 'futurista', 'colorido', 'synthwave', 'família', 'crianças', 'pontos',
       ],
       juego: {
         titulo: 'XILOFONE',
