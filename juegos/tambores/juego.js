@@ -417,7 +417,8 @@ export function iniciar(ctx) {
         tmp.copy(b.punta).sub(tb.centro);
         const altura = tmp.dot(tb.normal) - R_PUNTA;
         tmp2.copy(tmp).addScaledVector(tb.normal, -tmp.dot(tb.normal));
-        const dentro = tmp2.length() < tb.r + 0.01;
+        // Cuenta todo el tambor: el aro metálico (r × 1,06 + grosor) y el radio de la punta
+        const dentro = tmp2.length() < tb.r * 1.12 + R_PUNTA;
         const antes = b.lado.get(tb.i) ?? 1;
         if (altura > 0.02) b.lado.set(tb.i, 1);
         else if (altura < 0 && antes === 1 && dentro && altura > -0.08) {
