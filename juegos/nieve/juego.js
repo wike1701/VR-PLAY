@@ -357,6 +357,30 @@ export function iniciar(ctx) {
     }
   }
 
+  // Ayuda de puntería: si la bola va más o menos hacia un pingüino, gira la velocidad hacia él
+  const dirTmp = new THREE.Vector3();
+  function ayudaPuntería(origen, vel) {
+    const rapidez = vel.length();
+    dirTmp.copy(vel).normalize();
+    let mejorCos = Math.cos(0.45); // unos 26°
+    let blanco = null;
+    for (const p of pinguinos) {
+      if (p.estado === 'escondido' || p.estado === 'bajando' || p.estado === 'golpeado') continue;
+      tmp2.copy(p.centro).sub(origen).normalize();
+      const c = tmp2.dot(dirTmp);
+      if (c > mejorCos) {
+        mejorCos = c;
+        blanco = p;
+      }
+    }
+    if (!blanco) return;
+    const dist = blanco.centro.distanceTo(origen);
+    const t = Math.max(0.12, dist / rapidez);
+    tmp2.copy(blanco.centro).sub(origen).divideScalar(t);
+    tmp2.y += 0.5 * G * t; // compensa la caída
+    vel.lerp(tmp2, 0.6);
+  }
+
   // ─── Entrada ───────────────────────────────────────────────────────────
   function entradaVR(dt) {
     ctx.manos.forEach((mano, k) => {
@@ -372,10 +396,14 @@ export function iniciar(ctx) {
           const atras = (h.n + 8 - 4) % 8;
           let tiempo = 0;
           for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(1.5);
-          if (tmp.length() < 1.5) {
+          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(2.6);
+          if (tmp.length() < 1.2) {
             soltar(cogida); // la suelta sin lanzarla
           } else {
+            // Un lanzamiento flojo sale con una fuerza mínima y se corrige un poco hacia el pingüino más cercano a la dirección
+            const vmin = 9;
+            if (tmp.length() < vmin) tmp.setLength(vmin);
+            ayudaPuntería(cogida.malla.position, tmp);
             lanzarMia(cogida, tmp);
             ctx.vibrar(mano, 0.3, 30);
           }
