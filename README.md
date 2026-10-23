@@ -104,7 +104,7 @@ juegos/
   aros/juego.js         Lanza Aros
   laberinto/juego.js    Laberinto
   tambores/juego.js     Tambores (en pruebas)
-  bomberos/juego.js     Bomberos (en pruebas)
+  bomberos/juego.js     Bomberos
   pinata/juego.js       Piñata (en pruebas)
   tortitas/juego.js     Tortitas al Vuelo (en pruebas)
   nieve/juego.js        Bolas de Nieve (en pruebas)
