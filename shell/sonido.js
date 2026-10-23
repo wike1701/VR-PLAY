@@ -148,10 +148,6 @@ const SONIDOS = {
   tambor3: () => { tono(110, 50, 0.34, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
   pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
   bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
-  // Pesca: el corcho que cae al agua, el pez que muerde y el carrete
-  chapuzon: () => { ruido(0.25, 1200, 0.35, 0.8); tono(400, 160, 0.12, 'sine', 0.2); },
-  picada: () => { ruido(0.12, 900, 0.5, 1); tono(260, 120, 0.1, 'sine', 0.35); },
-  carrete: () => { tono(2600, 2600, 0.02, 'square', 0.04); },
   // Bomberos: el chorro de la manguera, el vapor al apagar un fuego y el derrumbe de una ventana
   chorro: () => { ruido(0.2, 2200, 0.07, 0.9); },
   vapor: () => { ruido(0.4, 4200, 0.3, 1.2); tono(700, 300, 0.2, 'sine', 0.06); },

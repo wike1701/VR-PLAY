@@ -54,7 +54,6 @@ export const ESTRATEGIAS = {
   carreras: { modo: 'mantener', pulsar: [2, 4], esperar: [0.3, 0.6], balanceo: 0.15 },
   slot: { modo: 'mantener', pulsar: [1, 2], esperar: [0.4, 0.8] },
   canoa: { modo: 'mantener', pulsar: [1.5, 3], esperar: [0.2, 0.4], balanceo: 0.2 },
-  pesca: { modo: 'mantener', punto: [0.5, 0.5], pulsar: [1, 2], esperar: [1.5, 3] },
   tortitas: { modo: 'mantener', pulsar: [0.4, 0.8], esperar: [2, 3] },
   petanca: { modo: 'mantener', punto: [0.5, 0.45], pulsar: [0.05, 0.1], esperar: [3, 4] },
   bolos: { modo: 'mantener', punto: [0.5, 0.45], pulsar: [0.05, 0.1], esperar: [4, 5] },

@@ -52,7 +52,6 @@ const LISTA = [
   { id: 'aros', genero: 'habilidad' },
   { id: 'laberinto', genero: 'puzle' },
   { id: 'tambores', genero: 'ritmo', pruebas: true },
-  { id: 'pesca', genero: 'habilidad', pruebas: true },
   { id: 'bomberos', genero: 'disparos', pruebas: true },
   { id: 'golf', genero: 'deportes', pruebas: true },
   { id: 'pinata', genero: 'arcade', pruebas: true },

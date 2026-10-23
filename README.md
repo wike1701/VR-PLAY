@@ -104,7 +104,6 @@ juegos/
   aros/juego.js         Lanza Aros
   laberinto/juego.js    Laberinto
   tambores/juego.js     Tambores (en pruebas)
-  pesca/juego.js        Pesca en el Lago (en pruebas)
   bomberos/juego.js     Bomberos (en pruebas)
   golf/juego.js         Campo de Prácticas (en pruebas)
   pinata/juego.js       Piñata (en pruebas)
