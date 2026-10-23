@@ -28,7 +28,6 @@ export const ESTRATEGIAS = {
   mosquitos: { modo: 'clic' },
   picnic: { modo: 'clic' },
   boxeo: { modo: 'clic' },
-  pinata: { modo: 'clic' },
   nieve: { modo: 'clic' },
   beisbol: { modo: 'clic', cadencia: 0.6 },
 

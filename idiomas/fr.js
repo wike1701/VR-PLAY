@@ -1588,27 +1588,6 @@ bomberos: {
         explota: 'Une bouteille de gaz a explosé !',
       },
     },
-    pinata: {
-      titulo: 'Piñata',
-      descripcion: 'Une fête dans une cour en fin d’après-midi, avec des fanions en papier et un gâteau sur la table. Une piñata en étoile pend au bout d’une corde et quelqu’un la fait bouger : frappe-la avec le bâton jusqu’à la casser et les bonbons pleuvront. Puis en arrive une plus dure qui bouge davantage. Tu as 60 secondes. Chaque coup vaut 1 à 3 points selon sa force, et chaque piñata cassée 10 plus 5 par niveau.',
-      controlesVR: 'Tu tiens le bâton. Frappe la piñata : plus le bâton va vite, plus le coup est fort et rapporte de points.',
-      controlesEscritorio: 'Clique sur la piñata pour la frapper. Si tu l’attrapes quand elle bouge vite, le coup vaut plus.',
-      controlesTactil: 'Touche la piñata pour la frapper. Si tu l’attrapes quand elle bouge vite, le coup vaut plus.',
-      etiquetas: [
-        'piñata', 'fête', 'anniversaire', 'bonbons', 'frapper', 'bâton', 'étoile', 'mexique', 'célébration',
-        'enfants', 'famille', 'corde', 'casser', 'force', 'réflexes', 'viser', 'rapide', 'amusant', 'casual',
-        'facile', 'arcade', 'action', 'coloré', 'score',
-      ],
-      juego: {
-        titulo: 'PIÑATA',
-        intro: 'Frappe fort avec le bâton !',
-        introRaton: 'Clique sur la piñata pour frapper',
-        introTactil: 'Touche la piñata pour frapper',
-        aguante: 'Piñata {barra}',
-        rota: 'Cassée ! Et de {n}',
-        fin: 'Temps écoulé ! {n} points · {rotas} piñatas',
-      },
-    },
     tortitas: {
       titulo: 'Crêpes Sautées',
       descripcion: 'Une cuisine avec la fenêtre ouverte sur le matin et une poêle avec une crêpe. Le dessous dore peu à peu : quand il est à point, lance-la en l’air, qu’elle se retourne, et rattrape-la avec la poêle. Quand les deux faces sont cuites, elle part toute seule dans l’assiette et une autre arrive. Si elle tombe ou brûle, elle est perdue. 75 secondes pour faire la plus haute pile.',

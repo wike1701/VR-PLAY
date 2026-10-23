@@ -1587,27 +1587,6 @@ bomberos: {
         explota: 'Eine Gasflasche ist explodiert!',
       },
     },
-    pinata: {
-      titulo: 'Piñata',
-      descripcion: 'Ein Fest in einem Innenhof am späten Nachmittag, mit Papierwimpeln und einer Torte auf dem Tisch. Eine Stern-Piñata hängt an einem Seil und jemand bewegt sie: Schlag mit dem Stock zu, bis sie zerbricht und Bonbons regnen. Dann kommt eine härtere, die sich mehr bewegt. Du hast 60 Sekunden. Jeder Schlag bringt 1 bis 3 Punkte, je nach Stärke, und jede zerbrochene Piñata 10 plus 5 pro Stufe.',
-      controlesVR: 'Du hältst den Stock. Schlag auf die Piñata: Je schneller der Stock, desto stärker der Schlag und desto mehr Punkte.',
-      controlesEscritorio: 'Klicke auf die Piñata, um zuzuschlagen. Erwischst du sie in schneller Bewegung, zählt der Schlag mehr.',
-      controlesTactil: 'Tippe auf die Piñata, um zuzuschlagen. Erwischst du sie in schneller Bewegung, zählt der Schlag mehr.',
-      etiquetas: [
-        'piñata', 'party', 'geburtstag', 'bonbons', 'schlagen', 'stock', 'stern', 'mexiko', 'feier', 'kinder',
-        'familie', 'seil', 'zerschlagen', 'kraft', 'reflexe', 'zielen', 'schnell', 'lustig', 'casual',
-        'einfach', 'arcade', 'action', 'bunt', 'punkte',
-      ],
-      juego: {
-        titulo: 'PIÑATA',
-        intro: 'Schlag kräftig mit dem Stock!',
-        introRaton: 'Klick auf die Piñata zum Schlagen',
-        introTactil: 'Tipp auf die Piñata zum Schlagen',
-        aguante: 'Piñata {barra}',
-        rota: 'Kaputt! Schon {n}',
-        fin: 'Zeit um! {n} Punkte · {rotas} Piñatas',
-      },
-    },
     tortitas: {
       titulo: 'Pfannkuchen-Wenden',
       descripcion: 'Eine Küche mit offenem Fenster am Morgen und eine Pfanne mit einem Pfannkuchen. Die Unterseite wird langsam braun: Wenn sie genau richtig ist, wirf ihn hoch, lass ihn sich drehen und fang ihn mit der Pfanne. Sind beide Seiten fertig, landet er von selbst auf dem Teller und ein neuer kommt. Fällt er herunter oder verbrennt, ist er weg. 75 Sekunden für den höchsten Stapel.',

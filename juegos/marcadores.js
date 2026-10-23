@@ -80,8 +80,6 @@ export const MARCADORES = {
   tambores: { orden: 'mayor', unidad: 'puntos', min: 0, max: 3500, minSegundos: 70 },
   // Bomberos: 10-15 puntos por fuego, sin límite de tiempo (acaba cuando se quema el edificio)
   bomberos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 12, minSegundos: 5 },
-  // Piñata: 1-3 puntos por golpe y 10 + 5 por nivel al romperla, en 60 s
-  pinata: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, maxPorSegundo: 30, minSegundos: 55 },
   // Tortitas: hasta 15 puntos por vuelta y 10 por tortita servida, en 75 s
   tortitas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1200, maxPorSegundo: 15, minSegundos: 70 },
   // Bolas de nieve: 10-15 puntos por acierto, sin tiempo (acaba al recibir tres bolas)

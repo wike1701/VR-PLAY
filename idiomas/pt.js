@@ -1587,27 +1587,6 @@ bomberos: {
         explota: 'Um botijão explodiu!',
       },
     },
-    pinata: {
-      titulo: 'Piñata',
-      descripcion: 'Uma festa num pátio no fim da tarde, com bandeirinhas de papel e um bolo na mesa. Uma piñata de estrela pende de uma corda e alguém a balança: bata com o pau até quebrá-la e choverão doces. Depois vem outra mais dura que se mexe mais. Você tem 60 segundos. Cada golpe vale de 1 a 3 pontos conforme a força, e cada piñata quebrada 10 mais 5 por nível.',
-      controlesVR: 'Você segura o pau. Bata na piñata: quanto mais rápido o pau, mais forte o golpe e mais pontos.',
-      controlesEscritorio: 'Clique na piñata para bater com o pau. Se pegar ela se mexendo rápido, o golpe vale mais.',
-      controlesTactil: 'Toque na piñata para bater com o pau. Se pegar ela se mexendo rápido, o golpe vale mais.',
-      etiquetas: [
-        'piñata', 'festa', 'aniversário', 'doces', 'bater', 'pau', 'estrela', 'méxico', 'celebração',
-        'crianças', 'família', 'corda', 'quebrar', 'força', 'reflexos', 'mira', 'rápido', 'divertido',
-        'casual', 'fácil', 'arcade', 'ação', 'colorido', 'pontos',
-      ],
-      juego: {
-        titulo: 'PIÑATA',
-        intro: 'Bata forte com o pau!',
-        introRaton: 'Clique na piñata para bater',
-        introTactil: 'Toque na piñata para bater',
-        aguante: 'Piñata {barra}',
-        rota: 'Quebrou! Já são {n}',
-        fin: 'Tempo! {n} pontos · {rotas} piñatas',
-      },
-    },
     tortitas: {
       titulo: 'Panquecas no Ar',
       descripcion: 'Uma cozinha com a janela aberta para a manhã e uma frigideira com uma panqueca. O lado de baixo vai dourando: quando estiver no ponto, jogue-a para o alto, deixe virar e pegue de volta com a frigideira. Com os dois lados prontos, ela vai sozinha para o prato e chega outra. Se cair ou queimar, você a perde. 75 segundos para fazer a pilha mais alta.',

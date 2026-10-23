@@ -1583,27 +1583,6 @@ bomberos: {
         explota: 'A gas cylinder exploded!',
       },
     },
-    pinata: {
-      titulo: 'Piñata',
-      descripcion: 'A party in a courtyard in the late afternoon, with paper bunting and a cake on the table. A star piñata hangs from a rope and someone keeps moving it: hit it with the stick until it breaks and candy rains down. Then comes a tougher one that moves more. You have 60 seconds. Every hit is worth 1 to 3 points depending on how hard it is, and every broken piñata 10 plus 5 per level.',
-      controlesVR: 'You hold the stick. Hit the piñata: the faster the stick moves, the harder the hit and the more points it scores.',
-      controlesEscritorio: 'Click the piñata to hit it with the stick. If you catch it moving fast, the hit is worth more.',
-      controlesTactil: 'Tap the piñata to hit it with the stick. If you catch it moving fast, the hit is worth more.',
-      etiquetas: [
-        'piñata', 'pinata', 'party', 'birthday', 'candy', 'hit', 'stick', 'star', 'mexico', 'celebration',
-        'kids', 'family', 'rope', 'smash', 'power', 'reflexes', 'aim', 'fast', 'fun', 'casual', 'easy',
-        'arcade', 'action', 'colorful', 'score',
-      ],
-      juego: {
-        titulo: 'PIÑATA',
-        intro: 'Hit it hard with the stick!',
-        introRaton: 'Click the piñata to hit it',
-        introTactil: 'Tap the piñata to hit it',
-        aguante: 'Piñata {barra}',
-        rota: 'Broken! That makes {n}',
-        fin: 'Time! {n} points · {rotas} piñatas',
-      },
-    },
     tortitas: {
       titulo: 'Pancake Flip',
       descripcion: 'A kitchen with the window open to the morning and a frying pan with a pancake. The bottom side keeps browning: when it is just right, toss it in the air, let it flip and catch it with the pan. Once both sides are done it goes onto the plate by itself and a new one arrives. Drop it or burn it and it is gone. 75 seconds to build the tallest stack.',
