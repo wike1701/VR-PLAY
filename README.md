@@ -101,7 +101,7 @@ juegos/
   huevos/juego.js       Atrapa Huevos (en pruebas)
   latas/juego.js        Tumba Latas
   aros/juego.js         Lanza Aros (en pruebas)
-  laberinto/juego.js    Laberinto (en pruebas)
+  laberinto/juego.js    Laberinto
   tambores/juego.js     Tambores (en pruebas)
   pesca/juego.js        Pesca en el Lago (en pruebas)
   bomberos/juego.js     Bomberos (en pruebas)
