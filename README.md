@@ -99,7 +99,7 @@ juegos/
   canoa/juego.js        Canoa
   torre/juego.js        Torre de Bloques
   huevos/juego.js       Atrapa Huevos (en pruebas)
-  latas/juego.js        Tumba Latas (en pruebas)
+  latas/juego.js        Tumba Latas
   aros/juego.js         Lanza Aros (en pruebas)
   laberinto/juego.js    Laberinto (en pruebas)
   tambores/juego.js     Tambores (en pruebas)
