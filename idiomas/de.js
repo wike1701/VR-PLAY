@@ -1562,7 +1562,7 @@ export default {
     },
 bomberos: {
       titulo: 'Feuerwehr',
-      descripcion: 'Eine Straße bei Nacht, neben dem Feuerwehrauto. In den Fenstern des Hauses gegenüber brechen Feuer aus: Lösche sie mit dem Schlauch, bevor das Haus abbrennt. Ein Feuer, das zu lange brennt, wächst und springt auf das Nachbarfenster über. 10 Punkte pro Feuer und 5 mehr, wenn es noch klein ist. Es werden immer mehr.',
+      descripcion: 'Eine Straße bei Nacht, neben dem Feuerwehrauto. In den Fenstern des Hauses gegenüber brechen Feuer aus: Lösche sie mit dem Schlauch, bevor das Haus abbrennt. Ein Feuer, das zu lange brennt, wächst und springt auf das Nachbarfenster über. 10 Punkte pro Feuer und 5 mehr, wenn es noch klein ist. Es werden immer mehr. Vorsicht: Manchmal lehnt sich ein Nachbar aus dem Fenster (nicht nass spritzen) und Gasflaschen explodieren, wenn du zu langsam bist.',
       controlesVR: 'Du hältst das Strahlrohr in der Hand. Ziele auf ein brennendes Fenster und halte den Abzug gedrückt. Der Strahl fällt mit der Entfernung ab: ziele etwas höher.',
       controlesEscritorio: 'Halte die Maustaste über einem brennenden Fenster gedrückt.',
       controlesTactil: 'Halte den Finger auf einem brennenden Fenster.',
@@ -1580,6 +1580,9 @@ bomberos: {
         edificio: 'Haus {barra}',
         racha: '{n} Feuer gelöscht!',
         propaga: 'Das Feuer breitet sich aus!',
+        vecino: 'Ein Nachbar! Nicht nass spritzen: {n}',
+        bombona: 'Gasflasche! Sofort löschen',
+        explota: 'Eine Gasflasche ist explodiert!',
       },
     },
     golf: {

@@ -1658,7 +1658,7 @@ export default {
     },
 bomberos: {
       titulo: 'Bomberos',
-      descripcion: 'Una calle de noche, junto al camión de bomberos. En las ventanas del edificio de enfrente aparecen fuegos: apágalos con la manguera antes de que el edificio se queme. Un fuego que dura mucho crece y salta a la ventana de al lado. 10 puntos por fuego apagado y 5 más si lo pillas pequeño. Cada vez salen más.',
+      descripcion: 'Una calle de noche, junto al camión de bomberos. En las ventanas del edificio de enfrente aparecen fuegos: apágalos con la manguera antes de que el edificio se queme. Un fuego que dura mucho crece y salta a la ventana de al lado. 10 puntos por fuego apagado y 5 más si lo pillas pequeño. Cada vez salen más. Ojo: a veces se asoma un vecino (no lo mojes) y hay bombonas de gas que explotan si tardas.',
       controlesVR: 'Llevas la boquilla de la manguera en la mano. Apunta a una ventana en llamas y mantén el gatillo para echar agua. El chorro cae con la distancia: apunta un poco por encima.',
       controlesEscritorio: 'Mantén pulsado el ratón sobre una ventana en llamas para echar agua.',
       controlesTactil: 'Mantén el dedo sobre una ventana en llamas para echar agua.',
@@ -1677,6 +1677,9 @@ bomberos: {
         edificio: 'Edificio {barra}',
         racha: '¡{n} fuegos apagados!',
         propaga: '¡El fuego se extiende!',
+        vecino: '¡Un vecino! No lo mojes: {n}',
+        bombona: '¡Bombona de gas! Apágala ya',
+        explota: '¡Ha explotado una bombona!',
       },
     },
     golf: {

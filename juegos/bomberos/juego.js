@@ -4,6 +4,8 @@
 // Un fuego que dura mucho crece y salta a la ventana de al lado. Cada ventana encendida
 // va quemando el edificio; si llega al 100 %, se acaba. 10 puntos por fuego apagado y 5
 // más si estaba pequeño. Cada vez hay más fuegos.
+// Para que no sea tan fácil: a veces se asoma un vecino a una ventana (¡no lo mojes, restas
+// puntos!) y hay bombonas de gas en llamas que explotan si tardas en apagarlas.
 // En VR llevas la boquilla en la mano: apunta y mantén el gatillo. Sin gafas, mantén
 // pulsado el ratón (o el dedo) donde quieras echar el agua.
 import * as THREE from 'three';
@@ -20,6 +22,7 @@ const N_GOTAS = 90;
 const VEL_AGUA = 13;
 const CHORRO = 45;               // gotas por segundo
 const G = 9.8;
+const TIEMPO_BOMBONA = 6;        // segundos hasta que explota una bombona
 const BOQUILLA_RATON = new THREE.Vector3(0.25, 1.2, -0.2);
 
 export function iniciar(ctx) {
@@ -170,6 +173,31 @@ export function iniciar(ctx) {
   geoLlama.translate(0, 0.4, 0);
   const matLlamaFuera = R(new THREE.MeshBasicMaterial({ color: 0xff5a1f, toneMapped: false, side: THREE.DoubleSide }));
   const matLlamaDentro = R(new THREE.MeshBasicMaterial({ color: 0xffd23f, toneMapped: false, side: THREE.DoubleSide }));
+  // Vecino asomado: cabeza, cuerpo y brazos
+  const matPiel = R(new THREE.MeshLambertMaterial({ color: 0xe0b48c }));
+  const matRopa = R(new THREE.MeshLambertMaterial({ color: 0x4a7fc4 }));
+  const geoCabeza = R(new THREE.SphereGeometry(0.11, 12, 10));
+  const geoTorso = R(new THREE.BoxGeometry(0.34, 0.4, 0.16));
+  const geoBrazo = R(new THREE.BoxGeometry(0.07, 0.34, 0.07));
+  geoBrazo.translate(0, 0.17, 0);
+  function crearVecino() {
+    const g = new THREE.Group();
+    const torso = new THREE.Mesh(geoTorso, matRopa);
+    torso.position.y = 0.2;
+    const cabeza = new THREE.Mesh(geoCabeza, matPiel);
+    cabeza.position.y = 0.52;
+    const brazoI = new THREE.Mesh(geoBrazo, matPiel);
+    brazoI.position.set(-0.22, 0.3, 0);
+    const brazoD = new THREE.Mesh(geoBrazo, matPiel);
+    brazoD.position.set(0.22, 0.3, 0);
+    g.add(torso, cabeza, brazoI, brazoD);
+    g.visible = false;
+    return { g, brazoI, brazoD };
+  }
+  // Bombona de gas en llamas
+  const matBombona = R(new THREE.MeshLambertMaterial({ color: 0x3c8a4a }));
+  const geoBombona = R(new THREE.CylinderGeometry(0.13, 0.13, 0.5, 12));
+  const matLlamaGas = R(new THREE.MeshBasicMaterial({ color: 0x4ad8ff, toneMapped: false, side: THREE.DoubleSide }));
   const ventanas = [];
   for (const y of FILAS) {
     for (const x of COLUMNAS) {
@@ -187,9 +215,16 @@ export function iniciar(ctx) {
         fuego.add(l);
         llamas.push(l);
       }
+      const bombona = new THREE.Mesh(geoBombona, matBombona);
+      bombona.position.set(0.3, 0.25, -0.05);
+      bombona.visible = false;
+      fuego.add(bombona);
       fuego.visible = false;
       raiz.add(fuego);
-      ventanas.push({ x, y, vidrio, fuego, llamas, ardiendo: false, vida: 0, tam: 0, tiempo: 0, vecinas: [] });
+      const vecino = crearVecino();
+      vecino.g.position.set(x, y - ALTO_VENTANA / 2 + 0.1, FACHADA_Z + 0.1);
+      raiz.add(vecino.g);
+      ventanas.push({ x, y, vidrio, fuego, llamas, bombona, gas: false, mecha: 0, vecino, tVecino: 0, ardiendo: false, vida: 0, tam: 0, tiempo: 0, vecinas: [] });
     }
   }
   ventanas.forEach((v, i) => {
@@ -267,6 +302,7 @@ export function iniciar(ctx) {
   let record = ctx.leer('record', 0);
   let tiempoJuego = 0;
   let proximo = 1;
+  let proximoVecino = 6;
   let aviso = '';
   let tiempoAviso = 0;
   let salpicadura = 0;
@@ -278,11 +314,18 @@ export function iniciar(ctx) {
   const ocultar = new THREE.Matrix4().makeScale(0, 0, 0);
   const planoFachada = new THREE.Plane(new THREE.Vector3(0, 0, 1), -FACHADA_Z);
 
-  function encender(v) {
+  function encender(v, gas = false) {
     v.ardiendo = true;
     v.tam = 0.35;
-    v.vida = 1;
+    v.vida = gas ? 1.4 : 1;
     v.tiempo = 0;
+    v.gas = gas;
+    v.mecha = TIEMPO_BOMBONA;
+    v.bombona.visible = gas;
+    matBombona.color.setHex(0x3c8a4a);
+    v.llamas.forEach((l, k) => { l.material = gas ? matLlamaGas : k === 1 ? matLlamaDentro : matLlamaFuera; });
+    v.tVecino = 0;
+    v.vecino.g.visible = false;
     v.fuego.visible = true;
     ctx.sonido('explosion');
   }
@@ -292,7 +335,11 @@ export function iniciar(ctx) {
       v.ardiendo = false;
       v.fuego.visible = false;
       v.vidrio.material.color.setHex(0xffffff);
+      v.gas = false;
+      v.tVecino = 0;
+      v.vecino.g.visible = false;
     }
+    proximoVecino = 6;
     puntos = 0;
     apagados = 0;
     danio = 0;
@@ -316,7 +363,8 @@ export function iniciar(ctx) {
     v.ardiendo = false;
     v.fuego.visible = false;
     const rapido = v.tam < 0.6;
-    const suma = rapido ? 15 : 10;
+    const suma = (rapido ? 15 : 10) + (v.gas ? 15 : 0);
+    v.gas = false;
     puntos += suma;
     apagados += 1;
     tmp.set(v.x, v.y + 0.3, FACHADA_Z + 0.4);
@@ -328,6 +376,31 @@ export function iniciar(ctx) {
       aviso = ctx.t('racha', { n: apagados });
       tiempoAviso = 1.5;
     }
+  }
+
+  function mojarVecino(v, mano) {
+    if (estado === 'juego') puntos = Math.max(0, puntos - 10);
+    v.tVecino = 0;
+    v.vecino.g.visible = false;
+    ctx.vibrar(mano, 0.5, 80);
+    ctx.sonido('fallo');
+    tmp.set(v.x, v.y + 0.3, FACHADA_Z + 0.4);
+    ctx.efectos.texto(tmp, '-10', { color: '#ff8a65', tam: 1.4 });
+    aviso = ctx.t('vecino', { n: -10 });
+    tiempoAviso = 1.5;
+  }
+
+  function explotar(v) {
+    v.ardiendo = false;
+    v.gas = false;
+    v.fuego.visible = false;
+    ctx.sonido('derrumbe');
+    ctx.efectos.estallido(tmp.set(v.x, v.y, FACHADA_Z + 0.4), { color: 0xffa040, cantidad: 24 });
+    danio += 12;
+    for (let k = 0; k < 6; k++) soltarHumo(v.x + (k - 2.5) * 0.15, v.y, 0.9);
+    for (const i of v.vecinas) if (!ventanas[i].ardiendo) encender(ventanas[i]);
+    aviso = ctx.t('explota');
+    tiempoAviso = 1.8;
   }
 
   function soltarHumo(x, y, tam) {
@@ -395,8 +468,12 @@ export function iniciar(ctx) {
         g.activa = false;
         // ¿En qué ventana ha dado?
         for (const v of ventanas) {
-          if (!v.ardiendo) continue;
+          if (!v.ardiendo && v.tVecino <= 0) continue;
           if (Math.abs(g.pos.x - v.x) < ANCHO_VENTANA / 2 + 0.15 && Math.abs(g.pos.y - v.y) < ALTO_VENTANA / 2 + 0.2) {
+            if (!v.ardiendo) {
+              mojarVecino(v, mano);
+              break;
+            }
             v.vida -= 0.04 / v.tam;
             ctx.vibrar(mano, 0.12, 15);
             if (v.vida <= 0) apagar(v, mano);
@@ -462,9 +539,34 @@ export function iniciar(ctx) {
       proximo -= dt;
       if (proximo <= 0) {
         const libres = ventanas.filter((v) => !v.ardiendo);
-        if (libres.length) encender(libres[Math.floor(Math.random() * libres.length)]);
-        proximo = Math.max(1.3, 4.2 - tiempoJuego * 0.03) * (0.7 + Math.random() * 0.6);
+        if (libres.length) {
+          const gas = tiempoJuego > 20 && Math.random() < 0.2;
+          encender(libres[Math.floor(Math.random() * libres.length)], gas);
+          if (gas) {
+            aviso = ctx.t('bombona');
+            tiempoAviso = 1.5;
+          }
+        }
+        proximo = Math.max(0.9, 3.6 - tiempoJuego * 0.045) * (0.7 + Math.random() * 0.6);
       }
+      // Un vecino se asoma a una ventana sin fuego
+      proximoVecino -= dt;
+      if (proximoVecino <= 0) {
+        const quietas = ventanas.filter((v) => !v.ardiendo && v.tVecino <= 0);
+        if (quietas.length) {
+          const v = quietas[Math.floor(Math.random() * quietas.length)];
+          v.tVecino = 3.5;
+          v.vecino.g.visible = true;
+        }
+        proximoVecino = 5 + Math.random() * 5;
+      }
+    }
+    for (const v of ventanas) {
+      if (v.tVecino <= 0) continue;
+      v.tVecino -= dt;
+      v.vecino.brazoI.rotation.z = 2.6 + Math.sin(t * 9) * 0.4;
+      v.vecino.brazoD.rotation.z = -2.6 - Math.sin(t * 9 + 1) * 0.4;
+      if (v.tVecino <= 0) v.vecino.g.visible = false;
     }
     let ardiendo = 0;
     for (const v of ventanas) {
@@ -484,6 +586,15 @@ export function iniciar(ctx) {
       v.vidrio.material.color.setRGB(2.2, 1.0 + Math.sin(t * 17 + v.y) * 0.15, 0.35);
       if (estado === 'juego') {
         danio += dt * 0.9 * v.tam;
+        if (v.gas) {
+          v.mecha -= dt;
+          // Parpadea cada vez más rápido antes de explotar
+          v.bombona.material.color.setHex(Math.sin(t * (6 + (TIEMPO_BOMBONA - v.mecha) * 4)) > 0 ? 0x3c8a4a : 0xff3a3a);
+          if (v.mecha <= 0) {
+            explotar(v);
+            continue;
+          }
+        }
         // Un fuego grande salta a la ventana de al lado
         if (v.tam >= 1.2 && Math.random() < dt * 0.25) {
           const libres = v.vecinas.filter((k) => !ventanas[k].ardiendo);

@@ -1562,7 +1562,7 @@ export default {
     },
 bomberos: {
       titulo: 'Bombeiros',
-      descripcion: 'Uma rua à noite, ao lado do caminhão de bombeiros. Nas janelas do prédio em frente surgem incêndios: apague-os com a mangueira antes que o prédio queime. Um fogo que dura muito cresce e pula para a janela ao lado. 10 pontos por fogo apagado e mais 5 se ainda estiver pequeno. Aparecem cada vez mais.',
+      descripcion: 'Uma rua à noite, ao lado do caminhão de bombeiros. Nas janelas do prédio em frente surgem incêndios: apague-os com a mangueira antes que o prédio queime. Um fogo que dura muito cresce e pula para a janela ao lado. 10 pontos por fogo apagado e mais 5 se ainda estiver pequeno. Aparecem cada vez mais. Atenção: às vezes um vizinho se debruça na janela (não o molhe) e os botijões de gás explodem se você demorar.',
       controlesVR: 'Você segura o bico da mangueira. Mire numa janela em chamas e mantenha o gatilho pressionado. O jato cai com a distância: mire um pouco acima.',
       controlesEscritorio: 'Mantenha o botão do mouse sobre uma janela em chamas para jogar água.',
       controlesTactil: 'Mantenha o dedo sobre uma janela em chamas para jogar água.',
@@ -1580,6 +1580,9 @@ bomberos: {
         edificio: 'Prédio {barra}',
         racha: '{n} incêndios apagados!',
         propaga: 'O fogo está se espalhando!',
+        vecino: 'Um vizinho! Não o molhe: {n}',
+        bombona: 'Botijão de gás! Apague já',
+        explota: 'Um botijão explodiu!',
       },
     },
     golf: {

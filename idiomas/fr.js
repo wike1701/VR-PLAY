@@ -1563,7 +1563,7 @@ export default {
     },
 bomberos: {
       titulo: 'Pompiers',
-      descripcion: 'Une rue la nuit, à côté du camion de pompiers. Des feux éclatent aux fenêtres de l’immeuble d’en face : éteins-les avec la lance avant que l’immeuble ne brûle. Un feu qui dure grandit et saute à la fenêtre voisine. 10 points par feu éteint et 5 de plus s’il est encore petit. Il y en a de plus en plus.',
+      descripcion: 'Une rue la nuit, à côté du camion de pompiers. Des feux éclatent aux fenêtres de l’immeuble d’en face : éteins-les avec la lance avant que l’immeuble ne brûle. Un feu qui dure grandit et saute à la fenêtre voisine. 10 points par feu éteint et 5 de plus s’il est encore petit. Il y en a de plus en plus. Attention : un voisin se penche parfois à la fenêtre (ne l’arrose pas) et les bouteilles de gaz explosent si tu tardes.',
       controlesVR: 'Tu tiens la lance à incendie. Vise une fenêtre en feu et maintiens la gâchette pour arroser. Le jet retombe avec la distance : vise un peu plus haut.',
       controlesEscritorio: 'Maintiens le clic sur une fenêtre en feu pour arroser.',
       controlesTactil: 'Garde le doigt sur une fenêtre en feu pour arroser.',
@@ -1581,6 +1581,9 @@ bomberos: {
         edificio: 'Immeuble {barra}',
         racha: '{n} feux éteints !',
         propaga: 'Le feu se propage !',
+        vecino: 'Un voisin ! Ne l\'arrose pas : {n}',
+        bombona: 'Bouteille de gaz ! Éteins-la vite',
+        explota: 'Une bouteille de gaz a explosé !',
       },
     },
     golf: {

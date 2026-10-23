@@ -1558,7 +1558,7 @@ export default {
     },
 bomberos: {
       titulo: 'Firefighters',
-      descripcion: 'A street at night, next to the fire engine. Fires break out in the windows of the building across the street: put them out with the hose before the building burns down. A fire left too long grows and jumps to the next window. 10 points per fire and 5 more if you catch it small. More and more keep appearing.',
+      descripcion: 'A street at night, next to the fire engine. Fires break out in the windows of the building across the street: put them out with the hose before the building burns down. A fire left too long grows and jumps to the next window. 10 points per fire and 5 more if you catch it small. More and more keep appearing. Watch out: a neighbour sometimes leans out (don\'t soak them) and gas cylinders explode if you are slow.',
       controlesVR: 'You hold the hose nozzle. Aim at a burning window and hold the trigger to spray water. The stream drops with distance: aim a little high.',
       controlesEscritorio: 'Hold the mouse button over a burning window to spray water.',
       controlesTactil: 'Keep your finger on a burning window to spray water.',
@@ -1576,6 +1576,9 @@ bomberos: {
         edificio: 'Building {barra}',
         racha: '{n} fires out!',
         propaga: 'The fire is spreading!',
+        vecino: 'A neighbour! Don\'t soak them: {n}',
+        bombona: 'Gas cylinder! Put it out now',
+        explota: 'A gas cylinder exploded!',
       },
     },
     golf: {

@@ -1562,7 +1562,7 @@ export default {
     },
 bomberos: {
       titulo: 'Pompieri',
-      descripcion: 'Una strada di notte, accanto al camion dei pompieri. Nelle finestre del palazzo di fronte scoppiano incendi: spegnili con la manichetta prima che il palazzo bruci. Un fuoco che dura troppo cresce e salta alla finestra accanto. 10 punti per fuoco spento e 5 in più se lo prendi piccolo. Ne arrivano sempre di più.',
+      descripcion: 'Una strada di notte, accanto al camion dei pompieri. Nelle finestre del palazzo di fronte scoppiano incendi: spegnili con la manichetta prima che il palazzo bruci. Un fuoco che dura troppo cresce e salta alla finestra accanto. 10 punti per fuoco spento e 5 in più se lo prendi piccolo. Ne arrivano sempre di più. Attenzione: a volte un vicino si affaccia (non bagnarlo) e le bombole del gas esplodono se sei lento.',
       controlesVR: 'Tieni la lancia della manichetta in mano. Mira a una finestra in fiamme e tieni premuto il grilletto. Il getto cala con la distanza: mira un po’ più in alto.',
       controlesEscritorio: 'Tieni premuto il mouse su una finestra in fiamme per spruzzare acqua.',
       controlesTactil: 'Tieni il dito su una finestra in fiamme per spruzzare acqua.',
@@ -1580,6 +1580,9 @@ bomberos: {
         edificio: 'Palazzo {barra}',
         racha: '{n} fuochi spenti!',
         propaga: 'Il fuoco si sta propagando!',
+        vecino: 'Un vicino! Non bagnarlo: {n}',
+        bombona: 'Bombola del gas! Spegnila subito',
+        explota: 'Una bombola è esplosa!',
       },
     },
     golf: {
