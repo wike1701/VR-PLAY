@@ -142,10 +142,10 @@ const SONIDOS = {
   madera: () => { tono(520, 300, 0.05, 'triangle', 0.18); ruido(0.04, 1200, 0.2, 1.5); },
   agujero: () => { tono(400, 120, 0.35, 'sine', 0.28); ruido(0.2, 500, 0.25, 0.8); },
   // Tambores: los cuatro tambores de la batería (de agudo a grave) y el pulso del ritmo
-  tambor0: () => { tono(330, 210, 0.18, 'sine', 0.42); ruido(0.05, 2400, 0.25, 1.2); },
+  tambor0: () => { tono(420, 280, 0.14, 'sine', 0.42); ruido(0.05, 2400, 0.25, 1.2); },
   tambor1: () => { ruido(0.16, 3200, 0.42, 0.7); tono(240, 180, 0.08, 'triangle', 0.25); }, // caja
   tambor2: () => { tono(200, 130, 0.24, 'sine', 0.48); ruido(0.05, 1500, 0.2, 1.2); },
-  tambor3: () => { tono(120, 55, 0.3, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
+  tambor3: () => { tono(110, 50, 0.34, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
   pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
   bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
   // Pesca: el corcho que cae al agua, el pez que muerde y el carrete
