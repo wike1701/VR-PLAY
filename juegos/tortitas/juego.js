@@ -151,6 +151,120 @@ export function iniciar(ctx) {
   ]), R(new THREE.MeshLambertMaterial({ color: 0xfafafa })));
   raiz.add(botella);
 
+  // Decoración: más vida en la cocina
+  const lamb = (color) => R(new THREE.MeshLambertMaterial({ color }));
+  // Alfombra con borde delante de la encimera
+  const alfombra = new THREE.Mesh(fusionar([
+    colocar(new THREE.PlaneGeometry(2.2, 1.0).rotateX(-Math.PI / 2), 0, 0.004, 0.0),
+  ]), lamb(0xb8473a));
+  const bordeAlfombra = new THREE.Mesh(fusionar([
+    colocar(new THREE.PlaneGeometry(1.9, 0.7).rotateX(-Math.PI / 2), 0, 0.006, 0.0),
+  ]), lamb(0xf1d9a0));
+  const centroAlfombra = new THREE.Mesh(fusionar([
+    colocar(new THREE.PlaneGeometry(1.7, 0.5).rotateX(-Math.PI / 2), 0, 0.008, 0.0),
+  ]), lamb(0x3f7f8c));
+  raiz.add(alfombra, bordeAlfombra, centroAlfombra);
+  // Cortinas a los lados de la ventana, con su barra
+  const cortinas = new THREE.Mesh(fusionar([
+    colocar(new THREE.BoxGeometry(0.3, 1.5, 0.05), -1.0, 2.0, -1.12),
+    colocar(new THREE.BoxGeometry(0.3, 1.5, 0.05), 1.0, 2.0, -1.12),
+  ]), lamb(0xe9b44c));
+  const barra = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.012, 0.012, 2.3, 8), 0, 2.78, -1.1, 0, 0, Math.PI / 2),
+    colocar(new THREE.SphereGeometry(0.03, 8, 6), -1.15, 2.78, -1.1),
+    colocar(new THREE.SphereGeometry(0.03, 8, 6), 1.15, 2.78, -1.1),
+  ]), R(new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 0.5, metalness: 0.3 })));
+  raiz.add(cortinas, barra);
+  // Banderines de colores sobre la ventana
+  const colBanderin = [0xe5533d, 0xf2c13a, 0x4fa86b, 0x4a8fd4];
+  for (let k = 0; k < colBanderin.length; k++) {
+    const gs = [];
+    for (let i = k; i < 14; i += colBanderin.length) {
+      const x = -1.3 + i * (2.6 / 13);
+      gs.push(colocar(new THREE.CircleGeometry(0.075, 3), x, 3.06 - 0.1 * Math.sin((i / 13) * Math.PI), -1.19, 0, 0, Math.PI / 2));
+    }
+    raiz.add(new THREE.Mesh(fusionar(gs), R(new THREE.MeshLambertMaterial({ color: colBanderin[k], side: THREE.DoubleSide }))));
+  }
+  // Baldas de madera con tarros de colores
+  const baldas = new THREE.Mesh(fusionar([
+    colocar(new THREE.BoxGeometry(1.3, 0.04, 0.2), -1.95, 1.7, -1.1),
+    colocar(new THREE.BoxGeometry(1.3, 0.04, 0.2), 1.95, 1.7, -1.1),
+    colocar(new THREE.BoxGeometry(1.3, 0.04, 0.2), -1.95, 2.25, -1.1),
+    colocar(new THREE.BoxGeometry(1.3, 0.04, 0.2), 1.95, 2.25, -1.1),
+  ]), matMadera);
+  raiz.add(baldas);
+  const coloresTarro = [0xd9523c, 0x5a9e5f, 0xf0c64a, 0x4a86c8, 0xb06ac0];
+  for (let i = 0; i < 10; i++) {
+    const lado = i < 5 ? -1 : 1;
+    const x = lado * 1.95 + ((i % 5) - 2) * 0.26;
+    const alto = 0.12 + ((i * 7) % 3) * 0.03;
+    const y = 1.72 + (i % 2 ? 0.55 : 0);
+    const tarroDec = new THREE.Mesh(fusionar([
+      colocar(new THREE.CylinderGeometry(0.06, 0.06, alto, 14), x, y + alto / 2, -1.1),
+    ]), R(new THREE.MeshLambertMaterial({ color: coloresTarro[(i * 3) % 5], transparent: true, opacity: 0.9 })));
+    const tapa = new THREE.Mesh(fusionar([
+      colocar(new THREE.CylinderGeometry(0.063, 0.063, 0.025, 14), x, y + alto + 0.012, -1.1),
+    ]), lamb(0xf2efe6));
+    raiz.add(tarroDec, tapa);
+  }
+  // Reloj de pared
+  const relojPared = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.18, 0.18, 0.04, 28), -1.95, 3.0, -1.18, Math.PI / 2),
+  ]), lamb(0xfaf6ea));
+  const relojAros = new THREE.Mesh(fusionar([
+    colocar(new THREE.TorusGeometry(0.18, 0.018, 8, 28), -1.95, 3.0, -1.16),
+    colocar(new THREE.BoxGeometry(0.012, 0.1, 0.01), -1.95, 3.045, -1.15),
+    colocar(new THREE.BoxGeometry(0.012, 0.07, 0.01), -1.92, 3.0, -1.15, 0, 0, -Math.PI / 2.4),
+  ]), lamb(0x2a2a2e));
+  raiz.add(relojPared, relojAros);
+  // Barra de utensilios colgados sobre la encimera
+  const utensilios = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.01, 0.01, 1.0, 8), 1.5, 1.45, -1.16, 0, 0, Math.PI / 2),
+    colocar(new THREE.CylinderGeometry(0.008, 0.008, 0.28, 8), 1.15, 1.3, -1.16),
+    colocar(new THREE.CylinderGeometry(0.008, 0.008, 0.26, 8), 1.35, 1.31, -1.16),
+    colocar(new THREE.CylinderGeometry(0.008, 0.008, 0.3, 8), 1.6, 1.29, -1.16),
+    colocar(new THREE.SphereGeometry(0.05, 10, 8), 1.15, 1.12, -1.16),
+    colocar(new THREE.BoxGeometry(0.09, 0.1, 0.012), 1.35, 1.12, -1.16),
+    colocar(new THREE.CylinderGeometry(0.045, 0.045, 0.012, 14), 1.6, 1.1, -1.16, Math.PI / 2),
+  ]), R(new THREE.MeshStandardMaterial({ color: 0xc9ccd0, roughness: 0.35, metalness: 0.8 })));
+  raiz.add(utensilios);
+  // Maceta en el alféizar
+  const maceta = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.065, 0.045, 0.09, 14), -0.4, 1.385, -1.12),
+  ]), lamb(0xc4623c));
+  const hojas = new THREE.Mesh(fusionar([
+    colocar(new THREE.SphereGeometry(0.07, 10, 8), -0.4, 1.5, -1.12),
+    colocar(new THREE.SphereGeometry(0.05, 10, 8), -0.45, 1.56, -1.1),
+    colocar(new THREE.SphereGeometry(0.05, 10, 8), -0.34, 1.55, -1.13),
+  ]), lamb(0x4e9a46));
+  raiz.add(maceta, hojas);
+  // Frutero con fruta en la encimera
+  const frutero = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.13, 0.08, 0.06, 20), 1.2, 0.935, -0.9),
+  ]), lamb(0xe8e1d2));
+  raiz.add(frutero);
+  const frutas = [[0xe0452f, -0.05, 0.0], [0xf2a73a, 0.05, 0.02], [0xe0452f, 0.0, -0.06], [0x9bc34a, 0.02, 0.07]];
+  for (const [color, dx, dz] of frutas) {
+    const fruta = new THREE.Mesh(R(new THREE.SphereGeometry(0.045, 12, 10)), lamb(color));
+    fruta.position.set(1.2 + dx, 0.99, -0.9 + dz);
+    raiz.add(fruta);
+  }
+  // Tetera y bote de utensilios junto al fogón
+  const tetera = new THREE.Mesh(fusionar([
+    colocar(new THREE.SphereGeometry(0.07, 14, 10), 0.4, 0.99, -0.95),
+    colocar(new THREE.CylinderGeometry(0.012, 0.02, 0.07, 8), 0.47, 1.0, -0.95, 0, 0, -0.9),
+    colocar(new THREE.SphereGeometry(0.018, 8, 6), 0.4, 1.065, -0.95),
+  ]), R(new THREE.MeshStandardMaterial({ color: 0x3f8fb0, roughness: 0.3, metalness: 0.4 })));
+  raiz.add(tetera);
+  // Taburete de madera a un lado
+  const taburete = new THREE.Mesh(fusionar([
+    colocar(new THREE.CylinderGeometry(0.17, 0.17, 0.04, 16), -1.9, 0.5, -0.2),
+    colocar(new THREE.CylinderGeometry(0.02, 0.02, 0.48, 6), -2.02, 0.24, -0.1, 0.1, 0, 0.1),
+    colocar(new THREE.CylinderGeometry(0.02, 0.02, 0.48, 6), -1.78, 0.24, -0.1, 0.1, 0, -0.1),
+    colocar(new THREE.CylinderGeometry(0.02, 0.02, 0.48, 6), -1.9, 0.24, -0.32, -0.1, 0, 0),
+  ]), matMadera);
+  raiz.add(taburete);
+
   // ─── La sartén ─────────────────────────────────────────────────────────
   const matHierro = R(new THREE.MeshStandardMaterial({ color: 0x2a2a2e, roughness: 0.45, metalness: 0.7 }));
   const matMango = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x5a3a22, { semilla: 506 })) }));
