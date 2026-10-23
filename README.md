@@ -101,7 +101,7 @@ juegos/
   torre/juego.js        Torre de Bloques
   huevos/juego.js       Atrapa Huevos
   latas/juego.js        Tumba Latas
-  aros/juego.js         Lanza Aros (en pruebas)
+  aros/juego.js         Lanza Aros
   laberinto/juego.js    Laberinto
   tambores/juego.js     Tambores (en pruebas)
   pesca/juego.js        Pesca en el Lago (en pruebas)
