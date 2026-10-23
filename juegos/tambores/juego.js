@@ -267,6 +267,7 @@ export function iniciar(ctx) {
   const pulsos = [];
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
+  const tmp3 = new THREE.Vector3();
 
   const multiplicador = () => Math.min(4, 1 + Math.floor(racha / 10));
 
@@ -410,22 +411,31 @@ export function iniciar(ctx) {
   // ─── Golpes con las baquetas (VR) ──────────────────────────────────────
   function baquetasVR() {
     for (const b of baquetas) {
-      if (!b.mano.activa) continue;
-      b.mano.grip.localToWorld(b.punta.copy(PUNTA_EN_MANO));
+      if (!b.mano.activa) { b.previa = null; continue; }
+      // La punta real de la baqueta (la que se ve), no la del mando
+      b.objeto.updateWorldMatrix(true, false);
+      b.objeto.localToWorld(b.punta.copy(PUNTA_EN_MANO));
       for (const tb of tambores) {
         // Altura de la punta sobre el plano del parche
         tmp.copy(b.punta).sub(tb.centro);
         const altura = tmp.dot(tb.normal) - R_PUNTA;
-        tmp2.copy(tmp).addScaledVector(tb.normal, -tmp.dot(tb.normal));
-        // Cuenta todo el tambor: el aro metálico (r × 1,06 + grosor) y el radio de la punta
-        const dentro = tmp2.length() < tb.r * 1.12 + R_PUNTA;
         const antes = b.lado.get(tb.i) ?? 1;
-        if (altura > 0.02) b.lado.set(tb.i, 1);
-        else if (altura < 0 && antes === 1 && dentro && altura > -0.08) {
-          b.lado.set(tb.i, -1);
-          golpear(tb.i, b.mano);
-        } else if (altura < -0.08) b.lado.set(tb.i, -1);
+        if (altura > 0.02) {
+          b.lado.set(tb.i, 1);
+        } else if (altura < 0 && antes === 1 && b.previa) {
+          // Se mira dónde cruzó el plano entre dos fotogramas, para no fallar con golpes rápidos
+          const alturaPrevia = tmp3.copy(b.previa).sub(tb.centro).dot(tb.normal) - R_PUNTA;
+          const k = alturaPrevia > altura ? Math.min(1, Math.max(0, alturaPrevia / (alturaPrevia - altura))) : 1;
+          tmp2.copy(b.previa).lerp(b.punta, k).sub(tb.centro);
+          tmp2.addScaledVector(tb.normal, -tmp2.dot(tb.normal));
+          // Solo cuenta si cruza sobre el parche o su aro (r × 1,06)
+          if (tmp2.length() < tb.r * 1.06) {
+            b.lado.set(tb.i, -1);
+            golpear(tb.i, b.mano);
+          } else if (altura < -0.08) b.lado.set(tb.i, -1);
+        }
       }
+      (b.previa ??= new THREE.Vector3()).copy(b.punta);
     }
   }
 
