@@ -19,7 +19,8 @@ const POSTE = 0.04;
 const FONDO_RED = 0.9;
 const ALCANCE_AGARRE = 0.24;
 const RAPIDEZ = 1.35;                // el balón sale más rápido y el portero reacciona igual de más rápido
-const FUERZA_VR = 1.25 * RAPIDEZ;
+const FUERZA_VR = 2 * RAPIDEZ;       // multiplica la velocidad de la mano (sin peso, el balón salía flojo)
+const RAPIDEZ_MIN_VR = 11;           // un lanzamiento VR decidido nunca sale más lento que esto (m/s)
 const AYUDA = 0.5;                   // cuánto se corrige un buen lanzamiento VR hacia la portería
 const PUESTO_VR = new THREE.Vector3(0, 1.0, -0.35);
 const PUESTO_RATON = new THREE.Vector3(0, 1.3, -0.35);
@@ -785,7 +786,9 @@ export function iniciar(ctx) {
         if (!mano.gatillo && !mano.apreton) {
           const v = velocidadMano(m).multiplyScalar(FUERZA_VR);
           manoQueLleva = null;
-          if (v.length() < 2.5) {
+          const rapidez = v.length();
+          if (rapidez >= 3.4 && rapidez < RAPIDEZ_MIN_VR) v.multiplyScalar(RAPIDEZ_MIN_VR / rapidez);
+          if (rapidez < 3.4) {
             estadoBalon = 'puesto';      // suelta sin lanzar: vuelve al soporte
           } else {
             lanzar(balon.position, ayudar(balon.position, v));
