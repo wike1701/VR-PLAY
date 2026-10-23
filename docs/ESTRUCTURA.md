@@ -70,7 +70,7 @@ VR-PLAY/
 | **`servidor/`** | `index.js` (rutas), `comun.js` y `bd.js` (utilidades y tablas), y un archivo por recurso de la API | Un archivo por ruta o grupo de rutas, que exporta `onRequestGet`, `onRequestPost`… |
 | **`bd/`** | `esquema.sql` | Todas las tablas. `servidor/bd.js` crea las nuevas solo, la primera vez. |
 | **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `calidad.mjs`, `portadas-compartir.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
-| **`docs/`** | `ESTRUCTURA.md` (este), `CALIDAD.md` (estándar de calidad y rendimiento de los juegos), `PORTADAS.md` (estándar de las portadas), `PERFILES.md` (especificación de cuentas), `LANZAMIENTO.md` (lista de lanzamiento) | Documentos de diseño, especificaciones y planes. No se publican. |
+| **`docs/`** | `ESTRUCTURA.md` (este), `CALIDAD.md` (estándar de calidad y rendimiento de los juegos), `PORTADAS.md` (estándar de las portadas), `PERFILES.md` (especificación de cuentas), `LANZAMIENTO.md` (lista de lanzamiento), `FORO.md` (cómo trabaja Claude Code con el foro) | Documentos de diseño, especificaciones y planes. No se publican. |
 | **`.claude/skills/`** | Skills de terceros con su licencia y un `README.md` | Ver ese README antes de añadir una. |
 
 ### El servidor por grupos
