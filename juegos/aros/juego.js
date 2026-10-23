@@ -11,7 +11,7 @@ import * as THREE from 'three';
 export async function precargar() {}
 
 const N_AROS = 10;
-const R_ARO = 0.078;
+const R_ARO = 0.05;   // aros más chicos: la boca libre baja de unos 6 a unos 3 cm
 const TUBO_ARO = 0.009;
 const R_CUELLO = 0.014;
 const ALTO_BOTELLA = 0.27;
