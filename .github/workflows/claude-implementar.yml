@@ -14,7 +14,9 @@
 # el segundo se pone encima del primero y lo reintenta.
 #
 # También responde si escribes "@claude ..." en un comentario de un issue o de un Pull Request
-# (solo a los dueños y colaboradores del repositorio); esos cambios NO se suben solos a main.
+# (solo a los dueños y colaboradores del repositorio). Si el comentario es en un issue de encargo
+# (etiqueta «voz» o «claude-implementar»), por ejemplo para reintentar uno que falló, los cambios
+# también se suben solos a main; en los demás issues y en los Pull Request, no.
 #
 # Necesita la app de Claude instalada en el repositorio y el secreto CLAUDE_CODE_OAUTH_TOKEN
 # (la suscripción de Claude; o ANTHROPIC_API_KEY, ver la sección «Encargos de voz» del README).
@@ -75,16 +77,23 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           label_trigger: "claude-implementar"
+          # Sin esta lista, Claude no puede ejecutar node ni ponerse al día con main: solo las
+          # herramientas de comprobación del proyecto y los comandos de git para leer y hacer rebase
           claude_args: |
             --max-turns 60
+            --allowedTools "Bash(node herramientas/idiomas.mjs:*),Bash(node herramientas/marcadores.mjs:*),Bash(node herramientas/estructura.mjs:*),Bash(node herramientas/calidad.mjs:*),Bash(git fetch:*),Bash(git rebase:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
 
       # ─── Subir a main ─────────────────────────────────────────────────────
-      # Solo para los encargos (issues, no comentarios). Busca la rama que ha hecho Claude para este
+      # Solo para los encargos: al abrir o etiquetar el issue, o con un «@claude» en un comentario
+      # del propio issue (para reintentar). Busca la rama que ha hecho Claude para este
       # issue, la pone encima de main, pasa las comprobaciones y, si todo va bien, la sube a main,
       # borra la rama, lo cuenta en el issue y lo cierra.
       - name: Subir el encargo a main
         id: subir
-        if: github.event_name == 'issues'
+        if: |
+          github.event_name == 'issues' ||
+          (github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+           (contains(github.event.issue.labels.*.name, 'voz') || contains(github.event.issue.labels.*.name, 'claude-implementar')))
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE: ${{ github.event.issue.number }}
@@ -128,10 +137,10 @@ jobs:
           gh issue close "$ISSUE"
 
       - name: Avisar si no se ha podido subir
-        if: failure() && github.event_name == 'issues'
+        if: failure() && steps.subir.conclusion == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE: ${{ github.event.issue.number }}
           RAMA: ${{ steps.subir.outputs.rama }}
         run: |
-          gh issue comment "$ISSUE" --body "⚠️ No se ha subido a \`main\`: ha fallado algo (las comprobaciones del proyecto o un conflicto con main). Los cambios siguen en la rama \`${RAMA:-sin rama}\`. Mira el registro en Actions."
+          gh issue comment "$ISSUE" --body "⚠️ No se ha subido a \`main\`: ha fallado algo (las comprobaciones del proyecto o un conflicto con main). Los cambios siguen en la rama \`${RAMA:-sin rama}\`. Mira el registro en Actions. Para reintentarlo, escribe en este issue \`@claude reintenta: ponte al día con main\`: lo rehará y, si pasan las comprobaciones, lo subirá a main."
