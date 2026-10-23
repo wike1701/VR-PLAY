@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Apaga la luz. Escucha.",
+    "frases": [
+      {
+        "texto": "Con las gafas, estás en un salón encantado a oscuras.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Los fantasmas casi no se ven…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…pero oyes su lamento por el lado del que vienen.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Dales con la linterna hasta que se deshagan.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Si uno te alcanza, se acabó.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Turn off the lights. Listen.",
+    "frases": [
+      {
+        "texto": "With a headset, you’re in a dark haunted parlour.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "You can barely see the ghosts…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…but you hear them moan from the side they come from.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Hold your flashlight on them until they fade.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "If one reaches you, it’s over.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

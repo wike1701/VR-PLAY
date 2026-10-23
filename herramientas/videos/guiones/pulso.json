@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Si lo tocas, calambrazo.",
+    "frases": [
+      {
+        "texto": "El juego del alambre de toda la vida.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lleva el aro de punta a punta.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Sin tocar el cable ni una vez.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Aquí es donde tiembla la mano.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Y el último cable se mueve.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Touch it and you get zapped.",
+    "frases": [
+      {
+        "texto": "The classic wire loop game.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Guide the ring from end to end.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Without touching the wire once.",
+        "plano": "partida"
+      },
+      {
+        "texto": "This is where your hand starts shaking.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "And the last wire moves.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

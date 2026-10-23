@@ -1,3 +1,16 @@
 .wrangler/
 .dev.vars
 node_modules/
+# Fábrica de vídeos: lo que genera y lo pesado se queda en local (ver herramientas/videos/GUIA.md)
+herramientas/videos/salida/
+herramientas/videos/trabajo/
+herramientas/videos/.venv/
+herramientas/videos/.venv-voz/
+herramientas/videos/musica/*.mp3
+herramientas/videos/musica/*.ogg
+herramientas/videos/musica/*.wav
+herramientas/videos/musica/*.m4a
+herramientas/videos/medios/**
+!herramientas/videos/medios/LEEME.md
+herramientas/videos/efectos/*.ogg
+herramientas/videos/efectos/*.wav

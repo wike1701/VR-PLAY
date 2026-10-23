@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Noche de verano. Bzzz.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y estás en el porche.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Los mosquitos revolotean… y de repente van a por ti.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Aplástalos antes de que te piquen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cada vez hay más, y más rápidos.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Solo tienes tres vidas.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "A summer night. Bzzz.",
+    "frases": [
+      {
+        "texto": "Put on your headset and you’re on the porch.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Mosquitoes buzz around… then suddenly come for you.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Swat them before they bite.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "More keep coming, and faster.",
+        "plano": "partida"
+      },
+      {
+        "texto": "You only have three lives.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

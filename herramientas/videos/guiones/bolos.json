@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Una bolera en tu salón.",
+    "frases": [
+      {
+        "texto": "Con las gafas, lanzas la bola con tu propio brazo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Apunta al centro de la pista.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Y tumba los diez de un golpe.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Diez marcos con la puntuación oficial.",
+        "plano": "partida"
+      },
+      {
+        "texto": "¿Cuántos plenos seguidos haces?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "A bowling alley in your living room.",
+    "frases": [
+      {
+        "texto": "With a headset, you roll the ball with your own arm.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Aim for the middle of the lane.",
+        "plano": "pov"
+      },
+      {
+        "texto": "And knock all ten down in one roll.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Ten frames with official scoring.",
+        "plano": "partida"
+      },
+      {
+        "texto": "How many strikes in a row can you get?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

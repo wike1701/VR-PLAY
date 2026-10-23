@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Tú en la cabina de una nave espacial.",
+    "frases": [
+      {
+        "texto": "Con las gafas, el espacio te rodea por completo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Pasa por los anillos dorados.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Esquiva asteroides y disparos.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Derriba a los cazas enemigos.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Y acaba con la nave nodriza.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "You, in the cockpit of a starship.",
+    "frases": [
+      {
+        "texto": "With a headset, space surrounds you completely.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Fly through the golden rings.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Dodge asteroids and enemy fire.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Shoot down the enemy fighters.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "And destroy the mothership.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

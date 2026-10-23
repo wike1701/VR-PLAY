@@ -1,0 +1,78 @@
+{
+  "es": {
+    "gancho": "¿Ping pong… *sin mesa*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Me pongo las gafas…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "¡y la pala es *mi mano*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Saco… ¡y *devuelve*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "¡Esta máquina *no falla*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Me ha dado una *paliza*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "¿Tú le *ganarías*?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Juega *gratis* en VR Play. ¡Sin descargar nada!"
+  },
+  "en": {
+    "gancho": "Ping pong… *no table*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "I put on my headset…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "and the paddle is *my hand*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "I serve… and it *returns*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "This machine *never misses*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "It totally *crushed* me.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Could *you* beat it?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Play it *free* on VR Play. No downloads!"
+  }
+}

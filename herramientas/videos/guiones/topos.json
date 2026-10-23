@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "¿Tienes reflejos de verdad?",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y coge el martillo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Los topos asoman cada vez más rápido.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Dales en la cabeza antes de que se escondan.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Mira este golpe a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tienes sesenta segundos. ¿Cuántos aplastas?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Think your reflexes are fast?",
+    "frases": [
+      {
+        "texto": "Put on your headset and grab the hammer.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "The moles pop up faster and faster.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Bonk them on the head before they hide.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Check out this hit in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "You get sixty seconds. How many can you smash?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

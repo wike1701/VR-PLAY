@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "A más de doscientos por hora.",
+    "frases": [
+      {
+        "texto": "Con las gafas, vas sentado dentro del monoplaza.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Tres vueltas contra cinco rivales.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Frena antes de las curvas cerradas…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…o acabarás derrapando.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "¿Llegas primero a la meta?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Over two hundred kilometres an hour.",
+    "frases": [
+      {
+        "texto": "With a headset, you sit right inside the race car.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Three laps against five rivals.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Brake before the tight corners…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…or you’ll spin out.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Can you cross the line first?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

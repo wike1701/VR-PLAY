@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Los coches de slot de toda la vida.",
+    "frases": [
+      {
+        "texto": "Con las gafas, el circuito está sobre tu mesa.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Solo controlas la velocidad.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Si entras demasiado rápido en la curva…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…el coche sale volando.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cinco vueltas y un circuito distinto en cada carrera.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Slot car racing, just like when you were a kid.",
+    "frases": [
+      {
+        "texto": "With a headset, the track sits right on your table.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "You only control the speed.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Take a bend too fast…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…and the car flies off.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Five laps and a new track every race.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

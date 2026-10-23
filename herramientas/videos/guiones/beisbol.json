@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "¿Home run a la primera?",
+    "frases": [
+      {
+        "texto": "Con las gafas, el bate lo tienes en las manos.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "El lanzador te tira diez bolas por ronda.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Sencillo, doble, triple…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…o por encima de la valla.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Batea y mira hasta dónde llega.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "Home run on your first swing?",
+    "frases": [
+      {
+        "texto": "With a headset, the bat is right in your hands.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "The pitcher throws ten balls per round.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Single, double, triple…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…or over the fence.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Swing and see how far it goes.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

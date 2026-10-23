@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Entrena como un boxeador. En tu casa.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y tienes el saco delante.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Se encienden dianas: dales antes de que se apaguen.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Encadena golpes y sube el multiplicador hasta por cuatro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mira este puñetazo a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Asaltos de sesenta segundos.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Train like a boxer. At home.",
+    "frases": [
+      {
+        "texto": "Put on your headset and the bag is right in front of you.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Targets light up: hit them before they go out.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Chain hits to push the multiplier up to times four.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Watch this punch in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sixty-second rounds.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

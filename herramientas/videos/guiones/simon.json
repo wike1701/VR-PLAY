@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Un solo error y se acaba.",
+    "frases": [
+      {
+        "texto": "La consola de colores de toda la vida.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Mira la secuencia y repítela.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cada ronda, un color más.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Y cada vez más rápido.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "¿Cuántas rondas aguantas?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "One mistake and it's over.",
+    "frases": [
+      {
+        "texto": "The classic color console.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Watch the sequence and repeat it.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Every round adds one more color.",
+        "plano": "partida"
+      },
+      {
+        "texto": "And it keeps getting faster.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "How many rounds can you last?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

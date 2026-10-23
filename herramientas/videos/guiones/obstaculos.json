@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Esta carretera no se acaba nunca.",
+    "frases": [
+      {
+        "texto": "Esquiva conos, rocas y coches.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Cada vez vas más rápido.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Coge las monedas y salta por las rampas.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Un fallo y se acabó el viaje.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "¿Hasta dónde llegas tú?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "This road never ends.",
+    "frases": [
+      {
+        "texto": "Dodge cones, rocks and cars.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "It just keeps getting faster.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Grab the coins and jump the ramps.",
+        "plano": "partida"
+      },
+      {
+        "texto": "One mistake and the ride is over.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "How far can you go?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

@@ -50,7 +50,7 @@ for (const nombre of fs.readdirSync(RAIZ)) {
 }
 
 // ─── Rutas locales ───────────────────────────────────────────────────────
-const IGNORAR = new Set(['.git', '.claude', '.wrangler', 'node_modules']);
+const IGNORAR = new Set(['.git', '.claude', '.wrangler', 'node_modules', '.venv', 'salida', 'trabajo']); // las tres últimas, de herramientas/videos (no van a git)
 function archivos(carpeta, lista = []) {
   for (const nombre of fs.readdirSync(carpeta)) {
     if (IGNORAR.has(nombre)) continue;

@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Una escoba, tu mano y muchos cañones.",
+    "frases": [
+      {
+        "texto": "Con las gafas, estás en mitad de la pista del circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lleva la escoba en equilibrio sobre la palma.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Los cañones te disparan cubos de colores.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Muévete para que no se caiga.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tres golpes, o se cae, y se acabó.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "A broom, your hand and a lot of cannons.",
+    "frases": [
+      {
+        "texto": "With a headset, you’re in the middle of the circus ring.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Balance the broom on the palm of your hand.",
+        "plano": "pov"
+      },
+      {
+        "texto": "The cannons fire coloured cubes at you.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Move so it doesn’t fall.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Three hits, or a fallen broom, and it’s over.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

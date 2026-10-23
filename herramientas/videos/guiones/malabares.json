@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Malabares sin romper nada en casa.",
+    "frases": [
+      {
+        "texto": "Bolas de colores en la pista del circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Empiezas con dos.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cada doce seguidas, el cañón te lanza otra.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Que no toque el suelo.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "¿Llegas a cinco bolas?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Juggling without breaking anything at home.",
+    "frases": [
+      {
+        "texto": "Colored balls in a circus ring.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "You start with two.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Every twelve catches, the cannon adds one.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Don't let it hit the ground.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Can you get to five balls?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

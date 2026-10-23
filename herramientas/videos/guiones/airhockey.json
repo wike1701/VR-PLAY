@@ -1,0 +1,82 @@
+{
+  "es": {
+    "gancho": "¡Air hockey… *en VR*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Neones… y la mesa delante.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "¡El disco va a *tope*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "¡Rebota en la *banda*!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "¡Para! ¡*Para*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "¡*Golazo*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "¡GOL!"
+      },
+      {
+        "texto": "¿Te atreves con la *máquina*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Juega *gratis* en VR Play. ¡Desde el navegador de tus gafas!"
+  },
+  "en": {
+    "gancho": "Air hockey… *in VR*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Neon lights… the table right there.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "The puck is *flying*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Off the *wall*!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "Block it! *Block it*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*Goal*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "GOAL!"
+      },
+      {
+        "texto": "Dare to take on the *machine*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Play it *free* on VR Play, right in your headset's browser!"
+  }
+}

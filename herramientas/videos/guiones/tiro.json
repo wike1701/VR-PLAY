@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Rojo, dispara. Verde, ni se te ocurra.",
+    "frases": [
+      {
+        "texto": "Con las gafas, el campo de tiro está a tu alrededor.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Los muñecos se levantan por todas partes.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Apunta a los rojos y respeta a los verdes.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Un segundo de duda y se te escapa.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sesenta segundos para la mejor puntuación.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Red, shoot. Green, don’t you dare.",
+    "frases": [
+      {
+        "texto": "With a headset, the shooting range is all around you.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Targets pop up everywhere.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Hit the red ones and spare the green ones.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Hesitate for a second and it’s gone.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sixty seconds to set the high score.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

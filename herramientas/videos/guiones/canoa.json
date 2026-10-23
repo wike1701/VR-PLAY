@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Un remo en cada mano.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y bajas un río sin fin.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Rema con los dos brazos para ir más rápido.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Y con uno solo para girar.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Esquiva rocas, troncos y rápidos.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cada vez va más rápido. Tienes tres vidas.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "One paddle in each hand.",
+    "frases": [
+      {
+        "texto": "Put on your headset and head down an endless river.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Paddle with both arms to go faster.",
+        "plano": "pov"
+      },
+      {
+        "texto": "And with just one to turn.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Dodge rocks, logs and rapids.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "It keeps getting faster. You have three lives.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

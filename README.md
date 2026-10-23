@@ -29,6 +29,7 @@ herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificació
 herramientas/estructura.mjs  Comprobar la estructura: juegos completos, raíz limpia y ninguna ruta rota
 herramientas/calidad.mjs  Comprobar el estándar de calidad y rendimiento de cada juego (docs/CALIDAD.md)
 herramientas/portadas-compartir.mjs  Hacer las imágenes JPEG para compartir cada juego (iconos/juegos/<id>.jpg)
+herramientas/videos/  Fábrica de vídeos en local: TikToks de cada juego (ES y EN) y editor de grabaciones (guía: GUIA.md)
 docs/                   ESTRUCTURA.md (dónde va cada cosa), PERFILES.md (cuentas) y LANZAMIENTO.md (lista de lanzamiento)
 .claude/skills/         Skills de Claude Code del proyecto (ver su README)
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)

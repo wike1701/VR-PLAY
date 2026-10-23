@@ -1,0 +1,46 @@
+{
+  "es": {
+    "gancho": "El volante frena en el aire. Tú no.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y coge la raqueta.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "El volante cae casi en vertical.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cuando lo tengas alto, remata.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Partido a once puntos contra la máquina.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "The shuttlecock slows down. You don’t.",
+    "frases": [
+      {
+        "texto": "Put on your headset and grab the racket.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "The shuttlecock drops almost straight down.",
+        "plano": "pov"
+      },
+      {
+        "texto": "When it’s high, smash it.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "A match to eleven against the CPU.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Aquí no gana el más rápido.",
+    "frases": [
+      {
+        "texto": "La caseta de feria de toda la vida, en realidad virtual.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Rompe de un balinazo el palillo que sujeta el premio.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cuanto más fino el palillo, mejor el premio.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mira este disparo a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Doce balines. Gana el de mejor pulso.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "The fastest hand doesn’t win here.",
+    "frases": [
+      {
+        "texto": "The classic fairground booth, in virtual reality.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Break the stick holding the prize with one pellet.",
+        "plano": "pov"
+      },
+      {
+        "texto": "The thinner the stick, the better the prize.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Watch this shot in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Twelve pellets. The steadiest hand wins.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

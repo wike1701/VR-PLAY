@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Las moscas quieren tu bocadillo.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas: picnic en el jardín.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Las moscas dan vueltas y se posan en la comida.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Si se quedan más de un segundo, se pudre.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Aplástalas posadas o, mejor aún, al vuelo.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tres platos podridos y pierdes.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "The flies want your sandwich.",
+    "frases": [
+      {
+        "texto": "Put on your headset: picnic in the garden.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Flies circle and land on the food.",
+        "plano": "pov"
+      },
+      {
+        "texto": "If one stays more than a second, it goes bad.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Swat them when they land or, even better, in mid-air.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Three spoiled plates and you lose.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}
