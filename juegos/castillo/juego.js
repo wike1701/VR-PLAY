@@ -1,5 +1,5 @@
 // DEFENSA DEL CASTILLO
-// Estás en lo alto de la muralla de un castillo al atardecer. Por el camino del valle avanzan
+// Estás en lo alto de la muralla de un castillo al atardecer. Por tres caminos del valle avanzan
 // oleadas de enemigos hacia el puente levadizo: soldados (1 pedrada), escuderos (2: la primera
 // les rompe el escudo) y arietes (3). Los derribas con un tirachinas. Cada enemigo que llega al
 // puente golpea la puerta (el ariete, el doble); con 5 golpes, cae el castillo. Las oleadas son
@@ -22,6 +22,7 @@ const N_ENEMIGOS = 14;         // como mucho a la vez en el camino
 const N_PIEDRAS = 24;
 const N_PUNTOS = 26;           // puntos de la trayectoria que se ve al estirar
 const ESTIRON_MAX = 0.55;      // m que se puede estirar la goma
+const ESCALA_TIRACHINAS = 1.5; // el tirachinas, más grande que uno de verdad para que se vea bien
 const VELOCIDAD_RATON = 24;    // m/s del disparo con ratón
 const DURACION_PODER = 10;
 const ESCALA = 1.45;           // los enemigos, algo grandes para verlos bien desde arriba
@@ -35,12 +36,34 @@ const PODERES = ['fuego', 'triple', 'lento', 'roca', 'puerta'];
 const COLOR_PODER = { fuego: 0xff6a3d, triple: 0xffd23f, lento: 0x3d8bff, roca: 0xb36bff, puerta: 0x6dff7a };
 const CLAVE_PODER = { fuego: 'poderes.fuego', triple: 'poderes.triple', lento: 'poderes.lento', roca: 'poderes.roca', puerta: 'poderes.puerta' };
 
-// El camino: de la salida del valle al puente, con curvas que se cierran al llegar
-function camino(u, salida) {
-  const z = Z_SALIDA + (Z_PUENTE - Z_SALIDA) * u;
-  const x = Math.sin(u * 7.5) * 6 * (1 - u) * (1 - u) + Math.sin(u * 2.3 + 1) * 1.5 * (1 - u);
+// Tres caminos que bajan al puente: por la izquierda (0), por el centro (1) y por la derecha (2).
+// Todos acaban en el puente; las curvas se cierran al llegar.
+const VIAS = [
+  { x0: -24, z0: -34, ondas: 5.5, fase: 0.6 },
+  { x0: 0, z0: Z_SALIDA, ondas: 7.5, fase: 0 },
+  { x0: 24, z0: -40, ondas: 6.2, fase: 2.1 },
+];
+function camino(u, salida, via = 1) {
+  const v = VIAS[via];
+  const resto = 1 - u;
+  const z = v.z0 + (Z_PUENTE - v.z0) * u;
+  let x = v.x0 * Math.pow(resto, 1.6) + Math.sin(u * v.ondas + v.fase) * 3 * resto * resto;
+  if (via === 1) x = Math.sin(u * 7.5) * 6 * resto * resto + Math.sin(u * 2.3 + 1) * 1.5 * resto;
   return salida.set(x, SUELO, z);
 }
+// Lo que mide cada camino (para que todos los enemigos anden a la misma velocidad)
+const LARGO_VIA = VIAS.map((_, via) => {
+  const a = new THREE.Vector3();
+  const b = new THREE.Vector3();
+  let largo = 0;
+  camino(0, a, via);
+  for (let i = 1; i <= 100; i++) {
+    camino(i / 100, b, via);
+    largo += a.distanceTo(b);
+    a.copy(b);
+  }
+  return largo;
+});
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -110,25 +133,40 @@ export function iniciar(ctx) {
   valle.rotation.x = -Math.PI / 2;
   valle.position.set(0, SUELO, -40);
   raiz.add(valle);
-  // Camino de tierra: una cinta que sigue la curva del camino
+  // Caminos de tierra: una cinta por cada camino, todas en una sola malla
   const puntosCamino = 60;
   const posCamino = [];
   const uvCamino = [];
   const indCamino = [];
+  const muestrasCamino = []; // puntos de los caminos, para no poner árboles encima
   const p0 = new THREE.Vector3();
   const p1 = new THREE.Vector3();
-  for (let i = 0; i <= puntosCamino; i++) {
-    const u = i / puntosCamino;
-    camino(u, p0);
-    camino(Math.min(1, u + 0.01), p1);
-    const dx = p1.x - p0.x;
-    const dz = p1.z - p0.z;
-    const l = Math.hypot(dx, dz) || 1;
-    const ancho = 1.6;
-    posCamino.push(p0.x - (dz / l) * ancho, SUELO + 0.02, p0.z + (dx / l) * ancho, p0.x + (dz / l) * ancho, SUELO + 0.02, p0.z - (dx / l) * ancho);
-    uvCamino.push(0, u * 14, 1, u * 14);
-    if (i < puntosCamino) indCamino.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2);
+  for (let via = 0; via < VIAS.length; via++) {
+    const base = posCamino.length / 3;
+    // El tramo final es común a los tres: los laterales se pintan solo hasta que se juntan
+    const hasta = via === 1 ? 1 : 0.9;
+    for (let i = 0; i <= puntosCamino; i++) {
+      const u = (i / puntosCamino) * hasta;
+      camino(u, p0, via);
+      camino(Math.min(1, u + 0.01), p1, via);
+      muestrasCamino.push(p0.x, p0.z);
+      const dx = p1.x - p0.x;
+      const dz = p1.z - p0.z;
+      const l = Math.hypot(dx, dz) || 1;
+      const ancho = 1.5;
+      const y = SUELO + 0.02 + via * 0.003; // sin parpadeos donde se cruzan
+      posCamino.push(p0.x - (dz / l) * ancho, y, p0.z + (dx / l) * ancho, p0.x + (dz / l) * ancho, y, p0.z - (dx / l) * ancho);
+      uvCamino.push(0, u * 14, 1, u * 14);
+      const k = base + i * 2;
+      if (i < puntosCamino) indCamino.push(k, k + 1, k + 2, k + 1, k + 3, k + 2);
+    }
   }
+  const lejosDelCamino = (x, z, margen) => {
+    for (let i = 0; i < muestrasCamino.length; i += 2) {
+      if (Math.hypot(muestrasCamino[i] - x, muestrasCamino[i + 1] - z) < margen) return false;
+    }
+    return true;
+  };
   const geoCamino = R(new THREE.BufferGeometry());
   geoCamino.setAttribute('position', new THREE.Float32BufferAttribute(posCamino, 3));
   geoCamino.setAttribute('uv', new THREE.Float32BufferAttribute(uvCamino, 2));
@@ -147,18 +185,17 @@ export function iniciar(ctx) {
     caja(0.12, 0.25, 7.4, 1.3, SUELO + 0.1, -4.9),
   ]), R(new THREE.MeshLambertMaterial({ map: texTablas })));
   raiz.add(puente);
-  // Árboles por el valle, dejando libre el camino
+  // Árboles por el valle, dejando libres los caminos
   const listaArboles = [];
-  for (let i = 0; i < 26; i++) {
-    const u = (i * 0.37) % 1;
-    camino(u, p0);
-    const lado = i % 2 ? 1 : -1;
-    listaArboles.push({ x: p0.x + lado * (5 + ((i * 7) % 9)), z: p0.z + ((i * 3) % 5) - 2, escala: 1.3 + ((i * 5) % 6) * 0.12 });
+  for (let i = 0; i < 90 && listaArboles.length < 30; i++) {
+    const x = ((i * 37) % 70) - 35 + ((i * 13) % 7) * 0.5;
+    const z = -12 - ((i * 23) % 44);
+    if (lejosDelCamino(x, z, 3.5)) listaArboles.push({ x, z, escala: 1.3 + ((i * 5) % 6) * 0.12 });
   }
   const bosque = ctx.arboles(listaArboles, { tipo: 'pino', semilla: 23 });
   bosque.position.y = SUELO;
   raiz.add(bosque);
-  const frondosos = ctx.arboles([{ x: -14, z: -20 }, { x: 15, z: -26 }, { x: -11, z: -38 }, { x: 12, z: -44 }, { x: -18, z: -12 }, { x: 19, z: -14 }], { tipo: 'frondoso', semilla: 24 });
+  const frondosos = ctx.arboles([{ x: -14, z: -20 }, { x: 15, z: -26 }, { x: -11, z: -38 }, { x: 12, z: -44 }, { x: -18, z: -12 }, { x: 19, z: -14 }].filter((a) => lejosDelCamino(a.x, a.z, 3.5)), { tipo: 'frondoso', semilla: 24 });
   frondosos.position.y = SUELO;
   raiz.add(frondosos);
 
@@ -254,7 +291,7 @@ export function iniciar(ctx) {
     const sombra = ctx.crearSombra({ radio: 0.5, opacidad: 0.4 });
     sombra.visible = false;
     raiz.add(sombra);
-    return { grupo, material, mallas, escudo, sombra, vivo: false, cayendo: 0, tipo: 'soldado', vida: 1, u: 0, golpe: 0, fase: Math.random() * 6 };
+    return { grupo, material, mallas, escudo, sombra, vivo: false, cayendo: 0, tipo: 'soldado', vida: 1, u: 0, via: 1, golpe: 0, fase: Math.random() * 6 };
   });
 
   // ─── Globo con cofre (los poderes) ─────────────────────────────────────
@@ -272,7 +309,7 @@ export function iniciar(ctx) {
   const velGlobo = new THREE.Vector3();
 
   // ─── Piedras y trayectoria ─────────────────────────────────────────────
-  const piedras = new THREE.InstancedMesh(R(new THREE.DodecahedronGeometry(0.09, 0)), R(new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x000000 })), N_PIEDRAS);
+  const piedras = new THREE.InstancedMesh(R(new THREE.DodecahedronGeometry(0.07, 0)), R(new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x000000 })), N_PIEDRAS);
   piedras.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   piedras.setColorAt(0, colorTmp.set(0x8a8478));
   piedras.frustumCulled = false;
@@ -313,10 +350,12 @@ export function iniciar(ctx) {
   const horquillas = ctx.manos.map((mano) => {
     const g = crearHorquilla();
     g.rotation.x = -0.2;
+    g.scale.setScalar(ESCALA_TIRACHINAS);
     ctx.adjuntarAMano(mano, g);
     return g;
   });
   const horquillaRaton = crearHorquilla();
+  horquillaRaton.scale.setScalar(ESCALA_TIRACHINAS);
   raiz.add(horquillaRaton);
   // Gomas (dos tiras) y la badana con la piedra
   const geoGoma = R(new THREE.CylinderGeometry(0.0045, 0.0045, 1, 6));
@@ -324,7 +363,7 @@ export function iniciar(ctx) {
   const matGoma = R(new THREE.MeshLambertMaterial({ color: 0xc8a050, emissive: 0x000000 }));
   const gomas = [new THREE.Mesh(geoGoma, matGoma), new THREE.Mesh(geoGoma, matGoma)];
   for (const g of gomas) raiz.add(g);
-  const badana = new THREE.Mesh(R(new THREE.BoxGeometry(0.05, 0.03, 0.025)), matCuero);
+  const badana = new THREE.Mesh(R(new THREE.BoxGeometry(0.07, 0.04, 0.03)), matCuero);
   raiz.add(badana);
   const piedraCargada = new THREE.Mesh(piedras.geometry, R(new THREE.MeshLambertMaterial({ color: 0x8a8478, emissive: 0x000000 })));
   raiz.add(piedraCargada);
@@ -406,6 +445,7 @@ export function iniciar(ctx) {
     e.tipo = r < pAriete ? 'ariete' : r < pAriete + pEscudero ? 'escudero' : 'soldado';
     e.vida = TIPOS[e.tipo].vida;
     e.u = 0;
+    e.via = Math.floor(Math.random() * VIAS.length);
     e.vivo = true;
     e.cayendo = 0;
     e.golpe = 0;
@@ -697,7 +737,7 @@ export function iniciar(ctx) {
     const r = ctx.raton;
     horquillaRaton.visible = true;
     centro.set(0.22, 1.25, -0.35);
-    horquillaRaton.position.set(0.22, 1.25 - CENTRO_HORQUILLA.y, -0.35);
+    horquillaRaton.position.set(0.22, 1.25 - CENTRO_HORQUILLA.y * ESCALA_TIRACHINAS, -0.35);
     // A lo que señales: el globo, el suelo o, si apuntas al cielo, un punto del aire a 30 m
     const rayo = r.rayo.ray;
     if (globo.visible && rayo.distanceSqToPoint(globo.position) < 1.2) objetivo.copy(globo.position);
@@ -754,7 +794,7 @@ export function iniciar(ctx) {
     horquilla.getWorldQuaternion(badana.quaternion);
     piedraCargada.position.copy(badanaPos);
     const s = poder === 'roca' ? 2 : 1;
-    piedraCargada.scale.setScalar(s);
+    piedraCargada.scale.setScalar(s * 0.7); // la de la goma, algo más pequeña que la horquilla
     piedraCargada.material.color.setHex(poder === 'fuego' ? 0xff7a2e : poder === 'roca' ? 0xb36bff : 0x8a8478);
     // Con un poder activo, la goma brilla de su color
     matGoma.emissive.setHex(poder ? COLOR_PODER[poder] : 0x000000);
@@ -838,16 +878,15 @@ export function iniciar(ctx) {
   }
 
   function moverEnemigos(dt) {
-    const largo = Math.abs(Z_SALIDA - Z_PUENTE) * 1.15; // m del camino (aprox., con las curvas)
     for (const e of enemigos) {
       if (e.vivo) {
-        e.u += (TIPOS[e.tipo].velocidad * ritmo() * dt) / largo;
+        e.u += (TIPOS[e.tipo].velocidad * ritmo() * dt) / LARGO_VIA[e.via];
         if (e.u >= 1) {
           alPuente(e);
           continue;
         }
-        camino(e.u, e.grupo.position);
-        camino(Math.min(1, e.u + 0.01), tmp);
+        camino(e.u, e.grupo.position, e.via);
+        camino(Math.min(1, e.u + 0.01), tmp, e.via);
         e.grupo.rotation.y = Math.atan2(tmp.x - e.grupo.position.x, tmp.z - e.grupo.position.z);
         // Andar: un saltito y un balanceo (el ariete solo se mece)
         const paso = tiempo * (e.tipo === 'ariete' ? 3 : 7) * ritmo() + e.fase;
