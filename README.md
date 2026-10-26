@@ -112,6 +112,7 @@ juegos/
   xilofono/juego.js     Xilófono
   fronton/juego.js      Frontón de Ping Pong
   lenador/juego.js      Leñador
+  castillo/juego.js     Defensa del Castillo
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

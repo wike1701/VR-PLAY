@@ -60,6 +60,7 @@ const LISTA = [
   { id: 'xilofono', genero: 'ritmo' },
   { id: 'fronton', genero: 'deportes' },
   { id: 'lenador', genero: 'reflejos' },
+  { id: 'castillo', genero: 'disparos' },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

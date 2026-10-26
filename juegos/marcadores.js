@@ -99,6 +99,9 @@ export const MARCADORES = {
   // Leñador: 1 punto por hachazo; sin final fijo (hasta que te da una rama o se acaba la barra de tiempo).
   // La barra obliga a ir cada vez más deprisa (hasta unos 3,75 hachazos por segundo); con ratón o dos dedos se puede ir mucho más rápido
   lenador: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 14, minSegundos: 2 },
+  // Defensa del Castillo: 10/20/40 puntos por soldado/escudero/ariete (+5 desde lejos) y 15 por globo;
+  // sin final fijo (hasta que la puerta recibe 5 golpes). Los enemigos salen como mucho cada 0,4 s
+  castillo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 10 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

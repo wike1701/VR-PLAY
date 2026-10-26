@@ -166,6 +166,13 @@ const SONIDOS = {
   // Leñador: el hacha que se clava en la madera y la rama que te da
   hachazo: () => { tono(190, 85, 0.1, 'triangle', 0.45); ruido(0.07, 1300, 0.5, 0.9); tono(900, 600, 0.03, 'square', 0.06); },
   rama: () => { ruido(0.3, 2600, 0.5, 0.6); tono(140, 50, 0.3, 'sine', 0.5); ruido(0.2, 500, 0.4, 0.8); },
+  // Defensa del Castillo: la goma del tirachinas, la pedrada, el enemigo que cae, el cuerno de cada
+  // oleada y el poder que se consigue
+  tirachinas: () => { tono(320, 120, 0.12, 'triangle', 0.3); ruido(0.08, 2200, 0.25, 1.2); },
+  pedrada: () => { tono(260, 120, 0.08, 'square', 0.18); ruido(0.06, 1500, 0.35, 1); },
+  derribo: () => { tono(150, 60, 0.25, 'sine', 0.45); ruido(0.2, 600, 0.4, 0.7); },
+  cuerno: () => { tono(196, 200, 0.5, 'sawtooth', 0.08); tono(294, 298, 0.7, 'sawtooth', 0.07, 0.35); tono(147, 149, 1.0, 'triangle', 0.12); },
+  poder: () => { tono(660, 660, 0.08, 'square', 0.09); tono(880, 880, 0.08, 'square', 0.09, 0.08); tono(1320, 1320, 0.2, 'triangle', 0.14, 0.16); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
