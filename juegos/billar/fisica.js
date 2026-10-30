@@ -374,12 +374,15 @@ export const COLORES = [
 ];
 
 // Forma de la mesa: polígono (sentido antihorario visto desde arriba) y troneras
-function formaMesa(tipo, rnd) {
+// «tam» encoge la mesa en los primeros niveles (1 = tamaño normal)
+function formaMesa(tipo, rnd, tam = 1) {
   const Z0 = -0.3; // borde de tu lado
   let ancho = 1.27;
   let largo = 2.3;
   if (tipo === 'larga') { ancho = 0.95 + rnd() * 0.15; largo = 2.8 + rnd() * 0.3; }
   if (tipo === 'ancha') { ancho = 1.7 + rnd() * 0.2; largo = 1.9 + rnd() * 0.2; }
+  ancho *= tam;
+  largo *= tam;
   const x = ancho / 2;
   const zf = Z0 - largo;
   let pol;
@@ -409,7 +412,7 @@ function bandas(pol, troneras) {
     for (const t of troneras) {
       const s = (t.x - ax) * ux + (t.z - az) * uz;
       const dist = Math.abs((t.x - ax) * -uz + (t.z - az) * ux);
-      if (dist < 0.08 && s > -0.1 && s < l + 0.1) cortes.push([s - 0.075, s + 0.075]);
+      if (dist < t.r + 0.02 && s > -0.1 && s < l + 0.1) cortes.push([s - t.r - 0.015, s + t.r + 0.015]);
     }
     cortes.sort((a, b) => a[0] - b[0]);
     let desde = 0;
@@ -428,12 +431,15 @@ export function generarMesa(n, semilla) {
   const al = (a, b) => a + rnd() * (b - a);
   const elige = (lista) => lista[Math.floor(rnd() * lista.length)];
 
-  // Nivel 1: billar de toda la vida, para que se entienda la mecánica
-  const tipoMesa = n <= 2 ? 'clasica' : elige(n < 6 ? ['clasica', 'larga', 'ancha'] : ['clasica', 'larga', 'ancha', 'octogono', 'octogono']);
-  const f = formaMesa(tipoMesa, rnd);
-  const troneras = f.troneras.map(([x, z]) => ({ x, z, r: 0.06 }));
-  // Las troneras de tu lado se quitan a partir del nivel 3 (así la blanca no se cuela sin querer)
-  if (n >= 3) for (let i = troneras.length - 1; i >= 0; i--) if (troneras[i].z > f.Z0 - 0.05) troneras.splice(i, 1);
+  // Los primeros niveles, billar de toda la vida en una mesa pequeña con troneras grandes; la mesa
+  // crece y las troneras se estrechan poco a poco, y las mesas raras llegan más tarde
+  const tipoMesa = n <= 4 ? 'clasica' : elige(n < 9 ? ['clasica', 'larga', 'ancha'] : ['clasica', 'larga', 'ancha', 'octogono', 'octogono']);
+  const tam = [0.6, 0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.95][n - 1] ?? 1;
+  const radio = [0.095, 0.09, 0.085, 0.08, 0.075, 0.07, 0.066, 0.063][n - 1] ?? 0.06;
+  const f = formaMesa(tipoMesa, rnd, tam);
+  const troneras = f.troneras.map(([x, z]) => ({ x, z, r: radio }));
+  // Las troneras de tu lado se quitan a partir del nivel 5 (así la blanca no se cuela sin querer)
+  if (n >= 5) for (let i = troneras.length - 1; i >= 0; i--) if (troneras[i].z > f.Z0 - 0.05) troneras.splice(i, 1);
   const mesa = {
     tipo: tipoMesa,
     poligono: f.pol,
@@ -494,14 +500,16 @@ export function generarMesa(n, semilla) {
     return { mesa, bolas, retos, tiros: 5 };
   }
 
-  // Elementos según el nivel
-  const nAros = n >= 2 ? (n === 2 ? 1 : Math.floor(al(0, n >= 6 ? 2.6 : 1.8))) : 0;
-  const nRebotadores = n >= 3 ? Math.floor(al(n === 3 ? 1 : 0, Math.min(4, 1 + n / 3))) : 0;
-  const nPostes = n >= 4 ? Math.floor(al(0, Math.min(4, n / 3))) : 0;
-  const nNegras = n >= 4 ? Math.floor(al(n === 4 ? 1 : 0, Math.min(3, 1 + n / 5))) : 0;
-  const conRampa = n >= 5 && (n === 5 || rnd() < 0.5);
-  const nMuros = n >= 6 ? Math.floor(al(0, 2.4)) : 0;
-  const conMovil = n >= 8 && rnd() < 0.55;
+  // Elementos según el nivel: cada cosa nueva sale primero sola y luego se mezcla con las demás
+  // (aros desde el 3, rebotadores desde el 5, postes y bolas negras desde el 6, rampa desde el 8,
+  // muros desde el 9 y la barrera que se mueve desde el 12)
+  const nAros = n >= 3 ? (n === 3 ? 1 : Math.floor(al(0, n >= 9 ? 2.6 : 1.8))) : 0;
+  const nRebotadores = n >= 5 ? Math.floor(al(n === 5 ? 1 : 0, Math.min(4, n / 3))) : 0;
+  const nPostes = n >= 6 ? Math.floor(al(0, Math.min(4, (n - 2) / 3))) : 0;
+  const nNegras = n >= 6 ? Math.floor(al(n === 6 ? 1 : 0, Math.min(3, n / 6))) : 0;
+  const conRampa = n >= 8 && (n === 8 || rnd() < 0.5);
+  const nMuros = n >= 9 ? Math.floor(al(0, 2.4)) : 0;
+  const conMovil = n >= 12 && rnd() < 0.55;
 
   // Rampa con una barrera baja detrás: hay que saltarla
   if (conRampa) {
@@ -556,18 +564,18 @@ export function generarMesa(n, semilla) {
     retos.push({ tipo: 'aro', aro: mesa.aros.length - 1 });
   }
   // Bolas de reto y negras
-  let nColores = Math.max(1, Math.min(3, Math.floor(al(1, 2 + n / 5))) - (retos.length > 1 ? 1 : 0));
-  if (n >= 5 && retos.length + nColores < 2) nColores = 2 - retos.length; // desde el nivel 5, al menos 2 retos
+  let nColores = Math.max(1, Math.min(3, Math.floor(al(1, 1.5 + n / 6))) - (retos.length > 1 ? 1 : 0));
+  if (n >= 7 && retos.length + nColores < 2) nColores = 2 - retos.length; // desde el nivel 7, al menos 2 retos
   for (let k = 0; k < nColores; k++) {
     const b = ponerBola('color');
     if (b < 0) continue;
     // A veces hay que meterla en una tronera concreta (la que brilla)
-    const concreta = n >= 3 && rnd() < Math.min(0.6, 0.15 + n * 0.04) ? Math.floor(rnd() * troneras.length) : -1;
+    const concreta = n >= 5 && rnd() < Math.min(0.6, n * 0.04) ? Math.floor(rnd() * troneras.length) : -1;
     retos.push({ tipo: 'meter', bola: b, tronera: concreta });
   }
   for (let k = 0; k < nNegras; k++) ponerBola('negra');
   // Un truco: pasar por un aro y meter una bola en el mismo tiro
-  if (n >= 7 && mesa.aros.length && rnd() < 0.35) {
+  if (n >= 10 && mesa.aros.length && rnd() < 0.35) {
     const metida = retos.find((r) => r.tipo === 'meter');
     const aro = retos.find((r) => r.tipo === 'aro');
     if (metida && aro) {
@@ -578,7 +586,7 @@ export function generarMesa(n, semilla) {
   }
   if (!retos.length) return null;
   // Tiros: uno por reto y alguno de sobra (cada vez menos)
-  const sobra = n < 4 ? 2 : n < 9 ? 1 : rnd() < 0.5 ? 1 : 0;
+  const sobra = n < 6 ? 2 : n < 12 ? 1 : rnd() < 0.5 ? 1 : 0;
   return { mesa, bolas, retos, tiros: retos.length + sobra };
 }
 
