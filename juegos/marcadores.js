@@ -105,6 +105,9 @@ export const MARCADORES = {
   // Billar de Trucos: 25 por reto cumplido y, por mesa superada, 100 + 60 por tiro de sobra (+150 si todo de un
   // tiro); sin final fijo (hasta perder 3 vidas). Cada mesa necesita al menos unos segundos
   billar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 100, minSegundos: 10 },
+  // Combate de Boxeo: daño hecho al robot (de 2 a ~24 por golpe), +5 por esquivar y, por K.O., 50 × el número de
+  // combate (+100 si no te ha dado); sin final fijo (hasta que tu vida llega a 0)
+  ring: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 8 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

@@ -176,6 +176,12 @@ const SONIDOS = {
   // Billar de Trucos: la bola que cae en la tronera y rueda por dentro, y el rebotador de goma
   embocada: () => { tono(420, 180, 0.12, 'triangle', 0.3); ruido(0.25, 900, 0.18, 1.5); tono(240, 200, 0.3, 'sine', 0.08, 0.12); },
   rebotador: () => { tono(380, 760, 0.12, 'square', 0.12); tono(190, 160, 0.1, 'sine', 0.3); },
+  // Combate de Boxeo: el robot carga el golpe, tu guante contra su chapa, el crítico, el bloqueo y el golpe que te dan
+  carga: () => { tono(300, 900, 0.32, 'sawtooth', 0.06); tono(150, 450, 0.32, 'square', 0.04); },
+  golpeRobot: () => { tono(140, 70, 0.12, 'sine', 0.5); ruido(0.08, 2600, 0.3, 1.4); tono(1900, 1500, 0.05, 'triangle', 0.06); },
+  critico: () => { tono(160, 60, 0.18, 'sine', 0.6); ruido(0.1, 3200, 0.45, 1.2); tono(2400, 3200, 0.1, 'triangle', 0.1, 0.04); },
+  bloqueo: () => { tono(220, 140, 0.08, 'triangle', 0.35); ruido(0.05, 800, 0.3, 1); },
+  teDan: () => { tono(90, 45, 0.25, 'sine', 0.7); ruido(0.18, 400, 0.5, 0.8); tono(600, 200, 0.2, 'sawtooth', 0.06, 0.05); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);
