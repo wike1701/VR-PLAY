@@ -1899,5 +1899,28 @@ bomberos: {
         resumen: 'Incontri vinti: {n}',
       },
     },
+    futbolin: {
+      titulo: 'Calcio balilla',
+      descripcion: 'Il calcio balilla di sempre, in un bar di quartiere con piastrelle, sgabelli e la partita in TV, contro la macchina. Giochi con i rossi: la mano sinistra muove portiere e difesa, la destra centrocampo e attacco. Fai scorrere le stecche per metterti davanti alla pallina e ruota il polso per tirare: più giri veloce, più forte esce. Le partite sono a 5 gol e ogni vittoria porta una macchina più veloce. La serie finisce quando perdi una partita.',
+      controlesVR: 'Mano sinistra: portiere e difesa; mano destra: centrocampo e attacco. Avvicina o allontana la mano per far scorrere le stecche e ruota il polso per tirare.',
+      controlesEscritorio: 'Muovi il mouse su e giù per far scorrere le stecche e fai clic per tirare.',
+      controlesTactil: 'Scorri il dito su e giù per muovere le stecche e tocca per tirare.',
+      etiquetas: [
+        'calcio balilla', 'biliardino', 'calcio', 'bar', 'stecche', 'omini', 'gol', 'tirare', 'tavolo', 'classico',
+        'sport', 'riflessi', 'contro la macchina', 'partita', 'portiere', 'attaccante', 'polso', 'infinito',
+        'sempre più difficile', 'serie', 'record', 'punti', 'classifica', 'foosball', 'futbolín',
+      ],
+      juego: {
+        titulo: 'CALCIO BALILLA',
+        intro: 'Avvicina o allontana le mani per le stecche; ruota il polso per tirare',
+        introRaton: 'Mouse: stecche · clic: tira',
+        introTactil: 'Scorri: stecche · tocca: tira',
+        partidoN: 'Macchina {n}: a 5 gol!',
+        golTuyo: 'GOL!',
+        golMaquina: 'Gol della macchina',
+        estado: 'Macchina {n} · {puntos} punti',
+        bolaMuerta: 'Palla morta: nuova rimessa',
+      },
+    },
   },
 };

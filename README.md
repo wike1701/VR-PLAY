@@ -115,6 +115,7 @@ juegos/
   castillo/juego.js     Defensa del Castillo
   billar/juego.js       Billar de Trucos (en pruebas; su física y el generador de mesas, en fisica.js)
   ring/juego.js         Combate de Boxeo (en pruebas)
+  futbolin/juego.js     Futbolín (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

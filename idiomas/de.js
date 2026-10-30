@@ -1900,5 +1900,28 @@ bomberos: {
         resumen: 'Gewonnene Kämpfe: {n}',
       },
     },
+    futbolin: {
+      titulo: 'Tischkicker',
+      descripcion: 'Der klassische Tischkicker in einer Eckkneipe mit Fliesen, Barhockern und Fußball im Fernsehen, gegen die Maschine. Du spielst Rot: Die linke Hand führt Torwart und Abwehr, die rechte Mittelfeld und Sturm. Schiebe die Stangen vor den Ball und dreh das Handgelenk zum Schießen: Je schneller du drehst, desto härter der Schuss. Gespielt wird bis 5 Tore, und jeder Sieg bringt eine schnellere Maschine. Deine Serie endet, wenn du ein Spiel verlierst.',
+      controlesVR: 'Linke Hand: Torwart und Abwehr; rechte Hand: Mittelfeld und Sturm. Bewege die Hand vor und zurück, um die Stangen zu schieben, und dreh das Handgelenk zum Schießen.',
+      controlesEscritorio: 'Bewege die Maus nach oben und unten, um deine Stangen zu schieben, und klicke zum Schießen.',
+      controlesTactil: 'Wische mit dem Finger nach oben und unten, um deine Stangen zu bewegen, und tippe zum Schießen.',
+      etiquetas: [
+        'Tischkicker', 'Kicker', 'Fußball', 'Kneipe', 'Stangen', 'Figuren', 'Tor', 'schießen', 'Tisch', 'Klassiker',
+        'Sport', 'Reflexe', 'gegen die Maschine', 'Spiel', 'Torwart', 'Stürmer', 'Handgelenk', 'endlos',
+        'immer schwerer', 'Serie', 'Rekord', 'Punkte', 'Rangliste', 'foosball', 'futbolín',
+      ],
+      juego: {
+        titulo: 'TISCHKICKER',
+        intro: 'Hände vor und zurück: Stangen schieben; Handgelenk drehen: schießen',
+        introRaton: 'Maus: Stangen · Klick: schießen',
+        introTactil: 'Wischen: Stangen · Tippen: schießen',
+        partidoN: 'Maschine {n}: bis 5 Tore!',
+        golTuyo: 'TOR!',
+        golMaquina: 'Tor der Maschine',
+        estado: 'Maschine {n} · {puntos} Punkte',
+        bolaMuerta: 'Toter Ball: neuer Anstoß',
+      },
+    },
   },
 };

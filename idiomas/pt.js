@@ -1900,5 +1900,28 @@ bomberos: {
         resumen: 'Combates ganhos: {n}',
       },
     },
+    futbolin: {
+      titulo: 'Matraquilhos',
+      descripcion: 'Os matraquilhos de sempre, num café de bairro com azulejos, bancos e o futebol na televisão, contra a máquina. Jogas com os vermelhos: a mão esquerda leva o guarda-redes e a defesa, a direita o meio-campo e os avançados. Desliza as barras para ficares à frente da bola e roda o pulso para rematar: quanto mais depressa rodas, mais forte sai. Os jogos são a 5 golos e cada vitória traz uma máquina mais rápida. A série acaba quando perdes um jogo.',
+      controlesVR: 'Mão esquerda: guarda-redes e defesa; mão direita: meio-campo e avançados. Aproxima ou afasta a mão para deslizar as barras e roda o pulso para rematar.',
+      controlesEscritorio: 'Move o rato para cima e para baixo para deslizar as tuas barras e clica para rematar.',
+      controlesTactil: 'Desliza o dedo para cima e para baixo para mover as tuas barras e toca para rematar.',
+      etiquetas: [
+        'matraquilhos', 'pebolim', 'totó', 'futebol', 'café', 'barras', 'bonecos', 'golo', 'rematar', 'mesa',
+        'clássico', 'desporto', 'reflexos', 'contra a máquina', 'jogo', 'guarda-redes', 'avançado', 'pulso',
+        'infinito', 'cada vez mais difícil', 'série', 'recorde', 'pontos', 'classificação', 'foosball', 'futbolín',
+      ],
+      juego: {
+        titulo: 'MATRAQUILHOS',
+        intro: 'Aproxima ou afasta as mãos para as barras; roda o pulso para rematar',
+        introRaton: 'Rato: barras · clique: rematar',
+        introTactil: 'Desliza: barras · toca: rematar',
+        partidoN: 'Máquina {n}: a 5 golos!',
+        golTuyo: 'GOLO!',
+        golMaquina: 'Golo da máquina',
+        estado: 'Máquina {n} · {puntos} pontos',
+        bolaMuerta: 'Bola morta: novo lançamento',
+      },
+    },
   },
 };

@@ -2011,5 +2011,28 @@ bomberos: {
         resumen: 'Combates ganados: {n}',
       },
     },
+    futbolin: {
+      titulo: 'Futbolín',
+      descripcion: 'El futbolín de toda la vida, en un bar de barrio con azulejos, taburetes y el fútbol en la tele, contra la máquina. Juegas con los rojos: la mano izquierda lleva el portero y la defensa, y la derecha los medios y los delanteros. Desliza las barras para ponerte delante de la bola y gira la muñeca para chutar: cuanto más rápido giras, más fuerte sale. Los partidos son a 5 goles y cada uno que ganas trae una máquina más rápida. La racha se acaba al perder un partido.',
+      controlesVR: 'Mano izquierda: portero y defensa; mano derecha: medios y delanteros. Acerca o aleja la mano para deslizar las barras y gira la muñeca para chutar.',
+      controlesEscritorio: 'Mueve el ratón arriba y abajo para deslizar tus barras y haz clic para chutar.',
+      controlesTactil: 'Desliza el dedo arriba y abajo para mover tus barras y toca para chutar.',
+      etiquetas: [
+        'futbolín', 'fútbol', 'bar', 'barras', 'muñecos', 'gol', 'portería', 'chutar', 'mesa', 'clásico', 'deportes',
+        'reflejos', 'contra la máquina', 'partido', 'portero', 'delantero', 'muñeca', 'infinito',
+        'cada vez más difícil', 'racha', 'récord', 'puntos', 'clasificación', 'foosball', 'table football', 'soccer',
+      ],
+      juego: {
+        titulo: 'FUTBOLÍN',
+        intro: 'Acerca o aleja las manos para mover las barras; gira la muñeca para chutar',
+        introRaton: 'Mueve el ratón: barras · clic: chutar',
+        introTactil: 'Desliza: barras · toca: chutar',
+        partidoN: 'Máquina {n}: ¡a 5 goles!',
+        golTuyo: '¡GOL!',
+        golMaquina: 'Gol de la máquina',
+        estado: 'Máquina {n} · {puntos} puntos',
+        bolaMuerta: 'Bola muerta: saque nuevo',
+      },
+    },
   },
 };

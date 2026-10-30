@@ -1896,5 +1896,28 @@ bomberos: {
         resumen: 'Fights won: {n}',
       },
     },
+    futbolin: {
+      titulo: 'Table Football',
+      descripcion: 'Classic table football in a neighbourhood bar with tiles, stools and the match on TV, against the machine. You play red: your left hand works the goalkeeper and defence, your right hand the midfield and strikers. Slide the rods to get in front of the ball and twist your wrist to shoot: the faster you twist, the harder it goes. Matches are first to 5 goals and every win brings a faster machine. Your streak ends when you lose a match.',
+      controlesVR: 'Left hand: goalkeeper and defence; right hand: midfield and strikers. Move your hand closer or farther to slide the rods and twist your wrist to shoot.',
+      controlesEscritorio: 'Move the mouse up and down to slide your rods and click to shoot.',
+      controlesTactil: 'Slide your finger up and down to move your rods and tap to shoot.',
+      etiquetas: [
+        'table football', 'foosball', 'football', 'soccer', 'bar', 'rods', 'goal', 'shoot', 'table', 'classic',
+        'sports', 'reflexes', 'versus machine', 'match', 'goalkeeper', 'striker', 'wrist', 'endless',
+        'harder and harder', 'streak', 'record', 'points', 'leaderboard', 'futbolín',
+      ],
+      juego: {
+        titulo: 'TABLE FOOTBALL',
+        intro: 'Move your hands in and out to slide the rods; twist your wrist to shoot',
+        introRaton: 'Move the mouse: rods · click: shoot',
+        introTactil: 'Slide: rods · tap: shoot',
+        partidoN: 'Machine {n}: first to 5!',
+        golTuyo: 'GOAL!',
+        golMaquina: 'Machine scores',
+        estado: 'Machine {n} · {puntos} points',
+        bolaMuerta: 'Dead ball: new kick-off',
+      },
+    },
   },
 };

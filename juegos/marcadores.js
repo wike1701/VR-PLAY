@@ -108,6 +108,9 @@ export const MARCADORES = {
   // Combate de Boxeo: daño hecho al robot (de 2 a ~24 por golpe), +5 por esquivar y, por K.O., 50 × el número de
   // combate (+100 si no te ha dado); sin final fijo (hasta que tu vida llega a 0)
   ring: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 8 },
+  // Futbolín: 100 × el número de máquina por gol tuyo y 500 × la máquina por partido ganado; la racha acaba
+  // al perder un partido (a 5 goles, así que dura al menos unos segundos)
+  futbolin: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 300, minSegundos: 20 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

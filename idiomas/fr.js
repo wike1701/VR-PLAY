@@ -1901,5 +1901,28 @@ bomberos: {
         resumen: 'Combats gagnés : {n}',
       },
     },
+    futbolin: {
+      titulo: 'Baby-foot',
+      descripcion: 'Le baby-foot de toujours, dans un bar de quartier avec carrelage, tabourets et le match à la télé, contre la machine. Tu joues les rouges : la main gauche tient le gardien et la défense, la droite le milieu et les attaquants. Fais glisser les barres pour te placer devant la balle et tourne le poignet pour tirer : plus tu tournes vite, plus le tir est fort. Les matchs se jouent en 5 buts et chaque victoire amène une machine plus rapide. La série s’arrête quand tu perds un match.',
+      controlesVR: 'Main gauche : gardien et défense ; main droite : milieu et attaquants. Rapproche ou éloigne la main pour faire glisser les barres et tourne le poignet pour tirer.',
+      controlesEscritorio: 'Bouge la souris de haut en bas pour faire glisser tes barres et clique pour tirer.',
+      controlesTactil: 'Glisse le doigt de haut en bas pour bouger tes barres et touche pour tirer.',
+      etiquetas: [
+        'baby-foot', 'football', 'bar', 'barres', 'figurines', 'but', 'tirer', 'table', 'classique', 'sport',
+        'réflexes', 'contre la machine', 'match', 'gardien', 'attaquant', 'poignet', 'infini', 'de plus en plus dur',
+        'série', 'record', 'points', 'classement', 'foosball', 'futbolín',
+      ],
+      juego: {
+        titulo: 'BABY-FOOT',
+        intro: 'Rapproche ou éloigne les mains pour les barres ; tourne le poignet pour tirer',
+        introRaton: 'Souris : barres · clic : tirer',
+        introTactil: 'Glisse : barres · touche : tirer',
+        partidoN: 'Machine {n} : en 5 buts !',
+        golTuyo: 'BUT !',
+        golMaquina: 'But de la machine',
+        estado: 'Machine {n} · {puntos} points',
+        bolaMuerta: 'Balle morte : nouvel engagement',
+      },
+    },
   },
 };
