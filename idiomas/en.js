@@ -1941,5 +1941,28 @@ bomberos: {
         finTiempo: 'Time’s up',
       },
     },
+    escalada: {
+      titulo: 'Lava Climb',
+      descripcion: 'A volcanic rock wall in a canyon at sunset and, below, a river of lava that keeps rising. Grab the holds and pull down to climb, hand over hand: the wall only moves as much as your hands pull, so there is no motion sickness. Let go with both hands and you fall; let the lava reach you and it is over too. The higher you go, the farther apart the holds and the faster the lava; there are also holds that crumble, slip and move. You score the metres climbed.',
+      controlesVR: 'Bring your hand to a hold and press the trigger or the side button to grab it; pull down to climb and never let go with both hands at once.',
+      controlesEscritorio: 'Click a glowing hold (within reach) to climb to it. Don’t linger on cracked or bluish holds.',
+      controlesTactil: 'Tap a glowing hold (within reach) to climb to it. Don’t linger on cracked or bluish holds.',
+      etiquetas: [
+        'climbing', 'climb', 'lava', 'volcano', 'wall', 'holds', 'rock', 'canyon', 'sunset', 'height', 'hands',
+        'grab', 'arms', 'exercise', 'adventure', 'skill', 'endless', 'harder and harder', 'no motion sickness',
+        'record', 'metres', 'leaderboard', 'escalada',
+      ],
+      juego: {
+        titulo: 'LAVA CLIMB',
+        intro: 'Grab a hold with the trigger and pull down to climb',
+        introRaton: 'Click a glowing hold to climb',
+        introTactil: 'Tap a glowing hold to climb',
+        altura: '{n} m',
+        lava: 'Lava: {n} m below',
+        record: 'Record: {n} m',
+        teCaes: 'You fell',
+        teAlcanza: 'The lava got you!',
+      },
+    },
   },
 };

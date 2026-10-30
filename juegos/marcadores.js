@@ -114,6 +114,9 @@ export const MARCADORES = {
   // Prisma: 100 × el número de sala por sala superada; sin final fijo (hasta que se acaba el reloj, que empieza
   // con 3 minutos y recupera de 1 minuto a medio por sala). Cada sala necesita al menos unos segundos
   prisma: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 250, minSegundos: 5 },
+  // Escalada contra la Lava: metros subidos hasta caer o hasta que te alcanza la lava (con ratón se sube como
+  // mucho ~1 m por clic y la pared tarda un momento en llegar; con las manos, bastante menos)
+  escalada: { orden: 'mayor', unidad: 'metros', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

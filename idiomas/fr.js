@@ -1946,5 +1946,28 @@ bomberos: {
         finTiempo: 'Temps écoulé',
       },
     },
+    escalada: {
+      titulo: 'Escalade face à la lave',
+      descripcion: 'Une paroi de roche volcanique dans un canyon au coucher du soleil et, en bas, une rivière de lave qui monte. Attrape les prises et tire vers le bas pour grimper, une main après l’autre : la paroi ne bouge que de ce que tirent tes mains, donc pas de nausée. Si tu lâches les deux mains, tu tombes, et si la lave t’atteint, aussi. Plus tu montes, plus les prises sont écartées et plus la lave monte vite ; il y a aussi des prises qui s’effritent, qui glissent et qui bougent. Tu marques les mètres grimpés.',
+      controlesVR: 'Approche la main d’une prise et appuie sur la gâchette ou le bouton latéral pour l’attraper ; tire vers le bas pour monter et ne lâche jamais les deux mains à la fois.',
+      controlesEscritorio: 'Clique sur une prise lumineuse (à ta portée) pour y monter. Ne reste pas sur les prises fissurées ni bleutées.',
+      controlesTactil: 'Touche une prise lumineuse (à ta portée) pour y monter. Ne reste pas sur les prises fissurées ni bleutées.',
+      etiquetas: [
+        'escalade', 'grimper', 'lave', 'volcan', 'paroi', 'prises', 'roche', 'canyon', 'coucher de soleil',
+        'hauteur', 'mains', 'attraper', 'bras', 'exercice', 'aventure', 'adresse', 'infini', 'de plus en plus dur',
+        'sans nausée', 'record', 'mètres', 'classement', 'climbing', 'escalada',
+      ],
+      juego: {
+        titulo: 'ESCALADE FACE À LA LAVE',
+        intro: 'Attrape une prise avec la gâchette et tire vers le bas pour monter',
+        introRaton: 'Clic sur une prise lumineuse pour monter',
+        introTactil: 'Touche une prise lumineuse pour monter',
+        altura: '{n} m',
+        lava: 'Lave : {n} m plus bas',
+        record: 'Record : {n} m',
+        teCaes: 'Tu es tombé',
+        teAlcanza: 'La lave t’a rattrapé !',
+      },
+    },
   },
 };

@@ -2056,5 +2056,28 @@ bomberos: {
         finTiempo: 'Se acabó el tiempo',
       },
     },
+    escalada: {
+      titulo: 'Escalada contra la Lava',
+      descripcion: 'Una pared de roca volcánica en un cañón al atardecer y, abajo, un río de lava que sube. Agarra las presas y tira hacia abajo para subir, mano tras mano: la pared solo se mueve lo que tiran tus manos, así que no marea. Si sueltas las dos manos te caes, y si la lava te alcanza, también. Cuanto más alto, más separadas están las presas y más deprisa sube la lava; además aparecen presas que se desmoronan, que resbalan y que se mueven. Puntúan los metros subidos.',
+      controlesVR: 'Acerca la mano a una presa y aprieta el gatillo o el botón lateral para agarrarla; tira hacia abajo para subir y no sueltes las dos manos a la vez.',
+      controlesEscritorio: 'Haz clic en una presa iluminada (a tu alcance) para subir hasta ella. No te quedes en las agrietadas ni en las azuladas.',
+      controlesTactil: 'Toca una presa iluminada (a tu alcance) para subir hasta ella. No te quedes en las agrietadas ni en las azuladas.',
+      etiquetas: [
+        'escalada', 'escalar', 'lava', 'volcán', 'pared', 'presas', 'roca', 'cañón', 'atardecer', 'subir', 'altura',
+        'manos', 'agarrar', 'brazos', 'ejercicio', 'aventura', 'habilidad', 'infinito', 'sin fin',
+        'cada vez más difícil', 'sin mareos', 'récord', 'metros', 'clasificación', 'climbing', 'climb',
+      ],
+      juego: {
+        titulo: 'ESCALADA CONTRA LA LAVA',
+        intro: 'Agarra una presa con el gatillo y tira hacia abajo para subir',
+        introRaton: 'Clic en una presa iluminada para subir',
+        introTactil: 'Toca una presa iluminada para subir',
+        altura: '{n} m',
+        lava: 'Lava: {n} m por debajo',
+        record: 'Récord: {n} m',
+        teCaes: 'Te has caído',
+        teAlcanza: '¡Te ha alcanzado la lava!',
+      },
+    },
   },
 };

@@ -117,6 +117,7 @@ juegos/
   ring/juego.js         Combate de Boxeo (en pruebas)
   futbolin/juego.js     Futbolín (en pruebas)
   prisma/juego.js       Prisma (en pruebas; los rayos y el generador de salas, en tablero.js)
+  escalada/juego.js     Escalada contra la Lava (en pruebas)
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.

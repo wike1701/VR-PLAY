@@ -65,6 +65,7 @@ const LISTA = [
   { id: 'ring', genero: 'accion', pruebas: true },
   { id: 'futbolin', genero: 'deportes', pruebas: true },
   { id: 'prisma', genero: 'puzle', pruebas: true },
+  { id: 'escalada', genero: 'habilidad', pruebas: true },
 ];
 
 // Cada juego, con sus textos en el idioma de la página:

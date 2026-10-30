@@ -1945,5 +1945,28 @@ bomberos: {
         finTiempo: 'Acabou o tempo',
       },
     },
+    escalada: {
+      titulo: 'Escalada contra a Lava',
+      descripcion: 'Uma parede de rocha vulcânica num desfiladeiro ao pôr do sol e, lá em baixo, um rio de lava que sobe. Agarra as presas e puxa para baixo para subir, mão após mão: a parede só se move o que as tuas mãos puxam, por isso não enjoa. Se largares as duas mãos cais, e se a lava te apanhar também. Quanto mais alto, mais afastadas estão as presas e mais depressa sobe a lava; há ainda presas que se desfazem, que escorregam e que se mexem. Contam os metros subidos.',
+      controlesVR: 'Aproxima a mão de uma presa e carrega no gatilho ou no botão lateral para a agarrar; puxa para baixo para subir e nunca largues as duas mãos ao mesmo tempo.',
+      controlesEscritorio: 'Clica numa presa iluminada (ao teu alcance) para subir até ela. Não fiques nas rachadas nem nas azuladas.',
+      controlesTactil: 'Toca numa presa iluminada (ao teu alcance) para subir até ela. Não fiques nas rachadas nem nas azuladas.',
+      etiquetas: [
+        'escalada', 'escalar', 'lava', 'vulcão', 'parede', 'presas', 'rocha', 'desfiladeiro', 'pôr do sol', 'altura',
+        'mãos', 'agarrar', 'braços', 'exercício', 'aventura', 'habilidade', 'infinito', 'cada vez mais difícil',
+        'sem enjoo', 'recorde', 'metros', 'classificação', 'climbing',
+      ],
+      juego: {
+        titulo: 'ESCALADA CONTRA A LAVA',
+        intro: 'Agarra uma presa com o gatilho e puxa para baixo para subir',
+        introRaton: 'Clique numa presa iluminada para subir',
+        introTactil: 'Toca numa presa iluminada para subir',
+        altura: '{n} m',
+        lava: 'Lava: {n} m abaixo',
+        record: 'Recorde: {n} m',
+        teCaes: 'Caíste',
+        teAlcanza: 'A lava apanhou-te!',
+      },
+    },
   },
 };

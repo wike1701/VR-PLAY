@@ -1945,5 +1945,28 @@ bomberos: {
         finTiempo: 'Die Zeit ist um',
       },
     },
+    escalada: {
+      titulo: 'Lava-Kletterei',
+      descripcion: 'Eine Wand aus Vulkangestein in einer Schlucht bei Sonnenuntergang und unten ein Lavastrom, der steigt. Greif die Griffe und zieh nach unten, um zu klettern, Hand über Hand: Die Wand bewegt sich nur so weit, wie deine Hände ziehen, also wird dir nicht übel. Lässt du mit beiden Händen los, fällst du, und erreicht dich die Lava, ist es auch vorbei. Je höher, desto weiter liegen die Griffe auseinander und desto schneller steigt die Lava; außerdem gibt es Griffe, die zerbröseln, rutschen und sich bewegen. Gewertet werden die gekletterten Meter.',
+      controlesVR: 'Führe die Hand an einen Griff und drück den Abzug oder die Seitentaste, um ihn zu greifen; zieh nach unten, um zu klettern, und lass nie mit beiden Händen gleichzeitig los.',
+      controlesEscritorio: 'Klicke auf einen leuchtenden Griff (in Reichweite), um zu ihm zu klettern. Bleib nicht an rissigen oder bläulichen Griffen hängen.',
+      controlesTactil: 'Tippe auf einen leuchtenden Griff (in Reichweite), um zu ihm zu klettern. Bleib nicht an rissigen oder bläulichen Griffen hängen.',
+      etiquetas: [
+        'Klettern', 'Lava', 'Vulkan', 'Wand', 'Griffe', 'Fels', 'Schlucht', 'Sonnenuntergang', 'Höhe', 'Hände',
+        'greifen', 'Arme', 'Training', 'Abenteuer', 'Geschick', 'endlos', 'immer schwerer', 'ohne Übelkeit',
+        'Rekord', 'Meter', 'Rangliste', 'climbing', 'escalada',
+      ],
+      juego: {
+        titulo: 'LAVA-KLETTEREI',
+        intro: 'Griff mit dem Abzug packen und nach unten ziehen, um zu klettern',
+        introRaton: 'Klick auf einen leuchtenden Griff',
+        introTactil: 'Tippe auf einen leuchtenden Griff',
+        altura: '{n} m',
+        lava: 'Lava: {n} m unter dir',
+        record: 'Rekord: {n} m',
+        teCaes: 'Du bist abgestürzt',
+        teAlcanza: 'Die Lava hat dich erwischt!',
+      },
+    },
   },
 };

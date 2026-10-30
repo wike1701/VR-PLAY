@@ -1944,5 +1944,28 @@ bomberos: {
         finTiempo: 'Tempo scaduto',
       },
     },
+    escalada: {
+      titulo: 'Arrampicata sulla Lava',
+      descripcion: 'Una parete di roccia vulcanica in un canyon al tramonto e, sotto, un fiume di lava che sale. Afferra le prese e tira verso il basso per salire, una mano dopo l’altra: la parete si muove solo quanto tirano le tue mani, quindi niente nausea. Se lasci entrambe le mani cadi, e se la lava ti raggiunge è finita. Più sali, più le prese sono distanti e più la lava sale in fretta; ci sono anche prese che si sbriciolano, che scivolano e che si muovono. Conta i metri saliti.',
+      controlesVR: 'Avvicina la mano a una presa e premi il grilletto o il tasto laterale per afferrarla; tira verso il basso per salire e non lasciare mai entrambe le mani insieme.',
+      controlesEscritorio: 'Fai clic su una presa illuminata (a portata) per salire fin lì. Non restare sulle prese crepate o azzurrine.',
+      controlesTactil: 'Tocca una presa illuminata (a portata) per salire fin lì. Non restare sulle prese crepate o azzurrine.',
+      etiquetas: [
+        'arrampicata', 'scalare', 'lava', 'vulcano', 'parete', 'prese', 'roccia', 'canyon', 'tramonto', 'altezza',
+        'mani', 'afferrare', 'braccia', 'esercizio', 'avventura', 'abilità', 'infinito', 'sempre più difficile',
+        'senza nausea', 'record', 'metri', 'classifica', 'climbing', 'escalada',
+      ],
+      juego: {
+        titulo: 'ARRAMPICATA SULLA LAVA',
+        intro: 'Afferra una presa col grilletto e tira giù per salire',
+        introRaton: 'Clic su una presa illuminata per salire',
+        introTactil: 'Tocca una presa illuminata per salire',
+        altura: '{n} m',
+        lava: 'Lava: {n} m più in basso',
+        record: 'Record: {n} m',
+        teCaes: 'Sei caduto',
+        teAlcanza: 'La lava ti ha raggiunto!',
+      },
+    },
   },
 };
