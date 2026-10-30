@@ -1919,5 +1919,27 @@ bomberos: {
         bolaMuerta: 'Dead ball: new kick-off',
       },
     },
+    prisma: {
+      titulo: 'Prism',
+      descripcion: 'A light-beam puzzle in a dark glass room. An emitter fires a laser across a glass table: turn the mirrors to guide it to the crystals and light them all. Prisms split the white beam into a red one and a blue one, filters tint it their colour and each crystal only lights up with a beam of its own colour. Every room is new and a little bigger and trickier than the last. You have 3 minutes and every room you clear gives one back.',
+      controlesVR: 'Point at a mirror (or bring your hand close), hold the trigger and twist your wrist like a key. A short tap turns it 45°.',
+      controlesEscritorio: 'Click a mirror to turn it 45°.',
+      controlesTactil: 'Tap a mirror to turn it 45°.',
+      etiquetas: [
+        'puzzle', 'beams', 'laser', 'light', 'mirrors', 'prism', 'crystals', 'colours', 'filters', 'logic',
+        'thinking', 'brain', 'neon', 'futuristic', 'glass', 'against the clock', 'timer', 'endless',
+        'harder and harder', 'relaxed', 'no motion sickness', 'record', 'points', 'leaderboard', 'prisma',
+      ],
+      juego: {
+        titulo: 'PRISM',
+        intro: 'Point at a mirror, hold and twist your wrist: guide the laser to the crystals',
+        introRaton: 'Click a mirror: turn it 45°',
+        introTactil: 'Tap a mirror: turn it 45°',
+        sala: 'Room {n}',
+        puntos: '{n} points',
+        superada: 'Room cleared! +{s} s',
+        finTiempo: 'Time’s up',
+      },
+    },
   },
 };

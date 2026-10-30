@@ -1924,5 +1924,27 @@ bomberos: {
         bolaMuerta: 'Balle morte : nouvel engagement',
       },
     },
+    prisma: {
+      titulo: 'Prisme',
+      descripcion: 'Un puzzle de rayons lumineux dans une salle de verre plongée dans le noir. Un émetteur tire un laser sur une table de verre : tourne les miroirs pour l’amener jusqu’aux cristaux et les allumer tous. Les prismes séparent le rayon blanc en un rouge et un bleu, les filtres le teintent de leur couleur et chaque cristal ne s’allume qu’avec un rayon de sa couleur. Chaque salle est nouvelle, un peu plus grande et retorse que la précédente. Tu as 3 minutes et chaque salle réussie t’en rend une.',
+      controlesVR: 'Vise un miroir (ou approche la main), appuie sur la gâchette et tourne le poignet comme une clé. Une pression courte le tourne de 45°.',
+      controlesEscritorio: 'Clique sur un miroir pour le tourner de 45°.',
+      controlesTactil: 'Touche un miroir pour le tourner de 45°.',
+      etiquetas: [
+        'puzzle', 'rayons', 'laser', 'lumière', 'miroirs', 'prisme', 'cristaux', 'couleurs', 'filtres', 'logique',
+        'réflexion', 'cerveau', 'néon', 'futuriste', 'verre', 'contre la montre', 'chrono', 'infini',
+        'de plus en plus dur', 'calme', 'sans nausée', 'record', 'points', 'classement', 'prisma',
+      ],
+      juego: {
+        titulo: 'PRISME',
+        intro: 'Vise un miroir, appuie et tourne le poignet : guide le laser vers les cristaux',
+        introRaton: 'Clic sur un miroir : le tourner de 45°',
+        introTactil: 'Touche un miroir : le tourner de 45°',
+        sala: 'Salle {n}',
+        puntos: '{n} points',
+        superada: 'Salle réussie ! +{s} s',
+        finTiempo: 'Temps écoulé',
+      },
+    },
   },
 };

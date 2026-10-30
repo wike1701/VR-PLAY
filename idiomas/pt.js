@@ -1923,5 +1923,27 @@ bomberos: {
         bolaMuerta: 'Bola morta: novo lançamento',
       },
     },
+    prisma: {
+      titulo: 'Prisma',
+      descripcion: 'Um puzzle de raios de luz numa sala de vidro às escuras. Um emissor dispara um laser sobre uma mesa de vidro: roda os espelhos para o levar até aos cristais e acendê-los todos. Os prismas abrem o raio branco num vermelho e num azul, os filtros tingem-no da sua cor e cada cristal só se acende com um raio da sua cor. Cada sala é nova e um pouco maior e mais complicada do que a anterior. Tens 3 minutos e cada sala superada devolve-te um.',
+      controlesVR: 'Aponta para um espelho (ou aproxima a mão), carrega no gatilho e roda o pulso como uma chave. Um toque curto roda-o 45°.',
+      controlesEscritorio: 'Clica num espelho para o rodar 45°.',
+      controlesTactil: 'Toca num espelho para o rodar 45°.',
+      etiquetas: [
+        'puzzle', 'raios', 'laser', 'luz', 'espelhos', 'prisma', 'cristais', 'cores', 'filtros', 'lógica', 'pensar',
+        'cérebro', 'néon', 'futurista', 'vidro', 'contra o relógio', 'relógio', 'infinito', 'cada vez mais difícil',
+        'calmo', 'sem enjoo', 'recorde', 'pontos', 'classificação', 'prism',
+      ],
+      juego: {
+        titulo: 'PRISMA',
+        intro: 'Aponta para um espelho, carrega e roda o pulso: leva o laser aos cristais',
+        introRaton: 'Clique num espelho: rodá-lo 45°',
+        introTactil: 'Toca num espelho: rodá-lo 45°',
+        sala: 'Sala {n}',
+        puntos: '{n} pontos',
+        superada: 'Sala superada! +{s} s',
+        finTiempo: 'Acabou o tempo',
+      },
+    },
   },
 };

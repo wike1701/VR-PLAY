@@ -1923,5 +1923,27 @@ bomberos: {
         bolaMuerta: 'Toter Ball: neuer Anstoß',
       },
     },
+    prisma: {
+      titulo: 'Prisma',
+      descripcion: 'Ein Lichtstrahl-Rätsel in einem dunklen Glasraum. Ein Sender schießt einen Laser über einen Glastisch: Dreh die Spiegel, um ihn zu den Kristallen zu lenken und alle zum Leuchten zu bringen. Prismen teilen den weißen Strahl in einen roten und einen blauen, Filter färben ihn in ihrer Farbe, und jeder Kristall leuchtet nur mit einem Strahl seiner Farbe. Jeder Raum ist neu und etwas größer und kniffliger als der vorige. Du hast 3 Minuten, und jeder geschaffte Raum gibt dir eine zurück.',
+      controlesVR: 'Ziele auf einen Spiegel (oder bring die Hand nah heran), halte den Abzug und dreh das Handgelenk wie einen Schlüssel. Ein kurzes Drücken dreht ihn um 45°.',
+      controlesEscritorio: 'Klicke auf einen Spiegel, um ihn um 45° zu drehen.',
+      controlesTactil: 'Tippe auf einen Spiegel, um ihn um 45° zu drehen.',
+      etiquetas: [
+        'Rätsel', 'Strahlen', 'Laser', 'Licht', 'Spiegel', 'Prisma', 'Kristalle', 'Farben', 'Filter', 'Logik',
+        'Denken', 'Gehirn', 'Neon', 'futuristisch', 'Glas', 'gegen die Zeit', 'Uhr', 'endlos', 'immer schwerer',
+        'entspannt', 'ohne Übelkeit', 'Rekord', 'Punkte', 'Rangliste', 'puzzle', 'prism',
+      ],
+      juego: {
+        titulo: 'PRISMA',
+        intro: 'Auf einen Spiegel zielen, halten und Handgelenk drehen: Laser zu den Kristallen',
+        introRaton: 'Klick auf einen Spiegel: 45° drehen',
+        introTactil: 'Tippen auf einen Spiegel: 45° drehen',
+        sala: 'Raum {n}',
+        puntos: '{n} Punkte',
+        superada: 'Raum geschafft! +{s} s',
+        finTiempo: 'Die Zeit ist um',
+      },
+    },
   },
 };

@@ -111,6 +111,9 @@ export const MARCADORES = {
   // Futbolín: 100 × el número de máquina por gol tuyo y 500 × la máquina por partido ganado; la racha acaba
   // al perder un partido (a 5 goles, así que dura al menos unos segundos)
   futbolin: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 300, minSegundos: 20 },
+  // Prisma: 100 × el número de sala por sala superada; sin final fijo (hasta que se acaba el reloj, que empieza
+  // con 3 minutos y recupera de 1 minuto a medio por sala). Cada sala necesita al menos unos segundos
+  prisma: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 250, minSegundos: 5 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

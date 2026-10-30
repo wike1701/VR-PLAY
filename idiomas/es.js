@@ -2034,5 +2034,27 @@ bomberos: {
         bolaMuerta: 'Bola muerta: saque nuevo',
       },
     },
+    prisma: {
+      titulo: 'Prisma',
+      descripcion: 'Un puzle de rayos de luz en una sala de cristal a oscuras. Un emisor lanza un láser sobre una mesa de cristal: gira los espejos para llevarlo hasta los cristales y encenderlos todos. Los prismas abren el rayo blanco en uno rojo y uno azul, los filtros lo tiñen de su color y cada cristal solo se enciende con un rayo de su color. Cada sala es nueva y un poco más grande y enrevesada que la anterior. Tienes 3 minutos y cada sala superada te devuelve uno.',
+      controlesVR: 'Apunta a un espejo (o acerca la mano), aprieta el gatillo y gira la muñeca como una llave. Un toque corto lo gira 45°.',
+      controlesEscritorio: 'Haz clic en un espejo para girarlo 45°.',
+      controlesTactil: 'Toca un espejo para girarlo 45°.',
+      etiquetas: [
+        'puzle', 'rayos', 'láser', 'luz', 'espejos', 'prisma', 'cristales', 'colores', 'filtros', 'lógica', 'pensar',
+        'cerebro', 'neón', 'futurista', 'cristal', 'contrarreloj', 'reloj', 'infinito', 'cada vez más difícil',
+        'tranquilo', 'sin mareos', 'récord', 'puntos', 'clasificación', 'laser', 'mirrors', 'puzzle',
+      ],
+      juego: {
+        titulo: 'PRISMA',
+        intro: 'Apunta a un espejo, aprieta y gira la muñeca: lleva el láser a los cristales',
+        introRaton: 'Clic en un espejo: girarlo 45°',
+        introTactil: 'Toca un espejo: girarlo 45°',
+        sala: 'Sala {n}',
+        puntos: '{n} puntos',
+        superada: '¡Sala superada! +{s} s',
+        finTiempo: 'Se acabó el tiempo',
+      },
+    },
   },
 };

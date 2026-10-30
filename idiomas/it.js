@@ -1922,5 +1922,27 @@ bomberos: {
         bolaMuerta: 'Palla morta: nuova rimessa',
       },
     },
+    prisma: {
+      titulo: 'Prisma',
+      descripcion: 'Un puzzle di raggi di luce in una stanza di vetro al buio. Un emettitore spara un laser su un tavolo di vetro: ruota gli specchi per portarlo fino ai cristalli e accenderli tutti. I prismi dividono il raggio bianco in uno rosso e uno blu, i filtri lo tingono del loro colore e ogni cristallo si accende solo con un raggio del suo colore. Ogni stanza è nuova e un po’ più grande e intricata della precedente. Hai 3 minuti e ogni stanza superata te ne restituisce uno.',
+      controlesVR: 'Punta uno specchio (o avvicina la mano), tieni premuto il grilletto e ruota il polso come una chiave. Un tocco breve lo ruota di 45°.',
+      controlesEscritorio: 'Fai clic su uno specchio per ruotarlo di 45°.',
+      controlesTactil: 'Tocca uno specchio per ruotarlo di 45°.',
+      etiquetas: [
+        'puzzle', 'raggi', 'laser', 'luce', 'specchi', 'prisma', 'cristalli', 'colori', 'filtri', 'logica',
+        'ragionamento', 'cervello', 'neon', 'futuristico', 'vetro', 'contro il tempo', 'orologio', 'infinito',
+        'sempre più difficile', 'rilassante', 'senza nausea', 'record', 'punti', 'classifica', 'prism',
+      ],
+      juego: {
+        titulo: 'PRISMA',
+        intro: 'Punta uno specchio, tieni premuto e ruota il polso: porta il laser ai cristalli',
+        introRaton: 'Clic su uno specchio: ruotalo di 45°',
+        introTactil: 'Tocca uno specchio: ruotalo di 45°',
+        sala: 'Stanza {n}',
+        puntos: '{n} punti',
+        superada: 'Stanza superata! +{s} s',
+        finTiempo: 'Tempo scaduto',
+      },
+    },
   },
 };
