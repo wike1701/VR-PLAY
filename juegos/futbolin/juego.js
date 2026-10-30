@@ -40,6 +40,11 @@ const MANO_IZQ = [0, 1];        // tus barras de la mano izquierda
 const MANO_DER = [3, 5];        // y las de la derecha
 const TUYAS = [0, 1, 3, 5];
 const Z_PUNO = 0.18;            // las empuñaduras, a esta distancia de cada banda
+// El futbolín se dibuja más grande que sus medidas (que son las de la física): × ESCALA alrededor
+// de tus empuñaduras, que así se quedan donde caen las manos. En VR las barras siguen la mano 1:1.
+const ESCALA = 1.4;
+const PIVOTE_Y = MESA_Y;
+const PIVOTE_Z = Z_CERCA + Z_PUNO;
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -47,7 +52,16 @@ export function iniciar(ctx) {
 
   ctx.fondo(0x3a2a20, { cenit: 0x1c140f, horizonte: 0x4a3626, suelo: 0x2a1e16, niebla: [8, 20] });
   ctx.sueloBase(false);
-  ctx.vistaEscritorio(new THREE.Vector3(0, 1.72, 0.02), new THREE.Vector3(0, MESA_Y + 0.06, Z_CENTRO - 0.1));
+  // De medidas del futbolín a medidas de la sala, y al revés
+  const yMundo = (y) => PIVOTE_Y + (y - PIVOTE_Y) * ESCALA;
+  const zMundo = (z) => PIVOTE_Z + (z - PIVOTE_Z) * ESCALA;
+  const zMesa = (z) => PIVOTE_Z + (z - PIVOTE_Z) / ESCALA;
+  const aMundo = (v) => v.set(v.x * ESCALA, yMundo(v.y), zMundo(v.z));
+  ctx.vistaEscritorio(new THREE.Vector3(0, 2.2, 0.15), new THREE.Vector3(0, MESA_Y + 0.06, zMundo(Z_CENTRO) - 0.12));
+  const mesa = new THREE.Group();
+  mesa.position.set(0, PIVOTE_Y * (1 - ESCALA), PIVOTE_Z * (1 - ESCALA));
+  mesa.scale.setScalar(ESCALA);
+  raiz.add(mesa);
 
   const matrizTmp = new THREE.Matrix4();
   const tmpMatriz = new THREE.Matrix4();
@@ -167,9 +181,9 @@ export function iniciar(ctx) {
   tele.position.set(-2.2, 2.3, -4.035);
   raiz.add(tele);
   // Lámpara sobre el futbolín
-  raiz.add(new THREE.Mesh(fusionar([colocar(new THREE.ConeGeometry(0.3, 0.2, 18, 1, true), 0, 2.0, Z_CENTRO), caja(0.01, 0.8, 0.01, 0, 2.5, Z_CENTRO)]), R(new THREE.MeshLambertMaterial({ color: 0x2a5a3a, side: THREE.DoubleSide }))));
+  raiz.add(new THREE.Mesh(fusionar([colocar(new THREE.ConeGeometry(0.3, 0.2, 18, 1, true), 0, 2.0, zMundo(Z_CENTRO)), caja(0.01, 0.8, 0.01, 0, 2.5, zMundo(Z_CENTRO))]), R(new THREE.MeshLambertMaterial({ color: 0x2a5a3a, side: THREE.DoubleSide }))));
   const bombilla = new THREE.Mesh(R(new THREE.SphereGeometry(0.06, 12, 8)), R(new THREE.MeshBasicMaterial({ color: 0xfff0c8, toneMapped: false })));
-  bombilla.position.set(0, 1.92, Z_CENTRO);
+  bombilla.position.set(0, 1.92, zMundo(Z_CENTRO));
   raiz.add(bombilla);
 
   // ─── Futbolín ──────────────────────────────────────────────────────────
@@ -192,7 +206,7 @@ export function iniciar(ctx) {
   const campo = new THREE.Mesh(R(new THREE.PlaneGeometry(X_FONDO * 2, Z_CERCA - Z_LEJOS)), R(new THREE.MeshLambertMaterial({ map: texCampo })));
   campo.rotation.x = -Math.PI / 2;
   campo.position.set(0, MESA_Y, Z_CENTRO);
-  raiz.add(campo);
+  mesa.add(campo);
   const matMueble = R(new THREE.MeshStandardMaterial({ map: R(ctx.texturas.madera(0x7a4524, { tam: 256, semilla: 241 })), roughness: 0.4 }));
   const ancho = Z_CERCA - Z_LEJOS;
   const mueble = [
@@ -208,17 +222,18 @@ export function iniciar(ctx) {
     caja(0.05, 0.05, MEDIA_PORTERIA * 2 + 0.04, X_FONDO + 0.025, MESA_Y + 0.095, Z_CENTRO),
   ];
   for (const x of [-0.6, 0.6]) for (const z of [Z_CERCA - 0.05, Z_LEJOS + 0.05]) mueble.push(caja(0.08, MESA_Y - 0.35, 0.08, x, (MESA_Y - 0.35) / 2, z));
-  raiz.add(new THREE.Mesh(fusionar(mueble), matMueble));
+  mesa.add(new THREE.Mesh(fusionar(mueble), matMueble));
   // El hueco de cada portería (negro) y los marcadores de cuentas encima
-  raiz.add(new THREE.Mesh(fusionar([caja(0.02, 0.07, MEDIA_PORTERIA * 2, -X_FONDO - 0.03, MESA_Y + 0.035, Z_CENTRO), caja(0.02, 0.07, MEDIA_PORTERIA * 2, X_FONDO + 0.03, MESA_Y + 0.035, Z_CENTRO)]), R(new THREE.MeshBasicMaterial({ color: 0x050403 }))));
+  mesa.add(new THREE.Mesh(fusionar([caja(0.02, 0.07, MEDIA_PORTERIA * 2, -X_FONDO - 0.03, MESA_Y + 0.035, Z_CENTRO), caja(0.02, 0.07, MEDIA_PORTERIA * 2, X_FONDO + 0.03, MESA_Y + 0.035, Z_CENTRO)]), R(new THREE.MeshBasicMaterial({ color: 0x050403 }))));
   const sombraMesa = ctx.crearSombra({ radio: 0.9, opacidad: 0.5 });
-  sombraMesa.position.set(0, 0.01, Z_CENTRO);
+  sombraMesa.position.set(0, 0.01, zMundo(Z_CENTRO));
+  sombraMesa.scale.setScalar(ESCALA);
   raiz.add(sombraMesa);
   // Cuentas del marcador: 5 por equipo en un alambre, sobre cada fondo
   const geoCuenta = R(new THREE.SphereGeometry(0.018, 10, 8));
   const cuentas = new THREE.InstancedMesh(geoCuenta, R(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })), GOLES * 2);
-  raiz.add(cuentas);
-  raiz.add(new THREE.Mesh(fusionar([
+  mesa.add(cuentas);
+  mesa.add(new THREE.Mesh(fusionar([
     colocar(new THREE.CylinderGeometry(0.003, 0.003, 0.36, 6), -0.3, MESA_Y + 0.17, Z_LEJOS - 0.02, 0, 0, Math.PI / 2),
     colocar(new THREE.CylinderGeometry(0.003, 0.003, 0.36, 6), 0.3, MESA_Y + 0.17, Z_LEJOS - 0.02, 0, 0, Math.PI / 2),
   ]), R(new THREE.MeshBasicMaterial({ color: 0x888888 }))));
@@ -227,11 +242,11 @@ export function iniciar(ctx) {
   const geoBarra = R(new THREE.CylinderGeometry(0.008, 0.008, Z_CERCA - Z_LEJOS + 0.26, 10).rotateX(Math.PI / 2));
   const barrasMalla = new THREE.InstancedMesh(geoBarra, R(new THREE.MeshStandardMaterial({ color: 0xd9dee5, roughness: 0.15, metalness: 1 })), BARRAS.length);
   barrasMalla.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  raiz.add(barrasMalla);
+  mesa.add(barrasMalla);
   const geoPuno = R(new THREE.CylinderGeometry(0.02, 0.018, 0.12, 12).rotateX(Math.PI / 2));
   const punos = new THREE.InstancedMesh(geoPuno, R(new THREE.MeshLambertMaterial({ color: 0x1a1a1e })), BARRAS.length);
   punos.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  raiz.add(punos);
+  mesa.add(punos);
   // Muñecos: cabeza, pelo y bigote, camiseta, pantalón y pie, en una malla instanciada por equipo
   function geoMuneco(camiseta, pantalon) {
     return fusionar([
@@ -248,7 +263,7 @@ export function iniciar(ctx) {
     const n = BARRAS.filter((b) => b.equipo === e).reduce((a, b) => a + b.munecos.length, 0);
     const m = new THREE.InstancedMesh(geo, R(new THREE.MeshLambertMaterial({ vertexColors: true })), n);
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    raiz.add(m);
+    mesa.add(m);
     return m;
   });
   // Estado de cada barra: desplazamiento (z), giro (φ) y sus velocidades
@@ -256,14 +271,14 @@ export function iniciar(ctx) {
 
   // Bola
   const bola = new THREE.Mesh(R(new THREE.SphereGeometry(RB, 16, 12)), R(new THREE.MeshStandardMaterial({ color: 0xf2f2e8, roughness: 0.35 })));
-  raiz.add(bola);
+  mesa.add(bola);
   const sombraBola = ctx.crearSombra({ radio: RB * 1.4, opacidad: 0.5 });
-  raiz.add(sombraBola);
+  mesa.add(sombraBola);
   const b = { x: 0, z: Z_CENTRO, vx: 0, vz: 0 };
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 0.95, alto: 0.34 });
-  marcador.mesh.position.set(0, 1.17, Z_LEJOS - 0.3);
+  marcador.mesh.position.set(0, 1.25, zMundo(Z_LEJOS) - 0.3);
   marcador.mesh.rotation.x = -0.25;
   raiz.add(marcador.mesh);
 
@@ -278,6 +293,7 @@ export function iniciar(ctx) {
   let tiempoMensaje = 0;
   let quieta = 0;          // segundos con la bola casi parada (bola muerta)
   let atasco = 0;          // segundos sin que la bola avance ni retroceda
+  let rodando = false;     // la bola parada va sola hacia el muñeco más cercano
   let xAtasco = 0;
   let tiempo = 0;
   let acumulado = 0;
@@ -302,6 +318,7 @@ export function iniciar(ctx) {
     b.vz = 0;
     quieta = 0;
     atasco = 0;
+    rodando = false;
     xAtasco = 0;
   }
 
@@ -315,7 +332,7 @@ export function iniciar(ctx) {
     goles[equipo] += 1;
     estado = 'gol';
     reloj = 2;
-    tmp.set(equipo === 0 ? X_FONDO : -X_FONDO, MESA_Y + 0.1, Z_CENTRO);
+    aMundo(tmp.set(equipo === 0 ? X_FONDO : -X_FONDO, MESA_Y + 0.1, Z_CENTRO));
     if (equipo === 0) {
       puntos += 100 * nivel;
       ctx.efectos.impacto('grande', { pos: tmp, color: 0xffd23f, sonido: 'gol' });
@@ -389,7 +406,7 @@ export function iniciar(ctx) {
   }
 
   function golpeBola(barra, fuerza) {
-    tmp.set(b.x, MESA_Y + RB, b.z);
+    aMundo(tmp.set(b.x, MESA_Y + RB, b.z));
     if (barra.equipo === 0) {
       ctx.efectos.impacto(fuerza > 2 ? 'medio' : 'pequeño', { pos: tmp, color: 0xffffff, sonido: 'toc' });
       primerGolpe = false;
@@ -398,7 +415,28 @@ export function iniciar(ctx) {
     }
   }
 
+  // Delante del pie del muñeco más cercano (por el lado hacia el que chuta su equipo)
+  const destino = { x: 0, z: 0 };
+  function buscarDestino() {
+    let mejor = Infinity;
+    for (const barra of barras) {
+      const x = barra.x + (barra.equipo === 0 ? 0.036 : -0.036);
+      for (const mz of barra.munecos) {
+        const z = Math.max(Z_LEJOS + RB, Math.min(Z_CERCA - RB, Z_CENTRO + mz + barra.s));
+        const d = Math.hypot(x - b.x, z - b.z);
+        if (d < mejor) { mejor = d; destino.x = x; destino.z = z; }
+      }
+    }
+    return mejor;
+  }
+
   function moverBola(h) {
+    if (rodando) {
+      const d = buscarDestino();
+      const vel = d > 0.004 ? Math.min(0.12, d * 4) : 0;
+      b.vx = d > 1e-6 ? ((destino.x - b.x) / d) * vel : 0;
+      b.vz = d > 1e-6 ? ((destino.z - b.z) / d) * vel : 0;
+    }
     const v = Math.hypot(b.vx, b.vz);
     if (v > 0) {
       const nueva = Math.max(0, v - (0.03 + 0.12 * v) * h);
@@ -438,7 +476,7 @@ export function iniciar(ctx) {
       ejeMano.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
       const giro = Math.atan2(ejeMano.y, Math.hypot(ejeMano.x, ejeMano.z));
       // La mano lleva la empuñadura: acercarla saca la barra hacia ti
-      const s = manoPos.z - (Z_CERCA + Z_PUNO);
+      const s = zMesa(manoPos.z) - (Z_CERCA + Z_PUNO);
       for (const i of izquierda ? MANO_IZQ : MANO_DER) {
         barras[i].objetivoS = s;
         barras[i].objetivoPhi = Math.max(-1.6, Math.min(1.6, giro * 1.4));
@@ -452,7 +490,7 @@ export function iniciar(ctx) {
   function raton(dt) {
     const r = ctx.raton;
     if (r.rayo.ray.intersectPlane(planoMesa, tmp)) {
-      const z = Math.max(Z_LEJOS + RB, Math.min(Z_CERCA - RB, tmp.z)) - Z_CENTRO;
+      const z = Math.max(Z_LEJOS + RB, Math.min(Z_CERCA - RB, zMesa(tmp.z))) - Z_CENTRO;
       for (const i of TUYAS) barras[i].objetivoS = z - munecoCercano(barras[i], z);
     }
     if (r.clic) chuteRaton = 0.2;
@@ -591,15 +629,22 @@ export function iniciar(ctx) {
         moverBola(PASO);
         acumulado -= PASO;
       }
-      // Bola muerta: si se queda parada donde nadie llega, se vuelve a sacar
-      if (Math.hypot(b.vx, b.vz) < 0.04) quieta += dt;
+      // Bola parada: rueda poco a poco hasta ponerse delante del muñeco más cercano
+      const v = Math.hypot(b.vx, b.vz);
+      if (rodando && v > 0.25) {
+        rodando = false; // alguien le ha dado
+        quieta = 0;
+      }
+      if (rodando || v < 0.04) quieta += dt;
       else quieta = 0;
+      if (quieta > 0.7) rodando = true;
+      // Si aun así no se mueve nadie (o se queda atrapada entre muñecos), saque nuevo
       // Y si no avanza ni retrocede (atrapada entre muñecos), también
       if (Math.abs(b.x - xAtasco) > 0.05) {
         xAtasco = b.x;
         atasco = 0;
       } else atasco += dt;
-      if (quieta > 1.5 || atasco > 5) {
+      if (quieta > 7 || atasco > 6) {
         decir(ctx.t('bolaMuerta'), '#cfd8dc', 1.2);
         sacar();
       }
