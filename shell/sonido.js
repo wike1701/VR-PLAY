@@ -173,6 +173,9 @@ const SONIDOS = {
   derribo: () => { tono(150, 60, 0.25, 'sine', 0.45); ruido(0.2, 600, 0.4, 0.7); },
   cuerno: () => { tono(196, 200, 0.5, 'sawtooth', 0.08); tono(294, 298, 0.7, 'sawtooth', 0.07, 0.35); tono(147, 149, 1.0, 'triangle', 0.12); },
   poder: () => { tono(660, 660, 0.08, 'square', 0.09); tono(880, 880, 0.08, 'square', 0.09, 0.08); tono(1320, 1320, 0.2, 'triangle', 0.14, 0.16); },
+  // Billar de Trucos: la bola que cae en la tronera y rueda por dentro, y el rebotador de goma
+  embocada: () => { tono(420, 180, 0.12, 'triangle', 0.3); ruido(0.25, 900, 0.18, 1.5); tono(240, 200, 0.3, 'sine', 0.08, 0.12); },
+  rebotador: () => { tono(380, 760, 0.12, 'square', 0.12); tono(190, 160, 0.1, 'sine', 0.3); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

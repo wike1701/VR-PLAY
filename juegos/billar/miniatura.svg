@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1c14"/>
+      <stop offset="1" stop-color="#4a3020"/>
+    </linearGradient>
+    <linearGradient id="pano" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a6a40"/>
+      <stop offset="1" stop-color="#25935a"/>
+    </linearGradient>
+    <linearGradient id="madera" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a0602e"/>
+      <stop offset="1" stop-color="#5a3018"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blanca" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cfc8b8"/>
+    </radialGradient>
+    <radialGradient id="roja" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ff7a7a"/>
+      <stop offset="0.5" stop-color="#d7263d"/>
+      <stop offset="1" stop-color="#7a0f1e"/>
+    </radialGradient>
+    <radialGradient id="amarilla" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#fff0a0"/>
+      <stop offset="0.5" stop-color="#f4c430"/>
+      <stop offset="1" stop-color="#8a6a10"/>
+    </radialGradient>
+    <linearGradient id="laton" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe9a0"/>
+      <stop offset="0.5" stop-color="#d4a53a"/>
+      <stop offset="1" stop-color="#7a5a14"/>
+    </linearGradient>
+    <linearGradient id="taco" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2dcae"/>
+      <stop offset="1" stop-color="#b08a50"/>
+    </linearGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <g transform="translate(200 215) scale(1.45) translate(-200 -215)">
+  <!-- Engranajes en la pared -->
+  <g fill="none" stroke="#7a5a24" stroke-width="10" opacity="0.6">
+    <circle cx="70" cy="70" r="34"/><circle cx="330" cy="58" r="26"/>
+  </g>
+  <!-- Mesa en perspectiva -->
+  <path d="M96 120 H304 L380 380 H20 Z" fill="url(#madera)"/>
+  <path d="M112 134 H288 L352 366 H48 Z" fill="url(#pano)"/>
+  <circle cx="112" cy="134" r="10" fill="#05060a"/><circle cx="288" cy="134" r="10" fill="#05060a"/>
+  <circle cx="74" cy="250" r="12" fill="#05060a"/><circle cx="326" cy="250" r="12" fill="#05060a"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Rebotador rojo -->
+  <ellipse cx="282" cy="196" rx="20" ry="9" fill="#7a0f1e"/>
+  <rect x="262" y="178" width="40" height="18" fill="#d7263d"/>
+  <ellipse cx="282" cy="178" rx="20" ry="9" fill="#ff6b6b"/>
+  <!-- Aro de latón -->
+  <path d="M160 218 V186 Q200 140 240 186 V218" fill="none" stroke="url(#laton)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="200" cy="158" r="8" fill="#ffe08a"/>
+  <!-- Estela de la blanca que pasa por el aro -->
+  <path d="M190 330 Q196 260 204 200 Q214 262 214 332 Z" fill="url(#estela)"/>
+  <ellipse cx="202" cy="230" rx="22" ry="7" fill="url(#sombra)"/>
+  <circle cx="202" cy="212" r="17" fill="url(#blanca)"/>
+  <!-- Bolas de color al fondo -->
+  <circle cx="150" cy="168" r="13" fill="url(#roja)"/>
+  <circle cx="238" cy="160" r="12" fill="url(#amarilla)"/>
+  <!-- Taco que acaba de golpear -->
+  <path d="M206 344 L214 344 L262 400 L236 400 Z" fill="url(#taco)"/>
+  <path d="M206 344 L214 344 L215 352 L205 352 Z" fill="#3d6fd1"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

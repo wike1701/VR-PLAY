@@ -102,6 +102,9 @@ export const MARCADORES = {
   // Defensa del Castillo: 10/20/40 puntos por soldado/escudero/ariete (+5 desde lejos) y 15 por globo;
   // sin final fijo (hasta que la puerta recibe 5 golpes). Los enemigos salen como mucho cada 0,4 s
   castillo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 10 },
+  // Billar de Trucos: 25 por reto cumplido y, por mesa superada, 100 + 60 por tiro de sobra (+150 si todo de un
+  // tiro); sin final fijo (hasta perder 3 vidas). Cada mesa necesita al menos unos segundos
+  billar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 100, minSegundos: 10 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?
