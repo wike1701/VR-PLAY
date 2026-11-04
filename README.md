@@ -113,9 +113,9 @@ juegos/
   fronton/juego.js      Frontón de Ping Pong
   lenador/juego.js      Leñador
   castillo/juego.js     Defensa del Castillo
-  billar/juego.js       Billar de Trucos (en pruebas; su física y el generador de mesas, en fisica.js)
-  ring/juego.js         Combate de Boxeo (en pruebas)
-  futbolin/juego.js     Futbolín (en pruebas)
+  billar/juego.js       Billar de Trucos (su física y el generador de mesas, en fisica.js)
+  ring/juego.js         Combate de Boxeo
+  futbolin/juego.js     Futbolín
   prisma/juego.js       Prisma (en pruebas; los rayos y el generador de salas, en tablero.js)
   escalada/juego.js     Escalada contra la Lava (en pruebas)
 ```

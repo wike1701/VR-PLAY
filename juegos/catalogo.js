@@ -61,9 +61,9 @@ const LISTA = [
   { id: 'fronton', genero: 'deportes' },
   { id: 'lenador', genero: 'reflejos' },
   { id: 'castillo', genero: 'disparos' },
-  { id: 'billar', genero: 'puzle', pruebas: true },
-  { id: 'ring', genero: 'accion', pruebas: true },
-  { id: 'futbolin', genero: 'deportes', pruebas: true },
+  { id: 'billar', genero: 'puzle' },
+  { id: 'ring', genero: 'accion' },
+  { id: 'futbolin', genero: 'deportes' },
   { id: 'prisma', genero: 'puzle', pruebas: true },
   { id: 'escalada', genero: 'habilidad', pruebas: true },
 ];
