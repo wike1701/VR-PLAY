@@ -212,12 +212,24 @@ export function iniciar(ctx) {
   halos.count = 0;
   mundo.add(halos);
 
-  // Con ratón, dos guantes enseñan de qué presas cuelgas
-  const guantes = [0, 1].map(() => {
-    const g = new THREE.Mesh(R(new THREE.SphereGeometry(0.045, 12, 8).scale(1, 0.8, 0.7)), R(new THREE.MeshLambertMaterial({ color: 0x2a6ad8 })));
-    g.visible = false;
-    mundo.add(g);
-    return g;
+  // Tus manos, con guantes de escalada: en VR van en los mandos y se cierran al agarrar
+  const GUANTE = { color: 0xc89a6a, colorPuno: 0x8a2a1a };
+  const manosVisibles = ctx.manos.map((mano, n) => {
+    const m = ctx.crearMano(n === 0 ? 'izquierda' : 'derecha', GUANTE);
+    ctx.adjuntarAMano(mano, m.objeto);
+    m.cierre = 0.1;
+    return m;
+  });
+  // Con ratón, las dos manos cuelgan de la presa en la que estás y de la anterior
+  const guantes = ['derecha', 'izquierda'].map((lado) => {
+    const m = ctx.crearMano(lado, GUANTE);
+    m.cerrar(1);
+    // Palma hacia abajo y dedos hacia arriba, por encima de la presa
+    m.objeto.rotation.set(0.6, 0, lado === 'derecha' ? Math.PI / 2 : -Math.PI / 2);
+    m.objeto.scale.multiplyScalar(1.3);
+    m.objeto.visible = false;
+    mundo.add(m.objeto);
+    return m.objeto;
   });
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -367,6 +379,12 @@ export function iniciar(ctx) {
       const aprieta = mano.activa && (mano.gatillo || mano.apreton);
       const empieza = mano.activa && (mano.gatilloPulsado || (mano.apreton && !a.apretonAntes));
       a.apretonAntes = mano.activa && mano.apreton;
+      // La mano se cierra al agarrar (y a medias si aprietas sin presa)
+      const visible = manosVisibles[n];
+      if (visible) {
+        visible.cierre += ((a.presa ? 1 : aprieta ? 0.65 : 0.1) - visible.cierre) * Math.min(1, dt * 18);
+        visible.cerrar(visible.cierre);
+      }
       if (!mano.activa) { a.presa = null; return; }
       mano.grip.getWorldPosition(tmp);
       raiz.worldToLocal(tmp);
@@ -533,8 +551,8 @@ export function iniciar(ctx) {
     const vr = ctx.enVR();
     guantes[0].visible = !vr && !!anclaRaton;
     guantes[1].visible = !vr && !!anclaAnterior && anclaAnterior.estado !== 'cayendo' && anclaAnterior.estado !== 'rota' && subiendoRaton;
-    if (guantes[0].visible) posPresa(anclaRaton, t, guantes[0].position).z += 0.045;
-    if (guantes[1].visible) posPresa(anclaAnterior, t, guantes[1].position).z += 0.045;
+    if (guantes[0].visible) posPresa(anclaRaton, t, guantes[0].position).add(tmp.set(0.01, -0.035, 0.06));
+    if (guantes[1].visible) posPresa(anclaAnterior, t, guantes[1].position).add(tmp.set(-0.01, -0.035, 0.06));
   }
   const manoTmp = new THREE.Vector3();
   function puedeAgarrar(p, t) {

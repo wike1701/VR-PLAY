@@ -197,6 +197,13 @@ export function iniciar(ctx) {
     raiz.add(m);
     return m;
   });
+  // Tus manos en VR: guantes oscuros con el puño de neón; se cierran al apretar el gatillo
+  const manosVisibles = ctx.manos.map((mano, n) => {
+    const m = ctx.crearMano(n === 0 ? 'izquierda' : 'derecha', { color: 0x2a2840, colorPuno: 0x46e0ff });
+    ctx.adjuntarAMano(mano, m.objeto);
+    m.cierre = 0.3;
+    return m;
+  });
   const punteros = [0, 1].map(() => {
     const m = new THREE.Mesh(R(new THREE.CylinderGeometry(0.0025, 0.0025, 1, 6).translate(0, 0.5, 0)), luzSumada({ color: 0x46e0ff, opacity: 0.6 }));
     m.visible = false;
@@ -453,6 +460,11 @@ export function iniciar(ctx) {
       anillo.visible = false;
       puntero.visible = false;
       if (!mano.activa || n > 1) return;
+      const visible = manosVisibles[n];
+      if (visible) {
+        visible.cierre += ((mano.gatillo ? 1 : 0.3) - visible.cierre) * Math.min(1, dt * 18);
+        visible.cerrar(visible.cierre);
+      }
       const agarre = agarres[n].pieza ? agarres[n] : null;
       mano.grip.getWorldPosition(tmp);
       tmp2.set(0, 0, -1).transformDirection(mano.grip.matrixWorld);

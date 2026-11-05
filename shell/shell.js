@@ -24,7 +24,7 @@ import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
-  texturas, texturaCanvas, crearSombra, colocarSombra,
+  texturas, texturaCanvas, crearSombra, colocarSombra, crearMano,
 } from './graficos.js';
 
 const COLOR_FONDO = 0x141826;
@@ -446,6 +446,10 @@ function montar(indice, modulo) {
     },
     crearSombra,
     colocarSombra,
+    // Una mano que se abre y se cierra, para los juegos que no llevan nada en las manos (README,
+    // «Las manos se ven»): const m = ctx.crearMano('derecha', { color }); ctx.adjuntarAMano(mano, m.objeto);
+    // m.cerrar(0…1) en cada fotograma.
+    crearMano,
     vistaEscritorio(posicion, objetivo) {
       vista.posicion.copy(posicion);
       vista.objetivo.copy(objetivo);

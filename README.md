@@ -116,8 +116,8 @@ juegos/
   billar/juego.js       Billar de Trucos (su física y el generador de mesas, en fisica.js)
   ring/juego.js         Combate de Boxeo
   futbolin/juego.js     Futbolín
-  prisma/juego.js       Prisma (en pruebas; los rayos y el generador de salas, en tablero.js)
-  escalada/juego.js     Escalada contra la Lava (en pruebas)
+  prisma/juego.js       Prisma (los rayos y el generador de salas, en tablero.js)
+  escalada/juego.js     Escalada contra la Lava
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
@@ -191,6 +191,8 @@ export function iniciar(ctx) {
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
+  // ctx.crearMano('izquierda' | 'derecha', { color, colorPuno }) -> { objeto, cerrar(0-1) }: una mano que se
+  //   abre y se cierra, para adjuntar con ctx.adjuntarAMano (ver «Las manos se ven»)
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
   // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
   // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
@@ -289,6 +291,7 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
+- **Las manos se ven, en todos los juegos.** En VR siempre tiene que haber algo donde están tus manos: lo que llevas (raqueta, pistola, taco, guantes…) o, si el juego no pone nada en ellas, unas manos. La shell no dibuja nada por su cuenta. Lo más fácil es `ctx.crearMano('izquierda' | 'derecha', { color, colorPuno })` con `ctx.adjuntarAMano(mano, m.objeto)` y `m.cerrar(0…1)` en cada fotograma: abierta en reposo y cerrada al apretar o al agarrar. Si el objeto de la mano no va en el mando (por ejemplo, un taco que se coge con las dos manos), pon manos igualmente donde lo sujetas. Sin gafas, lo equivalente: que se vea qué controlas tú (los guantes delante de la cámara, el muñeco que se mueve, la mano que cuelga de la presa…).
 
 ## Encargos de voz (Discord → Claude)
 
