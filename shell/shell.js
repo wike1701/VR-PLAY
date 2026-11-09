@@ -642,6 +642,19 @@ let introColocada = false;
 const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
 introPanel.mesh.visible = false;
 escena.add(introPanel.mesh);
+// Es interfaz: se dibuja siempre por encima del decorado y de los objetos del juego
+function ponerEncima(panel, orden) {
+  panel.mesh.material.depthTest = false;
+  panel.mesh.material.depthWrite = false;
+  panel.mesh.renderOrder = orden;
+}
+ponerEncima(introPanel, 950);
+// Cuando acaba la cuenta atrás, los controles se quedan siempre a la izquierda, por si hay que releerlos
+const recordatorio = crearPanel({ ancho: 0.5, alto: 0.4, resolucion: 512 });
+recordatorio.mesh.visible = false;
+escena.add(recordatorio.mesh);
+ponerEncima(recordatorio, 949);
+let recordatorioListo = false;
 const $intro = document.getElementById('intro-juego');
 const $introTitulo = document.getElementById('intro-titulo');
 const $introTexto = document.getElementById('intro-texto');
@@ -669,6 +682,8 @@ function partirTexto(texto, max) {
 function iniciarIntro() {
   introRestante = SEGUNDOS_INTRO;
   introColocada = false;
+  recordatorioListo = false;
+  recordatorio.mesh.visible = false;
 }
 
 function actualizarIntro(dt) {
@@ -677,8 +692,24 @@ function actualizarIntro(dt) {
   if (!visible || introRestante <= 0) {
     introPanel.mesh.visible = false;
     $intro.hidden = true;
+    const hayRecordatorio = !!actual && !errorJuego && !pausado && !enCatalogo && introColocada && renderer.xr.isPresenting;
+    if (hayRecordatorio && !recordatorioListo) {
+      const juego = JUEGOS[actual.indice];
+      recordatorio.escribir([
+        { texto: juego.titulo, tam: 0.9, color: '#ffd54f' },
+        ...partirTexto(juego.controlesVR, 22).map((texto) => ({ texto, tam: 0.6 })),
+      ]);
+      const dir = cabezaDir.clone().setY(0).normalize();
+      const izq = new THREE.Vector3(dir.z, 0, -dir.x);
+      recordatorio.mesh.position.copy(cabezaPos).addScaledVector(dir, 1.0).addScaledVector(izq, 0.75);
+      recordatorio.mesh.position.y = cabezaPos.y - 0.1;
+      recordatorio.mesh.lookAt(cabezaPos);
+      recordatorioListo = true;
+    }
+    recordatorio.mesh.visible = hayRecordatorio && recordatorioListo;
     return;
   }
+  recordatorio.mesh.visible = false;
   const juego = JUEGOS[actual.indice];
   const n = Math.ceil(introRestante);
   const cuenta = t('jugar.introEmpieza', { n });
@@ -698,8 +729,9 @@ function actualizarIntro(dt) {
     { texto: cuenta, tam: 0.9, color: '#80e8dc' },
   ]);
   if (!introColocada) {
-    const delante = cabezaDir.clone().setY(0).normalize().multiplyScalar(1.5);
-    introPanel.mesh.position.copy(cabezaPos).add(delante);
+    const dir = cabezaDir.clone().setY(0).normalize();
+    const izq = new THREE.Vector3(dir.z, 0, -dir.x);
+    introPanel.mesh.position.copy(cabezaPos).addScaledVector(dir, 1.4).addScaledVector(izq, 0.45);
     introPanel.mesh.position.y = cabezaPos.y - 0.05;
     introPanel.mesh.lookAt(cabezaPos);
     introColocada = true;
