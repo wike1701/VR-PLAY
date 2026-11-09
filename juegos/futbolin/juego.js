@@ -1,11 +1,12 @@
 // FUTBOLÍN
 // El futbolín de toda la vida en un bar de barrio, contra la máquina. Estás de pie en el lateral
 // del futbolín, con las porterías a tu izquierda y a tu derecha: juegas con los rojos y atacas
-// hacia la derecha. La mano izquierda lleva tu portero y tu defensa; la derecha, tus
-// centrocampistas y tus delanteros. Acercar o alejar la mano desliza las barras; girar la muñeca
-// hace que los muñecos chuten (cuanto más rápido giras, más fuerte). Partidos a 5 goles: cada
-// partido ganado trae una máquina más rápida, y la racha acaba al perder uno. Cada gol tuyo vale
-// 100 puntos por el número de máquina y cada partido ganado, 500 por máquina más.
+// hacia la derecha. Cada equipo: 1 portero, 3 defensas, 3 medios y 4 delanteros. Tienes manos: para
+// mover una barra hay que AGARRAR su empuñadura (acerca la mano y aprieta el gatillo) y puedes llevar
+// dos barras a la vez, una con cada mano. Con la barra cogida, acercar o alejar la mano la desliza y
+// girar la muñeca hace chutar (cuanto más rápido giras, más fuerte), como en el futbolín de verdad.
+// Partidos a 5 goles: cada partido ganado trae una máquina más rápida, y la racha acaba al perder
+// uno. Cada gol tuyo vale 100 puntos por el número de máquina y cada partido ganado, 500 por máquina más.
 // Sin gafas: mueve el ratón (o el dedo) arriba y abajo para mover las barras (el muñeco más cercano
 // de cada una se pone a su altura) y haz clic para chutar.
 import * as THREE from 'three';
@@ -25,20 +26,23 @@ const ALTO_BARRA = 0.075;       // las barras, por encima del campo
 const PIE = 0.075;              // del eje de la barra a la punta del pie
 const GOLES = 5;
 const PASO = 1 / 240;
-// Barras de izquierda a derecha: equipo (0 = tú, rojo; 1 = la máquina, azul), muñecos y recorrido
+// Barras de izquierda a derecha: equipo (0 = tú, rojo; 1 = la máquina, azul), muñecos y recorrido.
+// Alineación de cada equipo: 1 portero, 3 defensas, 3 medios y 4 delanteros.
+const DEL4 = [-0.195, -0.065, 0.065, 0.195];
+const TRES_D = [-0.2, 0, 0.2];
+const TRES_M = [-0.18, 0, 0.18];
 const BARRAS = [
   { x: -0.525, equipo: 0, munecos: [0], recorrido: 0.17 },
-  { x: -0.375, equipo: 0, munecos: [-0.12, 0.12], recorrido: 0.13 },
-  { x: -0.225, equipo: 1, munecos: [-0.2, 0, 0.2], recorrido: 0.1 },
-  { x: -0.075, equipo: 0, munecos: [-0.24, -0.12, 0, 0.12, 0.24], recorrido: 0.06 },
-  { x: 0.075, equipo: 1, munecos: [-0.24, -0.12, 0, 0.12, 0.24], recorrido: 0.06 },
-  { x: 0.225, equipo: 0, munecos: [-0.2, 0, 0.2], recorrido: 0.1 },
-  { x: 0.375, equipo: 1, munecos: [-0.12, 0.12], recorrido: 0.13 },
+  { x: -0.375, equipo: 1, munecos: DEL4, recorrido: 0.065 },
+  { x: -0.225, equipo: 0, munecos: TRES_D, recorrido: 0.1 },
+  { x: -0.075, equipo: 1, munecos: TRES_M, recorrido: 0.09 },
+  { x: 0.075, equipo: 0, munecos: TRES_M, recorrido: 0.09 },
+  { x: 0.225, equipo: 1, munecos: TRES_D, recorrido: 0.1 },
+  { x: 0.375, equipo: 0, munecos: DEL4, recorrido: 0.065 },
   { x: 0.525, equipo: 1, munecos: [0], recorrido: 0.17 },
 ];
-const MANO_IZQ = [0, 1];        // tus barras de la mano izquierda
-const MANO_DER = [3, 5];        // y las de la derecha
-const TUYAS = [0, 1, 3, 5];
+const TUYAS = [0, 2, 4, 6];
+const RADIO_AGARRE = 0.13;      // a esta distancia (en la sala) de una empuñadura puedes cogerla
 const Z_PUNO = 0.18;            // las empuñaduras, a esta distancia de cada banda
 // El futbolín se dibuja más grande que sus medidas (que son las de la física): × ESCALA alrededor
 // de tus empuñaduras, que así se quedan donde caen las manos. En VR las barras siguen la mano 1:1.
@@ -267,7 +271,7 @@ export function iniciar(ctx) {
     return m;
   });
   // Estado de cada barra: desplazamiento (z), giro (φ) y sus velocidades
-  const barras = BARRAS.map((b) => ({ ...b, s: 0, sAntes: 0, vs: 0, phi: 0, phiAntes: 0, w: 0, objetivoS: 0, objetivoPhi: 0, chute: 0, cruce: 0 }));
+  const barras = BARRAS.map((b) => ({ ...b, s: 0, sAntes: 0, vs: 0, phi: 0, phiAntes: 0, w: 0, objetivoS: 0, objetivoPhi: 0, chute: 0, cruce: 0, agarrada: false }));
 
   // Bola
   const bola = new THREE.Mesh(R(new THREE.SphereGeometry(RB, 16, 12)), R(new THREE.MeshStandardMaterial({ color: 0xf2f2e8, roughness: 0.35 })));
@@ -466,22 +470,58 @@ export function iniciar(ctx) {
   }
 
   // ─── Tus barras ────────────────────────────────────────────────────────
-  // VR: acercar o alejar la mano desliza; girar la muñeca gira la barra
-  function manosVR() {
-    for (const mano of ctx.manos) {
-      if (!mano.activa) continue;
-      const izquierda = mano.lado === 'left' || (mano.lado !== 'right' && mano.indice === 0);
-      mano.grip.getWorldPosition(manoPos);
-      // Giro de la muñeca: cuánto se inclina el eje X del mando
-      ejeMano.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
-      const giro = Math.atan2(ejeMano.y, Math.hypot(ejeMano.x, ejeMano.z));
-      // La mano lleva la empuñadura: acercarla saca la barra hacia ti
-      const s = zMesa(manoPos.z) - (Z_CERCA + Z_PUNO);
-      for (const i of izquierda ? MANO_IZQ : MANO_DER) {
-        barras[i].objetivoS = s;
-        barras[i].objetivoPhi = Math.max(-1.6, Math.min(1.6, giro * 1.4));
+  // VR: se agarra la empuñadura con el gatillo (una barra por mano, dos a la vez); acercar o alejar
+  // la mano la desliza y girar la muñeca la gira. Las barras sueltas se quedan quietas.
+  const agarres = new Map(); // mano -> { barra, z0, s0, giro0 }
+  const manosVisibles = ctx.manos.map((mano, k) => {
+    const izq = mano.lado === 'left' || (mano.lado !== 'right' && (mano.indice ?? k) === 0);
+    const m = ctx.crearMano(izq ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0x2a2e3a });
+    ctx.adjuntarAMano(mano, m.objeto);
+    return { mano, m, cierre: 0 };
+  });
+  function giroMano(mano) {
+    // Giro de la muñeca: cuánto se inclina el eje X del mando
+    ejeMano.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
+    return Math.atan2(ejeMano.y, Math.hypot(ejeMano.x, ejeMano.z));
+  }
+  function soltar(mano) {
+    const g = agarres.get(mano);
+    if (g) { g.barra.agarrada = false; agarres.delete(mano); }
+  }
+  function manosVR(dt) {
+    for (const v of manosVisibles) {
+      const mano = v.mano;
+      if (!mano.activa || !mano.gatilloPulsado) soltar(mano);
+      let g = agarres.get(mano);
+      if (!g && mano.activa && mano.gatilloPulsado) {
+        // Coge la empuñadura libre más cercana, si la mano está lo bastante cerca
+        mano.grip.getWorldPosition(manoPos);
+        let mejor = RADIO_AGARRE;
+        let elegida = null;
+        for (const i of TUYAS) {
+          const barra = barras[i];
+          if (barra.agarrada) continue;
+          const d = Math.hypot(manoPos.x - barra.x * ESCALA, manoPos.y - yMundo(MESA_Y + ALTO_BARRA), manoPos.z - zMundo(Z_CERCA + Z_PUNO + barra.s));
+          if (d < mejor) { mejor = d; elegida = barra; }
+        }
+        if (elegida) {
+          elegida.agarrada = true;
+          g = { barra: elegida, z0: zMesa(manoPos.z), s0: elegida.s, giro0: giroMano(mano) };
+          agarres.set(mano, g);
+          ctx.vibrar(mano, 0.4, 40);
+          ctx.sonido('toc');
+        }
       }
+      if (g) {
+        mano.grip.getWorldPosition(manoPos);
+        g.barra.objetivoS = g.s0 + (zMesa(manoPos.z) - g.z0);
+        g.barra.objetivoPhi = Math.max(-1.6, Math.min(1.6, (giroMano(mano) - g.giro0) * 1.4));
+      }
+      v.cierre += ((g ? 1 : mano.gatilloPulsado ? 0.7 : 0.15) - v.cierre) * Math.min(1, dt * 20);
+      v.m.cerrar(v.cierre);
     }
+    // Las barras que no llevas en la mano vuelven con los pies abajo
+    for (const i of TUYAS) if (!barras[i].agarrada) barras[i].objetivoPhi = 0;
   }
 
   // Ratón y dedo: arriba y abajo mueve todas tus barras (el muñeco más cercano de cada una se pone
@@ -619,7 +659,7 @@ export function iniciar(ctx) {
     }
     if (estado === 'gol' && reloj <= 0) sacar();
     if (estado === 'fin' && reloj <= 0) empezarPartido();
-    if (ctx.enVR()) manosVR();
+    if (ctx.enVR()) manosVR(dt);
     else raton(dt);
     maquina(dt);
     moverBarras(dt);
@@ -658,6 +698,6 @@ export function iniciar(ctx) {
 
   return {
     actualizar,
-    liberar() {},
+    liberar() { agarres.clear(); },
   };
 }

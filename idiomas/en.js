@@ -1899,8 +1899,8 @@ bomberos: {
     },
     futbolin: {
       titulo: 'Table Football',
-      descripcion: 'Classic table football in a neighbourhood bar with tiles, stools and the match on TV, against the machine. You play red: your left hand works the goalkeeper and defence, your right hand the midfield and strikers. Slide the rods to get in front of the ball and twist your wrist to shoot: the faster you twist, the harder it goes. Matches are first to 5 goals and every win brings a faster machine. Your streak ends when you lose a match.',
-      controlesVR: 'Left hand: goalkeeper and defence; right hand: midfield and strikers. Move your hand closer or farther to slide the rods and twist your wrist to shoot.',
+      descripcion: 'Classic table football in a neighbourhood bar with tiles, stools and the match on TV, against the machine. You play red, with a goalkeeper, three defenders, three midfielders and four strikers, and you have hands: grab the handle of a rod with the trigger (you can hold two rods at once, one in each hand), slide it to get in front of the ball and twist your wrist to shoot, just like real table football: the faster you twist, the harder it goes. Matches are first to 5 goals and every win brings a faster machine. Your streak ends when you lose a match.',
+      controlesVR: 'Bring your hand to a rod handle and squeeze the trigger to grab it (one rod per hand). Move your hand closer or farther to slide it and twist your wrist to shoot.',
       controlesEscritorio: 'Move the mouse up and down to slide your rods and click to shoot.',
       controlesTactil: 'Slide your finger up and down to move your rods and tap to shoot.',
       etiquetas: [
@@ -1910,7 +1910,7 @@ bomberos: {
       ],
       juego: {
         titulo: 'TABLE FOOTBALL',
-        intro: 'Move your hands in and out to slide the rods; twist your wrist to shoot',
+        intro: 'Grab a handle with the trigger; move your hand in and out to slide the rod and twist your wrist to shoot',
         introRaton: 'Move the mouse: rods · click: shoot',
         introTactil: 'Slide: rods · tap: shoot',
         partidoN: 'Machine {n}: first to 5!',
