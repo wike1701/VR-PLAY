@@ -641,6 +641,9 @@ let introRestante = 0;
 let introColocada = false;
 const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
 introPanel.mesh.visible = false;
+// Es interfaz: se dibuja siempre por encima de los objetos del juego, nunca queda detrás de nada
+introPanel.mesh.material.depthTest = false;
+introPanel.mesh.renderOrder = 950;
 escena.add(introPanel.mesh);
 const $intro = document.getElementById('intro-juego');
 const $introTitulo = document.getElementById('intro-titulo');
@@ -697,13 +700,12 @@ function actualizarIntro(dt) {
     ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
     { texto: cuenta, tam: 0.9, color: '#80e8dc' },
   ]);
-  if (!introColocada) {
-    const delante = cabezaDir.clone().setY(0).normalize().multiplyScalar(1.5);
-    introPanel.mesh.position.copy(cabezaPos).add(delante);
-    introPanel.mesh.position.y = cabezaPos.y - 0.05;
-    introPanel.mesh.lookAt(cabezaPos);
-    introColocada = true;
-  }
+  // Se recoloca en cada fotograma, delante y hacia la izquierda de la mirada, para leerlo sin girar mucho
+  const delante = cabezaDir.clone().setY(0).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.5).multiplyScalar(1.3);
+  introPanel.mesh.position.copy(cabezaPos).add(delante);
+  introPanel.mesh.position.y = cabezaPos.y - 0.05;
+  introPanel.mesh.lookAt(cabezaPos);
+  introColocada = true;
   introPanel.mesh.visible = true;
 }
 
