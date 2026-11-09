@@ -2,13 +2,23 @@
    Sistema de diseño de VR Play: colores, tipografía y lo básico de todas las páginas.
    Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
    color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
-   Fuentes: Geist y Geist Mono (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web
-   para no enviar la IP de cada visitante a terceros. Cada página precarga Geist con un <link rel="preload">.
+
+   Identidad «sala de recreativas»: el gris claro y frío del plástico de unas gafas VR, tinta casi
+   negra y un solo color de señal, el amarillo de los botones de una máquina recreativa. Filetes
+   finos en vez de sombras, esquinas casi rectas, títulos en Archivo estrecho y en mayúsculas, y
+   datos en mono. Nada de degradados, cristal ni brillos: el color lo ponen las portadas de los juegos.
+
+   Fuentes (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web para no enviar la IP
+   de cada visitante a terceros: Archivo (texto y títulos; eje de anchura para los títulos estrechos)
+   y Geist Mono (cifras y datos). Cada página precarga Archivo con un <link rel="preload">.
+
+   La página de juego (play.html) va de noche: lleva <html data-tema="noche"> y usa la paleta oscura.
    ───────────────────────────────────────────────────────────────────────── */
 @font-face {
-  font-family: "Geist";
-  src: url("fuentes/Geist-Variable.woff2") format("woff2");
+  font-family: "Archivo";
+  src: url("fuentes/Archivo-Variable.woff2") format("woff2");
   font-weight: 100 900;
+  font-stretch: 62% 125%;
   font-style: normal;
   font-display: swap;
 }
@@ -20,75 +30,125 @@
   font-display: swap;
 }
 :root {
-  /* Fondos y superficies: grafito con un toque frío, de más profundo a más cercano */
-  --bg: #0a0b10;
-  --bg-2: #0f1117;
-  --surface: #13151d;
-  --surface-1: #13151d;
-  --surface-2: #1a1d27;
-  --surface-3: #232736;
-  --line: #272b38;
-  --line-suave: #1c1f2a;
+  /* Fondo gris frío: de más hundido a más cercano */
+  --bg: #e8eaeb;
+  --bg-2: #dfe2e4;
+  --surface: #f6f7f7;
+  --surface-1: #f6f7f7;
+  --surface-2: #dcdfe1;
+  --surface-3: #cdd1d4;
+  --line: #c4c9cd;
+  --line-suave: #d6dadd;
+  --line-fuerte: #111315;      /* filete de tinta: marcos y separadores principales */
 
-  /* Texto */
-  --fg: #f4f5f8;
-  --muted: #8e93a6;
-  --muted-2: #8a8fa3;   /* todo texto sobre los fondos de arriba, con contraste 4,5:1 o más (WCAG AA) */
+  /* Tinta. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
+  --fg: #111315;
+  --muted: #545a60;
+  --muted-2: #545a60;
 
-  /* Un solo acento: naranja coral. Sobre él, el texto va oscuro (--sobre-accent) para que se lea bien */
-  --accent: #ff6a3d;
-  --accent-fuerte: #ff6a3d;
-  --accent-claro: #ff8a62;
-  --accent-2: #ffb49a;            /* el acento en suave: etiquetas, sellos, detalles */
-  --accent-tinta: rgba(255, 106, 61, 0.14);
-  --sobre-accent: #1a0d07;
+  /* Un solo color de señal: amarillo recreativa. Va de fondo (botones, marcas), nunca de texto:
+     encima, el texto va en tinta (contraste 12,9:1). Para un texto con el tono del acento sobre
+     el fondo claro se usa --accent-texto, un ámbar oscuro (5,5:1) */
+  --accent: #ffd21f;
+  --accent-fuerte: #ffd21f;
+  --accent-claro: #ffdc4d;
+  --accent-texto: #7a5600;
+  --accent-2: #7a5600;
+  --accent-tinta: rgba(255, 210, 31, 0.22);
+  --sobre-accent: #111315;
 
-  /* Colores con significado */
+  /* Colores con significado (oscurecidos para leerse sobre el fondo claro) */
+  --like: #c2185b;
+  --ok: #1a6e3e;
+  --peligro: #b42318;
+  --oro: #7a5600;
+
+  /* Tipografía */
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
+  --font-display: var(--font-body);
+  --font-logo: var(--font-body);
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --estrecho: 72%;             /* anchura de los títulos (font-stretch) */
+
+  /* Formas: esquinas casi rectas y sin sombras difusas */
+  --radio: 6px;
+  --radio-chico: 4px;
+  --sombra: 0 1px 0 var(--line);
+  --sombra-accent: none;
+
+  /* Alias para la página de juego (play.html) */
+  --text: var(--fg);
+  --panel: rgba(246, 247, 247, 0.94);
+
+  color-scheme: light;
+}
+
+/* La noche: la paleta de la página de juego (los menús van encima de la escena 3D) */
+:root[data-tema="noche"] {
+  --bg: #0d0f11;
+  --bg-2: #121518;
+  --surface: #171a1e;
+  --surface-1: #171a1e;
+  --surface-2: #1f2328;
+  --surface-3: #2a2f35;
+  --line: #343a41;
+  --line-suave: #22272c;
+  --line-fuerte: #e8eaeb;
+  --fg: #eef0f1;
+  --muted: #9aa1a8;
+  --muted-2: #9aa1a8;
+  --accent-texto: #ffd21f;
+  --accent-2: #ffe27a;
+  --sobre-accent: #111315;
   --like: #ff4d7d;
   --ok: #3ddc97;
   --peligro: #ff5d5d;
   --oro: #ffc94d;
-
-  /* Tipografía */
-  --font-body: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
-  --font-display: var(--font-body);
-  --font-logo: var(--font-body);
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-
-  /* Formas y sombras (teñidas del fondo, no negro plano) */
-  --radio: 16px;
-  --radio-chico: 10px;
-  --sombra: 0 24px 60px -24px rgba(0, 0, 0, 0.7), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
-  --sombra-accent: 0 18px 40px -14px rgba(255, 106, 61, 0.55);
-
-  /* Alias para la página de juego (play.html) */
-  --text: var(--fg);
-  --panel: rgba(19, 21, 29, 0.88);
-
+  --panel: rgba(18, 21, 24, 0.92);
   color-scheme: dark;
 }
 
 /* ─── Base común ─────────────────────────────────────────────────────────── */
 body {
   font-family: var(--font-body);
-  font-feature-settings: "ss01", "cv11"; /* formas más limpias de Geist */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.025em; }
-h1 { letter-spacing: -0.035em; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 ::selection { background: var(--accent); color: var(--sobre-accent); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
 /* Las cifras no bailan al cambiar */
 .cifra, time { font-variant-numeric: tabular-nums; }
-/* El japonés, el coreano y el chino no llevan espaciado negativo */
-:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; }
+/* El japonés, el coreano y el chino no llevan espaciado negativo ni se estrechan */
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; font-stretch: 100%; }
 
-/* Logo «VR·Play», igual en todas las páginas (gana a los estilos propios de cada una) */
+/* Logo «VR■PLAY»: estrecho, en mayúsculas, con el punto convertido en un botón cuadrado amarillo.
+   Igual en todas las páginas (gana a los estilos propios de cada una). El texto sigue siendo «VR·Play». */
 header .logo {
   font-family: var(--font-logo);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-weight: 900;
+  font-stretch: var(--estrecho);
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  line-height: 1;
 }
-header .logo span { color: var(--accent); }
+header .logo span {
+  display: inline-block;
+  width: 0.42em;
+  height: 0.42em;
+  margin: 0 0.1em;
+  overflow: hidden;
+  vertical-align: 0.14em;
+  background: var(--accent);
+  color: transparent;
+}
+
+/* Etiqueta de datos en mono (Nº, géneros, cifras): pequeña, en mayúsculas y espaciada */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

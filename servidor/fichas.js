@@ -210,8 +210,8 @@ ${alternativas(ruta)}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0a0b10">
-<link rel="preload" href="/estilos/fuentes/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#e8eaeb">
+<link rel="preload" href="/estilos/fuentes/Archivo-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/estilos/base.css">
 <script type="application/ld+json">${JSON.stringify(datosEstructurados).replace(/</g, '\\u003c')}</script>
 <script>
@@ -228,53 +228,68 @@ ${alternativas(ruta)}
   })();
 </script>
 <style>
+  /* Ficha de juego como la hoja de un catálogo de recreativas: la portada a la izquierda (fija al bajar) y a la
+     derecha el título estrecho, el botón y los datos separados por filetes. Colores: estilos/base.css */
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); line-height: 1.55; }
   a { color: inherit; }
-  .contenedor { width: min(1080px, 100%); margin: 0 auto; padding: 0 16px; }
-  header { border-bottom: 1px solid var(--line-suave); }
+  .contenedor { width: min(1280px, 100%); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+  header { border-bottom: 1px solid var(--line-fuerte); }
   .cabecera { display: flex; align-items: center; gap: 16px; min-height: 64px; }
-  .logo { font-size: 1.4rem; text-decoration: none; }
-  .cabecera nav { margin-left: auto; display: flex; gap: 16px; font-size: .95rem; }
-  .cabecera nav a { color: var(--muted); text-decoration: none; }
-  .cabecera nav a:hover { color: var(--fg); }
-  .ficha { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 40px; padding: 40px 0 24px; align-items: start; }
-  .portada { width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio); background: var(--surface-2); box-shadow: var(--sombra); display: block; }
-  .migas { font-size: .9rem; color: var(--muted); margin: 0 0 8px; }
+  .logo { text-decoration: none; }
+  .cabecera nav { margin-left: auto; display: flex; gap: 22px; font-size: .9rem; font-weight: 600; }
+  .cabecera nav a { text-decoration: none; }
+  .cabecera nav a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 5px; }
+  .ficha { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 72px); padding: clamp(24px, 4vw, 48px) 0 24px; align-items: start; }
+  .portada { position: sticky; top: 24px; width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio); background: var(--surface-2); display: block; }
+  .migas { margin: 0 0 18px; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   .migas a { color: var(--muted); }
-  h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 12px; }
-  .sello { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--accent-tinta); color: var(--accent-2); font-size: .85rem; font-weight: 600; }
-  .cifras { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 14px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: .9rem; }
-  .descripcion { font-size: 1.15rem; margin: 20px 0; max-width: 60ch; }
-  .jugar { display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border-radius: 999px; background: var(--accent); color: var(--sobre-accent); font-weight: 800; font-size: 1.15rem; text-decoration: none; box-shadow: var(--sombra-accent); }
-  .jugar:hover { background: var(--accent-claro); }
-  .nota { color: var(--muted); font-size: .92rem; margin: 12px 0 0; max-width: 60ch; }
-  h2 { font-size: 1.35rem; margin: 40px 0 14px; }
-  .controles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-  .controles li { background: var(--surface); border: 1px solid var(--line-suave); border-radius: var(--radio-chico); padding: 14px 16px; }
-  .controles strong { display: block; margin-bottom: 4px; }
-  .etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-  .etiquetas li { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
-  .enlace-clasificacion { display: inline-block; margin-top: 18px; color: var(--accent-2); }
-  .sobre p { max-width: 70ch; margin: 0 0 12px; }
-  .preguntas { margin: 0; max-width: 70ch; }
-  .preguntas dt { font-weight: 700; margin-top: 16px; }
-  .preguntas dd { margin: 4px 0 0; color: var(--muted); }
-  .otros { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
-  .otros a { display: block; text-decoration: none; }
+  h1 { margin: 0; font-stretch: var(--estrecho); font-weight: 900; text-transform: uppercase; font-size: clamp(3rem, 7vw, 6.2rem); line-height: .9; letter-spacing: -.005em; overflow-wrap: anywhere; }
+  :lang(ja) h1, :lang(ko) h1, :lang(zh) h1 { line-height: 1.15; font-size: clamp(2.2rem, 5vw, 4rem); }
+  .sello { display: block; margin-top: 22px; padding: 10px 0; border-block: 1px solid var(--line-fuerte); font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+  .cifras { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: .85rem; }
+  .descripcion { font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.45; margin: 22px 0 26px; max-width: 46ch; }
+  .jugar { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 16px 30px; border: 1.5px solid var(--fg); border-radius: var(--radio-chico); background: var(--accent); color: var(--sobre-accent); font-weight: 800; font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; text-decoration: none; transition: transform .12s, box-shadow .12s; }
+  .jugar:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
+  .nota { color: var(--muted); font-size: .9rem; margin: 14px 0 0; max-width: 60ch; }
+  h2 { margin: 56px 0 16px; font-stretch: var(--estrecho); font-weight: 900; text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; }
+  /* Controles: tres casillas con filetes, como una tabla de especificaciones */
+  .controles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; border-block: 1px solid var(--line-fuerte); }
+  .controles li { padding: 16px 18px 18px 0; color: var(--muted); font-size: .95rem; }
+  .controles li + li { padding-left: 18px; border-left: 1px solid var(--line); }
+  .controles strong { display: block; margin-bottom: 6px; color: var(--fg); font-family: var(--font-mono); font-weight: 500; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .etiquetas li { padding: 4px 9px; border: 1px solid var(--line); border-radius: var(--radio-chico); color: var(--muted); font-family: var(--font-mono); font-size: .78rem; }
+  .enlace-clasificacion, .ver-todos { display: inline-block; margin-top: 18px; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+  .enlace-clasificacion:hover, .ver-todos:hover { text-decoration-color: var(--accent); }
+  .sobre p { max-width: 64ch; margin: 0 0 12px; }
+  .preguntas { margin: 0; max-width: 70ch; border-top: 1px solid var(--line-fuerte); }
+  .preguntas dt { font-weight: 700; padding-top: 16px; }
+  .preguntas dd { margin: 4px 0 0; padding-bottom: 16px; border-bottom: 1px solid var(--line); color: var(--muted); }
+  /* Más juegos: la misma rejilla con filetes que el catálogo de la portada */
+  .otros { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .otros li { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  @media (max-width: 1000px) { .otros { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .otros a { display: block; padding: 10px 10px 14px; text-decoration: none; }
+  .otros a:hover { background: var(--surface); }
   .otros img { width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio-chico); background: var(--surface-2); display: block; }
-  .otros span { display: block; margin-top: 6px; font-weight: 600; }
-  .otros small { color: var(--muted); }
-  .ver-todos { display: inline-block; margin-top: 20px; color: var(--accent-2); }
-  footer { margin-top: 56px; border-top: 1px solid var(--line-suave); padding: 24px 0 40px; color: var(--muted); font-size: .9rem; }
-  footer nav { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-  footer a { color: var(--muted); }
-  .idiomas { margin-top: 14px; }
-  @media (max-width: 720px) {
-    .ficha { grid-template-columns: 1fr; gap: 24px; padding-top: 24px; }
-    .portada { max-width: 320px; }
+  .otros span { display: block; margin-top: 10px; font-stretch: var(--estrecho); font-weight: 800; font-size: 1.15rem; line-height: 1.05; text-transform: uppercase; }
+  .otros small { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  footer { margin-top: 72px; border-top: 1px solid var(--line-fuerte); padding: 24px 0 40px; font-size: .9rem; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  footer a { text-decoration: none; }
+  footer a:hover, footer a[aria-current] { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+  footer p { font-family: var(--font-mono); font-size: .75rem; color: var(--muted); }
+  .idiomas { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  @media (max-width: 760px) {
+    .ficha { grid-template-columns: 1fr; gap: 24px; padding-top: 20px; }
+    .portada { position: static; }
     .cabecera nav { display: none; }
     .jugar { width: 100%; justify-content: center; }
+    .controles { grid-template-columns: 1fr; }
+    .controles li, .controles li + li { padding: 14px 0; border-left: 0; }
+    .controles li + li { border-top: 1px solid var(--line); }
+    .otros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
 </head>
@@ -307,7 +322,7 @@ ${alternativas(ruta)}
         <li><strong>${escapar(t('ficha.conRaton'))}</strong>${escapar(textos(juego.id, 'controlesEscritorio'))}</li>
         <li><strong>${escapar(t('ficha.enMovil'))}</strong>${escapar(textos(juego.id, 'controlesTactil'))}</li>
       </ul>
-      <a class="enlace-clasificacion" href="/clasificacion${lang}#${juego.id}">🏆 ${escapar(t('clasificacion.verCompleta'))}</a>
+      <a class="enlace-clasificacion" href="/clasificacion${lang}#${juego.id}">${escapar(t('clasificacion.verCompleta'))}</a>
 
       <section class="sobre">
         <h2>${escapar(t('ficha.sobre', datosTexto))}</h2>
@@ -369,7 +384,7 @@ function noEncontrado(t, idioma) {
 <link rel="stylesheet" href="/estilos/base.css">
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg); padding: 16px; text-align: center; }
-  a { color: var(--accent-2); }
+  a { color: var(--fg); font-weight: 700; }
 </style>
 </head>
 <body>
