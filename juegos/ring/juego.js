@@ -18,7 +18,7 @@ const BRAZO = 0.34;             // largo de cada tramo del brazo del robot
 const R_GUANTE = 0.07;
 const VEL_GOLPE = 1.2;          // m/s mínimos del guante hacia el robot para que cuente
 const ESQUIVA = 0.2;            // m que hay que apartar la cabeza del punto al que va el golpe
-const BLOQUEO = 0.17;           // m de un guante al punto del golpe para bloquearlo
+const BLOQUEO = 0.3;            // m de un guante al punto del golpe (o a tu cara) para bloquearlo
 const COLORES_ROBOT = [0x3d8bff, 0xff7a2e, 0x6dff7a, 0xb36bff, 0xffd23f, 0xff3d6e];
 // Golpes del robot: de dónde sale el guante (preparación, en el espacio del robot) y daño
 const ATAQUES = {
@@ -26,7 +26,7 @@ const ATAQUES = {
   gancho: { prepara: [0.48, 1.48, 0.02], dano: 14 },
   uppercut: { prepara: [0.16, 1.0, 0.15], dano: 16 },
 };
-const T_GOLPE = 0.13;           // lo que tarda el guante en llegar una vez lanzado
+const T_GOLPE = 0.1;          // lo que tarda el guante en llegar una vez lanzado
 
 export function iniciar(ctx) {
   const { raiz } = ctx;
@@ -553,8 +553,8 @@ export function iniciar(ctx) {
   const radial = new THREE.Vector3();
 
   // Lo que cambia con cada combate: más rápido, combos y fintas
-  const preparacion = () => Math.max(0.3, 0.75 - (combate - 1) * 0.06);
-  const pausaEntreGolpes = () => Math.max(0.45, 1.6 - (combate - 1) * 0.15);
+  const preparacion = () => Math.max(0.2, 0.5 - (combate - 1) * 0.04);
+  const pausaEntreGolpes = () => Math.max(0.35, 1.2 - (combate - 1) * 0.12);
   const tiempoAbierto = () => Math.max(0.8, 1.5 - (combate - 1) * 0.08);
 
   function decir(texto, color = '#ffffff', duracion = 1.2) {
@@ -616,7 +616,7 @@ export function iniciar(ctx) {
     const dano = ATAQUES[ataque.tipo].dano + (combate - 1) * 1.5;
     let bloqueado = false;
     if (ctx.enVR()) {
-      for (const g of guantes) if (g.mano.activa && g.centro.distanceTo(destino) < BLOQUEO) bloqueado = true;
+      for (const g of guantes) if (g.mano.activa && (g.centro.distanceTo(destino) < BLOQUEO || g.centro.distanceTo(cabezaJugador) < BLOQUEO)) bloqueado = true;
     } else {
       bloqueado = guardiaRaton();
     }
@@ -630,7 +630,7 @@ export function iniciar(ctx) {
       decir(ctx.t('bloqueado'), '#cfd8dc', 0.8);
       ctx.sonido('bloqueo');
       for (const m of ctx.manos) ctx.vibrar(m, 0.35, 50);
-      vida = Math.max(0, vida - (1 + combate)); // el bloqueo para casi todo, pero cada vez se cuela algo más
+      vida = Math.max(0, vida - Math.floor(combate / 3)); // el bloqueo para casi todo; en combates avanzados se cuela algo
       abrirRobot();
     } else {
       // Te da
