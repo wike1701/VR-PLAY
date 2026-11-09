@@ -3,32 +3,27 @@
    Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
    color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
 
-   Identidad «feria de noche»: un cielo añil profundo (no negro), texto color crema y las luces
-   de una feria: un color por tipo de juego (--g-deportes, --g-disparos…) para encontrarlos de un
-   vistazo. Los títulos van en Bungee, una letra pensada para rótulos; el texto en Atkinson
-   Hyperlegible, hecha para leerse bien a cualquier tamaño. Nada de degradados ni cristal.
+   Identidad «salón de juegos»: oscura, del verde profundo del fieltro de una mesa de billar, con
+   texto marfil y un solo acento de latón (el de las barandillas y las fichas). Filetes finos en
+   vez de sombras, esquinas poco redondeadas, títulos en Big Shoulders Display (letra estrecha de
+   rótulo) en mayúsculas, texto en Archivo y datos en mono. Nada de degradados ni cristal: el color
+   lo ponen las portadas de los juegos.
 
    Fuentes (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web para no enviar la IP
-   de cada visitante a terceros. Cada página precarga Atkinson con un <link rel="preload">.
+   de cada visitante a terceros. Cada página precarga Archivo con un <link rel="preload">.
    ───────────────────────────────────────────────────────────────────────── */
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("fuentes/AtkinsonHyperlegible-Regular.woff2") format("woff2");
-  font-weight: 400;
+  font-family: "Archivo";
+  src: url("fuentes/Archivo-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("fuentes/AtkinsonHyperlegible-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Bungee";
-  src: url("fuentes/Bungee-Regular.woff2") format("woff2");
-  font-weight: 400;
+  font-family: "Big Shoulders Display";
+  src: url("fuentes/BigShouldersDisplay-Variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -40,65 +35,53 @@
   font-display: swap;
 }
 :root {
-  /* Cielo añil: de más hundido a más cercano */
-  --bg: #101236;
-  --bg-2: #0c0e2b;
-  --surface: #1a1d4e;
-  --surface-1: #1a1d4e;
-  --surface-2: #23275e;
-  --surface-3: #2d3270;
-  --line: #353b80;
-  --line-suave: #23275e;
-  --line-fuerte: #fff3df;
+  /* Fieltro: de más hundido a más cercano */
+  --bg: #0b211c;
+  --bg-2: #081a16;
+  --surface: #11302a;
+  --surface-1: #11302a;
+  --surface-2: #173b33;
+  --surface-3: #1f483f;
+  --line: #2a5247;
+  --line-suave: #183a32;
+  --line-fuerte: #f1ead8;      /* filete marfil: marcos y separadores principales */
 
-  /* Texto crema. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
-  --fg: #fff3df;
-  --muted: #b4b3d4;
-  --muted-2: #b4b3d4;
+  /* Texto marfil. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
+  --fg: #f1ead8;
+  --muted: #a9b8ad;
+  --muted-2: #a9b8ad;
 
-  /* Acento: rosa de tique de feria. Encima, el texto va en añil (6,2:1) */
-  --accent: #ff5c8a;
-  --accent-fuerte: #ff5c8a;
-  --accent-claro: #ff7fa3;
-  --accent-texto: #ff7fa3;
-  --accent-2: #ffb3c8;
-  --accent-tinta: rgba(255, 92, 138, 0.18);
-  --sobre-accent: #101236;
-  --accent-sombra: #b3204d;     /* el borde inferior del botón, como una tecla */
-
-  /* Un color por tipo de juego: fondos con texto añil encima (todos 6:1 o más) */
-  --g-deportes: #3ddc84;
-  --g-disparos: #ff6b6b;
-  --g-reflejos: #4cc9ff;
-  --g-habilidad: #ffc93c;
-  --g-puzle: #b79cff;
-  --g-accion: #ff8c42;
-  --g-conduccion: #ff6fd8;
-  --g-arcade: #f9a8ff;
-  --g-ritmo: #6ff0d0;
-  --g-otro: #b4b3d4;
+  /* Un solo acento: latón. Como fondo lleva texto de fieltro (9:1); como texto, 9:1 sobre el fondo */
+  --accent: #f0b43c;
+  --accent-fuerte: #f0b43c;
+  --accent-claro: #f6c868;
+  --accent-texto: #f0b43c;
+  --accent-2: #f6c868;
+  --accent-tinta: rgba(240, 180, 60, 0.16);
+  --sobre-accent: #0b211c;
 
   /* Colores con significado */
-  --like: #ff5c8a;
-  --ok: #3ddc84;
-  --peligro: #ff6b6b;
-  --oro: #ffc93c;
+  --like: #ff8fa3;
+  --ok: #7ee0a1;
+  --peligro: #ff8a7a;
+  --oro: #f0b43c;
 
   /* Tipografía */
-  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
-  --font-display: "Bungee", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
+  --font-display: "Big Shoulders Display", "Archivo", system-ui, sans-serif;
   --font-logo: var(--font-display);
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --estrecho: 100%;            /* Big Shoulders ya es estrecha: no hace falta estrecharla */
 
-  /* Formas: esquinas redondeadas de máquina de feria y sombras duras, sin difuminar */
-  --radio: 18px;
-  --radio-chico: 10px;
-  --sombra: 0 6px 0 var(--bg-2);
-  --sombra-accent: 0 5px 0 var(--accent-sombra);
+  /* Formas: esquinas poco redondeadas y sin sombras difusas */
+  --radio: 8px;
+  --radio-chico: 5px;
+  --sombra: 0 1px 0 var(--line);
+  --sombra-accent: none;
 
   /* Alias para la página de juego (play.html) */
   --text: var(--fg);
-  --panel: rgba(16, 18, 54, 0.92);
+  --panel: rgba(11, 33, 28, 0.92);
 
   color-scheme: dark;
 }
@@ -110,47 +93,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-/* Bungee y Atkinson no tienen todos los grosores: que el navegador no se los invente */
-* { font-synthesis: none; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 ::selection { background: var(--accent); color: var(--sobre-accent); }
-:focus-visible { outline: 3px solid var(--g-reflejos); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
 /* Las cifras no bailan al cambiar */
 .cifra, time { font-variant-numeric: tabular-nums; }
-/* Bungee solo tiene letras latinas: en japonés, coreano y chino los títulos van en la letra del texto */
-:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { font-family: var(--font-body); font-weight: 700; }
+/* El japonés, el coreano y el chino no llevan espaciado negativo ni se estrechan */
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; font-family: var(--font-body); }
 
-/* Logo «VR●PLAY» en letra de rótulo, con el punto convertido en una bombilla rosa.
+/* Logo «VR◆PLAY»: estrecho, en mayúsculas, con el punto convertido en un rombo de latón (una ficha).
    Igual en todas las páginas (gana a los estilos propios de cada una). El texto sigue siendo «VR·Play». */
 header .logo {
   font-family: var(--font-logo);
-  font-weight: 400;
-  font-size: 1.3rem;
-  letter-spacing: 0;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1;
 }
 header .logo span {
   display: inline-block;
-  width: 0.4em;
-  height: 0.4em;
-  margin: 0 0.12em;
+  width: 0.42em;
+  height: 0.42em;
+  margin: 0 0.16em;
   overflow: hidden;
-  vertical-align: 0.16em;
-  border-radius: 50%;
+  vertical-align: 0.14em;
+  transform: rotate(45deg);
   background: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-tinta);
   color: transparent;
 }
 
-/* Sello de tipo de juego: el color de su género (data-genero) con texto añil */
-[data-genero] { --g: var(--g-otro); }
-[data-genero="deportes"] { --g: var(--g-deportes); }
-[data-genero="disparos"] { --g: var(--g-disparos); }
-[data-genero="reflejos"] { --g: var(--g-reflejos); }
-[data-genero="habilidad"] { --g: var(--g-habilidad); }
-[data-genero="puzle"] { --g: var(--g-puzle); }
-[data-genero="accion"] { --g: var(--g-accion); }
-[data-genero="conduccion"] { --g: var(--g-conduccion); }
-[data-genero="arcade"] { --g: var(--g-arcade); }
-[data-genero="ritmo"] { --g: var(--g-ritmo); }
+/* Etiqueta de datos en mono (Nº, géneros, cifras): pequeña, en mayúsculas y espaciada */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

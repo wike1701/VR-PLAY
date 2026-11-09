@@ -210,8 +210,8 @@ ${alternativas(ruta)}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#101236">
-<link rel="preload" href="/estilos/fuentes/AtkinsonHyperlegible-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#0b211c">
+<link rel="preload" href="/estilos/fuentes/Archivo-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/estilos/base.css">
 <script type="application/ld+json">${JSON.stringify(datosEstructurados).replace(/</g, '\\u003c')}</script>
 <script>
@@ -228,58 +228,58 @@ ${alternativas(ruta)}
   })();
 </script>
 <style>
-  /* Ficha de juego de la «feria de noche»: la portada a la izquierda (fija al bajar) con el marco del color
-     de su tipo, y a la derecha el título de rótulo, el botón tecla y los datos. Colores: estilos/base.css */
+  /* Ficha de juego como la hoja de un catálogo de recreativas: la portada a la izquierda (fija al bajar) y a la
+     derecha el título estrecho, el botón y los datos separados por filetes. Colores: estilos/base.css */
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); line-height: 1.55; }
   a { color: inherit; }
   .contenedor { width: min(1280px, 100%); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
-  header { border-bottom: 1px solid var(--line); }
+  header { border-bottom: 1px solid var(--line-fuerte); }
   .cabecera { display: flex; align-items: center; gap: 16px; min-height: 64px; }
   .logo { text-decoration: none; }
   .cabecera nav { margin-left: auto; display: flex; gap: 22px; font-size: .9rem; font-weight: 600; }
   .cabecera nav a { text-decoration: none; }
-  .cabecera nav a:hover { color: var(--g-reflejos); }
+  .cabecera nav a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 5px; }
   .ficha { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 72px); padding: clamp(24px, 4vw, 48px) 0 24px; align-items: start; }
-  .portada { position: sticky; top: 24px; width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio); border: 6px solid var(--g); background: var(--surface-2); display: block; }
-  .migas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 18px; font-weight: 700; color: var(--muted); }
-  .migas .genero { padding: 2px 10px; border-radius: 6px; background: var(--g); color: var(--sobre-accent); }
+  .portada { position: sticky; top: 24px; width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio); background: var(--surface-2); display: block; }
+  .migas { margin: 0 0 18px; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   .migas a { color: var(--muted); }
-  h1 { margin: 0; text-transform: uppercase; font-size: clamp(2.2rem, 4.6vw, 4rem); line-height: 1; overflow-wrap: anywhere; text-wrap: balance; }
-  :lang(ja) h1, :lang(ko) h1, :lang(zh) h1 { line-height: 1.2; }
-  .sello { display: inline-block; margin-top: 18px; padding: 6px 12px; border-radius: 8px; background: var(--surface); color: var(--muted); font-weight: 700; font-size: .92rem; }
+  h1 { margin: 0; font-stretch: var(--estrecho); font-weight: 900; text-transform: uppercase; font-size: clamp(3rem, 7vw, 6.2rem); line-height: .9; letter-spacing: -.005em; overflow-wrap: anywhere; }
+  :lang(ja) h1, :lang(ko) h1, :lang(zh) h1 { line-height: 1.15; font-size: clamp(2.2rem, 5vw, 4rem); }
+  .sello { display: block; margin-top: 22px; padding: 10px 0; border-block: 1px solid var(--line-fuerte); font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
   .cifras { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: .85rem; }
   .descripcion { font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.45; margin: 22px 0 26px; max-width: 46ch; }
-  .jugar { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 15px 30px; border-radius: var(--radio-chico); background: var(--accent); color: var(--sobre-accent); box-shadow: var(--sombra-accent); font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: transform .08s, box-shadow .08s; }
-  .jugar:hover { background: var(--accent-claro); }
-  .jugar:active { transform: translateY(5px); box-shadow: none; }
+  .jugar { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 16px 30px; border: 1.5px solid var(--fg); border-radius: var(--radio-chico); background: var(--accent); color: var(--sobre-accent); font-weight: 800; font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; text-decoration: none; transition: transform .12s, box-shadow .12s; }
+  .jugar:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
   .nota { color: var(--muted); font-size: .9rem; margin: 14px 0 0; max-width: 60ch; }
-  h2 { margin: 56px 0 16px; text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 1.9rem); line-height: 1.1; }
+  h2 { margin: 56px 0 16px; font-stretch: var(--estrecho); font-weight: 900; text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; }
   /* Controles: tres casillas con filetes, como una tabla de especificaciones */
-  .controles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-  .controles li { padding: 16px 18px 18px; border-radius: var(--radio-chico); background: var(--surface); color: var(--muted); font-size: .98rem; }
-  .controles strong { display: block; margin-bottom: 6px; color: var(--fg); }
+  .controles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; border-block: 1px solid var(--line-fuerte); }
+  .controles li { padding: 16px 18px 18px 0; color: var(--muted); font-size: .95rem; }
+  .controles li + li { padding-left: 18px; border-left: 1px solid var(--line); }
+  .controles strong { display: block; margin-bottom: 6px; color: var(--fg); font-family: var(--font-mono); font-weight: 500; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
   .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-  .etiquetas li { padding: 4px 10px; border: 2px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .88rem; }
-  .enlace-clasificacion, .ver-todos { display: inline-block; margin-top: 18px; color: var(--g-habilidad); font-weight: 700; text-underline-offset: 5px; }
+  .etiquetas li { padding: 4px 9px; border: 1px solid var(--line); border-radius: var(--radio-chico); color: var(--muted); font-family: var(--font-mono); font-size: .78rem; }
+  .enlace-clasificacion, .ver-todos { display: inline-block; margin-top: 18px; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+  .enlace-clasificacion:hover, .ver-todos:hover { text-decoration-color: var(--accent); }
   .sobre p { max-width: 64ch; margin: 0 0 12px; }
-  .preguntas { margin: 0; max-width: 70ch; }
+  .preguntas { margin: 0; max-width: 70ch; border-top: 1px solid var(--line-fuerte); }
   .preguntas dt { font-weight: 700; padding-top: 16px; }
   .preguntas dd { margin: 4px 0 0; padding-bottom: 16px; border-bottom: 1px solid var(--line); color: var(--muted); }
   /* Más juegos: la misma rejilla con filetes que el catálogo de la portada */
-  .otros { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
-  .otros li { border-radius: var(--radio); background: var(--surface); transition: transform .15s, box-shadow .15s; }
-  .otros li:hover { transform: translateY(-4px); box-shadow: 0 6px 0 var(--g); }
+  .otros { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .otros li { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   @media (max-width: 1000px) { .otros { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .otros a { display: block; padding: 10px 10px 14px; text-decoration: none; }
-  .otros img { width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; background: var(--surface-2); display: block; }
-  .otros span { display: block; margin-top: 10px; font-family: var(--font-display); font-size: .95rem; line-height: 1.1; text-transform: uppercase; }
-  .otros small { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 6px; background: var(--g); color: var(--sobre-accent); font-weight: 700; font-size: .78rem; }
-  footer { margin-top: 72px; border-top: 2px solid var(--line); padding: 24px 0 40px; font-size: .9rem; }
+  .otros a:hover { background: var(--surface); }
+  .otros img { width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radio-chico); background: var(--surface-2); display: block; }
+  .otros span { display: block; margin-top: 10px; font-stretch: var(--estrecho); font-weight: 800; font-size: 1.15rem; line-height: 1.05; text-transform: uppercase; }
+  .otros small { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  footer { margin-top: 72px; border-top: 1px solid var(--line-fuerte); padding: 24px 0 40px; font-size: .9rem; }
   footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
   footer a { text-decoration: none; }
-  footer a:hover, footer a[aria-current] { color: var(--g-reflejos); text-decoration: underline; text-underline-offset: 4px; }
-  footer p { color: var(--muted); }
+  footer a:hover, footer a[aria-current] { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+  footer p { font-family: var(--font-mono); font-size: .75rem; color: var(--muted); }
   .idiomas { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
   @media (max-width: 760px) {
     .ficha { grid-template-columns: 1fr; gap: 24px; padding-top: 20px; }
@@ -287,6 +287,8 @@ ${alternativas(ruta)}
     .cabecera nav { display: none; }
     .jugar { width: 100%; justify-content: center; }
     .controles { grid-template-columns: 1fr; }
+    .controles li, .controles li + li { padding: 14px 0; border-left: 0; }
+    .controles li + li { border-top: 1px solid var(--line); }
     .otros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
@@ -304,9 +306,9 @@ ${alternativas(ruta)}
 </header>
 <main class="contenedor">
   <article class="ficha">
-    <img class="portada" data-genero="${juego.genero}" src="${juego.miniatura}" alt="${escapar(titulo)}" width="400" height="400">
+    <img class="portada" src="${juego.miniatura}" alt="${escapar(titulo)}" width="400" height="400">
     <div>
-      <p class="migas"><a href="/${lang}">${escapar(t('comun.juegos'))}</a> › <span class="genero" data-genero="${juego.genero}">${escapar(genero)}</span></p>
+      <p class="migas"><a href="/${lang}">${escapar(t('comun.juegos'))}</a> › ${escapar(genero)}</p>
       <h1>${escapar(titulo)}</h1>
       <span class="sello">${escapar(t('inicio.etiquetaHero'))} · ${escapar(t('inicio.dispositivos'))}</span>
       ${estadisticas ? `<p class="cifras">${estadisticas}</p>` : ''}
@@ -342,7 +344,7 @@ ${alternativas(ruta)}
   <section>
     <h2>${escapar(t('ficha.masJuegos'))}</h2>
     <ul class="otros">
-      ${relacionados.map((j) => `<li data-genero="${j.genero}"><a href="/juego/${j.id}${lang}"><img src="${j.miniatura}" alt="" width="400" height="400" loading="lazy"><span>${escapar(textos(j.id, 'titulo'))}</span><small>${escapar(t(`generos.${j.genero}`))}</small></a></li>`).join('\n      ')}
+      ${relacionados.map((j) => `<li><a href="/juego/${j.id}${lang}"><img src="${j.miniatura}" alt="" width="400" height="400" loading="lazy"><span>${escapar(textos(j.id, 'titulo'))}</span><small>${escapar(t(`generos.${j.genero}`))}</small></a></li>`).join('\n      ')}
     </ul>
     <a class="ver-todos" href="/${lang}">${escapar(t('inicio.todosLosJuegos'))} →</a>
   </section>

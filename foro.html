@@ -27,11 +27,11 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#101236">
-<link rel="preload" href="estilos/fuentes/AtkinsonHyperlegible-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#0b211c">
+<link rel="preload" href="estilos/fuentes/Archivo-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos/base.css">
 <style>
-  /* Misma «feria de noche» que la portada (estilos/base.css): lista de hilos, hilo con respuesta anclada y formulario guiado. */
+  /* Mismo catálogo impreso que la portada (estilos/base.css): lista de hilos con filetes, hilo con respuesta anclada y formulario guiado. */
   * { box-sizing: border-box; }
   body {
     margin: 0;
@@ -51,7 +51,7 @@
     top: env(safe-area-inset-top, 0px);
     z-index: 10;
     background: var(--bg);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--line-fuerte);
   }
   .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; }
   .logo {
@@ -65,8 +65,7 @@
   .logo span { color: var(--accent); }
   .menu { display: flex; gap: 18px; margin-left: auto; font-size: 0.95rem; }
   .menu a { text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-  .menu a:hover { color: var(--g-reflejos); }
-  .menu a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--accent); text-underline-offset: 6px; }
+  .menu a:hover, .menu a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--accent); text-underline-offset: 6px; }
   .menu { align-items: center; }
   /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
   .boton-cuenta {
@@ -102,9 +101,9 @@
     cursor: pointer;
   }
 
-  h1, h2 { font-family: var(--font-display); font-weight: 400; line-height: 1.05; text-transform: uppercase; text-wrap: balance; }
-  h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 14px; }
-  h2 { font-size: 1.2rem; margin: 0 0 12px; }
+  h1, h2 { font-family: var(--font-display); font-stretch: var(--estrecho); font-weight: 900; line-height: 0.95; text-transform: uppercase; text-wrap: balance; }
+  h1 { font-size: clamp(2.6rem, 7vw, 4.6rem); margin: 0 0 14px; }
+  h2 { font-size: 1.5rem; margin: 0 0 12px; }
   :lang(ja) :is(h1, h2), :lang(ko) :is(h1, h2), :lang(zh) :is(h1, h2) { line-height: 1.2; }
   .entradilla { color: var(--muted); margin: 0 0 20px; max-width: 62ch; }
 
@@ -115,22 +114,23 @@
     min-height: 44px;
     padding: 10px 20px;
     border-radius: var(--radio-chico);
-    border: 0;
+    border: 1.5px solid var(--fg);
     background: var(--accent);
     color: var(--sobre-accent);
-    box-shadow: var(--sombra-accent);
     font: inherit;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     text-decoration: none;
     cursor: pointer;
   }
-  .boton:hover { background: var(--accent-claro); }
-  .boton:active { transform: translateY(5px); box-shadow: none; }
+  .boton:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
   .boton:disabled { opacity: 0.6; cursor: wait; }
-  .boton.secundario { background: transparent; color: var(--fg); border: 2px solid var(--fg); box-shadow: none; }
-  .boton.jugar { min-height: 36px; background: var(--ok); color: var(--sobre-accent); box-shadow: 0 4px 0 var(--bg-2); padding: 6px 12px; font-size: 0.88rem; }
+  .boton.secundario { background: transparent; color: var(--fg); border-color: var(--fg); }
+  .boton.jugar { min-height: 36px; background: var(--ok); border-color: var(--ok); color: var(--sobre-accent); padding: 6px 12px; font-size: 0.78rem; }
 
-  .portada { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-block: 44px 24px; }
+  .portada { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-block: 44px 24px; border-bottom: 1px solid var(--line-fuerte); }
   .portada > div { flex: 1 1 380px; }
 
   .barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-block: 16px 20px; }
@@ -138,10 +138,10 @@
     min-height: 36px;
     padding: 6px 12px;
     border-radius: var(--radio-chico);
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     background: transparent;
     color: var(--fg);
-    font-weight: 700;
+    font-weight: 600;
     font: inherit;
     font-size: 0.85rem;
     cursor: pointer;
@@ -159,19 +159,18 @@
     font-size: 0.85rem;
   }
 
-  /* Hilos: tarjetas con la casilla de votos a la izquierda, como un marcador */
-  .lista { display: grid; gap: 12px; }
+  /* Hilos: filas separadas por filetes, con la casilla de votos a la izquierda */
+  .lista { display: grid; border-top: 1px solid var(--line-fuerte); }
   .hilo {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 18px;
-    padding: 16px 18px;
-    border-radius: var(--radio);
-    background: var(--surface);
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
   }
-  .hilo h3 { margin: 0 0 4px; font-size: 1.15rem; font-weight: 700; }
+  .hilo h3 { margin: 0 0 4px; font-family: var(--font-body); font-size: 1.1rem; font-weight: 700; text-transform: none; }
   .hilo h3 a { text-decoration: none; }
-  .hilo h3 a:hover { color: var(--g-reflejos); }
+  .hilo h3 a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
   .extracto { margin: 0 0 8px; color: var(--muted); font-size: 0.92rem; overflow-wrap: anywhere; }
   .detalles { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 0.82rem; color: var(--muted); }
 
@@ -183,16 +182,16 @@
     min-width: 56px;
     padding: 8px 6px;
     border-radius: var(--radio-chico);
-    border: 2px solid var(--line);
-    background: var(--bg);
+    border: 1px solid var(--fg);
+    background: var(--surface);
     color: var(--fg);
     font: inherit;
-    font-family: var(--font-display);
-    font-weight: 400;
+    font-family: var(--font-mono);
+    font-weight: 500;
     cursor: pointer;
   }
   .me-gusta .corazon { font-size: 1.2rem; line-height: 1; }
-  .me-gusta:hover { border-color: var(--accent); }
+  .me-gusta:hover { background: var(--bg-2); }
   .me-gusta[aria-pressed="true"] { color: var(--like); border-color: var(--like); }
   .me-gusta:disabled { cursor: wait; }
   .me-gusta.en-linea { display: inline-flex; grid-auto-flow: column; gap: 8px; padding: 8px 14px; }
@@ -200,22 +199,21 @@
   .estado {
     display: inline-block;
     padding: 1px 9px;
-    border-radius: 6px;
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 0.74rem;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     background: var(--surface-2);
     color: var(--muted);
     border: 1px solid var(--line);
   }
-  /* Estados: sellos con las luces de la feria y texto añil (todos con contraste AA) */
-  .estado.nueva { color: var(--fg); background: transparent; border-color: var(--fg); }
-  .estado.estudio { color: var(--sobre-accent); background: var(--g-reflejos); border-color: var(--g-reflejos); }
-  .estado.desarrollo { color: var(--sobre-accent); background: var(--g-habilidad); border-color: var(--g-habilidad); }
+  /* Estados: sellos de estado (todos con contraste AA) */
+  .estado.nueva { color: var(--fg); background: var(--surface); border-color: var(--fg); }
+  .estado.estudio { color: var(--fg); background: var(--surface-2); border-color: var(--muted); }
+  .estado.desarrollo { color: var(--sobre-accent); background: var(--accent); border-color: var(--accent); }
   .estado.hecha { color: var(--sobre-accent); background: var(--ok); border-color: var(--ok); }
-  .estado.existe { color: var(--sobre-accent); background: var(--g-puzle); border-color: var(--g-puzle); }
+  .estado.existe { color: var(--accent-2); background: transparent; border-color: var(--accent-2); }
   .estado.descartada { color: var(--muted); text-decoration: line-through; }
   .etiqueta { color: var(--accent-texto); font-weight: 600; }
 
@@ -239,7 +237,7 @@
     margin: 24px 0;
     padding: 18px;
     border-radius: var(--radio-chico);
-    border: 0;
+    border: 1.5px solid var(--fg);
     border-left: 8px solid var(--accent);
     background: var(--surface);
   }
@@ -247,8 +245,8 @@
   .anclada .boton { margin-top: 14px; }
 
   .comentarios { display: grid; gap: 10px; margin: 8px 0 28px; }
-  .comentario { padding: 12px 16px; border-radius: var(--radio-chico); background: var(--surface); }
-  .comentario.oficial { border-left: 6px solid var(--accent); }
+  .comentario { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .comentario.oficial { padding-inline: 14px; border-left: 4px solid var(--accent); background: var(--surface); }
   .comentario .autor { font-weight: 600; }
   .comentario .cuando { color: var(--muted); font-size: 0.82rem; margin-left: 8px; }
   .sello-oficial {
@@ -271,7 +269,7 @@
   .denuncia-enviada { color: var(--muted); font-size: 0.82rem; }
 
   form { display: grid; gap: 14px; }
-  .formulario { padding: clamp(16px, 3vw, 28px); border-radius: var(--radio-chico); background: var(--surface); border: 0; }
+  .formulario { padding: clamp(16px, 3vw, 28px); border-radius: var(--radio-chico); background: var(--surface); border: 1px solid var(--line-fuerte); }
   label { display: grid; gap: 6px; font-weight: 600; font-size: 0.92rem; }
   label small { font-weight: 400; color: var(--muted); }
   input, textarea, select {
@@ -279,7 +277,7 @@
     min-height: 44px;
     padding: 10px 12px;
     border-radius: var(--radio-chico);
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     background: var(--bg);
     color: var(--fg);
     font: inherit;
@@ -304,7 +302,7 @@
 
   .vacio { color: var(--muted); padding: 24px 0; }
 
-  footer { margin-top: 48px; padding-block: 24px 40px; border-top: 2px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+  footer { margin-top: 48px; padding-block: 24px 40px; border-top: 1px solid var(--line-fuerte); color: var(--muted); font-size: 0.85rem; }
 
   @media (max-width: 520px) {
     .menu { gap: 12px; }
