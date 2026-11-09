@@ -105,6 +105,7 @@ export default {
     vrError: '无法在此浏览器中启动 VR。',
     errorJuego: '游戏出错了',
     errorJuegoAyuda: '按下按钮切换',
+    introEmpieza: '{n}秒后开始…',
     avisoIphone: 'iPhone 上：点击“分享”，再选择“添加到主屏幕”。从该图标打开即可全屏游玩。',
     vr: {
       pausa: '暂停',

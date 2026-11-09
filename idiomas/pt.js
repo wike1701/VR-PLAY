@@ -104,6 +104,7 @@ export default {
     vrError: 'Não foi possível iniciar a VR neste navegador.',
     errorJuego: 'O jogo travou',
     errorJuegoAyuda: 'Aperte o botão para trocar',
+    introEmpieza: 'Começa em {n}…',
     avisoIphone: 'No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”. Por esse ícone o jogo abre em tela cheia.',
     vr: {
       pausa: 'PAUSA',

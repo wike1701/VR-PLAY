@@ -105,6 +105,7 @@ export default {
     vrError: 'このブラウザではVRを開始できませんでした。',
     errorJuego: 'ゲームでエラーが発生しました',
     errorJuegoAyuda: 'ボタンを押して切り替えてください',
+    introEmpieza: '{n}秒後に開始…',
     avisoIphone: 'iPhoneの場合：共有をタップして「ホーム画面に追加」を選んでください。そのアイコンから開くと全画面で遊べます。',
     vr: {
       pausa: 'ポーズ',

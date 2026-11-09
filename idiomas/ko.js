@@ -105,6 +105,7 @@ export default {
     vrError: '이 브라우저에서 VR을 시작하지 못했어요.',
     errorJuego: '게임에 오류가 발생했어요',
     errorJuegoAyuda: '버튼을 눌러 바꾸세요',
+    introEmpieza: '{n}초 후 시작…',
     avisoIphone: 'iPhone: 공유를 누른 뒤 “홈 화면에 추가”를 선택하세요. 그 아이콘으로 열면 전체 화면으로 플레이할 수 있어요.',
     vr: {
       pausa: '일시정지',

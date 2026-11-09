@@ -104,6 +104,7 @@ export default {
     vrError: 'Impossibile avviare la VR in questo browser.',
     errorJuego: 'Il gioco si è bloccato',
     errorJuegoAyuda: 'Premi il pulsante per cambiare',
+    introEmpieza: 'Si parte tra {n}…',
     avisoIphone: 'Su iPhone: tocca Condividi e poi «Aggiungi alla schermata Home». Da quell’icona si gioca a schermo intero.',
     vr: {
       pausa: 'PAUSA',

@@ -104,6 +104,7 @@ export default {
     vrError: 'Impossible de démarrer la VR dans ce navigateur.',
     errorJuego: 'Le jeu a planté',
     errorJuegoAyuda: 'Appuie sur le bouton pour changer',
+    introEmpieza: 'Début dans {n}…',
     avisoIphone: 'Sur iPhone : touche Partager puis « Sur l’écran d’accueil ». Depuis cette icône, on joue en plein écran.',
     vr: {
       pausa: 'PAUSE',

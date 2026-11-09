@@ -104,6 +104,7 @@ export default {
     vrError: 'VR could not be started in this browser.',
     errorJuego: 'The game crashed',
     errorJuegoAyuda: 'Press the button to switch',
+    introEmpieza: 'Starts in {n}…',
     avisoIphone: 'On iPhone: tap Share and then “Add to Home Screen”. Open it from that icon to play in full screen.',
     vr: {
       pausa: 'PAUSE',

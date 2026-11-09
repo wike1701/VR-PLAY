@@ -104,6 +104,7 @@ export default {
     vrError: 'VR konnte in diesem Browser nicht gestartet werden.',
     errorJuego: 'Das Spiel ist abgestürzt',
     errorJuegoAyuda: 'Drück den Knopf, um zu wechseln',
+    introEmpieza: 'Los geht’s in {n}…',
     avisoIphone: 'Auf dem iPhone: Tippe auf Teilen und dann auf „Zum Home-Bildschirm“. Über dieses Symbol spielst du im Vollbild.',
     vr: {
       pausa: 'PAUSE',
