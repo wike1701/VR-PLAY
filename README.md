@@ -106,7 +106,7 @@ juegos/
   tambores/juego.js     Tambores
   bomberos/juego.js     Bomberos
   tortitas/juego.js     Tortitas al Vuelo (en pruebas)
-  nieve/juego.js        Bolas de Nieve (en pruebas)
+  nieve/juego.js        Bolas de Nieve
   skeeball/juego.js     Skee-Ball (en pruebas)
   toques/juego.js       Toques con Pala
   xilofono/juego.js     Xilófono
