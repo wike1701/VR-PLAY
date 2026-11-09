@@ -434,6 +434,9 @@ export function iniciar(ctx) {
     ctx.vibrar(mano, 0.25, 25);
     ctx.sonido('zas');
   }
+  let pausaLanzar = 0;   // segundos sin poder lanzar tras recoger
+  let hundir = 0;        // cuánto se hunde la tortita al caer en la sartén
+  let hundirVel = 0;
   const lanzamiento = { gana: 0, texto: '', color: '#ffffff', cara: 0 };
 
   function recoger(mano) {
@@ -461,6 +464,11 @@ export function iniciar(ctx) {
       ctx.efectos.texto(tmp, medias === 0 ? ctx.t('sinVuelta') : ctx.t('entera'), { color: '#cfd8dc', tam: 0.8 });
     }
     fase = 'sarten';
+    // Como en la vida real: la tortita cae blanda, se hunde un poco y se asienta sin rebotar,
+    // y no se puede relanzar hasta que la sartén se calme
+    pausaLanzar = 0.45;
+    hundir = Math.min(0.05, 0.012 + Math.max(0, -vel.y) * 0.006);
+    hundirVel = 0;
     if (hecha[0] && hecha[1]) {
       espera = 0.7;
       fase = 'servir';
@@ -543,6 +551,10 @@ export function iniciar(ctx) {
       velSubidaAntes = velSarten.y;
       return;
     }
+    if (pausaLanzar > 0) {
+      velSubidaAntes = velSarten.y;
+      return;
+    }
     if (ctx.enVR()) {
       // Golpe hacia arriba: se suelta cuando la sartén empieza a frenar
       if (normalSarten.y > 0.6 && velSubidaAntes > 1.4 && velSarten.y < velSubidaAntes) {
@@ -569,9 +581,14 @@ export function iniciar(ctx) {
 
   // ─── La tortita, en la sartén o en el aire ─────────────────────────────
   function moverTortita(dt) {
+    pausaLanzar -= dt;
     if (fase === 'sarten' || fase === 'servir') {
       // Pegada a la sartén, con un poco de baile
-      tortita.position.copy(centroSarten).addScaledVector(normalSarten, 0.004 + GROSOR / 2);
+      // Asentamiento amortiguado (muelle sin rebote) tras caer en la sartén
+      hundirVel += (-hundir * 260 - hundirVel * 28) * dt;
+      hundir += hundirVel * dt;
+      if (Math.abs(hundir) < 1e-4 && Math.abs(hundirVel) < 1e-3) hundir = hundirVel = 0;
+      tortita.position.copy(centroSarten).addScaledVector(normalSarten, 0.004 + GROSOR / 2 - Math.max(0, hundir));
       tortita.quaternion.copy(qSarten);
       if (girada) tortita.quaternion.multiply(qVuelta);
       if (estado === 'juego' && fase === 'sarten') {
