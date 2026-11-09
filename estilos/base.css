@@ -3,11 +3,10 @@
    Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
    color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
 
-   Identidad «salón de juegos»: oscura, del verde profundo del fieltro de una mesa de billar, con
-   texto marfil y un solo acento de latón (el de las barandillas y las fichas). Filetes finos en
-   vez de sombras, esquinas poco redondeadas, títulos en Big Shoulders Display (letra estrecha de
-   rótulo) en mayúsculas, texto en Archivo y datos en mono. Nada de degradados ni cristal: el color
-   lo ponen las portadas de los juegos.
+   Los colores de siempre de VR Play (grafito frío y un solo acento naranja coral) con un
+   tratamiento más sobrio: filetes finos en vez de tarjetas con sombra, esquinas poco redondeadas,
+   títulos en Archivo estrecho y en mayúsculas, texto en Archivo y datos en Geist Mono.
+   Nada de degradados, cristal, brillos ni grano: el color lo ponen las portadas de los juegos.
 
    Fuentes (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web para no enviar la IP
    de cada visitante a terceros. Cada página precarga Archivo con un <link rel="preload">.
@@ -21,13 +20,6 @@
   font-display: swap;
 }
 @font-face {
-  font-family: "Big Shoulders Display";
-  src: url("fuentes/BigShouldersDisplay-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: "Geist Mono";
   src: url("fuentes/GeistMono-Variable.woff2") format("woff2");
   font-weight: 100 900;
@@ -35,43 +27,43 @@
   font-display: swap;
 }
 :root {
-  /* Fieltro: de más hundido a más cercano */
-  --bg: #0b211c;
-  --bg-2: #081a16;
-  --surface: #11302a;
-  --surface-1: #11302a;
-  --surface-2: #173b33;
-  --surface-3: #1f483f;
-  --line: #2a5247;
-  --line-suave: #183a32;
-  --line-fuerte: #f1ead8;      /* filete marfil: marcos y separadores principales */
+  /* Fondos y superficies: grafito con un toque frío, de más profundo a más cercano */
+  --bg: #0a0b10;
+  --bg-2: #0f1117;
+  --surface: #13151d;
+  --surface-1: #13151d;
+  --surface-2: #1a1d27;
+  --surface-3: #232736;
+  --line: #272b38;
+  --line-suave: #1c1f2a;
+  --line-fuerte: #c9ccd6;      /* filete claro: marcos y separadores principales */
 
-  /* Texto marfil. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
-  --fg: #f1ead8;
-  --muted: #a9b8ad;
-  --muted-2: #a9b8ad;
+  /* Texto (todo con contraste 4,5:1 o más sobre los fondos de arriba, WCAG AA) */
+  --fg: #f4f5f8;
+  --muted: #8e93a6;
+  --muted-2: #8a8fa3;
 
-  /* Un solo acento: latón. Como fondo lleva texto de fieltro (9:1); como texto, 9:1 sobre el fondo */
-  --accent: #f0b43c;
-  --accent-fuerte: #f0b43c;
-  --accent-claro: #f6c868;
-  --accent-texto: #f0b43c;
-  --accent-2: #f6c868;
-  --accent-tinta: rgba(240, 180, 60, 0.16);
-  --sobre-accent: #0b211c;
+  /* Un solo acento: naranja coral. Sobre él, el texto va oscuro (--sobre-accent) */
+  --accent: #ff6a3d;
+  --accent-fuerte: #ff6a3d;
+  --accent-claro: #ff8a62;
+  --accent-texto: #ff8a62;
+  --accent-2: #ffb49a;
+  --accent-tinta: rgba(255, 106, 61, 0.14);
+  --sobre-accent: #1a0d07;
 
   /* Colores con significado */
-  --like: #ff8fa3;
-  --ok: #7ee0a1;
-  --peligro: #ff8a7a;
-  --oro: #f0b43c;
+  --like: #ff4d7d;
+  --ok: #3ddc97;
+  --peligro: #ff5d5d;
+  --oro: #ffc94d;
 
   /* Tipografía */
   --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
-  --font-display: "Big Shoulders Display", "Archivo", system-ui, sans-serif;
-  --font-logo: var(--font-display);
+  --font-display: var(--font-body);
+  --font-logo: var(--font-body);
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --estrecho: 100%;            /* Big Shoulders ya es estrecha: no hace falta estrecharla */
+  --estrecho: 72%;             /* anchura de los títulos (font-stretch) */
 
   /* Formas: esquinas poco redondeadas y sin sombras difusas */
   --radio: 8px;
@@ -81,7 +73,7 @@
 
   /* Alias para la página de juego (play.html) */
   --text: var(--fg);
-  --panel: rgba(11, 33, 28, 0.92);
+  --panel: rgba(19, 21, 29, 0.88);
 
   color-scheme: dark;
 }
@@ -99,15 +91,16 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 /* Las cifras no bailan al cambiar */
 .cifra, time { font-variant-numeric: tabular-nums; }
 /* El japonés, el coreano y el chino no llevan espaciado negativo ni se estrechan */
-:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; font-family: var(--font-body); }
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; font-stretch: 100%; }
 
-/* Logo «VR◆PLAY»: estrecho, en mayúsculas, con el punto convertido en un rombo de latón (una ficha).
+/* Logo «VR■PLAY»: estrecho, en mayúsculas, con el punto convertido en un cuadrado coral.
    Igual en todas las páginas (gana a los estilos propios de cada una). El texto sigue siendo «VR·Play». */
 header .logo {
   font-family: var(--font-logo);
-  font-weight: 800;
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
+  font-weight: 900;
+  font-stretch: var(--estrecho);
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   line-height: 1;
 }
@@ -115,10 +108,9 @@ header .logo span {
   display: inline-block;
   width: 0.42em;
   height: 0.42em;
-  margin: 0 0.16em;
+  margin: 0 0.1em;
   overflow: hidden;
   vertical-align: 0.14em;
-  transform: rotate(45deg);
   background: var(--accent);
   color: transparent;
 }

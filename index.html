@@ -28,7 +28,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0b211c">
+<meta name="theme-color" content="#0a0b10">
 <!-- iPhone: al abrirla desde la pantalla de inicio, sin barras de Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -58,7 +58,7 @@
 }
 </script>
 <style>
-  /* Portada en clave «catálogo de recreativa» (ver estilos/base.css): fieltro verde de salón de juegos, marfil y latón,
+  /* Portada en clave «catálogo de recreativa» (ver estilos/base.css): grafito y naranja coral de siempre,
      filetes finos, títulos estrechos en mayúsculas y un muro de portadas que se desliza.
      Colores y fuentes: estilos/base.css. Aquí solo lo propio de la portada */
   :root { --z-cabecera: 20; }
@@ -108,7 +108,7 @@
     padding: 9px 14px 9px 38px;
     border-radius: var(--radio-chico);
     border: 1px solid var(--line);
-    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a9b8ad' stroke-width='2' stroke-linecap='square'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 13px 50%;
+    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238e93a6' stroke-width='2' stroke-linecap='square'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 13px 50%;
     color: var(--fg);
     font: inherit;
     font-size: 0.92rem;
@@ -168,7 +168,7 @@
   .antetitulo strong { padding: 3px 8px; background: var(--fg); color: var(--bg); font-weight: 500; }
   .portada h1 { margin: 0; font-size: clamp(3rem, 6.4vw, 6rem); max-width: 13ch; }
   :lang(ja) .portada h1, :lang(ko) .portada h1, :lang(zh) .portada h1 { font-size: clamp(2.2rem, 5vw, 4rem); max-width: 14em; }
-  /* La última palabra, subrayada con una franja de latón (como el latón de una barandilla) */
+  /* La última palabra, subrayada con una franja coral (como un rotulador) */
   .portada h1 .resalte {
     background: linear-gradient(var(--accent), var(--accent)) no-repeat 0 88% / 100% 0.16em;
     padding-inline: 0.02em;
@@ -190,11 +190,10 @@
     text-decoration: none;
     transition: transform 0.12s, box-shadow 0.12s, background-color 0.15s, color 0.15s;
   }
-  .boton-jugar { background: var(--accent); color: var(--sobre-accent); }
+  .boton-jugar { background: var(--accent); border-color: var(--accent); color: var(--sobre-accent); }
   .boton-jugar svg, .boton-secundario svg { width: 16px; height: 16px; flex: none; }
-  /* Al pasar el ratón, el botón se levanta con una sombra dura marfil */
-  .boton-jugar:hover, .boton-claro:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
-  .boton-jugar:active, .boton-claro:active { transform: none; box-shadow: none; }
+  .boton-jugar:hover, .boton-claro:hover { background: var(--accent-claro); border-color: var(--accent-claro); }
+  .boton-jugar:active, .boton-claro:active { transform: translateY(1px); }
   .boton-secundario { background: transparent; color: var(--fg); }
   .boton-secundario:hover { background: var(--fg); color: var(--bg); }
   .enlace-texto { color: var(--fg); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
@@ -303,7 +302,7 @@
   .miniatura { position: relative; aspect-ratio: 1 / 1; border-radius: var(--radio-chico); overflow: hidden; background: var(--surface-2); }
   .miniatura img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
   .tarjeta:hover .miniatura img, .tarjeta:focus-visible .miniatura img { transform: scale(1.04); }
-  /* «▶ JUGAR»: una franja de latón que asoma por abajo al pasar el ratón */
+  /* «▶ JUGAR»: una franja coral que asoma por abajo al pasar el ratón */
   .pastilla-jugar {
     position: absolute;
     inset: auto 0 0 0;
@@ -426,7 +425,7 @@
   .preguntas details[open] summary::after { content: "−"; }
   .preguntas details p { margin: 0 0 20px; max-width: 62ch; color: var(--muted); }
 
-  /* ─── Franja «¿Tienes una idea de juego?»: un bloque de tinta ──────── */
+  /* ─── Franja «¿Tienes una idea de juego?» ──────────────────────────── */
   .idea-juego {
     display: flex;
     flex-wrap: wrap;
@@ -436,13 +435,13 @@
     margin-top: clamp(56px, 8vw, 96px);
     padding: clamp(28px, 4vw, 48px);
     border-radius: var(--radio);
-    background: var(--fg);
-    color: var(--bg);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--fg);
   }
   .idea-juego h2 { margin: 0; font-size: clamp(2rem, 4.4vw, 3.4rem); }
-  .idea-juego p { margin: 10px 0 0; max-width: 48ch; color: var(--line); }
+  .idea-juego p { margin: 10px 0 0; max-width: 48ch; color: var(--muted); }
   .boton-claro { background: var(--accent); color: var(--sobre-accent); border-color: var(--accent); }
-  .boton-claro:hover { box-shadow: 4px 4px 0 var(--bg); }
   .anuncio { margin-top: 24px; padding: 32px; border: 1px dashed var(--line); text-align: center; color: var(--muted); }
 
   /* ─── Pie ──────────────────────────────────────────────────────────── */
@@ -556,13 +555,13 @@
       </article>
       <article class="paso esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
         <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="#2a5247" stroke-dasharray="4 5"/>
-          <path d="M60 30 L52 44 H68 Z" fill="#a9b8ad"/>
-          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#173b33" stroke="#a9b8ad" stroke-width="2"/>
-          <circle cx="60" cy="62" r="14" fill="#11302a" stroke="#f1ead8" stroke-width="2"/>
-          <circle cx="88" cy="92" r="10" fill="#f0b43c"/>
-          <circle cx="88" cy="92" r="15" fill="none" stroke="#f6c868" stroke-width="2"/>
-          <text x="60" y="18" fill="#a9b8ad" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#272b38" stroke-dasharray="4 5"/>
+          <path d="M60 30 L52 44 H68 Z" fill="#8e93a6"/>
+          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#1a1d27" stroke="#8e93a6" stroke-width="2"/>
+          <circle cx="60" cy="62" r="14" fill="#13151d" stroke="#f4f5f8" stroke-width="2"/>
+          <circle cx="88" cy="92" r="10" fill="#ff6a3d"/>
+          <circle cx="88" cy="92" r="15" fill="none" stroke="#ffb49a" stroke-width="2"/>
+          <text x="60" y="18" fill="#8e93a6" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
         </svg>
         <div>
           <span class="numero">02</span>

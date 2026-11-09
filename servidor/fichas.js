@@ -210,7 +210,7 @@ ${alternativas(ruta)}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#0b211c">
+<meta name="theme-color" content="#0a0b10">
 <link rel="preload" href="/estilos/fuentes/Archivo-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/estilos/base.css">
 <script type="application/ld+json">${JSON.stringify(datosEstructurados).replace(/</g, '\\u003c')}</script>
@@ -249,8 +249,8 @@ ${alternativas(ruta)}
   .sello { display: block; margin-top: 22px; padding: 10px 0; border-block: 1px solid var(--line-fuerte); font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
   .cifras { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: .85rem; }
   .descripcion { font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.45; margin: 22px 0 26px; max-width: 46ch; }
-  .jugar { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 16px 30px; border: 1.5px solid var(--fg); border-radius: var(--radio-chico); background: var(--accent); color: var(--sobre-accent); font-weight: 800; font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; text-decoration: none; transition: transform .12s, box-shadow .12s; }
-  .jugar:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
+  .jugar { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 16px 30px; border: 1.5px solid var(--accent); border-radius: var(--radio-chico); background: var(--accent); color: var(--sobre-accent); font-weight: 800; font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; text-decoration: none; transition: transform .12s, box-shadow .12s; }
+  .jugar:hover { background: var(--accent-claro); }
   .nota { color: var(--muted); font-size: .9rem; margin: 14px 0 0; max-width: 60ch; }
   h2 { margin: 56px 0 16px; font-stretch: var(--estrecho); font-weight: 900; text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; }
   /* Controles: tres casillas con filetes, como una tabla de especificaciones */
