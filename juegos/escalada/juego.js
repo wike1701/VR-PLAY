@@ -250,6 +250,8 @@ export function iniciar(ctx) {
   let maxAltura = 0;
   let ultimaAltura = 0;
   let sinManos = 0;
+  let caidaY = 0;          // cuánto te has caído (animación al soltarte)
+  let velCaida = 0;
   let hito = 10;
   let record = ctx.leer('record', 0);
   let primeraVez = true;
@@ -323,6 +325,8 @@ export function iniciar(ctx) {
     tSubiendo = 0;
     maxAltura = 0;
     sinManos = 0;
+    caidaY = 0;
+    velCaida = 0;
     hito = 10;
     for (const a of agarres) a.presa = null;
     anclaRaton = null;
@@ -494,7 +498,8 @@ export function iniciar(ctx) {
   // ─── Dibujo ────────────────────────────────────────────────────────────
   const cuentas = { normal: 0, quebradiza: 0, resbaladiza: 0, movil: 0 };
   function dibujar(dt, t) {
-    mundo.position.set(desplaz.x, desplaz.y, 0);
+    // Al caerte, la pared sube por delante de ti (tú caes) cada vez más deprisa
+    mundo.position.set(desplaz.x, desplaz.y + caidaY, 0);
     const h = altura();
     for (const tipo of TIPOS) cuentas[tipo] = 0;
     let nRieles = 0;
@@ -616,8 +621,16 @@ export function iniciar(ctx) {
     if (estado === 'muerte') {
       // Fundido a negro (o a rojo, si es la lava) y vuelta a la repisa
       tEstado += dt;
-      ctx.destello(causa === 'lava' ? 0x3a0800 : 0x000000, Math.min(1, tEstado / 0.6));
-      if (tEstado > 0.8) {
+      const cae = causa !== 'lava';
+      if (cae) {
+        // Caída libre: aceleras hacia abajo y el fundido llega al final
+        velCaida += 9.8 * dt;
+        caidaY += velCaida * dt;
+        ctx.destello(0x000000, Math.min(1, Math.max(0, (tEstado - 0.7) / 0.6)));
+      } else {
+        ctx.destello(0x3a0800, Math.min(1, tEstado / 0.6));
+      }
+      if (tEstado > (cae ? 1.4 : 0.8)) {
         ultimaAltura = maxAltura;
         if (maxAltura > record) {
           record = maxAltura;
