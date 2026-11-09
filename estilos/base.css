@@ -3,22 +3,32 @@
    Cada página lo enlaza antes de sus propios estilos y usa estas variables: para cambiar un
    color o una fuente en toda la web, se cambia aquí y en ningún otro sitio.
 
-   Identidad «sala de recreativas»: el gris claro y frío del plástico de unas gafas VR, tinta casi
-   negra y un solo color de señal, el amarillo de los botones de una máquina recreativa. Filetes
-   finos en vez de sombras, esquinas casi rectas, títulos en Archivo estrecho y en mayúsculas, y
-   datos en mono. Nada de degradados, cristal ni brillos: el color lo ponen las portadas de los juegos.
+   Identidad «feria de noche»: un cielo añil profundo (no negro), texto color crema y las luces
+   de una feria: un color por tipo de juego (--g-deportes, --g-disparos…) para encontrarlos de un
+   vistazo. Los títulos van en Bungee, una letra pensada para rótulos; el texto en Atkinson
+   Hyperlegible, hecha para leerse bien a cualquier tamaño. Nada de degradados ni cristal.
 
    Fuentes (licencia SIL OFL, en estilos/fuentes/), servidas desde la propia web para no enviar la IP
-   de cada visitante a terceros: Archivo (texto y títulos; eje de anchura para los títulos estrechos)
-   y Geist Mono (cifras y datos). Cada página precarga Archivo con un <link rel="preload">.
-
-   La página de juego (play.html) va de noche: lleva <html data-tema="noche"> y usa la paleta oscura.
+   de cada visitante a terceros. Cada página precarga Atkinson con un <link rel="preload">.
    ───────────────────────────────────────────────────────────────────────── */
 @font-face {
-  font-family: "Archivo";
-  src: url("fuentes/Archivo-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
+  font-family: "Atkinson Hyperlegible";
+  src: url("fuentes/AtkinsonHyperlegible-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("fuentes/AtkinsonHyperlegible-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bungee";
+  src: url("fuentes/Bungee-Regular.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -30,81 +40,66 @@
   font-display: swap;
 }
 :root {
-  /* Fondo gris frío: de más hundido a más cercano */
-  --bg: #e8eaeb;
-  --bg-2: #dfe2e4;
-  --surface: #f6f7f7;
-  --surface-1: #f6f7f7;
-  --surface-2: #dcdfe1;
-  --surface-3: #cdd1d4;
-  --line: #c4c9cd;
-  --line-suave: #d6dadd;
-  --line-fuerte: #111315;      /* filete de tinta: marcos y separadores principales */
+  /* Cielo añil: de más hundido a más cercano */
+  --bg: #101236;
+  --bg-2: #0c0e2b;
+  --surface: #1a1d4e;
+  --surface-1: #1a1d4e;
+  --surface-2: #23275e;
+  --surface-3: #2d3270;
+  --line: #353b80;
+  --line-suave: #23275e;
+  --line-fuerte: #fff3df;
 
-  /* Tinta. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
-  --fg: #111315;
-  --muted: #545a60;
-  --muted-2: #545a60;
+  /* Texto crema. Todo texto sobre estos fondos tiene contraste 4,5:1 o más (WCAG AA) */
+  --fg: #fff3df;
+  --muted: #b4b3d4;
+  --muted-2: #b4b3d4;
 
-  /* Un solo color de señal: amarillo recreativa. Va de fondo (botones, marcas), nunca de texto:
-     encima, el texto va en tinta (contraste 12,9:1). Para un texto con el tono del acento sobre
-     el fondo claro se usa --accent-texto, un ámbar oscuro (5,5:1) */
-  --accent: #ffd21f;
-  --accent-fuerte: #ffd21f;
-  --accent-claro: #ffdc4d;
-  --accent-texto: #7a5600;
-  --accent-2: #7a5600;
-  --accent-tinta: rgba(255, 210, 31, 0.22);
-  --sobre-accent: #111315;
+  /* Acento: rosa de tique de feria. Encima, el texto va en añil (6,2:1) */
+  --accent: #ff5c8a;
+  --accent-fuerte: #ff5c8a;
+  --accent-claro: #ff7fa3;
+  --accent-texto: #ff7fa3;
+  --accent-2: #ffb3c8;
+  --accent-tinta: rgba(255, 92, 138, 0.18);
+  --sobre-accent: #101236;
+  --accent-sombra: #b3204d;     /* el borde inferior del botón, como una tecla */
 
-  /* Colores con significado (oscurecidos para leerse sobre el fondo claro) */
-  --like: #c2185b;
-  --ok: #1a6e3e;
-  --peligro: #b42318;
-  --oro: #7a5600;
+  /* Un color por tipo de juego: fondos con texto añil encima (todos 6:1 o más) */
+  --g-deportes: #3ddc84;
+  --g-disparos: #ff6b6b;
+  --g-reflejos: #4cc9ff;
+  --g-habilidad: #ffc93c;
+  --g-puzle: #b79cff;
+  --g-accion: #ff8c42;
+  --g-conduccion: #ff6fd8;
+  --g-arcade: #f9a8ff;
+  --g-ritmo: #6ff0d0;
+  --g-otro: #b4b3d4;
+
+  /* Colores con significado */
+  --like: #ff5c8a;
+  --ok: #3ddc84;
+  --peligro: #ff6b6b;
+  --oro: #ffc93c;
 
   /* Tipografía */
-  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
-  --font-display: var(--font-body);
-  --font-logo: var(--font-body);
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", sans-serif;
+  --font-display: "Bungee", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-logo: var(--font-display);
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --estrecho: 72%;             /* anchura de los títulos (font-stretch) */
 
-  /* Formas: esquinas casi rectas y sin sombras difusas */
-  --radio: 6px;
-  --radio-chico: 4px;
-  --sombra: 0 1px 0 var(--line);
-  --sombra-accent: none;
+  /* Formas: esquinas redondeadas de máquina de feria y sombras duras, sin difuminar */
+  --radio: 18px;
+  --radio-chico: 10px;
+  --sombra: 0 6px 0 var(--bg-2);
+  --sombra-accent: 0 5px 0 var(--accent-sombra);
 
   /* Alias para la página de juego (play.html) */
   --text: var(--fg);
-  --panel: rgba(246, 247, 247, 0.94);
+  --panel: rgba(16, 18, 54, 0.92);
 
-  color-scheme: light;
-}
-
-/* La noche: la paleta de la página de juego (los menús van encima de la escena 3D) */
-:root[data-tema="noche"] {
-  --bg: #0d0f11;
-  --bg-2: #121518;
-  --surface: #171a1e;
-  --surface-1: #171a1e;
-  --surface-2: #1f2328;
-  --surface-3: #2a2f35;
-  --line: #343a41;
-  --line-suave: #22272c;
-  --line-fuerte: #e8eaeb;
-  --fg: #eef0f1;
-  --muted: #9aa1a8;
-  --muted-2: #9aa1a8;
-  --accent-texto: #ffd21f;
-  --accent-2: #ffe27a;
-  --sobre-accent: #111315;
-  --like: #ff4d7d;
-  --ok: #3ddc97;
-  --peligro: #ff5d5d;
-  --oro: #ffc94d;
-  --panel: rgba(18, 21, 24, 0.92);
   color-scheme: dark;
 }
 
@@ -115,40 +110,47 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+/* Bungee y Atkinson no tienen todos los grosores: que el navegador no se los invente */
+* { font-synthesis: none; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; }
 ::selection { background: var(--accent); color: var(--sobre-accent); }
-:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--g-reflejos); outline-offset: 3px; }
 /* Las cifras no bailan al cambiar */
 .cifra, time { font-variant-numeric: tabular-nums; }
-/* El japonés, el coreano y el chino no llevan espaciado negativo ni se estrechan */
-:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { letter-spacing: 0; font-stretch: 100%; }
+/* Bungee solo tiene letras latinas: en japonés, coreano y chino los títulos van en la letra del texto */
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { font-family: var(--font-body); font-weight: 700; }
 
-/* Logo «VR■PLAY»: estrecho, en mayúsculas, con el punto convertido en un botón cuadrado amarillo.
+/* Logo «VR●PLAY» en letra de rótulo, con el punto convertido en una bombilla rosa.
    Igual en todas las páginas (gana a los estilos propios de cada una). El texto sigue siendo «VR·Play». */
 header .logo {
   font-family: var(--font-logo);
-  font-weight: 900;
-  font-stretch: var(--estrecho);
-  font-size: 1.5rem;
-  letter-spacing: 0.01em;
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: 0;
   text-transform: uppercase;
   line-height: 1;
 }
 header .logo span {
   display: inline-block;
-  width: 0.42em;
-  height: 0.42em;
-  margin: 0 0.1em;
+  width: 0.4em;
+  height: 0.4em;
+  margin: 0 0.12em;
   overflow: hidden;
-  vertical-align: 0.14em;
+  vertical-align: 0.16em;
+  border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tinta);
   color: transparent;
 }
 
-/* Etiqueta de datos en mono (Nº, géneros, cifras): pequeña, en mayúsculas y espaciada */
-.mono {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
+/* Sello de tipo de juego: el color de su género (data-genero) con texto añil */
+[data-genero] { --g: var(--g-otro); }
+[data-genero="deportes"] { --g: var(--g-deportes); }
+[data-genero="disparos"] { --g: var(--g-disparos); }
+[data-genero="reflejos"] { --g: var(--g-reflejos); }
+[data-genero="habilidad"] { --g: var(--g-habilidad); }
+[data-genero="puzle"] { --g: var(--g-puzle); }
+[data-genero="accion"] { --g: var(--g-accion); }
+[data-genero="conduccion"] { --g: var(--g-conduccion); }
+[data-genero="arcade"] { --g: var(--g-arcade); }
+[data-genero="ritmo"] { --g: var(--g-ritmo); }

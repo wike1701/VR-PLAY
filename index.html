@@ -28,13 +28,13 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-<meta name="theme-color" content="#e8eaeb">
+<meta name="theme-color" content="#101236">
 <!-- iPhone: al abrirla desde la pantalla de inicio, sin barras de Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VR Play">
-<link rel="preload" href="estilos/fuentes/Archivo-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="estilos/fuentes/AtkinsonHyperlegible-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos/base.css">
 <!-- Datos estructurados de schema.org: qué es la web, para Google y los buscadores con IA -->
 <script type="application/ld+json">
@@ -58,9 +58,9 @@
 }
 </script>
 <style>
-  /* Portada en clave «catálogo de recreativa» (ver estilos/base.css): gris de gafas VR, tinta y amarillo recreativa,
-     filetes finos, títulos estrechos en mayúsculas y un muro de portadas que se desliza.
-     Colores y fuentes: estilos/base.css. Aquí solo lo propio de la portada */
+  /* Portada en clave «feria de noche» (ver estilos/base.css): cielo añil, letra de rótulo, un color
+     por tipo de juego, un cartel luminoso con los nombres de los juegos y botones que se hunden como
+     las teclas de una máquina. Colores y fuentes: estilos/base.css. Aquí solo lo propio de la portada */
   :root { --z-cabecera: 20; }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -69,25 +69,36 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 1.02rem;
     line-height: 1.55;
     overflow-x: clip; /* nada puede ensanchar la página en el móvil */
   }
   a { color: inherit; }
   [hidden] { display: none !important; }
-  .contenedor { width: min(1280px, 100%); margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
-  /* Títulos de sección: estrechos, negros y en mayúsculas */
-  .titular-estrecho, .cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2 {
-    font-family: var(--font-display);
-    font-stretch: var(--estrecho);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.005em;
-    line-height: 0.92;
-  }
+  .contenedor { width: min(1240px, 100%); margin-inline: auto; padding-inline: clamp(16px, 4vw, 36px); }
+  .cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2 { font-family: var(--font-display); font-weight: 400; line-height: 1.02; text-transform: uppercase; text-wrap: balance; }
   :lang(ja) :is(.cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2),
   :lang(ko) :is(.cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2),
-  :lang(zh) :is(.cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2) { line-height: 1.2; font-weight: 800; }
+  :lang(zh) :is(.cabeza-seccion h2, .seccion-titulo, .portada h1, .idea-juego h2) { font-family: var(--font-body); font-weight: 700; line-height: 1.2; }
+
+  /* Botón «tecla»: color lleno y un canto inferior más oscuro; al pulsarlo se hunde */
+  .boton-jugar, .boton-claro, .boton-feed, .persona .boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 0;
+    border-radius: var(--radio-chico);
+    background: var(--accent);
+    color: var(--sobre-accent);
+    box-shadow: var(--sombra-accent);
+    font: inherit;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s, background-color 0.15s;
+  }
+  .boton-jugar:hover, .boton-claro:hover { background: var(--accent-claro); }
+  .boton-jugar:active, .boton-claro:active, .boton-feed:active, .persona .boton:active { transform: translateY(5px); box-shadow: 0 0 0 var(--accent-sombra); }
 
   /* ─── Cabecera ─────────────────────────────────────────────────────── */
   header {
@@ -96,248 +107,177 @@
     z-index: var(--z-cabecera);
     padding-top: env(safe-area-inset-top, 0px);
     background: var(--bg);
-    border-bottom: 1px solid var(--line-fuerte);
+    border-bottom: 1px solid var(--line);
   }
   .cabecera { display: flex; align-items: center; gap: 10px; padding-block: 12px; min-width: 0; }
   .logo { text-decoration: none; white-space: nowrap; margin-right: 8px; }
   .buscar {
     flex: 1;
     min-width: 0;
-    max-width: 420px;
+    max-width: 440px;
     margin-left: auto;
-    padding: 9px 14px 9px 38px;
+    min-height: 42px;
+    padding: 9px 14px 9px 40px;
     border-radius: var(--radio-chico);
-    border: 1px solid var(--line);
-    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23545a60' stroke-width='2' stroke-linecap='square'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 13px 50%;
+    border: 2px solid var(--line);
+    background: var(--bg-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23b4b3d4' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 14px 50%;
     color: var(--fg);
     font: inherit;
-    font-size: 0.92rem;
-    transition: border-color 0.15s;
+    font-size: 0.95rem;
   }
   .buscar::placeholder { color: var(--muted); }
-  .buscar:focus { outline: none; border-color: var(--fg); }
+  .buscar:focus { outline: none; border-color: var(--g-reflejos); }
   .enlace-foro, .boton-cuenta, .selector-idioma {
     display: inline-flex;
     flex: none;
     align-items: center;
     gap: 8px;
-    min-height: 40px;
+    min-height: 42px;
     padding: 8px 14px;
     border-radius: var(--radio-chico);
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     background: transparent;
     color: var(--fg);
     font: inherit;
-    font-size: 0.88rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
   }
   .enlace-foro:hover, .boton-cuenta:hover, .selector-idioma:hover { border-color: var(--fg); }
-  .enlace-foro.destacado { border-color: var(--fg); }
-  .enlace-foro.destacado:hover { background: var(--fg); color: var(--bg); }
-  .selector-idioma { max-width: 120px; padding-inline: 10px; }
+  .enlace-foro.destacado { border-color: var(--g-habilidad); color: var(--g-habilidad); }
+  .enlace-foro.destacado:hover { background: var(--g-habilidad); color: var(--sobre-accent); }
+  .selector-idioma { max-width: 120px; padding-inline: 10px; background: var(--bg); }
   .boton-cuenta:has(.avatar) { padding: 3px 12px 3px 3px; }
   .boton-cuenta .texto { display: inline-block; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
-  .avatar { flex: none; border-radius: var(--radio-chico); }
+  .avatar { flex: none; border-radius: 8px; }
 
   /* ─── Portada: el titular a un lado y el muro de portadas al otro ──── */
-  .portada { border-bottom: 1px solid var(--line-fuerte); overflow: hidden; }
-  .portada .contenedor {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: clamp(24px, 4vw, 56px);
-    align-items: stretch;
-  }
-  .portada .contenedor > div:first-child { padding-block: clamp(36px, 6vw, 80px); display: flex; flex-direction: column; justify-content: center; }
-  /* Fila de datos sobre el titular: «53 JUEGOS — GRATIS Y SIN INSTALAR» */
-  .antetitulo {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 14px;
-    margin: 0 0 22px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .antetitulo strong { padding: 3px 8px; background: var(--fg); color: var(--bg); font-weight: 500; }
-  .portada h1 { margin: 0; font-size: clamp(3rem, 6.4vw, 6rem); max-width: 13ch; }
-  :lang(ja) .portada h1, :lang(ko) .portada h1, :lang(zh) .portada h1 { font-size: clamp(2.2rem, 5vw, 4rem); max-width: 14em; }
-  /* La última palabra, subrayada con una franja amarilla (como un rotulador fluorescente) */
+  .portada { overflow: hidden; }
+  .portada .contenedor { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+  .portada .contenedor > div:first-child { padding-block: clamp(40px, 6vw, 88px); }
+  .antetitulo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 22px; color: var(--muted); font-weight: 700; }
+  .antetitulo strong { padding: 4px 10px; border-radius: 6px; background: var(--g-deportes); color: var(--sobre-accent); }
+  .portada h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4.4rem); }
+  /* La última palabra va en un tique de feria rosa, un poco torcido */
   .portada h1 .resalte {
-    background: linear-gradient(var(--accent), var(--accent)) no-repeat 0 88% / 100% 0.16em;
-    padding-inline: 0.02em;
+    display: inline-block;
+    margin-top: 0.12em;
+    padding: 0.06em 0.28em 0.02em;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--sobre-accent);
+    transform: rotate(-2deg);
   }
-  .portada .entradilla { max-width: 46ch; margin: 26px 0 0; font-size: clamp(1.02rem, 1.4vw, 1.18rem); color: var(--muted); }
-  .acciones-portada { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 30px; }
-  .boton-jugar, .boton-secundario, .boton-claro {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 52px;
-    padding: 14px 24px;
-    border-radius: var(--radio-chico);
-    border: 1.5px solid var(--fg);
-    font-weight: 800;
-    font-size: 0.95rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: transform 0.12s, box-shadow 0.12s, background-color 0.15s, color 0.15s;
-  }
-  .boton-jugar { background: var(--accent); color: var(--sobre-accent); }
-  .boton-jugar svg, .boton-secundario svg { width: 16px; height: 16px; flex: none; }
-  /* Al pasar el ratón, el botón se levanta del fondo con una sombra dura de tinta */
-  .boton-jugar:hover, .boton-claro:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fg); }
-  .boton-jugar:active, .boton-claro:active { transform: none; box-shadow: none; }
-  .boton-secundario { background: transparent; color: var(--fg); }
+  .portada .entradilla { max-width: 46ch; margin: 24px 0 0; font-size: clamp(1.05rem, 1.4vw, 1.2rem); color: var(--muted); }
+  .acciones-portada { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin-top: 30px; }
+  .boton-jugar { min-height: 54px; padding: 14px 26px; font-size: 1.05rem; }
+  .boton-jugar svg, .boton-secundario svg { width: 18px; height: 18px; flex: none; }
+  .boton-secundario { display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 12px 22px; border-radius: var(--radio-chico); border: 2px solid var(--fg); color: var(--fg); font-weight: 700; text-decoration: none; }
   .boton-secundario:hover { background: var(--fg); color: var(--bg); }
-  .enlace-texto { color: var(--fg); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
-  .enlace-texto:hover { text-decoration-color: var(--accent); }
-  .dispositivos {
-    margin: 34px 0 0;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+  .enlace-texto { color: var(--fg); font-weight: 700; text-underline-offset: 5px; }
+  .enlace-texto:hover { color: var(--g-reflejos); }
+  .dispositivos { margin: 30px 0 0; color: var(--muted); font-weight: 700; }
 
-  /* Muro: tres columnas de portadas que suben sin parar, enmarcadas por filetes de tinta */
-  .muro {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    min-height: 560px;
-    contain: size; /* toma la altura de la portada, no la de sus columnas */
-    padding-inline: 10px;
-    border-inline: 1px solid var(--line-fuerte);
-    background: var(--bg-2);
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(transparent, #000 8%, #000 92%, transparent);
-  }
-  .muro .columna { display: flex; flex-direction: column; gap: 10px; animation: subir 70s linear infinite; }
+  /* Muro: tres columnas de portadas que suben sin parar, cada una con el marco de su color */
+  .muro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; height: min(70dvh, 620px); overflow: hidden; transform: rotate(3deg); }
+  .muro .columna { display: flex; flex-direction: column; gap: 14px; animation: subir 70s linear infinite; }
   .muro .columna:nth-child(2) { animation-duration: 90s; animation-direction: reverse; }
   .muro .columna:nth-child(3) { animation-duration: 80s; }
   .muro:hover .columna { animation-play-state: paused; }
-  @keyframes subir { to { transform: translateY(calc(-50% - 5px)); } }
-  .baldosa { display: block; aspect-ratio: 1; border-radius: var(--radio-chico); overflow: hidden; outline: 1px solid var(--line); transition: transform 0.2s; }
+  @keyframes subir { to { transform: translateY(calc(-50% - 7px)); } }
+  .baldosa { display: block; aspect-ratio: 1; border-radius: 14px; overflow: hidden; border: 4px solid var(--g, var(--line)); transition: transform 0.2s; }
   .baldosa img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .baldosa:hover { transform: scale(1.03); }
+  .baldosa:hover { transform: scale(1.04); }
+
+  /* Cartel luminoso: los nombres de los juegos pasando, cada uno del color de su tipo (decorativo) */
+  .cartel { overflow: hidden; border-block: 2px solid var(--line); background: var(--bg-2); }
+  .cartel-pista { display: flex; width: max-content; animation: cartel 120s linear infinite; }
+  .cartel span { padding: 14px 0; font-family: var(--font-display); font-size: 1.05rem; white-space: nowrap; color: var(--g); }
+  .cartel span::after { content: "●"; padding-inline: 18px; color: var(--muted); font-size: 0.6em; vertical-align: 0.3em; }
+  @keyframes cartel { to { transform: translateX(-50%); } }
 
   /* ─── Catálogo ─────────────────────────────────────────────────────── */
-  .catalogo { padding-block: clamp(40px, 6vw, 72px) 24px; scroll-margin-top: 70px; }
-  .cabeza-seccion { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; margin-bottom: 20px; }
-  .cabeza-seccion h2, .seccion-titulo { margin: 0; font-size: clamp(2.2rem, 5vw, 3.6rem); }
-  .cabeza-seccion .contador { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .catalogo { padding-block: clamp(44px, 6vw, 72px) 24px; scroll-margin-top: 70px; }
+  .cabeza-seccion { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 18px; }
+  .cabeza-seccion h2, .seccion-titulo { margin: 0; font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
+  .cabeza-seccion .contador { color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
 
   /* Pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues) */
-  .pestanas { display: flex; align-items: center; gap: 4px; margin: 0 0 18px; border-bottom: 1px solid var(--line); }
+  .pestanas { display: flex; align-items: center; gap: 4px; margin: 0 0 18px; border-bottom: 2px solid var(--line); }
   .lista-pestanas { display: flex; align-items: center; gap: 4px; } /* el rol tablist solo puede tener pestañas dentro */
-  .pestanas button {
-    padding: 10px 14px;
-    border: 0;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -1px;
-    background: none;
-    color: var(--muted);
-    font: inherit;
-    font-weight: 800;
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
+  .pestanas button { padding: 10px 14px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; background: none; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
   .pestanas button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
   .pestanas button:hover { color: var(--fg); }
-  .enlace-clasificaciones { margin-left: auto; color: var(--fg); font-weight: 700; font-size: 0.88rem; white-space: nowrap; text-underline-offset: 4px; }
-  .enlace-clasificaciones:hover { text-decoration-color: var(--accent); }
+  .enlace-clasificaciones { margin-left: auto; color: var(--g-habilidad); font-weight: 700; white-space: nowrap; text-underline-offset: 4px; }
 
-  /* Filtros por género: una regleta de casillas, la elegida en tinta */
-  .filtros { display: flex; flex-wrap: wrap; gap: 6px; padding-block: 0 24px; border-top: 1px solid var(--line-fuerte); padding-top: 14px; }
+  /* Filtros: cada tipo con su bombilla de color; el elegido se enciende entero */
+  .filtros { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 0 26px; }
   .chip {
-    min-height: 36px;
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 7px 14px;
     border-radius: var(--radio-chico);
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     background: transparent;
     color: var(--fg);
     font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   }
-  .chip:hover { border-color: var(--fg); }
-  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .chip[data-genero]::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--g); }
+  .chip:hover { border-color: var(--g, var(--fg)); }
+  .chip[aria-pressed="true"] { background: var(--g, var(--fg)); border-color: var(--g, var(--fg)); color: var(--sobre-accent); }
+  .chip[aria-pressed="true"]::before { background: var(--sobre-accent); }
 
-  /* La rejilla: fichas de catálogo separadas por filetes, como en un folleto (cada ficha pone su
-     filete derecho e inferior, así la última fila incompleta no deja casillas grises) */
-  .rejilla {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(232px, 100%), 1fr));
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
-  }
-  .rejilla > * { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 22px 18px; }
+  /* Tarjeta: al pasar el ratón sube y deja debajo un canto del color de su tipo */
   .tarjeta {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 12px 12px 16px;
-    background: var(--bg);
+    padding: 10px 10px 16px;
+    border-radius: var(--radio);
+    background: var(--surface);
     text-decoration: none;
-    transition: background-color 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .tarjeta:hover, .tarjeta:focus-visible { background: var(--surface); }
-  .tarjeta:focus-visible { outline-offset: -3px; }
-  .miniatura { position: relative; aspect-ratio: 1 / 1; border-radius: var(--radio-chico); overflow: hidden; background: var(--surface-2); }
-  .miniatura img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-  .tarjeta:hover .miniatura img, .tarjeta:focus-visible .miniatura img { transform: scale(1.04); }
-  /* «▶ JUGAR»: una franja amarilla que asoma por abajo al pasar el ratón */
+  .tarjeta:hover, .tarjeta:focus-visible { transform: translateY(-4px); box-shadow: 0 6px 0 var(--g); }
+  .miniatura { position: relative; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background: var(--surface-2); }
+  .miniatura img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .pastilla-jugar {
     position: absolute;
-    inset: auto 0 0 0;
-    padding: 9px 12px;
+    right: 10px;
+    bottom: 10px;
+    padding: 7px 12px;
+    border-radius: 8px;
     background: var(--accent);
     color: var(--sobre-accent);
-    font-weight: 800;
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transform: translateY(101%);
-    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: var(--sombra-accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.15s, transform 0.15s;
   }
-  .tarjeta:hover .pastilla-jugar, .tarjeta:focus-visible .pastilla-jugar { transform: none; }
+  .tarjeta:hover .pastilla-jugar, .tarjeta:focus-visible .pastilla-jugar { opacity: 1; transform: none; }
   .cifras { position: absolute; left: 8px; top: 8px; display: flex; gap: 4px; }
-  .insignia {
-    padding: 3px 7px;
-    border-radius: 2px;
-    background: var(--surface);
-    color: var(--fg);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-variant-numeric: tabular-nums;
-  }
+  .insignia { padding: 3px 8px; border-radius: 6px; background: var(--bg); color: var(--fg); font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums; }
   .insignia.gustos.mio { color: var(--like); }
-  .tarjeta .texto-tarjeta { display: grid; gap: 6px; min-width: 0; }
-  .tarjeta .fila-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; color: var(--muted); }
-  .tarjeta .numero, .tarjeta .genero { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tarjeta h3 { margin: 0; font-stretch: var(--estrecho); font-weight: 800; font-size: 1.32rem; line-height: 1.02; text-transform: uppercase; overflow-wrap: anywhere; }
-  :lang(ja) .tarjeta h3, :lang(ko) .tarjeta h3, :lang(zh) .tarjeta h3 { font-size: 1.1rem; }
+  .tarjeta .texto-tarjeta { display: grid; gap: 8px; min-width: 0; padding-inline: 4px; }
+  .tarjeta .fila-titulo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tarjeta .numero { color: var(--muted); font-family: var(--font-mono); font-size: 0.75rem; }
+  .tarjeta .genero { padding: 2px 9px; border-radius: 6px; background: var(--g); color: var(--sobre-accent); font-size: 0.78rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tarjeta h3 { margin: 0; font-size: 1.12rem; line-height: 1.1; text-transform: uppercase; overflow-wrap: anywhere; }
   .tarjeta h3 .favorito { color: var(--oro); }
-  .meta { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .meta { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .etiquetas { display: none; }
-  .vacio { color: var(--muted); padding: 16px; background: var(--bg); grid-column: 1 / -1; margin: 0; }
+  .vacio { color: var(--muted); grid-column: 1 / -1; margin: 0; }
 
   /* Jugadores encontrados con @alias en el buscador */
   .jugadores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 12px; }
@@ -391,42 +331,31 @@
   .persona .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
   .persona .boton:disabled { opacity: 0.6; cursor: wait; }
 
-  .jugadores { padding: 16px; background: var(--bg); }
 
   /* ─── ¿Cómo se juega? ──────────────────────────────────────────────── */
   .como { padding-block: clamp(56px, 9vw, 104px) 24px; scroll-margin-top: 70px; }
   .como .seccion-titulo { margin-bottom: 24px; }
-  /* Tres columnas separadas por filetes, con el número en ámbar */
-  .pasos { display: grid; grid-template-columns: 1fr 1.6fr 1fr; border-top: 1px solid var(--line-fuerte); border-bottom: 1px solid var(--line-fuerte); }
-  .paso { padding: 24px clamp(16px, 2.5vw, 32px) 28px; }
-  .paso + .paso { border-left: 1px solid var(--line); }
-  .paso .numero { display: block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; color: var(--accent-texto); }
-  .paso h3 { margin: 14px 0 8px; font-stretch: var(--estrecho); font-weight: 800; font-size: 1.5rem; line-height: 1.05; text-transform: uppercase; }
+  .pasos { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 16px; }
+  .paso { padding: 22px 24px 26px; border-radius: var(--radio); background: var(--surface); }
+  .paso .numero { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-family: var(--font-display); font-size: 1.1rem; color: var(--sobre-accent); background: var(--g-reflejos); }
+  .paso:nth-child(2) .numero { background: var(--g-habilidad); }
+  .paso:nth-child(3) .numero { background: var(--g-deportes); }
+  .paso h3 { margin: 16px 0 8px; font-size: 1.2rem; line-height: 1.15; text-transform: uppercase; }
   .paso p { margin: 0; color: var(--muted); }
-  .paso.esquema { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; align-items: start; background: var(--surface); }
+  .paso.esquema { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; align-items: start; }
   .paso.esquema svg { width: 120px; height: 120px; }
 
   /* ─── Preguntas frecuentes ─────────────────────────────────────────── */
-  .preguntas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 40px; padding-top: clamp(56px, 8vw, 96px); }
-  .preguntas .seccion-titulo { grid-row: span 5; align-self: start; }
-  .preguntas details { border-top: 1px solid var(--line-fuerte); }
-  .preguntas details:last-of-type { border-bottom: 1px solid var(--line-fuerte); }
-  .preguntas summary {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 18px 0;
-    font-weight: 700;
-    font-size: 1.08rem;
-    cursor: pointer;
-    list-style: none;
-  }
+  .preguntas { display: grid; gap: 10px; max-width: 860px; padding-top: clamp(56px, 8vw, 96px); }
+  .preguntas .seccion-titulo { margin-bottom: 10px; }
+  .preguntas details { border-radius: var(--radio-chico); background: var(--surface); }
+  .preguntas summary { display: flex; justify-content: space-between; gap: 16px; padding: 16px 20px; font-weight: 700; font-size: 1.05rem; cursor: pointer; list-style: none; }
   .preguntas summary::-webkit-details-marker { display: none; }
-  .preguntas summary::after { content: "+"; font-family: var(--font-mono); font-weight: 400; color: var(--accent-texto); }
+  .preguntas summary::after { content: "+"; font-family: var(--font-display); color: var(--accent); }
   .preguntas details[open] summary::after { content: "−"; }
-  .preguntas details p { margin: 0 0 20px; max-width: 62ch; color: var(--muted); }
+  .preguntas details p { margin: 0; padding: 0 20px 18px; max-width: 64ch; color: var(--muted); }
 
-  /* ─── Franja «¿Tienes una idea de juego?»: un bloque de tinta ──────── */
+  /* ─── Franja «¿Tienes una idea de juego?»: un cartel con bombillas ─── */
   .idea-juego {
     display: flex;
     flex-wrap: wrap;
@@ -434,59 +363,55 @@
     justify-content: space-between;
     gap: 20px 32px;
     margin-top: clamp(56px, 8vw, 96px);
-    padding: clamp(28px, 4vw, 48px);
+    padding: clamp(26px, 4vw, 44px);
     border-radius: var(--radio);
-    background: var(--fg);
-    color: var(--bg);
+    border: 4px dotted var(--g-habilidad);
+    background: var(--surface-2);
   }
-  .idea-juego h2 { margin: 0; font-size: clamp(2rem, 4.4vw, 3.4rem); }
-  .idea-juego p { margin: 10px 0 0; max-width: 48ch; color: var(--line); }
-  .boton-claro { background: var(--accent); color: var(--sobre-accent); border-color: var(--accent); }
-  .boton-claro:hover { box-shadow: 4px 4px 0 var(--bg); }
-  .anuncio { margin-top: 24px; padding: 32px; border: 1px dashed var(--line); text-align: center; color: var(--muted); }
+  .idea-juego h2 { margin: 0; font-size: clamp(1.6rem, 3.4vw, 2.5rem); color: var(--g-habilidad); }
+  .idea-juego p { margin: 10px 0 0; max-width: 48ch; color: var(--fg); }
+  .boton-claro { min-height: 52px; padding: 13px 24px; }
+  .anuncio { margin-top: 24px; padding: 32px; border: 2px dashed var(--line); border-radius: var(--radio); text-align: center; color: var(--muted); }
 
   /* ─── Pie ──────────────────────────────────────────────────────────── */
-  footer { margin-top: clamp(56px, 8vw, 96px); padding-bottom: 40px; border-top: 1px solid var(--line-fuerte); }
+  footer { margin-top: clamp(56px, 8vw, 96px); padding-bottom: 40px; border-top: 2px solid var(--line); }
   .fichas { padding-block: 28px; }
-  .fichas h2 { margin: 0 0 12px; font-family: var(--font-mono); font-weight: 500; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-  .fichas ul { margin: 0; padding: 0; list-style: none; columns: 5 160px; column-gap: 24px; font-size: 0.88rem; line-height: 1.9; }
+  .fichas h2 { margin: 0 0 12px; font-family: var(--font-display); font-size: 1rem; color: var(--muted); }
+  .fichas ul { margin: 0; padding: 0; list-style: none; columns: 5 160px; column-gap: 24px; font-size: 0.92rem; line-height: 1.9; }
   footer .pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; padding-top: 20px; border-top: 1px solid var(--line); }
   footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
-  footer a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
-  footer a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
-  footer p { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+  footer a { color: var(--fg); text-decoration: none; }
+  footer a:hover { color: var(--g-reflejos); text-decoration: underline; text-underline-offset: 4px; }
+  footer p { margin: 0; color: var(--muted); font-size: 0.88rem; }
 
   /* ─── Pantallas medianas y pequeñas ────────────────────────────────── */
   @media (max-width: 900px) {
     .portada .contenedor { grid-template-columns: 1fr; gap: 0; }
-    .portada .contenedor > div:first-child { padding-bottom: 28px; }
-    .muro { min-height: 0; height: 300px; contain: none; margin-inline: calc(-1 * clamp(16px, 4vw, 40px)); border-inline: 0; border-top: 1px solid var(--line-fuerte); grid-template-columns: repeat(3, minmax(0, 1fr)); -webkit-mask-image: none; mask-image: none; }
+    .portada .contenedor > div:first-child { padding-bottom: 32px; }
+    .muro { height: 280px; transform: none; margin-bottom: 24px; }
     .pasos { grid-template-columns: 1fr; }
-    .paso + .paso { border-left: 0; border-top: 1px solid var(--line); }
-    .preguntas { grid-template-columns: 1fr; }
-    .preguntas .seccion-titulo { grid-row: auto; margin-bottom: 12px; }
   }
   @media (max-width: 640px) {
     .cabecera { gap: 6px; flex-wrap: wrap; }
     .buscar { order: 9; flex-basis: 100%; max-width: none; margin-left: 0; }
     .enlace-foro { margin-left: auto; }
     .enlace-foro .texto, .boton-cuenta .texto { display: none; }
-    .enlace-foro::before { content: "+"; font-weight: 800; }
+    .enlace-foro::before { content: "+"; font-weight: 700; }
     .selector-idioma { max-width: 108px; }
-    .portada h1 { font-size: clamp(2.7rem, 13vw, 4rem); }
     .boton-jugar, .boton-secundario { flex: 1 1 auto; justify-content: center; }
-    /* Dos columnas en el móvil: la portada y el título bastan; el texto está en la ficha del juego */
-    .rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .tarjeta { padding: 8px 8px 12px; gap: 8px; }
-    .tarjeta h3 { font-size: 1.08rem; }
-    .meta, .tarjeta .genero { display: none; }
+    /* Dos columnas en el móvil: la portada, el tipo y el título bastan */
+    .rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .tarjeta { padding: 6px 6px 12px; gap: 8px; border-radius: 14px; }
+    .miniatura { border-radius: 10px; }
+    .tarjeta h3 { font-size: 0.92rem; }
+    .meta, .tarjeta .numero { display: none; }
     .paso.esquema { grid-template-columns: 1fr; }
     .fichas ul { columns: 2; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .muro .columna { animation: none; }
-    .miniatura img, .baldosa, .boton-jugar, .boton-claro, .pastilla-jugar { transition: none; }
+    .muro .columna, .cartel-pista { animation: none; }
+    .tarjeta, .baldosa, .boton-jugar, .boton-claro, .pastilla-jugar { transition: none; }
   }
 </style>
 </head>
@@ -526,6 +451,8 @@
     </div>
   </section>
 
+  <div class="cartel" aria-hidden="true"><div class="cartel-pista" id="cartel"></div></div>
+
   <section class="contenedor catalogo" id="juegos">
     <div class="cabeza-seccion">
       <h2 data-i18n="inicio.todosLosJuegos">Todos los juegos</h2>
@@ -556,13 +483,13 @@
       </article>
       <article class="paso esquema" data-i18n-attr="aria-label:inicio.comoCambiar" aria-label="Cómo cambiar de juego">
         <svg viewBox="0 0 120 120" role="img" data-i18n-attr="aria-label:inicio.esquemaAlt" aria-label="Vista desde arriba: el botón está detrás de tu hombro derecho">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="#c4c9cd" stroke-dasharray="4 5"/>
-          <path d="M60 30 L52 44 H68 Z" fill="#545a60"/>
-          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#dcdfe1" stroke="#545a60" stroke-width="2"/>
-          <circle cx="60" cy="62" r="14" fill="#f6f7f7" stroke="#111315" stroke-width="2"/>
-          <circle cx="88" cy="92" r="10" fill="#ffd21f" stroke="#111315" stroke-width="2"/>
-          <circle cx="88" cy="92" r="15" fill="none" stroke="#111315" stroke-width="2"/>
-          <text x="60" y="18" fill="#545a60" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#353b80" stroke-dasharray="4 5"/>
+          <path d="M60 30 L52 44 H68 Z" fill="#b4b3d4"/>
+          <ellipse cx="60" cy="66" rx="34" ry="12" fill="#23275e" stroke="#b4b3d4" stroke-width="2"/>
+          <circle cx="60" cy="62" r="14" fill="#1a1d4e" stroke="#fff3df" stroke-width="2"/>
+          <circle cx="88" cy="92" r="10" fill="#ff5c8a"/>
+          <circle cx="88" cy="92" r="15" fill="none" stroke="#ffb3c8" stroke-width="2"/>
+          <text x="60" y="18" fill="#b4b3d4" font-size="9" text-anchor="middle" font-family="sans-serif" data-i18n="inicio.delante">delante</text>
         </svg>
         <div>
           <span class="numero">02</span>
@@ -661,6 +588,7 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'chip';
+      if (!g.startsWith('*')) b.dataset.genero = g;
       b.textContent = nombreFiltro(g);
       b.setAttribute('aria-pressed', String(g === generoActivo));
       b.addEventListener('click', () => { generoActivo = g; pintarFiltros(); pintarRejilla(); });
@@ -739,6 +667,7 @@
     $rejilla.replaceChildren(...lista.map((j) => {
       const a = document.createElement('a');
       a.className = 'tarjeta';
+      a.dataset.genero = j.generoId; // el color de su tipo (estilos/base.css)
       a.href = `play.html#${j.id}`;
             a.innerHTML = `
         <div class="miniatura">
@@ -917,6 +846,7 @@
     for (const copia of [false, true]) {
       for (const j of lista) {
         const a = Object.assign(document.createElement('a'), { className: 'baldosa', href: `play.html#${j.id}` });
+        a.dataset.genero = j.generoId;
         if (copia) {
           a.setAttribute('aria-hidden', 'true');
           a.tabIndex = -1;
@@ -929,6 +859,14 @@
     }
     $muro.append($columna);
   }
+
+  // Cartel luminoso: los nombres de todos los juegos dos veces seguidas, para que el bucle no se note
+  const nombres = (lista) => lista.map((j) => {
+    const $n = Object.assign(document.createElement('span'), { textContent: j.titulo });
+    $n.dataset.genero = j.generoId;
+    return $n;
+  });
+  document.getElementById('cartel').append(...nombres(barajados), ...nombres(barajados));
 
   pintarFiltros();
   pintarRejilla();
