@@ -51,7 +51,7 @@ const LISTA = [
   { id: 'huevos', genero: 'reflejos' },
   { id: 'aros', genero: 'habilidad' },
   { id: 'laberinto', genero: 'puzle' },
-  { id: 'tambores', genero: 'ritmo', pruebas: true },
+  { id: 'tambores', genero: 'ritmo' },
   { id: 'bomberos', genero: 'disparos' },
   { id: 'tortitas', genero: 'habilidad', pruebas: true },
   { id: 'nieve', genero: 'disparos', pruebas: true },

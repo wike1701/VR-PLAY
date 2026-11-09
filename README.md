@@ -103,7 +103,7 @@ juegos/
   latas/juego.js        Tumba Latas
   aros/juego.js         Lanza Aros
   laberinto/juego.js    Laberinto
-  tambores/juego.js     Tambores (en pruebas)
+  tambores/juego.js     Tambores
   bomberos/juego.js     Bomberos
   tortitas/juego.js     Tortitas al Vuelo (en pruebas)
   nieve/juego.js        Bolas de Nieve (en pruebas)
