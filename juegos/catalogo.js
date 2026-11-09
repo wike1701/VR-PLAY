@@ -26,7 +26,7 @@ const LISTA = [
   { id: 'obstaculos', genero: 'conduccion' },
   { id: 'voleibol', genero: 'deportes' },
   { id: 'pulso', genero: 'habilidad' },
-  { id: 'piloto', genero: 'disparos' },
+  { id: 'piloto', genero: 'disparos', pruebas: true },
   { id: 'minigolf', genero: 'deportes' },
   { id: 'globos', genero: 'arcade' },
   { id: 'tirapichon', genero: 'disparos' },
