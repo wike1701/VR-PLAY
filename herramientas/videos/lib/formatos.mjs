@@ -33,7 +33,9 @@ const rellenar = (x, datos) => (typeof x === 'string' ? x.replace(/\{(\w+)\}/g, 
 // Líneas de rótulo con su retraso: la primera enseguida y las demás cada `paso` segundos
 const lineas = (lista, datos, paso = 0.42) => lista.map((l, i) => {
   const x = rellenar(l, datos);
-  return typeof x === 'string' ? { texto: x, t: i * paso } : { texto: x.texto, caja: x.caja ? COLOR_CAJA[i % COLOR_CAJA.length] : null, tinta: '#fff', grande: true, t: i * paso };
+  // Las líneas largas, más pequeñas para que no se salgan por los lados
+  const tam = [...(typeof x === 'string' ? x : x.texto)].length > 15 ? (typeof x === 'string' ? 68 : 96) : undefined;
+  return typeof x === 'string' ? { texto: x, t: i * paso, tam } : { texto: x.texto, caja: x.caja ? COLOR_CAJA[i % COLOR_CAJA.length] : null, tinta: '#fff', grande: true, t: i * paso, tam };
 });
 const COLOR_CAJA = ['#f0452a', '#ff8a62', '#7c4dff'];
 
