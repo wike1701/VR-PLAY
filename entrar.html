@@ -21,10 +21,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="entrar" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -40,12 +38,25 @@
   //      para escribirlo aquí si el correo se lee en otro dispositivo (por ejemplo, en las gafas).
   //   2. La primera vez se elige el alias (con el año de nacimiento).
   //   3. Lo del navegador pasa a la cuenta y se vuelve a la página de antes (?volver=).
+  import './shell/cabecera.js'; // la navegación común de la cabecera
   import { t, idioma } from './idiomas/idiomas.js';
   import { apiCuenta, estadoCuenta, fusionarNavegador, olvidarCuenta, avatar } from './shell/cuenta.js';
 
   const $vista = document.getElementById('vista');
   const parametros = new URLSearchParams(location.search);
-  const volver = /^\/(?!\/)/.test(parametros.get('volver') || '') ? parametros.get('volver') : 'index.html';
+  // A dónde volver: solo a una página de esta web. La misma regla que el servidor (volverValido en
+  // servidor/sesion.js: «/\otra.com» o «/%09/otra.com» llevarían a otra web) y, además, que el navegador
+  // la resuelva de verdad a este mismo origen.
+  function volverSeguro(valor) {
+    if (typeof valor !== 'string' || !/^\/(?![/\\])[^\s\\\p{Cc}]{0,300}$/u.test(valor)) return null;
+    try {
+      const url = new URL(valor, location.href);
+      return url.origin === location.origin && url.pathname.startsWith('/') ? url.pathname + url.search + url.hash : null;
+    } catch {
+      return null;
+    }
+  }
+  const volver = volverSeguro(parametros.get('volver')) || 'index.html';
 
   function el(etiqueta, atributos = {}, ...hijos) {
     const nodo = document.createElement(etiqueta);
@@ -78,23 +89,28 @@
   function verCorreo(estado, mensaje = '') {
     const $aviso = aviso();
     if (mensaje) avisar($aviso, mensaje);
+    const $captcha = el('div', { class: 'captcha' });
     const $formulario = el('form', { novalidate: true },
       el('label', {}, t('cuenta.tuCorreo'),
         el('input', { name: 'correo', type: 'email', required: true, autocomplete: 'email', inputmode: 'email', placeholder: t('cuenta.correoEjemplo') })),
+      $captcha,
       el('button', { class: 'boton ancho', type: 'submit' }, t('cuenta.enviarEnlace')),
       el('p', { class: 'ayuda' }, t('cuenta.sinContrasena')),
       $aviso,
     );
+    const captcha = montarCaptcha($captcha);
     $formulario.addEventListener('submit', (e) => {
       e.preventDefault();
       const correo = $formulario.correo.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) return avisar($aviso, t('cuenta.errores.correo'));
       esperando($formulario.querySelector('button'), async () => {
+        const widget = await captcha;
         try {
-          await apiCuenta('/enlace', { method: 'POST', datos: { correo, idioma, volver: rutaVolver() } });
+          await apiCuenta('/enlace', { method: 'POST', datos: { correo, idioma, volver: rutaVolver(), captcha: widget.token() } });
           verCodigo(estado, correo);
         } catch (error) {
           avisar($aviso, error.message);
+          widget.reiniciar(); // cada respuesta del captcha vale una sola vez
         }
       });
     });
@@ -117,7 +133,31 @@
   // ?volver= como ruta de esta web (lo que guarda el servidor para el enlace del correo)
   function rutaVolver() {
     const url = new URL(volver, location.href);
-    return url.origin === location.origin ? url.pathname + url.search + url.hash : '/';
+    return volverSeguro(url.pathname + url.search + url.hash) || '/';
+  }
+
+  // Captcha de Cloudflare contra los robots: solo si el servidor lo tiene configurado (como en foro.html)
+  let cargaTurnstile = null;
+  async function montarCaptcha(contenedor) {
+    const sin = { token: () => '', reiniciar() {} };
+    let clave = null;
+    try { clave = (await (await fetch('/api/config')).json()).turnstile; } catch { /* sin captcha */ }
+    if (!clave) return sin;
+    cargaTurnstile ||= new Promise((resolver, rechazar) => {
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.onload = resolver;
+      s.onerror = rechazar;
+      document.head.append(s);
+    });
+    try {
+      await cargaTurnstile;
+      const language = { pt: 'pt-br', zh: 'zh-cn' }[idioma] || idioma;
+      const widget = window.turnstile.render(contenedor, { sitekey: clave, theme: 'dark', language });
+      return { token: () => window.turnstile.getResponse(widget) || '', reiniciar: () => window.turnstile.reset(widget) };
+    } catch {
+      return sin;
+    }
   }
 
   // ─── 1b. El correo ya se ha enviado: código de 6 cifras ────────────────

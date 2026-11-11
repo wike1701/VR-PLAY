@@ -3,7 +3,7 @@
 //   datos solo se guarda su hash, así que una copia de la base de datos no sirve para entrar.
 // - Dura 90 días y se renueva al usarla.
 // - Las peticiones que cambian algo solo aceptan la cookie si vienen de la propia web (cabecera Origin).
-import { sha256, huellaVotante } from './comun.js';
+import { sha256, huellaVotante, sal } from './comun.js';
 
 export const COOKIE = '__Host-vrplay_sesion';
 const DIAS_SESION = 90;
@@ -14,7 +14,7 @@ export function aleatorio(bytes = 32) {
   return btoa(String.fromCharCode(...datos)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export const hashToken = (token, env) => sha256(`${env.SAL || 'vrplay'}:token:${token}`);
+export const hashToken = (token, env) => sha256(`${sal(env)}:token:${token}`);
 
 export function leerCookie(request, nombre) {
   const cabecera = request.headers.get('cookie') || '';
@@ -54,9 +54,11 @@ function dispositivo(request) {
   return [navegador, sistema].filter(Boolean).join(' · ').slice(0, 60);
 }
 
-// «volver»: a qué página ir después de entrar. Solo direcciones de esta web.
+// «volver»: a qué página ir después de entrar. Solo direcciones de esta web: tiene que empezar por una
+// sola «/» y no llevar espacios, caracteres de control ni «\» (los navegadores quitan tabuladores y saltos
+// de línea y leen «\» como «/», así que «/\otra.com» o «/<tab>/otra.com» llevarían a otra web).
 export function volverValido(valor) {
-  return typeof valor === 'string' && /^\/(?!\/)[^\s\\]{0,300}$/.test(valor) ? valor : '/';
+  return typeof valor === 'string' && /^\/(?![/\\])[^\s\\\p{Cc}]{0,300}$/u.test(valor) ? valor : '/';
 }
 
 // Crea una sesión y devuelve la cabecera Set-Cookie

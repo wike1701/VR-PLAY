@@ -79,6 +79,13 @@ export async function entrarConGoogle({ request, env }) {
     && typeof datos.email === 'string' && typeof datos.sub === 'string';
   if (!valido) return fallo();
 
-  const { cookie: sesion } = await entrarConCorreo(env, request, datos.email.trim().toLowerCase(), datos.sub);
+  // Es una navegación del usuario: si falla algo aquí, a entrar.html con el aviso (no un JSON de error)
+  let sesion;
+  try {
+    ({ cookie: sesion } = await entrarConCorreo(env, request, datos.email.trim().toLowerCase(), datos.sub));
+  } catch (e) {
+    console.error('Error al iniciar la sesión con Google', e);
+    return fallo();
+  }
   return redirigir(`/entrar.html?listo=1&volver=${encodeURIComponent(volver)}`, sesion, borrarEstado);
 }

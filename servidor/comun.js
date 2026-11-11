@@ -8,6 +8,7 @@ import { esAliasDeCuenta } from './sesion.js';
 //   SAL                texto aleatorio para las huellas de IP (secreto, opcional)
 //   TURNSTILE_SITEKEY  y TURNSTILE_SECRET: captcha de Cloudflare contra el spam (opcionales)
 //   RESEND_API_KEY     envío de los correos para entrar en la cuenta (secreto)
+//   LIMITE_CORREOS_HORA cuántos correos para entrar se envían como mucho por hora, entre todos (opcional; 60)
 //   GOOGLE_CLIENT_ID   y GOOGLE_CLIENT_SECRET: entrar con Google (secretos)
 // Y en wrangler.jsonc (vars): CUENTAS = "1" enseña el botón «Entrar» a todo el mundo
 
@@ -17,7 +18,11 @@ export const CAMPOS = 'id, titulo, descripcion, manos, accion, tipo, autor, esta
 export const ESTADOS = ['nueva', 'estudio', 'desarrollo', 'hecha', 'existe', 'descartada'];
 
 // Límites por IP y por hora, para frenar el spam
-export const LIMITES = { sugerencias: 5, comentarios: 20, me_gusta: 120, juegos_me_gusta: 120, denuncias: 10 };
+// (intentos_acceso: códigos o enlaces que se comprueban en /api/cuenta/confirmar; correos_enviados: correos
+// para entrar, contando todas las IP juntas, para que no se pueda usar el envío de correos de forma masiva)
+export const LIMITES = {
+  sugerencias: 5, comentarios: 20, me_gusta: 120, juegos_me_gusta: 120, denuncias: 10, intentos_acceso: 20, correos_enviados: 60,
+};
 
 export function json(datos, estado = 200) {
   return new Response(JSON.stringify(datos), {
@@ -56,14 +61,26 @@ export async function sha256(cadena) {
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Sal de los hashes (huellas de IP, tokens, códigos). Sin el secreto SAL se usa una fija para no romper
+// la web, pero así cualquiera que vea la base de datos puede calcular las huellas: se avisa en el registro.
+let avisoSal = false;
+export function sal(env) {
+  if (env.SAL) return env.SAL;
+  if (!avisoSal) {
+    avisoSal = true;
+    console.warn('Falta el secreto SAL: se usa la sal fija «vrplay». Ponlo en Cloudflare (Settings → Variables and Secrets).');
+  }
+  return 'vrplay';
+}
+
 // Huella de la IP: no guardamos la IP, solo un hash para poder limitar el spam
 export async function huellaIp(request, env) {
   const ip = request.headers.get('cf-connecting-ip') || 'local';
-  return (await sha256(`${env.SAL || 'vrplay'}:${ip}`)).slice(0, 32);
+  return (await sha256(`${sal(env)}:${ip}`)).slice(0, 32);
 }
 
 export async function huellaVotante(id, env) {
-  return (await sha256(`${env.SAL || 'vrplay'}:votante:${id}`)).slice(0, 32);
+  return (await sha256(`${sal(env)}:votante:${id}`)).slice(0, 32);
 }
 
 export async function esAdmin(request, env) {
@@ -79,6 +96,20 @@ export async function superaLimite(env, tabla, ip) {
   const fila = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${tabla} WHERE ip = ? AND creada > datetime('now', '-1 hour')`)
     .bind(ip).first();
   return (fila?.n || 0) >= LIMITES[tabla];
+}
+
+// Igual, pero apunta el intento a la vez que lo comprueba, en una sola consulta: aunque lleguen muchas
+// peticiones a la vez, no pasan más de «max». Para tablas que solo sirven para contar (ip, creada).
+// Con global = true cuentan todas las IP juntas. Devuelve true si se ha pasado del límite (y no lo apunta).
+export async function apuntarConLimite(env, tabla, ip, { max = LIMITES[tabla], global = false } = {}) {
+  const fila = await env.DB.prepare(
+    `INSERT INTO ${tabla} (ip) SELECT ?
+     WHERE (SELECT COUNT(*) FROM ${tabla} WHERE creada > datetime('now', '-1 hour') ${global ? '' : 'AND ip = ?'}) < ?
+     RETURNING creada`,
+  ).bind(...[ip, ...(global ? [] : [ip]), max]).first();
+  // Limpieza de vez en cuando: solo hace falta la última hora
+  if (Math.random() < 0.05) await env.DB.prepare(`DELETE FROM ${tabla} WHERE creada < datetime('now', '-1 day')`).run();
+  return !fila;
 }
 
 // Captcha de Cloudflare: solo se comprueba si está configurado

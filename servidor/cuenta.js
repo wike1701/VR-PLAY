@@ -14,7 +14,9 @@
 //   GET    /api/cuenta/datos                 → descarga de todos sus datos (JSON)
 //   POST   /api/cuenta/fusionar { votante, favoritos } → pasa a la cuenta lo de este navegador
 //   POST   /api/cuenta/favoritos { juego, favorito }
-import { json, error, leerJson, huellaIp, huellaVotante, sha256, idValido } from './comun.js';
+import {
+  json, error, leerJson, huellaIp, huellaVotante, sha256, idValido, sal, captchaValido, apuntarConLimite,
+} from './comun.js';
 import {
   usuarioActual, borrarCookieSesion, aleatorio, hashToken, votanteCuenta,
   problemaAlias, claveAlias, aliasLibre, semillaAvatar, entrarConCorreo, volverValido,
@@ -92,11 +94,22 @@ async function pedirEnlace({ request, env }) {
 
   const ip = await huellaIp(request, env);
   const [porIp, porCorreo] = await env.DB.batch([
-    env.DB.prepare("SELECT COUNT(*) AS n FROM enlaces_acceso WHERE ip = ? AND creada > datetime('now', '-1 hour')").bind(ip),
+    // (en correos_enviados y no en enlaces_acceso, que se borran al usarlos)
+    env.DB.prepare("SELECT COUNT(*) AS n FROM correos_enviados WHERE ip = ? AND creada > datetime('now', '-1 hour')").bind(ip),
     env.DB.prepare("SELECT COUNT(*) AS n FROM enlaces_acceso WHERE correo = ? AND creada > datetime('now', '-1 hour')").bind(correo),
   ]);
   if (porIp.results[0].n >= LIMITE_ENLACES.ip || porCorreo.results[0].n >= LIMITE_ENLACES.correo) {
     return error('Has pedido muchos enlaces seguidos. Prueba dentro de un rato.', 429, 'limite_enlaces');
+  }
+  // Captcha de Cloudflare (solo si está configurado: TURNSTILE_SITEKEY y TURNSTILE_SECRET)
+  if (!(await captchaValido(request, env, datos.captcha))) {
+    return error('No se ha podido comprobar que no eres un robot. Inténtalo de nuevo.', 403, 'captcha');
+  }
+  // Límite de correos por hora entre todas las IP, para que nadie pueda usar la web para mandar correos en masa
+  const maxCorreos = Number(env.LIMITE_CORREOS_HORA) > 0 ? Number(env.LIMITE_CORREOS_HORA) : undefined;
+  if (await apuntarConLimite(env, 'correos_enviados', ip, { max: maxCorreos, global: true })) {
+    console.warn('Límite global de correos para entrar alcanzado');
+    return error('Ahora mismo no se pueden enviar más correos. Prueba dentro de un rato.', 429, 'limite_correos');
   }
 
   const token = aleatorio();
@@ -119,34 +132,41 @@ async function pedirEnlace({ request, env }) {
   return json({ ok: true });
 }
 
-const hashCodigo = (env, id, codigo) => sha256(`${env.SAL || 'vrplay'}:codigo:${id}:${codigo}`);
+const hashCodigo = (env, id, codigo) => sha256(`${sal(env)}:codigo:${id}:${codigo}`);
 
 async function confirmar({ request, env }) {
   const datos = await leerJson(request);
   if (!datos) return error('Datos no válidos.', 400, 'datos');
+  // Límite por conexión de comprobaciones de códigos y enlaces (contra probar códigos con muchos correos)
+  if (await apuntarConLimite(env, 'intentos_acceso', await huellaIp(request, env))) {
+    return error('Demasiados intentos desde esta conexión. Prueba dentro de un rato.', 429, 'limite_intentos');
+  }
   let correo;
 
   if (typeof datos.token === 'string' && datos.token.length >= 20 && datos.token.length <= 100) {
-    const enlace = await env.DB.prepare("SELECT id, correo FROM enlaces_acceso WHERE token = ? AND caduca > datetime('now')")
+    // Se lee y se borra en una sola consulta: el enlace solo vale una vez aunque se abra dos veces a la vez
+    const enlace = await env.DB.prepare("DELETE FROM enlaces_acceso WHERE token = ? AND caduca > datetime('now') RETURNING correo")
       .bind(await hashToken(datos.token, env)).first();
     if (!enlace) return error('El enlace ha caducado o ya se ha usado. Pide otro.', 400, 'enlace_caducado');
-    await env.DB.prepare('DELETE FROM enlaces_acceso WHERE id = ?').bind(enlace.id).run();
     correo = enlace.correo;
   } else {
     correo = correoValido(datos.correo);
     const codigo = typeof datos.codigo === 'string' ? datos.codigo.replace(/\D/g, '') : '';
     if (!correo || codigo.length !== 6) return error('Escribe el código de 6 cifras del correo.', 400, 'codigo_formato');
-    // Solo vale el último enlace que se pidió para ese correo
-    const enlace = await env.DB.prepare(
-      "SELECT id, codigo, intentos FROM enlaces_acceso WHERE correo = ? AND caduca > datetime('now') ORDER BY id DESC LIMIT 1",
+    // Solo vale el último enlace que se pidió para ese correo. El intento se cuenta ANTES de comparar y en
+    // la misma consulta que lo lee: aunque lleguen muchas peticiones a la vez, no se prueban más de 5 códigos.
+    const ultimo = await env.DB.prepare(
+      "SELECT id FROM enlaces_acceso WHERE correo = ? AND caduca > datetime('now') ORDER BY id DESC LIMIT 1",
     ).bind(correo).first();
-    if (!enlace) return error('El código ha caducado. Pide otro correo.', 400, 'codigo_caducado');
-    if (enlace.intentos >= INTENTOS_CODIGO) return error('Demasiados intentos. Pide otro correo.', 429, 'codigo_intentos');
-    if ((await hashCodigo(env, enlace.id, codigo)) !== enlace.codigo) {
-      await env.DB.prepare('UPDATE enlaces_acceso SET intentos = intentos + 1 WHERE id = ?').bind(enlace.id).run();
-      return error('El código no es correcto.', 400, 'codigo_incorrecto');
-    }
-    await env.DB.prepare('DELETE FROM enlaces_acceso WHERE id = ?').bind(enlace.id).run();
+    if (!ultimo) return error('El código ha caducado. Pide otro correo.', 400, 'codigo_caducado');
+    const enlace = await env.DB.prepare(
+      `UPDATE enlaces_acceso SET intentos = intentos + 1 WHERE id = ? AND intentos < ${INTENTOS_CODIGO} RETURNING id, codigo`,
+    ).bind(ultimo.id).first();
+    if (!enlace) return error('Demasiados intentos. Pide otro correo.', 429, 'codigo_intentos');
+    if ((await hashCodigo(env, enlace.id, codigo)) !== enlace.codigo) return error('El código no es correcto.', 400, 'codigo_incorrecto');
+    // Acertado: se gasta (si otra petición acertó a la vez, solo una lo borra y entra)
+    const gastado = await env.DB.prepare('DELETE FROM enlaces_acceso WHERE id = ? RETURNING id').bind(enlace.id).first();
+    if (!gastado) return error('El código ha caducado. Pide otro correo.', 400, 'codigo_caducado');
   }
 
   const { usuario, cookie } = await entrarConCorreo(env, request, correo);

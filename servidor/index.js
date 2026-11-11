@@ -86,6 +86,10 @@ export default {
         return await manejador({ request, env, params });
       } catch (e) {
         console.error('Error en la API del foro', e);
+        // Entrar con Google es una navegación, no una llamada de la web: se vuelve a entrar.html con el aviso
+        if (url.pathname === '/api/cuenta/google') {
+          return new Response(null, { status: 302, headers: { location: '/entrar.html?error=google', 'cache-control': 'no-store' } });
+        }
         return error('Error del servidor. Prueba más tarde.', 500, 'servidor');
       }
     }

@@ -8,17 +8,18 @@
 // partida que abrió el servidor, haber durado lo mínimo del juego y estar dentro de sus valores posibles.
 // No se puede impedir del todo (el juego corre en el navegador), pero sí hacerlo poco rentable; el
 // administrador puede además borrar récords y sacar a una cuenta de las clasificaciones.
-import { MARCADORES, mejorQue } from '../juegos/marcadores.js';
-import { json, error, leerJson, sha256 } from './comun.js';
+import { MARCADORES, mejorQue, SEGUNDOS_PARTIDA } from '../juegos/marcadores.js';
+import { json, error, leerJson, sha256, sal } from './comun.js';
 import { usuarioActual, aleatorio } from './sesion.js';
 
 const PARTIDAS_POR_HORA = 300;
-const HORAS_PARTIDA = 3; // una partida abierta caduca a las 3 horas
+// Una partida abierta caduca a los 90 minutos (la partida más larga que se acepta, ver juegos/marcadores.js)
+const CADUCA_PARTIDA = `-${SEGUNDOS_PARTIDA} seconds`;
 
 // Cuentas que salen en las clasificaciones
 export const VISIBLE = 'u.alias IS NOT NULL AND u.suspendido = 0 AND COALESCE(u.en_clasificaciones, 1) = 1 AND COALESCE(u.vetado_clasificaciones, 0) = 0';
 const mesActual = () => new Date().toISOString().slice(0, 7);
-const hashToken = (token, env) => sha256(`${env.SAL || 'vrplay'}:partida:${token}`);
+const hashToken = (token, env) => sha256(`${sal(env)}:partida:${token}`);
 
 // Puesto de un valor en un juego: 1 + cuántos lo superan (los empates comparten puesto)
 export function consultaPuesto(env, juego, valor, mes = null) {
@@ -86,7 +87,7 @@ async function empezar(request, env, juego) {
   const consultas = [
     env.DB.prepare('INSERT INTO partidas_abiertas (token, usuario_id, juego) VALUES (?, ?, ?)').bind(await hashToken(token, env), yo.id, juego),
   ];
-  if (Math.random() < 0.05) consultas.push(env.DB.prepare(`DELETE FROM partidas_abiertas WHERE creada < datetime('now', '-${HORAS_PARTIDA} hours')`));
+  if (Math.random() < 0.05) consultas.push(env.DB.prepare(`DELETE FROM partidas_abiertas WHERE creada < datetime('now', '${CADUCA_PARTIDA}')`));
   await env.DB.batch(consultas);
   return json({ partida: token });
 }
@@ -99,14 +100,16 @@ async function puntuar(request, env, juego) {
   if (typeof datos?.partida !== 'string' || datos.partida.length > 64 || !Number.isFinite(valor)) return error('Datos no válidos.', 400, 'datos');
   const m = MARCADORES[juego];
 
-  // La partida tiene que ser suya, de este juego y estar abierta. Se gasta al usarla.
+  // La partida tiene que ser suya, de este juego y estar abierta. Se gasta al usarla: se lee y se borra
+  // en una sola consulta, así que aunque lleguen varias peticiones a la vez con el mismo token, solo una
+  // la encuentra. (Si es de otra cuenta o de otro juego no se borra: no se puede gastar la de otro.)
   const hash = await hashToken(datos.partida, env);
   const partida = await env.DB.prepare(
-    `SELECT (julianday('now') - julianday(creada)) * 86400 AS segundos FROM partidas_abiertas
-     WHERE token = ? AND usuario_id = ? AND juego = ? AND creada > datetime('now', '-${HORAS_PARTIDA} hours')`,
+    `DELETE FROM partidas_abiertas
+     WHERE token = ? AND usuario_id = ? AND juego = ? AND creada > datetime('now', '${CADUCA_PARTIDA}')
+     RETURNING (julianday('now') - julianday(creada)) * 86400 AS segundos`,
   ).bind(hash, yo.id, juego).first();
   if (!partida) return error('Partida no válida.', 400, 'partida_no_valida');
-  await env.DB.prepare('DELETE FROM partidas_abiertas WHERE token = ?').bind(hash).run();
 
   const duracion = partida.segundos;
   const valida = valor >= m.min && valor <= m.max

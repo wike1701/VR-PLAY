@@ -22,6 +22,14 @@ const TABLAS = [
     ip TEXT NOT NULL DEFAULT '', creada TEXT NOT NULL DEFAULT (datetime('now')), caduca TEXT NOT NULL)`,
   'CREATE INDEX IF NOT EXISTS enlaces_correo ON enlaces_acceso (correo, creada)',
   'CREATE INDEX IF NOT EXISTS enlaces_ip ON enlaces_acceso (ip, creada)',
+  // Solo para contar (límites por hora, ver LIMITES en comun.js): comprobaciones de códigos y enlaces por
+  // conexión, y correos para entrar enviados entre todos. Se borran al día.
+  `CREATE TABLE IF NOT EXISTS intentos_acceso (
+    ip TEXT NOT NULL, creada TEXT NOT NULL DEFAULT (datetime('now')))`,
+  'CREATE INDEX IF NOT EXISTS intentos_acceso_ip ON intentos_acceso (ip, creada)',
+  `CREATE TABLE IF NOT EXISTS correos_enviados (
+    ip TEXT NOT NULL, creada TEXT NOT NULL DEFAULT (datetime('now')))`,
+  'CREATE INDEX IF NOT EXISTS correos_enviados_creada ON correos_enviados (creada)',
   `CREATE TABLE IF NOT EXISTS alias_bloqueados (
     alias_clave TEXT PRIMARY KEY, hasta TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS favoritos (

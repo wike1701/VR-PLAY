@@ -47,7 +47,7 @@ function analizar(id) {
   if (/\baddEventListener\s*\(/.test(texto)) errores.push('usa addEventListener: usa ctx.raton y ctx.manos');
   if (!/ctx\.sonido\(/.test(texto) && !/ctx\.efectos\.impacto\(/.test(texto)) errores.push('no tiene sonidos (ctx.sonido o ctx.efectos.impacto)');
   if (!/ctx\.vibrar\(/.test(texto) && !/ctx\.efectos\.impacto\(/.test(texto)) errores.push('no hace vibrar los mandos (ctx.vibrar o ctx.efectos.impacto)');
-  if (!/ctx\.puntuacion\(/.test(texto)) errores.push('no llama a ctx.puntuacion(valor) al terminar la partida');
+  if (!/ctx\.(puntuacion|partida\.terminar)\(/.test(texto)) errores.push('no llama a ctx.puntuacion(valor) ni a ctx.partida.terminar(valor) al terminar la partida');
 
   const caros = (texto.match(/new THREE\.(MeshStandardMaterial|MeshPhysicalMaterial)\(/g) || []).length;
   if (caros > 6) avisos.push(`${caros} materiales MeshStandard/Physical: déjalos para los protagonistas pequeños (el resto, MeshLambertMaterial)`);
