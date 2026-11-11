@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Tu vas atteindre les cent quatre-vingts ?",
+    "frases": [
+      {
+        "texto": "Une vraie cible sur le mur d’un pub.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Avec le casque, tu lances la fléchette à la main.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Doubles, triples et le cinquante du centre.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Regarde ce triple vingt au ralenti.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cinq manches de trois fléchettes.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Schaffst du die Hundertachtzig?",
+    "frases": [
+      {
+        "texto": "Eine echte Dartscheibe an der Wand einer Kneipe.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Mit der Brille wirfst du den Pfeil mit deiner Hand.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Doubles, Triples und das Bullseye für fünfzig.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Schau dir diese Triple Zwanzig in Zeitlupe an.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Fünf Runden mit je drei Pfeilen.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Arriverai a centottanta?",
+    "frases": [
+      {
+        "texto": "Un vero bersaglio sul muro di un pub.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Col visore la freccetta la lanci con la tua mano.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Doppi, tripli e il cinquanta del centro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Guarda questo triplo venti al rallentatore.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cinque turni da tre freccette.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Você chega aos cento e oitenta?",
+    "frases": [
+      {
+        "texto": "Um alvo de verdade na parede de um bar.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Com os óculos, você arremessa o dardo com a mão.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Duplos, triplos e o cinquenta do centro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Olha esse triplo vinte em câmera lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cinco rodadas de três dardos.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "180点、出せる？",
+    "frases": [
+      {
+        "texto": "パブの壁に本物のダーツボード。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "ヘッドセットなら、ダーツを自分の手で投げる。",
+        "plano": "pov"
+      },
+      {
+        "texto": "ダブル、トリプル、そして真ん中の50点。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "このトリプル20をスローで見て。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "1ラウンド3本を5ラウンド。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "180점, 찍을 수 있어?",
+    "frases": [
+      {
+        "texto": "술집 벽에 걸린 진짜 다트판.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "헤드셋을 쓰면 다트를 손으로 직접 던져.",
+        "plano": "pov"
+      },
+      {
+        "texto": "더블, 트리플, 그리고 한가운데 50점.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "이 트리플 20, 슬로 모션으로 봐.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "다트 세 개씩 다섯 라운드.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "你能打出180分吗？",
+    "frases": [
+      {
+        "texto": "酒馆墙上挂着一块真正的飞镖靶。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "戴上头显，亲手投出飞镖。",
+        "plano": "pov"
+      },
+      {
+        "texto": "双倍区、三倍区，还有正中心的50分。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "慢动作看看这一镖三倍20分。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "五轮，每轮三支镖。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

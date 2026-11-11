@@ -2,7 +2,7 @@
 
 Hace en local, gratis y sin publicar nada:
 
-1. **El TikTok de cada juego** (vertical 9:16, 15-45 s, en español e inglés): un jugador automático juega una partida de verdad **en VR** (unas Quest 3 simuladas), y se graba a la vez lo que ven las gafas y un plano de espectador con un avatar. Se monta con un gancho de 3 s que no es el juego, voz en off, varios planos (gafas, espectador, pantalla partida, cámara lenta, zoom de golpe), subtítulos palabra a palabra, puntuación, música y «Juega gratis en vrplaygame.com».
+1. **El TikTok de cada juego** (vertical 9:16, 15-45 s, en español e inglés o en los 9 idiomas de la web): un jugador automático juega una partida de verdad **en VR** (unas Quest 3 simuladas), y se graba a la vez lo que ven las gafas y un plano de espectador con un avatar. Se monta con un gancho de 3 s que no es el juego, voz en off, varios planos (gafas, espectador, pantalla partida, cámara lenta, zoom de golpe), subtítulos palabra a palabra, puntuación, música y «Juega gratis en vrplaygame.com».
 2. **Tus partidas grabadas en las gafas**: una grabación con varios juegos seguidos se trocea por juegos y sale un TikTok por juego, con el mismo montaje que el punto 1 (es lo que mejor queda: el jugador automático no juega como una persona).
 3. **Tus grabaciones en bruto, editadas**: quita silencios, muletillas y tomas repetidas, y saca clips verticales con subtítulos palabra a palabra.
 
@@ -22,11 +22,16 @@ node herramientas/videos/fabrica.mjs bruto partida.mp4                  # un Tik
 node herramientas/videos/fabrica.mjs bruto partida.mp4 --juegos pingpong --estilo pro   # con la edición pro
 node herramientas/videos/fabrica.mjs voz-prueba pingpong       # muestras de entonación para elegir la voz
 node herramientas/videos/fabrica.mjs editar mi-grabacion.mp4   # vídeo en bruto → limpio + clips
+node herramientas/videos/fabrica.mjs formato anuncio           # vídeos de varios juegos (ver «Formatos»)
+node herramientas/videos/fabrica.mjs formato reto fruta        # top · reto <id> · duelo <id> <id> · foro [<id>]
+node herramientas/videos/fabrica.mjs lote                      # los vídeos de la semana y su parrilla
+node herramientas/videos/fabrica.mjs probar-bot fruta          # ¿juega bien el bot? (1-2 min)
 ```
 
 Opciones:
 
-- `--idioma es` o `--idioma en`: solo ese idioma (por defecto, los dos).
+- `--idioma es`, `--idioma es,fr` o `--idioma todos` (los 9 de la web): por defecto, es y en. La voz habla es, en, fr, it, pt, ja y zh con Kokoro (con Chatterbox, también de y ko); en un idioma sin voz el vídeo sale con rótulos y música.
+- `--reloj virtual` / `VRPLAY_RELOJ=virtual`: graba fotograma a fotograma (ver «Sin GPU»). Por defecto en Linux.
 - `--sin-grabar` (en `juego`): vuelve a montar con la partida ya grabada, para retocar sin jugarla otra vez (por ejemplo, después de cambiar el guion).
 - `--modo raton` (en `juego`): graba como en la web con ratón, sin VR ni plano de espectador. Por defecto es `vr`; los juegos que el jugador automático aún no sabe jugar en VR se graban con ratón solos.
 - `--gancho web|persona|impacto|reto` (en `juego`): fuerza ese gancho. Si no, cada juego tiene siempre el mismo y van alternando por el orden del catálogo.
@@ -86,6 +91,51 @@ Pasa la grabación a 30 fps constantes (las de las Quest van a frecuencia variab
 
 En la terminal sale una línea por vídeo, con ✓ o con ⚠ y los avisos (duración, tamaño, volumen, trozos en negro o congelados, pocos aciertos, partida sin puntuación).
 
+## Formatos (`formato`)
+
+Vídeos de varios juegos con las partidas ya grabadas en `trabajo/juegos/` (si falta la de un juego,
+se graba; con `--sin-grabar`, se salta) y con datos reales de la web (`vrplaygame.com/api`). El plan
+lo hace `lib/formatos.mjs`, se dibuja en `remotion/Formatos.jsx` y los textos están en
+`lib/textos-formatos.mjs`. Sale en `salida/formatos/<formato>[-<ids>]/`: `<nombre>-<idioma>.mp4`,
+`publicacion-<idioma>.txt` y `revision-<idioma>.jpg`.
+
+| Formato | Dura | Qué es |
+|---|---|---|
+| `anuncio` | 15 s | Gancho (3 variantes que rotan cada día), 8 cortes de 1 s al ritmo con el nombre de cada juego y frases (sin descargas, sin quitarte las gafas, Quest/móvil/PC, +N juegos gratis), ráfaga de juegos y cierre |
+| `top` | ~21 s | Los 5 juegos más jugados (partidas de `/api/juegos/estadisticas`), del 5 al 1, con suspense antes del 1 |
+| `reto <id>` | 15,5 s | «El récord de X está en 58 puntos. ¿Lo superas?» (el récord de su clasificación; sin el alias de quien lo tiene) |
+| `duelo <id> <id>` | 14,5 s | Dos juegos en pantalla partida con «VS»: «¿Cuál juegas primero? Comenta 1 o 2» |
+| `foro [<id>]` | ~16 s | La sugerencia del foro (título y ♥, sin el autor) que se convirtió en el juego, y el juego |
+
+Sin ids, cada formato elige sus juegos (los más jugados, los que el bot juega bien) y va cambiando
+cada día.
+
+## El lote de la semana (`lote`)
+
+Decide solo: los juegos publicados que aún no tienen su TikTok (`--juegos 2`, primero los que el bot
+juega bien), el `anuncio` y un formato que rota cada semana (top, reto, duelo, foro). Deja
+`salida/lote-<fecha>/PARRILLA.md` (un vídeo al día, con su carpeta y su texto) y `lote.json`.
+
+En GitHub Actions (`.github/workflows/videos.yml`) se lanza solo **cada lunes** y cuando quieras desde
+Actions → «Vídeos de la semana» → *Run workflow* (ahí se elige la orden, los idiomas y si lleva voz).
+Los vídeos quedan como artefacto de la ejecución (30 días). No publica nada.
+
+## Sin GPU: el reloj virtual
+
+En una máquina sin tarjeta gráfica (la nube de Claude, GitHub Actions) el juego no llega a 30 fps y
+la grabación en tiempo real saldría a saltos. Con el reloj virtual (`lib/reloj-virtual.js`) el
+tiempo de la página solo avanza 1/30 s por fotograma: el juego, el bot y el espectador lo ven como
+si fuera fluido, y cada fotograma se saca del lienzo y va a FFmpeg. Es más lento (~0,6 s por
+fotograma: cada segundo de partida, unos 20 s) y por eso graba como mucho 40 s de partida
+(`VRPLAY_SEGUNDOS`). El sonido del juego no se puede grabar así: lleva golpes sintetizados en los
+impactos (`lib/golpes-sinteticos.mjs`) y la música.
+
+Si faltan los efectos de `efectos/` o no hay música en `musica/` (no van a git), se generan con
+FFmpeg y con código (`lib/recursos.mjs`): `musica/generada-*.wav` y los efectos con el mismo nombre.
+Sin los vídeos de `medios/personas/`, el gancho `persona` pasa a `impacto`. three.js sale de
+`node_modules` (no de jsDelivr) y las instrucciones de 5 s del principio de cada juego no salen en
+los vídeos.
+
 ## El jugador automático
 
 Cada juego tiene su forma de jugar en `lib/estrategias.mjs`. En VR (`lib/bot-vr.js`) mueve la cabeza y los dos mandos de unas gafas simuladas con [IWER](https://github.com/meta-quest/immersive-web-emulation-runtime) y usa el campo `vr` de la estrategia (`golpear`, `seguir`, `barrer`); los juegos sin `vr` se graban con ratón (`lib/bot.js`):
@@ -99,7 +149,7 @@ Cada juego tiene su forma de jugar en `lib/estrategias.mjs`. En VR (`lib/bot-vr.
 
 Probados de verdad: **topos** y **fruta** (también en VR). Los de puzle o ritmo (simon, bomba, tambores…) están como `pendiente`, y `--todos` los salta avisando.
 
-Si un juego sale con pocos aciertos, ajusta su línea en `lib/estrategias.mjs` (cadencia, rigidez, `reposo`…) y prueba con `juego <id> --idioma es`.
+Si un juego sale con pocos aciertos, ajusta su línea en `lib/estrategias.mjs` (cadencia, rigidez, `reposo`…) y prueba con `probar-bot <id>` (graba 12 s a media resolución y deja `trabajo/pruebas/<id>-<modo>/hoja.jpg`: arriba las gafas, abajo el espectador). Cuando los modos generales no bastan, el juego lleva su **jugada a medida** en `lib/jugadas/<id>.js`, que lee la escena del juego y mueve las manos o el puntero (ver `lib/jugadas/LEEME.md`).
 
 Para un juego nuevo no hay que tocar nada más: el título, los textos y la portada salen de `juegos/catalogo.js` e `idiomas/`. Si no tiene línea, se juega en modo `clic`.
 
@@ -140,6 +190,12 @@ Todo es gratuito y en local.
 
 Después, `node herramientas/videos/fabrica.mjs comprobar` tiene que salir todo con ✓.
 
+**En Linux** (la nube de Claude o un servidor): `npm install` en `herramientas/videos/`, FFmpeg y las
+fuentes `fonts-noto-cjk` del sistema, y para la voz `uv venv .venv --python 3.12` y
+`uv pip install --python .venv/bin/python kokoro soundfile faster-whisper "misaki[ja,zh]"`. Usa el
+Chromium de Playwright o el de `VRPLAY_CHROMIUM`. Los modelos se bajan de Hugging Face (en la nube de
+Claude, el entorno `vr-play` ya lo permite).
+
 ## Archivos
 
 - `fabrica.mjs`: los comandos.
@@ -150,9 +206,12 @@ Después, `node herramientas/videos/fabrica.mjs comprobar` tiene que salir todo 
   - `montar.mjs`: el TikTok y la mezcla de voz, juego y música.
   - `editar.mjs`: el editor.
   - `bruto.mjs`: trocear y montar una partida grabada en las gafas.
-  - `textos.mjs`: ganchos, llamadas a jugar y hashtags en ES/EN.
+  - `textos.mjs`: ganchos, llamadas a jugar y hashtags en los 9 idiomas.
+  - `formatos.mjs`, `textos-formatos.mjs`: los formatos de varios juegos y sus textos. `lote.mjs`: el lote de la semana.
+  - `reloj-virtual.js`, `golpes-sinteticos.mjs`: grabar sin GPU. `recursos.mjs`: efectos y música de reserva.
+  - `probar.mjs`: probar-bot. `jugadas/`: las jugadas a medida de cada juego (con su `LEEME.md`).
   - `comprobar.mjs`: las comprobaciones.
-- `remotion/`: el diseño de los vídeos (`AnuncioVR.jsx`, los ganchos en `ganchos/`, `ClipHablado.jsx`; `TikTokJuego.jsx` es el diseño anterior, del que se reutilizan el título, la puntuación y el cierre).
+- `remotion/`: el diseño de los vídeos (`Formatos.jsx` para los formatos, `AnuncioVR.jsx`, los ganchos en `ganchos/`, `ClipHablado.jsx`; `TikTokJuego.jsx` es el diseño anterior, del que se reutilizan el título, la puntuación y el cierre).
 - `guiones/`: un guion por juego.
 - `transcribir.py`: Whisper. `locutar_natural.py`: Chatterbox (la voz), y `repasar_voz.py` la revisa con Whisper. `locutar.py`: Kokoro (la voz de reserva).
 - `trabajo/`: archivos intermedios. Se puede borrar entera.

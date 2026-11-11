@@ -42,7 +42,7 @@ async function sonoridad(audio, filtro) {
   const { errores } = await ff(['-i', audio, '-af', `${filtro},ebur128=framelog=quiet`, '-f', 'null', '-']);
   return parseFloat(/I:\s+(-?[\d.]+) LUFS/.exec(errores.slice(errores.lastIndexOf('Summary')))[1]);
 }
-async function normalizar(montaje, audio, salida) {
+export async function normalizar(montaje, audio, salida) {
   let ganancia = -14 - (await sonoridad(audio, 'anull'));
   for (let i = 0; i < 4; i++) {
     const error = -14 - (await sonoridad(audio, `volume=${ganancia.toFixed(2)}dB,${LIMITADOR}`));
@@ -148,7 +148,10 @@ async function videoEnIdioma({ id, idioma, urlBase, sinGrabar, destino, modo, fo
 
   // Guion, voz y línea de tiempo
   const guion = guionDe(id, idioma, { juego, unidad, puntuacion: m.puntuacion, frases: frasesDe(juego) });
-  const tipoGancho = elegirGancho(id, { orden: catalogo.map((j) => j.id), forzado: forzarGancho });
+  let tipoGancho = elegirGancho(id, { orden: catalogo.map((j) => j.id), forzado: forzarGancho });
+  // Sin los vídeos de archivo de medios/personas/ (no van a git: en la nube no están), el gancho
+  // «persona» pasa a «impacto»
+  if (tipoGancho === 'persona' && !fs.existsSync(path.join(CARPETA, elegirPersona(id)))) tipoGancho = 'impacto';
   const pista = pistaPara(id);
   let voz;
   let linea;

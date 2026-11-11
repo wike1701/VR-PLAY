@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Jongler sans rien casser à la maison.",
+    "frases": [
+      {
+        "texto": "Des balles de couleur sur la piste du cirque.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Tu commences avec deux.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Toutes les douze d’affilée, le canon t’en envoie une autre.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Ne la laisse pas toucher le sol.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tu arrives à cinq balles ?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Jonglieren, ohne zu Hause was kaputt zu machen.",
+    "frases": [
+      {
+        "texto": "Bunte Bälle in der Zirkusmanege.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Du fängst mit zwei an.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Alle zwölf Fänge in Folge schießt dir die Kanone noch einen zu.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Lass ihn nicht auf den Boden fallen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Schaffst du fünf Bälle?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Giocoleria senza rompere niente in casa.",
+    "frases": [
+      {
+        "texto": "Palline colorate sulla pista del circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Inizi con due.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Ogni dodici di fila, il cannone te ne lancia un’altra.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Non farla toccare terra.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Arrivi a cinque palline?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Malabarismo sem quebrar nada em casa.",
+    "frases": [
+      {
+        "texto": "Bolas coloridas no picadeiro do circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Você começa com duas.",
+        "plano": "pov"
+      },
+      {
+        "texto": "A cada doze seguidas, o canhão joga mais uma.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Não deixa cair no chão.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Você chega a cinco bolas?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "家で何も壊さずにジャグリング。",
+    "frases": [
+      {
+        "texto": "サーカスの舞台に、カラフルなボール。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "最初は2個。",
+        "plano": "pov"
+      },
+      {
+        "texto": "12回連続でキャッチすると、大砲がもう1個追加。",
+        "plano": "partida"
+      },
+      {
+        "texto": "床に落とすな！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "5個までいける？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "집에서 아무것도 안 깨고 저글링.",
+    "frases": [
+      {
+        "texto": "서커스 무대 위 알록달록한 공들.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "처음엔 두 개로 시작해.",
+        "plano": "pov"
+      },
+      {
+        "texto": "연속 열두 번 받을 때마다 대포가 공을 하나 더 쏴.",
+        "plano": "partida"
+      },
+      {
+        "texto": "바닥에 떨어뜨리지 마!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "공 다섯 개까지 갈 수 있어?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "在家抛球杂耍，什么都不会打碎。",
+    "frases": [
+      {
+        "texto": "马戏团舞台上的彩色小球。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "一开始只有两个。",
+        "plano": "pov"
+      },
+      {
+        "texto": "每连续接住十二次，大炮就再发一个球。",
+        "plano": "partida"
+      },
+      {
+        "texto": "别让球落地！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "你能玩到五个球吗？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

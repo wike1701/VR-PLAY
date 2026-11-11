@@ -18,6 +18,9 @@ Si una de ellas choca con el `README.md` o con `CLAUDE.md`, mandan los del proye
 | `codebase-design` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Vocabulario y principios para módulos bien separados (la usa la anterior) |
 | `threejs-aaa-graphics-builder` | [majidmanzarpour/threejs-game-skills](https://github.com/majidmanzarpour/threejs-game-skills) | MIT | Calidad gráfica de los juegos: formas, materiales, luz, efectos y la hoja para puntuarlos (aquí sin servicios externos de pago: todo se hace con código, ver `docs/CALIDAD.md`) |
 | `create-game-assets` | [gamedev-skills/awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) | Apache-2.0 | Dirección de arte y familias coherentes de imágenes: las portadas de los juegos (`docs/PORTADAS.md`) |
+| `remotion-markup` | [remotion-dev/skills](https://github.com/remotion-dev/skills) (v4.0.542, sin la parte de mapas) | [Remotion License](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) (gratis para personas y equipos de hasta 3) | Buenas prácticas de Remotion (animación, transiciones, texto, audio, fuentes): los vídeos de `herramientas/videos/remotion/` |
+| `remotion-captions` | [remotion-dev/skills](https://github.com/remotion-dev/skills) (v4.0.542) | [Remotion License](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) | Subtítulos palabra a palabra en Remotion |
+| `videos-vrplay` | Propia | — | Cómo hacer, revisar y publicar los vídeos de VR Play con la fábrica (`herramientas/videos/`) |
 
 Las skills de three.js de [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills)
 (`threejs-fundamentals`, `threejs-interaction`, `threejs-lighting`, `threejs-materials`) **no están aquí** porque

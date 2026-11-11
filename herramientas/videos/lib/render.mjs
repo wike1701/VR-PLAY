@@ -2,8 +2,9 @@
 // ejecución y sirve trabajo/ en local para que los vídeos no se copien al paquete.
 import fs from 'node:fs';
 import path from 'node:path';
-import { CARPETA, RAIZ, TRABAJO, crear } from './comun.mjs';
+import { CARPETA, RAIZ, TRABAJO, crear, chromiumDelSistema } from './comun.mjs';
 import { servirCarpeta } from './servidor.mjs';
+import { recursosDeReserva } from './recursos.mjs';
 
 let preparado = null;
 
@@ -21,7 +22,7 @@ function chromeInstalado() {
     path.join(process.env['PROGRAMFILES(X86)'] || '', 'Google/Chrome/Application/chrome.exe'),
     path.join(process.env.LOCALAPPDATA || '', 'Google/Chrome/Application/chrome.exe'),
   ];
-  return rutas.find((r) => fs.existsSync(r)) || null;
+  return rutas.find((r) => fs.existsSync(r)) || chromiumDelSistema();
 }
 
 // Con el Chrome instalado, en su modo sin ventana nuevo; sin él, el Chrome Headless Shell de Remotion
@@ -41,6 +42,7 @@ function copiarMedios() {
 }
 
 async function preparar() {
+  await recursosDeReserva();
   copiarMarca();
   copiarMedios();
   const { bundle } = await import('@remotion/bundler');

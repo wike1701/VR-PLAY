@@ -74,5 +74,271 @@
       }
     ],
     "cierre": "Play it *free* on VR Play. No downloads!"
+  },
+  "fr": {
+    "gancho": "Du ping-pong… *sans table* ?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Je mets mon casque…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "et la raquette, c’est *ma main* !",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Je sers… et elle *renvoie* !",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "Cette machine, elle *rate jamais* !",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Elle m’a mis une *raclée*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Tu la *battrais*, toi ?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est *gratuit* sur VR Play. Rien à télécharger !"
+  },
+  "de": {
+    "gancho": "Tischtennis… *ohne Tisch*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Ich setz die Brille auf…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "und der Schläger ist *meine Hand*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Aufschlag… und sie *spielt zurück*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "Diese Maschine *trifft immer*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Die hat mich voll *zerlegt*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Könntest du sie *schlagen*?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Spiel *kostenlos* auf VR Play. Ganz ohne Download!"
+  },
+  "it": {
+    "gancho": "Ping pong… *senza tavolo*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Mi metto il visore…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "e la racchetta è *la mia mano*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Servo… e *risponde*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "Questa macchina *non sbaglia mai*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Mi ha dato una *batosta*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Tu la *batteresti*?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gioca *gratis* su VR Play. Senza scaricare niente!"
+  },
+  "pt": {
+    "gancho": "Pingue-pongue… *sem mesa*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Coloco os óculos…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "e a raquete é *minha mão*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Saco… e ela *devolve*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "Essa máquina *não erra*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Levei uma *surra*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Você *ganharia* dela?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Joga *grátis* no VR Play. Sem baixar nada!"
+  },
+  "ja": {
+    "gancho": "卓球…*台なし*で？",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけると…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "ラケットは*自分の手*！",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "サーブ…*返してきた*！",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "このCPU、*ミスしない*！",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "*ボコボコ*にされた…",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "キミなら*勝てる*？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで*無料*プレイ。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "탁구… *테이블 없이*?",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면…",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "라켓이 바로 *내 손*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "서브… *받아친다*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "이 컴퓨터, *실수가 없어*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "완전 *털렸어*.",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "너라면 *이길 수* 있어?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 *무료*로! 다운로드 필요 없어!"
+  },
+  "zh": {
+    "gancho": "乒乓球……*不用球桌*？",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "戴上头显……",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "球拍就是*我的手*！",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "发球……它*打回来了*！",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rebobinado"
+      },
+      {
+        "texto": "这机器*从不失误*！",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "我被*虐惨了*。",
+        "plano": "pov",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "你能*赢*它吗？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "在VR Play*免费*玩，无需下载！"
   }
 }

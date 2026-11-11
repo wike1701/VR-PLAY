@@ -76,5 +76,278 @@
       }
     ],
     "cierre": "Play it *free* on VR Play. No downloads!"
+  },
+  "fr": {
+    "gancho": "Ça, ce n’est *pas* un jeu mobile !",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "L’épée… c’est *moi* qui la tiens.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Tchac ! Tchac ! *Tchac* !",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Pas *une seule* ne m’échappe !",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "Mais si tu touches une *bombe*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "c’est *fini* !",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Tu en tranches combien, *toi* ?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "C’est *gratuit* sur VR Play. Rien à télécharger !"
+  },
+  "de": {
+    "gancho": "Das ist *kein* Handyspiel!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Das Schwert… halte *ich*.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Zack! Zack! *Zack*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Mir entkommt *keine einzige*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "Aber triffst du eine *Bombe*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "ist es *vorbei*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Wie viele schaffst *du*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Spiel *kostenlos* auf VR Play. Ganz ohne Download!"
+  },
+  "it": {
+    "gancho": "Questo *non* è un gioco da telefono!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "La spada… la tengo *io*.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Zac! Zac! *Zac*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Non me ne scappa *neanche una*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "Ma se tocchi una *bomba*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "è *finita*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Quanti ne tagli *tu*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Gioca *gratis* su VR Play. Senza scaricare niente!"
+  },
+  "pt": {
+    "gancho": "Isso *não* é jogo de celular!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "A espada… quem segura sou *eu*.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Zás! Zás! *Zás*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Não escapa *nenhuma*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "Mas se acertar uma *bomba*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "*já era*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "Quantas *você* corta?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Joga *grátis* no VR Play. Sem baixar nada!"
+  },
+  "ja": {
+    "gancho": "これ、スマホゲーム*じゃない*！",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "剣を握ってるのは…*自分*。",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "ズバッ！ズバッ！*ズバッ*！",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*ひとつ*も逃さない！",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "でも*爆弾*に触ったら…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "*終わり*！",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "*キミ*は何個切れる？",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "VR Playで*無料*プレイ。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "이건 모바일 게임이 *아니야*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "검은… *내가* 직접 들고 있지.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "샥! 샥! *샥*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*하나도* 안 놓쳐!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "근데 *폭탄*을 건드리면…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "*끝*이야!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "*너*는 몇 개 벨 수 있어?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "VR Play에서 *무료*로! 다운로드 필요 없어!"
+  },
+  "zh": {
+    "gancho": "这可*不是*手游！",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "剑……握在*我*手里。",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "唰！唰！*唰*！",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*一个*都别想跑！",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "但要是碰到*炸弹*……",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "就*完蛋*了！",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "*你*能切几个？",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "在VR Play*免费*玩，无需下载！"
   }
 }

@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Head to VR Play and play free, no download needed."
+  },
+  "fr": {
+    "gancho": "Un home run du premier coup ?",
+    "frases": [
+      {
+        "texto": "Avec le casque, la batte est dans tes mains.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Le lanceur t’envoie dix balles par manche.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Simple, double, triple…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…ou par-dessus la clôture.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Frappe et regarde jusqu’où elle va.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Va sur VR Play et joue gratuitement, sans rien télécharger."
+  },
+  "de": {
+    "gancho": "Homerun beim ersten Schlag?",
+    "frases": [
+      {
+        "texto": "Mit der Brille hast du den Schläger in der Hand.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Der Pitcher wirft dir zehn Bälle pro Runde.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Single, Double, Triple…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…oder über den Zaun.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Hau drauf und schau, wie weit er fliegt.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Geh auf VR Play und spiel kostenlos, ganz ohne Download."
+  },
+  "it": {
+    "gancho": "Fuoricampo al primo colpo?",
+    "frases": [
+      {
+        "texto": "Col visore la mazza ce l’hai in mano.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Il lanciatore ti tira dieci palle a turno.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Singolo, doppio, triplo…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…o sopra la recinzione.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Batti e guarda fin dove arriva.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Vai su VR Play e gioca gratis, senza scaricare niente."
+  },
+  "pt": {
+    "gancho": "Home run de primeira?",
+    "frases": [
+      {
+        "texto": "Com os óculos, o taco fica nas suas mãos.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "O arremessador joga dez bolas por rodada.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Simples, duplo, triplo…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…ou por cima do muro.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Rebate e vê até onde ela vai.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Entra no VR Play e joga grátis, sem baixar nada."
+  },
+  "ja": {
+    "gancho": "いきなりホームラン？",
+    "frases": [
+      {
+        "texto": "ヘッドセットなら、バットは自分の手の中。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "ピッチャーは1ラウンド10球。",
+        "plano": "pov"
+      },
+      {
+        "texto": "シングル、ツーベース、スリーベース…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…それともフェンス越え。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "打って、どこまで飛ぶか見てみよう。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで無料で遊ぼう。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "첫 타석에 홈런?",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 배트가 네 손에.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "투수가 라운드마다 공 열 개를 던져.",
+        "plano": "pov"
+      },
+      {
+        "texto": "안타, 2루타, 3루타…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…아니면 담장 너머로!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "치고 나서 얼마나 날아가는지 봐.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에 들어가서 무료로 즐겨 봐. 다운로드도 필요 없어."
+  },
+  "zh": {
+    "gancho": "第一棒就全垒打？",
+    "frases": [
+      {
+        "texto": "戴上头显，球棒就在你手里。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "投手每轮给你投十个球。",
+        "plano": "pov"
+      },
+      {
+        "texto": "一垒安打、二垒、三垒……",
+        "plano": "partida"
+      },
+      {
+        "texto": "……或者直接飞出围栏。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "挥棒，看看能飞多远。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "打开VR Play免费玩，无需下载。"
   }
 }

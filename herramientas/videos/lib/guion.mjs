@@ -53,8 +53,16 @@ export const REPASO_PRO = { tempo: 1.14, tono: 1.03 };
 // La voz de las líneas [gancho, ...frases, cierre] (texto o { texto, enfasis }): { frases: [{ texto,
 // archivo, duracion }] } con los WAV en <carpeta>/voz/. Si el texto, el motor y los ajustes no han
 // cambiado, no se repite. motor: 'natural' (Chatterbox, si está .venv-voz) o 'kokoro'
+// Los idiomas que sabe decir Kokoro (locutar.py)
+export const IDIOMAS_KOKORO = ['es', 'en', 'fr', 'it', 'pt', 'ja', 'zh'];
+
 export async function locutar(lineas, idioma, carpeta, motor = 'natural', ajustes = AJUSTES_VOZ.normal) {
   const natural = motor !== 'kokoro' && fs.existsSync(PYTHON_VOZ);
+  // Kokoro no tiene alemán ni coreano: sin Chatterbox, esos vídeos salen sin voz (con rótulos)
+  if (!natural && !IDIOMAS_KOKORO.includes(idioma)) {
+    log(`sin voz en «${idioma}»: Kokoro no tiene ese idioma (con Chatterbox sí, ver GUIA.md)`);
+    return null;
+  }
   if (motor === 'natural' && !natural) log('sin Chatterbox (.venv-voz): la voz sale con Kokoro (ver GUIA.md)');
   const dir = path.join(carpeta, 'voz');
   // La voz de referencia (medios/voces/<idioma>.wav) también cuenta: si se cambia, se repite la voz

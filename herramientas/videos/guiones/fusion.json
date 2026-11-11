@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Head to VR Play and play free, no download needed."
+  },
+  "fr": {
+    "gancho": "Deux fruits identiques fusionnent en un plus gros.",
+    "frases": [
+      {
+        "texto": "Le jeu de fusion de fruits, maintenant en 3D et en réalité virtuelle.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lâche le fruit dans la caisse.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cerise, fraise, raisin… jusqu’à la pastèque.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Enchaîne les fusions et les points se multiplient.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mais si ça dépasse la ligne rouge, c’est fini.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Va sur VR Play et joue gratuitement, sans rien télécharger."
+  },
+  "de": {
+    "gancho": "Zwei gleiche Früchte werden zu einer größeren.",
+    "frases": [
+      {
+        "texto": "Das Früchte-Fusionsspiel, jetzt in 3D und in Virtual Reality.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lass die Frucht in die Kiste fallen.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Kirsche, Erdbeere, Traube… bis zur Wassermelone.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Kette Fusionen aneinander und die Punkte vervielfachen sich.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Aber geht es über die rote Linie, ist Schluss.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Geh auf VR Play und spiel kostenlos, ganz ohne Download."
+  },
+  "it": {
+    "gancho": "Due frutti uguali si fondono in uno più grande.",
+    "frases": [
+      {
+        "texto": "Il gioco delle fusioni di frutta, ora in 3D e in realtà virtuale.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lascia cadere il frutto nella cassa.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Ciliegia, fragola, uva… fino all’anguria.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Concatena le fusioni e i punti si moltiplicano.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Ma se supera la linea rossa, è finita.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Vai su VR Play e gioca gratis, senza scaricare niente."
+  },
+  "pt": {
+    "gancho": "Duas iguais viram uma maior.",
+    "frases": [
+      {
+        "texto": "O jogo de juntar frutas, agora em 3D e em realidade virtual.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Solta a fruta na caixa.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cereja, morango, uva… até a melancia.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Encadeia fusões e os pontos se multiplicam.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mas se passar da linha vermelha, acabou.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Entra no VR Play e joga grátis, sem baixar nada."
+  },
+  "ja": {
+    "gancho": "同じ2つがくっついて、大きくなる。",
+    "frases": [
+      {
+        "texto": "あのフルーツ合体ゲームが、3DとVRで登場。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "フルーツを箱に落として。",
+        "plano": "pov"
+      },
+      {
+        "texto": "さくらんぼ、いちご、ぶどう…目指せスイカ。",
+        "plano": "partida"
+      },
+      {
+        "texto": "連鎖させればスコアが倍増。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "でも赤いラインを越えたら終わり。",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "VR Playで無料で遊ぼう。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "같은 것 두 개가 합쳐지면 더 커져.",
+    "frases": [
+      {
+        "texto": "그 과일 합치기 게임이 이제 3D와 VR로.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "과일을 상자에 떨어뜨려.",
+        "plano": "pov"
+      },
+      {
+        "texto": "체리, 딸기, 포도… 수박까지.",
+        "plano": "partida"
+      },
+      {
+        "texto": "연쇄로 합치면 점수가 몇 배로.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "하지만 빨간 선을 넘으면 끝.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "VR Play에 들어가서 무료로 즐겨 봐. 다운로드도 필요 없어."
+  },
+  "zh": {
+    "gancho": "两个一样的，合成一个更大的。",
+    "frases": [
+      {
+        "texto": "那款合成水果游戏，现在有了3D和VR版。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "把水果丢进箱子里。",
+        "plano": "pov"
+      },
+      {
+        "texto": "樱桃、草莓、葡萄……一路合到西瓜。",
+        "plano": "partida"
+      },
+      {
+        "texto": "连环合成，分数成倍增长。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "但一旦超过红线，游戏结束。",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "打开VR Play免费玩，无需下载。"
   }
 }

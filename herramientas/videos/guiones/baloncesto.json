@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Head to VR Play and play free, no download needed."
+  },
+  "fr": {
+    "gancho": "Tu en mets combien en une minute ?",
+    "frases": [
+      {
+        "texto": "Mets ton casque et le panier est juste devant toi.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Attrape le ballon avec ta main et tire.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Les paniers tout filet valent trois points.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Et si tu enchaînes, ça compte double.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Soixante secondes de lancers francs non-stop.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Va sur VR Play et joue gratuitement, sans rien télécharger."
+  },
+  "de": {
+    "gancho": "Wie viele triffst du in einer Minute?",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und der Korb ist direkt vor dir.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Schnapp dir den Ball mit der Hand und wirf.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Ein Swish bringt drei Punkte.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Und bei einer Serie zählen sie doppelt.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sechzig Sekunden Freiwürfe am Stück.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Geh auf VR Play und spiel kostenlos, ganz ohne Download."
+  },
+  "it": {
+    "gancho": "Quanti ne metti in un minuto?",
+    "frases": [
+      {
+        "texto": "Metti il visore e hai il canestro davanti.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Prendi la palla con la mano e tira.",
+        "plano": "pov"
+      },
+      {
+        "texto": "I tiri a solo retina valgono tre punti.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "E se sei in serie, valgono doppio.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sessanta secondi di tiri liberi senza sosta.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Vai su VR Play e gioca gratis, senza scaricare niente."
+  },
+  "pt": {
+    "gancho": "Quantas você acerta em um minuto?",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e a cesta está bem na sua frente.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Pega a bola com a mão e arremessa.",
+        "plano": "pov"
+      },
+      {
+        "texto": "As de chuá valem três pontos.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "E se estiver numa sequência, vale o dobro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sessenta segundos de lance livre sem parar.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra no VR Play e joga grátis, sem baixar nada."
+  },
+  "ja": {
+    "gancho": "1分で何本決められる？",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつければ、目の前にゴール。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "手でボールをつかんで、シュート。",
+        "plano": "pov"
+      },
+      {
+        "texto": "リングに当てずに決めると3点。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "連続で決めれば、得点は2倍。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "60秒間、フリースローを打ちまくれ。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playで無料で遊ぼう。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "1분 동안 몇 개 넣을 수 있어?",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 바로 앞에 골대가 있어.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "손으로 공을 잡고 던져.",
+        "plano": "pov"
+      },
+      {
+        "texto": "링에 안 닿고 들어가면 3점.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "연속으로 넣으면 점수가 두 배.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "60초 동안 쉬지 않고 자유투.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에 들어가서 무료로 즐겨 봐. 다운로드도 필요 없어."
+  },
+  "zh": {
+    "gancho": "一分钟你能投进几个？",
+    "frases": [
+      {
+        "texto": "戴上头显，篮筐就在眼前。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "用手抓起球，投！",
+        "plano": "pov"
+      },
+      {
+        "texto": "空心球算三分。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "连进的话，分数翻倍。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "连续60秒罚球，一刻不停。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "打开VR Play免费玩，无需下载。"
   }
 }

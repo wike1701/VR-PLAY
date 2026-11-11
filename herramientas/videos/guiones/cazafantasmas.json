@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Éteins la lumière. Écoute.",
+    "frases": [
+      {
+        "texto": "Avec le casque, tu es dans un salon hanté, plongé dans le noir.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Les fantômes se voient à peine…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…mais tu entends leur plainte du côté d’où ils arrivent.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Éclaire-les avec ta lampe jusqu’à ce qu’ils disparaissent.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Si l’un d’eux t’attrape, c’est fini.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Mach das Licht aus. Hör genau hin.",
+    "frases": [
+      {
+        "texto": "Mit der Brille stehst du in einem dunklen Spukzimmer.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Die Geister sieht man kaum…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…aber du hörst ihr Heulen von der Seite, aus der sie kommen.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Leuchte sie mit der Taschenlampe an, bis sie sich auflösen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Erwischt dich einer, ist es vorbei.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Spegni la luce. Ascolta.",
+    "frases": [
+      {
+        "texto": "Col visore sei in un salotto infestato, al buio.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "I fantasmi quasi non si vedono…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…ma senti il loro lamento dal lato da cui arrivano.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Puntagli la torcia finché non svaniscono.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Se uno ti raggiunge, è finita.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Apaga a luz. Escuta.",
+    "frases": [
+      {
+        "texto": "Com os óculos, você está numa sala assombrada no escuro.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Os fantasmas quase não aparecem…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…mas você ouve o lamento do lado de onde eles vêm.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mira a lanterna neles até eles sumirem.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Se um te pegar, acabou.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "電気を消して。耳をすませて。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけると、真っ暗な幽霊屋敷の広間。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "幽霊はほとんど見えない…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…でも、うめき声で来る方向がわかる。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "消えるまでライトを当て続けろ。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "1体でも捕まったら終わり。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "불을 꺼. 잘 들어 봐.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 캄캄한 유령의 거실이야.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "유령은 거의 안 보여…",
+        "plano": "pov"
+      },
+      {
+        "texto": "…하지만 오는 쪽에서 울음소리가 들려.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "사라질 때까지 손전등을 비춰.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "하나라도 닿으면 끝이야.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "关上灯。仔细听。",
+    "frases": [
+      {
+        "texto": "戴上头显，你身处一间漆黑的闹鬼客厅。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "鬼魂几乎看不见……",
+        "plano": "pov"
+      },
+      {
+        "texto": "……但哀嚎声会告诉你它们从哪边来。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "用手电筒照住它们，直到它们消散。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "被一个抓到，就结束了。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

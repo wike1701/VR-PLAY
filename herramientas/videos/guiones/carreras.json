@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "À plus de deux cents à l’heure.",
+    "frases": [
+      {
+        "texto": "Avec le casque, tu es assis dans la monoplace.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Trois tours contre cinq adversaires.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Freine avant les virages serrés…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…sinon tu pars en tête-à-queue.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tu passes la ligne en premier ?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Mit über zweihundert Sachen.",
+    "frases": [
+      {
+        "texto": "Mit der Brille sitzt du direkt im Rennwagen.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Drei Runden gegen fünf Gegner.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Brems vor den engen Kurven…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…sonst drehst du dich.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Kommst du als Erster ins Ziel?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "A più di duecento all’ora.",
+    "frases": [
+      {
+        "texto": "Col visore sei seduto dentro la monoposto.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Tre giri contro cinque avversari.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Frena prima delle curve strette…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…o finirai in testacoda.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Arrivi primo al traguardo?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "A mais de duzentos por hora.",
+    "frases": [
+      {
+        "texto": "Com os óculos, você senta dentro do carro de corrida.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Três voltas contra cinco rivais.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Freia antes das curvas fechadas…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…ou você vai rodar.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Você chega em primeiro?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "時速200キロオーバー。",
+    "frases": [
+      {
+        "texto": "ヘッドセットなら、フォーミュラカーのコックピットに座ってる。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "ライバル5台と3周勝負。",
+        "plano": "pov"
+      },
+      {
+        "texto": "きついカーブの前でブレーキ…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…じゃないとスピンしちゃう。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "1位でゴールできる？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "시속 200킬로 넘게 달린다.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 레이싱카 안에 앉아 있어.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "라이벌 다섯 명과 세 바퀴 승부.",
+        "plano": "pov"
+      },
+      {
+        "texto": "급커브 전에 브레이크…",
+        "plano": "partida"
+      },
+      {
+        "texto": "…안 그러면 미끄러져.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "1등으로 들어올 수 있어?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "时速超过两百公里。",
+    "frases": [
+      {
+        "texto": "戴上头显，你就坐在方程式赛车里。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "三圈，对手五个。",
+        "plano": "pov"
+      },
+      {
+        "texto": "急弯前先刹车……",
+        "plano": "partida"
+      },
+      {
+        "texto": "……不然就要甩尾打滑。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "你能第一个冲线吗？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

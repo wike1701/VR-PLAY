@@ -42,5 +42,159 @@
       }
     ],
     "cierre": "Head to VR Play and play free, no download needed."
+  },
+  "fr": {
+    "gancho": "Le volant freine en l’air. Toi, non.",
+    "frases": [
+      {
+        "texto": "Mets ton casque et prends la raquette.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Le volant retombe presque à la verticale.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Quand il est bien haut, smashe.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Match en onze points contre la machine.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Va sur VR Play et joue gratuitement, sans rien télécharger."
+  },
+  "de": {
+    "gancho": "Der Federball bremst in der Luft. Du nicht.",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und schnapp dir den Schläger.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Der Federball fällt fast senkrecht runter.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Steht er schön hoch, schmetter ihn.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Ein Match bis elf Punkte gegen den Computer.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Geh auf VR Play und spiel kostenlos, ganz ohne Download."
+  },
+  "it": {
+    "gancho": "Il volano frena in aria. Tu no.",
+    "frases": [
+      {
+        "texto": "Metti il visore e prendi la racchetta.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Il volano scende quasi in verticale.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Quando è alto, schiaccia.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Partita a undici punti contro il computer.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Vai su VR Play e gioca gratis, senza scaricare niente."
+  },
+  "pt": {
+    "gancho": "A peteca freia no ar. Você não.",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e pega a raquete.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "A peteca cai quase na vertical.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Quando ela estiver alta, manda a cortada.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Partida de onze pontos contra a máquina.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra no VR Play e joga grátis, sem baixar nada."
+  },
+  "ja": {
+    "gancho": "シャトルは空中で失速。でもキミは止まらない。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけて、ラケットを持とう。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "シャトルはほぼ真下に落ちてくる。",
+        "plano": "pov"
+      },
+      {
+        "texto": "高く上がったら、スマッシュ！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "CPU相手に11点先取の試合。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playで無料で遊ぼう。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "셔틀콕은 공중에서 느려져. 너는 아니지.",
+    "frases": [
+      {
+        "texto": "헤드셋 쓰고 라켓을 잡아.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "셔틀콕이 거의 수직으로 떨어져.",
+        "plano": "pov"
+      },
+      {
+        "texto": "높이 떴을 때, 스매시!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "컴퓨터와 11점 승부.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에 들어가서 무료로 즐겨 봐. 다운로드도 필요 없어."
+  },
+  "zh": {
+    "gancho": "羽毛球在空中会减速。你可不会。",
+    "frases": [
+      {
+        "texto": "戴上头显，握好球拍。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "球几乎是垂直落下的。",
+        "plano": "pov"
+      },
+      {
+        "texto": "等球高了，扣杀！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "对战电脑，11分一局。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "打开VR Play免费玩，无需下载。"
   }
 }

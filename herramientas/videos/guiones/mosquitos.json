@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Nuit d’été. Bzzz.",
+    "frases": [
+      {
+        "texto": "Mets ton casque et te voilà sur la véranda.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Les moustiques tournent… et d’un coup, foncent sur toi.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Écrase-les avant qu’ils te piquent.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Il y en a de plus en plus, et de plus en plus rapides.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Tu n’as que trois vies.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Sommernacht. Bzzz.",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und du sitzt auf der Veranda.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Die Mücken schwirren herum… und plötzlich kommen sie auf dich zu.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Klatsch sie weg, bevor sie stechen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Es werden immer mehr, und immer schneller.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Du hast nur drei Leben.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Notte d’estate. Bzzz.",
+    "frases": [
+      {
+        "texto": "Metti il visore e sei sotto il portico.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Le zanzare svolazzano… e all’improvviso puntano dritto su di te.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Schiacciale prima che ti pungano.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sono sempre di più, e sempre più veloci.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Hai solo tre vite.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Noite de verão. Bzzz.",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e você está na varanda.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Os mosquitos ficam rodeando… e do nada vêm pra cima de você.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Esmaga antes que eles te piquem.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cada vez tem mais, e mais rápidos.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Você só tem três vidas.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "夏の夜。プ〜ン。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけると、そこは夜のテラス。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "蚊がふわふわ飛んで…急にこっちに来る！",
+        "plano": "pov"
+      },
+      {
+        "texto": "刺される前に叩きつぶせ！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "どんどん増えて、どんどん速くなる。",
+        "plano": "partida"
+      },
+      {
+        "texto": "ライフはたった3つ。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "여름밤. 애앵~",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 여기는 테라스.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "모기가 날아다니다가… 갑자기 너한테 달려들어.",
+        "plano": "pov"
+      },
+      {
+        "texto": "물리기 전에 잡아!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "점점 많아지고, 점점 빨라져.",
+        "plano": "partida"
+      },
+      {
+        "texto": "목숨은 딱 세 개.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "夏夜。嗡嗡嗡。",
+    "frases": [
+      {
+        "texto": "戴上头显，你就坐在门廊上。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "蚊子四处乱飞……突然朝你冲过来。",
+        "plano": "pov"
+      },
+      {
+        "texto": "在被叮之前拍死它们！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "蚊子越来越多，也越来越快。",
+        "plano": "partida"
+      },
+      {
+        "texto": "你只有三条命。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

@@ -21,6 +21,10 @@ Para cualquier encargo del foro (leerlo, moderarlo, implementar una sugerencia o
 
 Aunque el encargo no venga del foro, sigue los pasos 5 a 7 de [`docs/FORO.md`](docs/FORO.md) («Implementar», «Probar» y «Subir a main»): puntuación en `juegos/marcadores.js`, portada, catálogo, textos en los 9 idiomas, estándar de calidad y las comprobaciones de `herramientas/`.
 
+## Vídeos para redes
+
+Para cualquier vídeo de VR Play (TikTok de un juego, anuncio, top, reto, el lote de la semana) o para publicarlo, usa la skill `videos-vrplay` y la fábrica de `herramientas/videos/` (guía: `GUIA.md`). Al crear un juego nuevo, comprueba que el bot sabe jugarlo: `node herramientas/videos/fabrica.mjs probar-bot <id>`. Nunca publiques en redes sin que el usuario apruebe el borrador.
+
 ## Encargos de voz (issues con la etiqueta `voz`)
 
 El bot de voz (carpeta `voz-a-claude`, fuera de este repositorio) crea un issue cada vez que el usuario dice «Claude, …» en el canal de voz de Discord, ya con la etiqueta `claude-implementar`, y GitHub Actions te lanza (`.github/workflows/claude-implementar.yml`):

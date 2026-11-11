@@ -140,7 +140,10 @@ window.__iniciarBot = function iniciarBot(cfg) {
     const modo = cfg.modo;
     const reposo = [W * (cfg.reposo?.[0] ?? 0.5), H * (cfg.reposo?.[1] ?? 0.55)];
 
-    if (modo === 'clic') {
+    if (window.__jugada?.raton) {
+      // Jugada a medida del juego (lib/jugadas/<id>.js): mueve el puntero con api.mover y pulsa
+      window.__jugada.raton(apiJugada, ahora, dt);
+    } else if (modo === 'clic') {
       const libres = lista.filter((o) => !(golpeados.get(o.malla) > ahora));
       if (objetivo && (!lista.includes(objetivo) || ahora - objetivoDesde > 1600)) objetivo = null;
       const actual = objetivo && lista.find((o) => o.malla === objetivo.malla);
@@ -223,6 +226,25 @@ window.__iniciarBot = function iniciarBot(cfg) {
     rastro.push([Math.round(ahora - t0), +(p.x / W).toFixed(4), +(p.y / H).toFixed(4), p.pulsado ? 1 : 0]);
     requestAnimationFrame(paso);
   }
+  // Lo que ve una jugada a medida (lib/jugadas/<id>.js, ver lib/jugadas/LEEME.md)
+  const apiJugada = {
+    fab, THREE: fab.THREE, p, W, H, cfg, bot,
+    mover: (x, y, dt, rigidez = 160) => moverHacia(x, y, dt, rigidez),
+    pulsar, soltar, clic,
+    candidatos: () => candidatos(performance.now(), 0),
+    raiz: () => fab.escena.children.find((c) => c.name?.startsWith('juego-')),
+    // Un punto del mundo en la pantalla: { x, y, delante } (delante = false si queda detrás)
+    aPantalla(punto) {
+      const q = punto.clone().project(fab.camara);
+      return { x: (q.x * 0.5 + 0.5) * W, y: (-q.y * 0.5 + 0.5) * H, delante: q.z < 1 && q.z > -1 };
+    },
+    buscar(filtro) {
+      const raiz = apiJugada.raiz();
+      const r = [];
+      raiz?.traverseVisible((m) => { if (filtro(m)) r.push({ malla: m, p: m.getWorldPosition(new Vector3()) }); });
+      return r;
+    },
+  };
   evento('pointermove');
   requestAnimationFrame(paso);
   return true;

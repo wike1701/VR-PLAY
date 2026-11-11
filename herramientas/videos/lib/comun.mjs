@@ -57,6 +57,22 @@ export function ejecutar(programa, argumentos, { falloSiError = true, entrada = 
   });
 }
 
+// Un Chromium que no sea el de la versión exacta de Playwright: la variable VRPLAY_CHROMIUM, el de
+// PLAYWRIGHT_BROWSERS_PATH (la nube de Claude Code) o el del sistema en Linux
+export function chromiumDelSistema() {
+  const navegadores = process.env.PLAYWRIGHT_BROWSERS_PATH || '';
+  const rutas = [
+    process.env.VRPLAY_CHROMIUM,
+    navegadores && path.join(navegadores, 'chromium'),
+    '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+  ];
+  return rutas.find((r) => r && fs.existsSync(r)) || null;
+}
+
+// Cómo se graba la partida: «real» (con la GPU, en tiempo real) o «virtual» (fotograma a fotograma,
+// para máquinas sin GPU: la nube o GitHub Actions). Por defecto, virtual en Linux.
+export const relojPorDefecto = () => process.env.VRPLAY_RELOJ || (process.platform === 'linux' ? 'virtual' : 'real');
+
 export const ff = (args, opciones) => ejecutar(ffmpeg().ffmpeg, ['-hide_banner', '-y', ...args], opciones);
 
 export async function duracion(archivo) {

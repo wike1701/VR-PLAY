@@ -19,7 +19,8 @@
     "playwright": "1.55.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "remotion": "4.0.538"
+    "remotion": "4.0.538",
+    "three": "0.160.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

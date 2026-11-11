@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Free on VR Play, right in your headset browser."
+  },
+  "fr": {
+    "gancho": "Le stand de fête foraine, sans sortir de chez toi.",
+    "frases": [
+      {
+        "texto": "Avec le casque, c’est toi qui lances la fléchette.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Crève les ballons du panneau.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Et ceux qui passent devant.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Les dorés montent vite : ne les laisse pas filer.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Soixante secondes. Tu en crèves combien ?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratuit sur VR Play, direct dans le navigateur de ton casque."
+  },
+  "de": {
+    "gancho": "Die Jahrmarktbude, ohne das Haus zu verlassen.",
+    "frases": [
+      {
+        "texto": "Mit der Brille wirfst du den Pfeil selbst.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Lass die Ballons an der Wand platzen.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Und die, die vorbeifliegen.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Die goldenen steigen schnell: Lass sie nicht entwischen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sechzig Sekunden. Wie viele lässt du platzen?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play, direkt im Browser deiner Brille."
+  },
+  "it": {
+    "gancho": "Il baraccone del luna park, senza uscire di casa.",
+    "frases": [
+      {
+        "texto": "Col visore la freccetta la lanci tu.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Fai scoppiare i palloncini sul tabellone.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E quelli che passano davanti.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Quelli dorati salgono veloci: non farteli scappare.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sessanta secondi. Quanti ne fai scoppiare?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis su VR Play, direttamente dal browser del tuo visore."
+  },
+  "pt": {
+    "gancho": "A barraquinha do parque, sem sair de casa.",
+    "frases": [
+      {
+        "texto": "Com os óculos, quem arremessa o dardo é você.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Estoura os balões do painel.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E os que passam na frente.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Os dourados sobem rápido: não deixa escapar.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sessenta segundos. Quantos você estoura?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Grátis no VR Play, direto no navegador dos seus óculos."
+  },
+  "ja": {
+    "gancho": "縁日の屋台が、家の中に。",
+    "frases": [
+      {
+        "texto": "ヘッドセットなら、ダーツを投げるのはキミ。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "ボードの風船を割って。",
+        "plano": "pov"
+      },
+      {
+        "texto": "前を横切る風船も。",
+        "plano": "partida"
+      },
+      {
+        "texto": "金色の風船はすぐ上がる。逃がすな！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "60秒で何個割れる？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで無料。ヘッドセットのブラウザからすぐ遊べる！"
+  },
+  "ko": {
+    "gancho": "축제 게임 부스를 집에서.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 다트는 네가 직접 던져.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "판에 붙은 풍선을 터뜨려.",
+        "plano": "pov"
+      },
+      {
+        "texto": "앞을 지나가는 것들도.",
+        "plano": "partida"
+      },
+      {
+        "texto": "금색 풍선은 빨리 올라가. 놓치지 마!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "60초 동안 몇 개 터뜨릴래?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 헤드셋 브라우저에서 바로 즐겨."
+  },
+  "zh": {
+    "gancho": "游乐园的游戏摊，在家就能玩。",
+    "frases": [
+      {
+        "texto": "戴上头显，飞镖由你亲手扔。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "扎破板上的气球。",
+        "plano": "pov"
+      },
+      {
+        "texto": "还有从前面飘过的。",
+        "plano": "partida"
+      },
+      {
+        "texto": "金色气球升得快：别让它们跑了！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "60秒，你能扎破几个？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩，头显浏览器直接打开。"
   }
 }
