@@ -5,7 +5,14 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { RAIZ } from './comun.mjs';
+
+const require = createRequire(import.meta.url);
+// three.js: el de node_modules (la misma versión que el importmap de la web) en vez del de jsDelivr,
+// para grabar sin depender de la CDN (en la nube puede estar bloqueada) y sin esperas de red
+const CDN_THREE = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const THREE_LOCAL = '/__fabrica/three.module.js';
 
 const TIPOS = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -36,26 +43,42 @@ window.vrPlay = {`,
   ],
 ];
 
-function shellConEnganches() {
-  let codigo = fs.readFileSync(path.join(RAIZ, 'shell/shell.js'), 'utf8').replace(/\r\n/g, '\n');
-  for (const [buscar, poner] of ENGANCHES) {
-    if (!codigo.includes(buscar)) throw new Error(`shell/shell.js ha cambiado: no encuentro «${buscar.split('\n')[0]}» (actualiza ENGANCHES en lib/servidor.mjs)`);
+// En los vídeos no salen las instrucciones de 5 s del principio ni las flechas que señalan los botones
+// de los hombros: tapan el juego y el vídeo ya pone sus propios títulos
+ENGANCHES.push(['introRestante = SEGUNDOS_INTRO;', 'introRestante = 0;']);
+const ENGANCHES_BOTONES = [['const TIEMPO_AYUDA = 6;', 'const TIEMPO_AYUDA = 0;']];
+
+function conEnganches(archivo, enganches) {
+  let codigo = fs.readFileSync(path.join(RAIZ, archivo), 'utf8').replace(/\r\n/g, '\n');
+  for (const [buscar, poner] of enganches) {
+    if (!codigo.includes(buscar)) throw new Error(`${archivo} ha cambiado: no encuentro «${buscar.split('\n')[0]}» (actualiza los enganches en lib/servidor.mjs)`);
     codigo = codigo.replace(buscar, poner);
   }
   return codigo;
 }
 
 export function arrancarServidor() {
-  const shell = shellConEnganches();
+  const enganchados = {
+    '/shell/shell.js': conEnganches('shell/shell.js', ENGANCHES),
+    '/shell/boton-cambio.js': conEnganches('shell/boton-cambio.js', ENGANCHES_BOTONES),
+  };
   const servidor = http.createServer((pet, res) => {
     const ruta = decodeURIComponent(new URL(pet.url, 'http://x').pathname);
     if (ruta.startsWith('/api/')) {
       res.writeHead(200, { 'content-type': 'application/json' });
       return res.end(ruta.includes('en-pruebas') ? '{"juegos":[]}' : '{}');
     }
-    if (ruta === '/shell/shell.js') {
+    if (ruta === THREE_LOCAL) {
       res.writeHead(200, { 'content-type': TIPOS['.js'] });
-      return res.end(shell);
+      return fs.createReadStream(path.join(path.dirname(require.resolve('three')), 'three.module.js')).pipe(res);
+    }
+    if (ruta.endsWith('.html') && fs.existsSync(path.join(RAIZ, ruta))) {
+      res.writeHead(200, { 'content-type': TIPOS['.html'] });
+      return res.end(fs.readFileSync(path.join(RAIZ, ruta), 'utf8').replaceAll(CDN_THREE, THREE_LOCAL));
+    }
+    if (enganchados[ruta]) {
+      res.writeHead(200, { 'content-type': TIPOS['.js'] });
+      return res.end(enganchados[ruta]);
     }
     const archivo = path.join(RAIZ, ruta === '/' ? 'index.html' : ruta);
     if (!archivo.startsWith(RAIZ) || !fs.existsSync(archivo) || fs.statSync(archivo).isDirectory()) {
