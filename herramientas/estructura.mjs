@@ -42,6 +42,8 @@ for (const nombre of fs.readdirSync(path.join(RAIZ, 'juegos'))) {
 const PERMITIDOS_RAIZ = new Set([
   '.assetsignore', '.gitignore', '.git', '.github', '.claude', '.wrangler', '.dev.vars', 'node_modules',
   'README.md', 'CLAUDE.md', 'wrangler.jsonc', 'favicon.svg', 'manifest.webmanifest', 'robots.txt', '_headers',
+  'sw.js', // el service worker tiene que estar en la raíz para que su alcance sea toda la web
+
   'bd', 'docs', 'estilos', 'herramientas', 'iconos', 'idiomas', 'juegos', 'servidor', 'shell',
 ]);
 for (const nombre of fs.readdirSync(RAIZ)) {

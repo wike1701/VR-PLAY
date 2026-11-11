@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title data-i18n="jugar.tituloPagina">Jugar · VR Play</title>
   <script src="idiomas/detectar.js"></script>
+  <link rel="canonical" href="https://vrplaygame.com/play">
   <!-- Al compartir el enlace (WhatsApp, redes sociales): título, texto e imagen -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VR Play">
@@ -209,6 +210,8 @@
   </div>
 
   <script type="module" src="shell/shell.js"></script>
+  <!-- Aquí no hay cabecera: solo registra el service worker (jugar sin conexión lo ya jugado) -->
+  <script type="module" src="shell/cabecera.js"></script>
   <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->
   <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "458b790a4dac4877a454029b58b3bd49"}'></script>
   <!-- Fin de Cloudflare Web Analytics -->

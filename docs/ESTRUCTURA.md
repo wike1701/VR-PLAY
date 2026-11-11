@@ -35,6 +35,7 @@ servidor/  ───────────┴──►  juegos/marcadores.js, 
 VR-PLAY/
 ├── *.html                  Páginas públicas (su dirección no se cambia: ver §4)
 ├── favicon.svg, manifest.webmanifest, robots.txt
+├── sw.js                   Service worker (abrir la web sin conexión): en la raíz para que su alcance sea toda la web
 ├── iconos/                 Iconos PNG de la app instalada e imágenes para compartir (compartir.jpg, juegos/<id>.jpg)
 ├── estilos/                Hojas de estilo compartidas entre páginas
 ├── shell/                  Código común del navegador (VR, juegos, cuenta, idiomas en uso…)
@@ -62,8 +63,8 @@ VR-PLAY/
 
 | Carpeta | Qué hay | Normas |
 |---|---|---|
-| **raíz** | Las 9 páginas: `index` (portada), `play` (la shell VR), `foro`, `clasificacion`, `perfil`, `entrar`, `cuenta`, `legal` y `admin`; `404.html` (direcciones que no existen, con rutas absolutas) y `_headers` (cabeceras de seguridad) | Solo páginas, configuración y documentos principales. Cada página lleva su CSS propio dentro; si es compartido, va en `estilos/`. |
-| **`shell/`** | `shell.js` (motor VR y cambio de juego), `boton-cambio.js`, `menu-pausa.js`, `catalogo-vr.js`, `graficos.js`, `efectos.js`, `paisaje.js`, `sonido.js`, `utilidades.js`, `pantalla-completa.js`, y los módulos que usan también las páginas: `cuenta.js`, `valoraciones.js`, `clasificacion.js`, `en-pruebas.js` | Código del navegador que comparten varias páginas o juegos. Un archivo por responsabilidad. |
+| **raíz** | Las 9 páginas: `index` (portada), `play` (la shell VR), `foro`, `clasificacion`, `perfil`, `entrar`, `cuenta`, `legal` y `admin`; `404.html` (direcciones que no existen, con rutas absolutas), `_headers` (cabeceras de seguridad y de caché) y `sw.js` (el service worker: guarda la estructura de la web y los juegos jugados para abrirlos sin conexión; nunca `/api/*` ni `/juego/*`. Si cambias su lógica, sube su `VERSION`) | Solo páginas, configuración y documentos principales. Cada página lleva su CSS propio dentro; si es compartido, va en `estilos/`. |
+| **`shell/`** | `shell.js` (motor VR y cambio de juego), `boton-cambio.js`, `menu-pausa.js`, `catalogo-vr.js`, `graficos.js`, `efectos.js`, `paisaje.js`, `sonido.js`, `utilidades.js`, `pantalla-completa.js`, y los módulos que usan también las páginas: `cuenta.js`, `valoraciones.js`, `clasificacion.js`, `en-pruebas.js` y `cabecera.js` (la navegación común de las páginas públicas: Juegos, Clasificación, Sugerencias, cuenta e idioma, con sus estilos `.nav-web` en `estilos/base.css`; registra además el service worker) | Código del navegador que comparten varias páginas o juegos. Un archivo por responsabilidad. |
 | **`juegos/<id>/`** | `juego.js` (exporta `precargar` e `iniciar(ctx)`) y `miniatura.svg` | Todo el juego en su carpeta. Sin textos escritos a mano (van en `idiomas/`) y sin imports de `shell/`. |
 | **`juegos/`** (sueltos) | `catalogo.js` y `marcadores.js` | Solo datos de los juegos. El código va en `shell/`. |
 | **`idiomas/`** | Un archivo por idioma con **las mismas claves** que `es.js`; `legal/` con el texto legal traducido | Cualquier texto visible nuevo se añade aquí, en los 9 idiomas. |

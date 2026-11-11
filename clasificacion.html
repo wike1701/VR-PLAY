@@ -6,6 +6,7 @@
 <title data-i18n="clasificacion.tituloPagina">Clasificaciones · VR Play</title>
 <script src="idiomas/detectar.js"></script>
 <meta name="description" data-i18n-attr="content:inicio.metaDescripcion" content="Juegos de realidad virtual gratis que se juegan en el navegador: con gafas Meta Quest, con el ratón o en el móvil.">
+<link rel="canonical" href="https://vrplaygame.com/clasificacion">
 <!-- La misma página en cada idioma (?lang=), para los buscadores -->
 <link rel="alternate" hreflang="es" href="https://vrplaygame.com/clasificacion?lang=es">
 <link rel="alternate" hreflang="en" href="https://vrplaygame.com/clasificacion?lang=en">
@@ -56,12 +57,7 @@
   .tabla-clasificacion a:hover strong { color: var(--accent-2); }
   .tabla-clasificacion .valor { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
   .vacio { color: var(--muted); }
-  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 12px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
-  .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
-  @media (max-width: 520px) {
-    .menu { gap: 12px; }
-    .boton-cuenta .texto { display: none; }
-  }
+  /* El botón de la cuenta y la navegación de la cabecera: estilos/base.css (.nav-web) */
 </style>
 </head>
 <body>
@@ -69,11 +65,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <span data-cuenta></span>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="clasificacion" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -86,6 +79,7 @@
 <script type="module">
   // Clasificación de un juego: clasificacion.html#topos (o #topos/mes para la del mes).
   // Las 100 primeras cuentas y tu puesto (ver servidor/clasificacion.js).
+  import './shell/cabecera.js'; // la primera: pinta la navegación antes de montar el botón de la cuenta
   import { t } from './idiomas/idiomas.js';
   import { JUEGOS as TODOS } from './juegos/catalogo.js';
   import { MARCADORES } from './juegos/marcadores.js';

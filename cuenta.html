@@ -21,11 +21,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="cuenta" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -38,6 +35,7 @@
 <script type="module">
   // «Mi cuenta»: alias y avatar, avisos, dispositivos con la sesión abierta, descargar los datos y
   // borrar la cuenta (ver docs/PERFILES.md, puntos 7 y 10).
+  import './shell/cabecera.js'; // la navegación común de la cabecera
   import { t, hace } from './idiomas/idiomas.js';
   import { apiCuenta, estadoCuenta, olvidarCuenta, avatar, fecha } from './shell/cuenta.js';
 

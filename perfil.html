@@ -63,15 +63,10 @@
   .records .titulo { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .records .valor { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
   .records .puesto { color: var(--oro); font-family: var(--font-mono); font-weight: 600; min-width: 2.6em; text-align: right; }
-  /* Botón de la cuenta en la cabecera (shell/cuenta.js) */
-  .boton-cuenta { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 12px; border: 1px solid var(--line); color: var(--fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; white-space: nowrap; flex: none; }
-  .boton-cuenta:not(:has(.avatar)) { padding: 5px 14px; }
-  .boton-cuenta:hover { border-color: var(--accent); }
+  /* El botón de la cuenta y la navegación de la cabecera: estilos/base.css (.nav-web) */
   @media (max-width: 520px) {
     .perfil { flex-wrap: wrap; }
     .perfil .accion { width: 100%; }
-    .menu { gap: 12px; }
-    .boton-cuenta .texto { display: none; }
   }
 </style>
 </head>
@@ -80,12 +75,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
-      <span data-cuenta></span>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="perfil" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -102,6 +93,7 @@
   //   perfil.html#alias/seguidos    → a quién sigue
   // En tu propio perfil salen además los ajustes de la cuenta y tus juegos con «me gusta» y guardados
   // (solo los ves tú: vienen de tu sesión, no del perfil público).
+  import './shell/cabecera.js'; // la primera: pinta la navegación antes de montar el botón de la cuenta
   import { t } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
   import { estadoCuenta, avatar, fecha, botonSeguir, montarBotonCuenta } from './shell/cuenta.js';

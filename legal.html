@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title data-i18n="legal.tituloPagina">Aviso legal y privacidad · VR Play</title>
 <script src="idiomas/detectar.js"></script>
+<link rel="canonical" href="https://vrplaygame.com/legal">
 <link rel="alternate" hreflang="es" href="https://vrplaygame.com/legal?lang=es">
 <link rel="alternate" hreflang="en" href="https://vrplaygame.com/legal?lang=en">
 <link rel="alternate" hreflang="fr" href="https://vrplaygame.com/legal?lang=fr">
@@ -47,10 +48,7 @@
   .cabecera { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
   .logo { font-weight: 800; font-size: 1.3rem; letter-spacing: 0.04em; text-decoration: none; color: var(--fg); }
   .logo span { color: var(--accent); }
-  .cabecera nav { margin-left: auto; display: flex; gap: 16px; font-size: 0.9rem; }
-  .cabecera nav a { color: var(--muted); text-decoration: none; }
-  .cabecera nav a:hover { color: var(--fg); }
-  .cabecera nav { align-items: center; }
+  /* La navegación de la cabecera es la común (shell/cabecera.js, estilos/base.css) */
   .selector-idioma {
     padding: 4px 8px; border-radius: 12px; border: 1px solid var(--line);
     background: var(--surface); color: var(--fg); font: inherit; font-size: 0.85rem; cursor: pointer;
@@ -99,11 +97,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <a href="foro.html" data-i18n="comun.sugerencias">Sugerencias</a>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -262,6 +257,7 @@
 </footer>
 
 <script type="module">
+  import './shell/cabecera.js'; // la navegación común de la cabecera
   import { idioma, ORIGINAL, mostrarPagina } from './idiomas/idiomas.js';
 
   // En otros idiomas, el texto legal traducido (si no carga, se queda el original en español)

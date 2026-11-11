@@ -138,7 +138,15 @@ export function avatar(alias, semilla = 0, tam = 32) {
 
 // ─── Botón de la cabecera ───────────────────────────────────────────────
 // Sustituye cada <span data-cuenta></span> por «Entrar» o por el avatar y el alias (enlace a «Mi cuenta»).
-export async function montarBotonCuenta() {
+// Se monta una sola vez por página: la cabecera común (shell/cabecera.js) lo llama y, si la página lo
+// vuelve a llamar, recibe el mismo resultado. Las rutas salen de la raíz de la web (valen desde el 404).
+const RAIZ = new URL('../', import.meta.url).pathname;
+let montaje = null;
+export function montarBotonCuenta() {
+  montaje ||= montar();
+  return montaje;
+}
+async function montar() {
   const huecos = [...document.querySelectorAll('[data-cuenta]')];
   if (!huecos.length) return null;
   const estado = await estadoCuenta();
@@ -152,11 +160,11 @@ export async function montarBotonCuenta() {
     const a = document.createElement('a');
     a.className = 'boton-cuenta';
     if (usuario?.alias) {
-      a.href = `perfil.html#${encodeURIComponent(usuario.alias)}`;
+      a.href = `${RAIZ}perfil.html#${encodeURIComponent(usuario.alias)}`;
       a.title = t('cuenta.miPerfil');
       a.append(avatar(usuario.alias, usuario.avatar, 26), Object.assign(document.createElement('span'), { className: 'texto', textContent: usuario.alias }));
     } else {
-      a.href = `entrar.html?volver=${encodeURIComponent(location.pathname + location.search + location.hash)}`;
+      a.href = `${RAIZ}entrar.html?volver=${encodeURIComponent(location.pathname + location.search + location.hash)}`;
       a.textContent = t('cuenta.entrar');
     }
     hueco.replaceWith(a);

@@ -32,9 +32,7 @@ header {
   white-space: nowrap;
 }
 .logo span { color: var(--accent); }
-.menu { display: flex; align-items: center; gap: 18px; margin-left: auto; font-size: 0.95rem; }
-.menu a { text-decoration: none; color: var(--muted); }
-.menu a:hover { color: var(--fg); }
+/* La navegación de la cabecera es la común (shell/cabecera.js, estilos/base.css) */
 .selector-idioma {
   padding: 5px 8px;
   border-radius: 12px;

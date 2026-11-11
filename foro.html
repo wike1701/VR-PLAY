@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title data-i18n="foro.tituloPagina">Foro de sugerencias · VR Play</title>
 <script src="idiomas/detectar.js"></script>
+<link rel="canonical" href="https://vrplaygame.com/foro">
 <link rel="alternate" hreflang="es" href="https://vrplaygame.com/foro?lang=es">
 <link rel="alternate" hreflang="en" href="https://vrplaygame.com/foro?lang=en">
 <link rel="alternate" hreflang="fr" href="https://vrplaygame.com/foro?lang=fr">
@@ -65,10 +66,7 @@
     white-space: nowrap;
   }
   .logo span { color: var(--accent); }
-  .menu { display: flex; gap: 18px; margin-left: auto; font-size: 0.95rem; }
-  .menu a { text-decoration: none; color: var(--muted); }
-  .menu a:hover, .menu a[aria-current="page"] { color: var(--fg); }
-  .menu { align-items: center; }
+  /* La navegación de la cabecera es la común (shell/cabecera.js, estilos/base.css) */
   /* Botón «Entrar» o avatar con el alias (shell/cuenta.js) */
   .boton-cuenta {
     display: inline-flex;
@@ -296,8 +294,6 @@
   footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
 
   @media (max-width: 520px) {
-    .menu { gap: 12px; }
-    .boton-cuenta .texto { display: none; }
     .hilo { grid-template-columns: minmax(0, 1fr); }
     .hilo .me-gusta { justify-self: start; grid-auto-flow: column; gap: 8px; padding: 6px 12px; border-radius: 12px; }
     .selector { margin-left: 0; }
@@ -309,12 +305,8 @@
 <header>
   <div class="contenedor cabecera">
     <a class="logo" href="index.html">VR<span>·</span>Play</a>
-    <nav class="menu" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones">
-      <a href="index.html" data-i18n="comun.juegos">Juegos</a>
-      <a href="foro.html" aria-current="page" data-i18n="comun.sugerencias">Sugerencias</a>
-      <span data-cuenta></span>
-      <span data-selector-idioma></span>
-    </nav>
+    <!-- Navegación común: la pinta shell/cabecera.js -->
+    <nav class="nav-web" data-nav="foro" data-i18n-attr="aria-label:comun.secciones" aria-label="Secciones"></nav>
   </div>
 </header>
 
@@ -325,6 +317,7 @@
 </footer>
 
 <script type="module">
+  import './shell/cabecera.js'; // la primera: pinta la navegación antes de montar el botón de la cuenta
   import { t, existe, tOriginal, hace as haceRelativo, idioma } from './idiomas/idiomas.js';
   import { JUEGOS } from './juegos/catalogo.js';
   import { montarBotonCuenta, cuentasVisibles, avatar } from './shell/cuenta.js';
