@@ -34,8 +34,8 @@ export function crearPanel({
   ancho = 1,
   alto = 0.3,
   resolucion = 512,
-  fondo = 'rgba(12, 14, 28, 0.82)',
-  borde = 'rgba(124, 92, 255, 0.9)',
+  fondo = 'rgba(10, 11, 16, 0.84)',
+  borde = 'rgba(255, 106, 61, 0.75)',
 } = {}) {
   const canvas = document.createElement('canvas');
   canvas.width = resolucion;
@@ -44,6 +44,7 @@ export function crearPanel({
 
   const textura = new THREE.CanvasTexture(canvas);
   textura.colorSpace = THREE.SRGBColorSpace;
+  textura.anisotropy = 4; // el texto sigue nítido mirado de lado (en VR pasa todo el rato)
   // Sin tone mapping: el texto conserva sus colores exactos y se lee mejor
   const material = new THREE.MeshBasicMaterial({ map: textura, transparent: true, depthWrite: false, toneMapped: false });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(ancho, alto), material);
@@ -91,7 +92,7 @@ export function crearPanel({
     g.textBaseline = 'middle';
     for (const l of items) {
       const altoLinea = unidad * (l.tam || 1);
-      g.font = `${l.peso || 'bold'} ${Math.round(altoLinea * 0.7)}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+      g.font = `${l.peso || 700} ${Math.round(altoLinea * 0.7)}px Geist, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
       g.fillStyle = l.color || '#ffffff';
       g.fillText(l.texto, w / 2, y + altoLinea / 2, w * 0.92);
       y += altoLinea;

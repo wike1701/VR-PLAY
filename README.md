@@ -4,26 +4,39 @@ Web de juegos VR que se juegan en el navegador. Mientras juegas puedes pasar al 
 
 ## Estructura
 
+Resumen de los archivos. Las normas de dónde va cada cosa nueva están en [`docs/ESTRUCTURA.md`](docs/ESTRUCTURA.md), y se comprueban con `node herramientas/estructura.mjs`.
+
 ```
 index.html              Portada: pestañas «Para ti» (el catálogo) y «Seguidos» (lo que hacen los jugadores que sigues)
 foro.html               Foro de sugerencias (hilos, me gusta, comentarios)
-admin.html              Panel de administración del foro y de las cuentas (pide la clave ADMIN_TOKEN)
+admin.html              Panel de administración del foro, de las denuncias y de las cuentas (pide la clave ADMIN_TOKEN)
+404.html                Página para las direcciones que no existen (Cloudflare la sirve con estado 404; rutas absolutas)
+_headers                Cabeceras de seguridad de los archivos estáticos (nosniff, Referrer-Policy, Permissions-Policy, HSTS)
 entrar.html             Entrar en la cuenta: con Google o con un enlace y un código por correo; la primera vez, el alias
 cuenta.html             Ajustes de la cuenta: alias, avatar, privacidad, avisos, sesiones, descargar mis datos y borrar la cuenta
 clasificacion.html      Clasificación de cada juego (clasificacion.html#topos o #topos/mes): el top 100 y tu puesto
 perfil.html             Perfil de una cuenta (perfil.html#alias): seguir, seguidores, sus juegos e ideas; en el tuyo, ajustes, «me gusta» y guardados
-cuenta.css              Estilos de entrar.html, cuenta.html y perfil.html
+estilos/base.css        Sistema de diseño: colores, fuentes (Geist) y logo de todas las páginas
+estilos/cuenta.css      Estilos de entrar.html, cuenta.html, perfil.html y clasificacion.html
+estilos/fuentes/        Geist y Geist Mono (.woff2, licencia OFL), servidas desde la web y no desde Google Fonts
 wrangler.jsonc          Configuración del Worker de Cloudflare (web + API del foro + base de datos)
 .assetsignore           Archivos del repositorio que no se publican
-servidor/               API del foro y de las cuentas: solo atiende /api/* (index.js reparte las rutas)
+servidor/               API del foro y de las cuentas (/api/*), fichas de los juegos (/juego/<id>) y sitemap.xml (index.js reparte las rutas)
 bd/esquema.sql          Tablas de la base de datos del foro y de las cuentas (Cloudflare D1)
 herramientas/foro.mjs   Leer y moderar el foro desde la terminal
 herramientas/idiomas.mjs  Comprobar que todos los idiomas tienen los mismos textos
 herramientas/marcadores.mjs  Comprobar que todos los juegos tienen clasificación
+herramientas/estructura.mjs  Comprobar la estructura: juegos completos, raíz limpia y ninguna ruta rota
+herramientas/calidad.mjs  Comprobar el estándar de calidad y rendimiento de cada juego (docs/CALIDAD.md)
+herramientas/portadas-compartir.mjs  Hacer las imágenes JPEG para compartir cada juego (iconos/juegos/<id>.jpg)
+herramientas/videos/  Fábrica de vídeos en local: TikToks de cada juego (ES y EN) y editor de grabaciones (guía: GUIA.md)
+docs/                   ESTRUCTURA.md (dónde va cada cosa), PERFILES.md (cuentas) y LANZAMIENTO.md (lista de lanzamiento)
+.claude/skills/         Skills de Claude Code del proyecto (ver su README)
 CLAUDE.md               Cómo trabaja Claude Code en este proyecto (foro → juego nuevo)
 favicon.svg             Icono de la pestaña del navegador
 manifest.webmanifest    Datos para instalar la web como app (pantalla completa en el móvil)
-iconos/                 Iconos PNG de la app (Android e iPhone)
+iconos/                 Iconos PNG de la app (Android e iPhone), compartir.jpg y juegos/<id>.jpg (imágenes al compartir un enlace)
+robots.txt              Qué pueden leer los buscadores (y dónde está el sitemap)
 play.html               Página de juego (la "shell" VR)
 legal.html              Aviso legal, privacidad, cookies y contacto (el original, en español)
 idiomas/
@@ -35,12 +48,17 @@ shell/
   shell.js              Renderizador, sesión VR, carga/precarga y cambio de juegos
   boton-cambio.js       Botones virtuales detrás de los hombros (derecho: siguiente juego; izquierdo: pausa)
   menu-pausa.js         Menú de pausa flotante en VR
+  catalogo-vr.js        Catálogo en 3D dentro de la VR («Volver al catálogo» sin quitarse las gafas)
   valoraciones.js       Favoritos (en el navegador y en la cuenta) y "me gusta" de los juegos (en el servidor)
   cuenta.js             Sesión de la cuenta en el navegador: botón «Entrar» o avatar, avatar generado y sincronización
   utilidades.js         Paneles de texto 3D y liberación de memoria
   graficos.js           Kit gráfico: cielo, reflejos, texturas generadas y sombras
+  efectos.js            Sensación de juego (ctx.efectos): partículas, números que saltan, micro-pausa y sacudida
+  paisaje.js            Horizonte lejano (montes, ciudad…) y árboles instanciados (ctx.fondo({ paisaje }), ctx.arboles)
   sonido.js             Efectos de sonido sintetizados
   pantalla-completa.js  Pantalla completa en el móvil y botones flotantes
+  clasificacion.js      Clasificaciones en el navegador (formato de cada unidad, enviar resultados)
+  en-pruebas.js         Qué juegos están en pruebas (no salen en el catálogo ni en la rotación)
 juegos/
   marcadores.js         Cómo puntúa cada juego en la clasificación (orden, unidad y límites contra trampas)
   catalogo.js           Lista de juegos con su género (sus textos y etiquetas están en idiomas/; el botón "siguiente" los recorre en orden aleatorio, sin repetir)
@@ -66,6 +84,40 @@ juegos/
   mosquitos/juego.js    Matamosquitos
   tirapichon/juego.js   Tirapichón
   slot/juego.js         Circuito Slot
+  picnic/juego.js       Picnic Matamoscas
+  dardos/juego.js       Dardos
+  boxeo/juego.js        Saco de Boxeo
+  simon/juego.js        Simón de Colores
+  balanceo/juego.js     Balanceo
+  cazafantasmas/juego.js  Cazafantasmas
+  malabares/juego.js    Malabares
+  airhockey/juego.js    Air Hockey
+  cinta/juego.js        Cinta Mecánica
+  bar/juego.js          Last Call: Bar Loco (en pruebas)
+  bomba/juego.js        ¡Que no explote! (en pruebas)
+  fusion/juego.js       Fusión de Frutas
+  balonmano/juego.js    Penaltis de Balonmano
+  canoa/juego.js        Canoa
+  torre/juego.js        Torre de Bloques
+  huevos/juego.js       Atrapa Huevos
+  latas/juego.js        Tumba Latas
+  aros/juego.js         Lanza Aros
+  laberinto/juego.js    Laberinto
+  tambores/juego.js     Tambores
+  bomberos/juego.js     Bomberos
+  tortitas/juego.js     Tortitas al Vuelo (en pruebas)
+  nieve/juego.js        Bolas de Nieve
+  skeeball/juego.js     Skee-Ball (en pruebas)
+  toques/juego.js       Toques con Pala
+  xilofono/juego.js     Xilófono
+  fronton/juego.js      Frontón de Ping Pong
+  lenador/juego.js      Leñador
+  castillo/juego.js     Defensa del Castillo
+  billar/juego.js       Billar de Trucos (su física y el generador de mesas, en fisica.js)
+  ring/juego.js         Combate de Boxeo
+  futbolin/juego.js     Futbolín
+  prisma/juego.js       Prisma (los rayos y el generador de salas, en tablero.js)
+  escalada/juego.js     Escalada contra la Lava
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
@@ -75,13 +127,30 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - `play.html` crea el renderizador y la sesión VR **una sola vez**.
 - Cada juego es un módulo que la shell monta y desmonta en la misma escena. Al cambiar, la sesión VR sigue abierta.
 - Mientras juegas, la shell descarga en segundo plano el siguiente juego de la lista. Así el cambio es casi instantáneo.
-- En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego aparece unos segundos en la vista una flecha que señala dónde está (solo entonces, para que no moleste mientras juegas). Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano medio segundo encima o al apretar el gatillo tocándolo. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
+- En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego aparece unos segundos en la vista una flecha que señala dónde está (solo entonces, para que no moleste mientras juegas). Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano **exactamente un segundo** encima: mientras tanto, delante de los ojos gira una rueda de carga que se completa con el nombre de la acción debajo (el botón está detrás y no se ve). Si sacas la mano antes, la carga vuelve a cero. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
+- **Instrucciones al empezar.** En todos los juegos, durante los 5 primeros segundos (`SEGUNDOS_INTRO` en `shell/shell.js`) se ven el título y cómo se juega (los textos `controlesVR`, `controlesEscritorio` o `controlesTactil` del catálogo) con una cuenta atrás, y el juego espera congelado. En VR sale en un panel 3D delante de ti; sin gafas, en `#intro-juego`. Los juegos no tienen que hacer nada: basta con que su catálogo tenga los textos de controles.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
-- **Pausa.** En VR hay un botón gemelo del de cambio de juego, de color verde azulado, detrás del hombro **izquierdo**. Funciona exactamente igual, con su halo, su flecha guía al empezar y la vibración que te guía, pero solo con la mano **izquierda**. El de cambio de juego solo responde a la mano **derecha**. Sin gafas, usa el botón ⏸ o la tecla **Esc** (o **P**). El juego se congela, porque la shell deja de llamar a `actualizar()`, y los motores se silencian. Aparece un menú con: Continuar, ♥ Me gusta, ★ Guardar en favoritos y Volver al catálogo. En VR se elige apuntando con el mando y apretando el gatillo, o tocando el botón con la mano. Los juegos no tienen que hacer nada para tenerlo.
+- **Catálogo dentro de la VR.** Con las gafas puestas, «Volver al catálogo» del menú de pausa no sale de la realidad virtual: se cierra el juego y aparece delante una pared curva con los mismos juegos públicos que la portada (portada, título, género, partidas, «me gusta» y ★ favoritos), los filtros por género y por favoritos y páginas de 8. Se apunta con el mando y se aprieta el gatillo (la palanca, a los lados, pasa de página); al apuntar una tarjeta sale abajo su descripción y sus etiquetas. Debajo hay «⟲ Volver a …» (el juego que dejaste) y «✕ Salir de la realidad virtual», que lleva a la portada de la web. Sin gafas, «Volver al catálogo» sigue llevando a la portada. Está en `shell/catalogo-vr.js`: cada tarjeta es un plano con su dibujo en un canvas (unas 27 llamadas de dibujo en total).
+- **Volver al juego anterior.** La shell recuerda los juegos por los que has pasado (los últimos 20). Si has pasado uno sin querer o te ha gustado y quieres volver: en VR, desde el menú de pausa («⟲ Volver a …»); sin gafas, con el botón «⟲ Juego anterior» (sale en cuanto hay uno), la tecla **B** o el menú de pausa. Volver no apunta el juego en el historial, así que se puede ir hacia atrás varios seguidos.
+- **Pausa.** En VR hay un botón gemelo del de cambio de juego, de color verde azulado, detrás del hombro **izquierdo**. Funciona exactamente igual, con su halo, su flecha guía al empezar y la vibración que te guía, pero solo con la mano **izquierda**. El de cambio de juego solo responde a la mano **derecha**. Sin gafas, usa el botón ⏸ o la tecla **Esc** (o **P**). El juego se congela, porque la shell deja de llamar a `actualizar()`, y los motores se silencian. Aparece un menú con: Continuar, ⟲ Volver a *el juego anterior* (si has pasado por otro antes), ♥ Me gusta, ★ Guardar en favoritos y Volver al catálogo. En VR se elige apuntando con el mando y apretando el gatillo, o tocando el botón con la mano. Los juegos no tienen que hacer nada para tenerlo.
 - **Favoritos y me gusta.** Los favoritos se guardan en el navegador y salen en el catálogo como filtro «★ Favoritos» y con una ★ en la tarjeta. Los «me gusta» se cuentan en el servidor (`/api/juegos/:id/me-gusta`, tabla `juegos_me_gusta`, que el Worker crea solo) y salen como ♥ en la miniatura.
 - **Partidas.** La shell cuenta una partida cuando llevas 15 segundos jugando a un juego, sin contar la pausa (`/api/juegos/:id/partida`). La misma conexión cuenta como mucho una por juego cada 10 minutos y 60 por hora. Salen como ▶ en la miniatura, con números cortos (12,3 mil). Los totales de partidas y «me gusta» se guardan ya contados en `juegos_estadisticas` (`/api/juegos/estadisticas`), así que la portada lee una fila por juego aunque haya millones.
 - En el móvil se juega con el dedo, también en vertical: la shell abre el campo de visión para que quepa lo importante a lo ancho, y cada juego del catálogo tiene su texto `controlesTactil`. En los juegos, `ctx.tactil` indica si la pantalla es táctil (para decir «toca» en vez de «haz clic»).
 - Pantalla completa en el móvil: en Android el primer toque en el juego la activa (o el botón ⛶); solo quedan el juego y dos botones flotantes (⏭ siguiente, ✕ salir). En iPhone Safari no lo permite: hay que usar Compartir → «Añadir a pantalla de inicio», y desde ese icono se abre sin barras.
+
+## Buscadores y enlaces compartidos
+
+Los juegos se abren con `play.html#topos`, y lo que va detrás de `#` no lo lee Google. Por eso cada juego tiene además su **ficha**, una página normal que los buscadores pueden indexar:
+
+- **`/juego/<id>`** (por ejemplo, `vrplaygame.com/juego/topos?lang=en`): portada, título, género, descripción, partidas y «me gusta», el botón «Jugar gratis» (lleva a `play.html#id`), los controles con gafas, ratón y móvil, las etiquetas, el enlace a la clasificación y otros juegos parecidos. La genera el Worker (`servidor/fichas.js`) con el HTML ya escrito, en el idioma de `?lang=` (sin él, en el del navegador). Debajo, «Sobre el juego» (frases claras que los buscadores y las IA pueden citar, con el número de juegos publicados) y unas preguntas frecuentes. Lleva `hreflang`, `canonical`, Open Graph y datos estructurados de schema.org (`VideoGame`, `FAQPage` y `BreadcrumbList`). Los textos son los del juego (`juegos.<id>`) y los de `ficha` en `idiomas/`.
+- **`/sitemap.xml`**: la portada, el foro, las clasificaciones, el aviso legal y todas las fichas, en los 9 idiomas. También lo genera el Worker.
+- **`/llms.txt`**: un resumen en Markdown para los buscadores con IA (ChatGPT, Perplexity, Claude…): qué es VR Play, cómo se juega y la lista de juegos con el enlace a su ficha. En inglés, o en otro idioma con `?lang=xx`. También lo genera el Worker.
+- **La portada** lleva unas preguntas frecuentes (`inicio.queEs`…), datos estructurados `WebSite` y `Organization`, y al pie un enlace a la ficha de cada juego publicado, para que los buscadores las encuentren.
+- **Juegos en pruebas**: ni ficha (dan 404) ni sitemap ni `llms.txt`. Son los que tienen `pruebas: true` en `juegos/catalogo.js` o una sugerencia del foro sin terminar (`/api/juegos-en-pruebas`). En cuanto se publican, aparecen solos.
+- **`robots.txt`**: deja fuera `admin`, `cuenta`, `entrar`, `perfil` y la API. Esas páginas llevan además `noindex`. Los rastreadores de IA (GPTBot, PerplexityBot, ClaudeBot, Google-Extended…) van nombrados aparte con las mismas reglas, para dejar claro que pueden entrar.
+- **Al compartir un enlace** (WhatsApp, redes sociales) sale una imagen: la de la ficha es `iconos/juegos/<id>.jpg` (la portada del juego en 1200×630) y la del resto de páginas, `iconos/compartir.jpg`. Las redes no aceptan SVG, por eso son JPEG. **Al añadir un juego**, haz la suya con `node herramientas/portadas-compartir.mjs` (necesita Playwright; solo hace las que faltan). Si se olvida, la ficha usa la general.
+- **Para cada juego nuevo no hay que tocar nada de esto**: su ficha, su entrada en el sitemap y su línea en `llms.txt` salen solas de `juegos/catalogo.js` y de sus textos (`juegos.<id>`: título, descripción, controles y etiquetas) en cuanto deja de estar en pruebas. Lo único que hay que hacer a mano es su imagen para compartir (`node herramientas/portadas-compartir.mjs <id>`); `node herramientas/estructura.mjs` avisa si falta. Como la descripción es lo que leen Google y las IA, que diga claramente de qué va el juego y cómo se gana.
+- **Después de publicar** conviene dar de alta `https://vrplaygame.com/sitemap.xml` en Google Search Console (una sola vez).
 
 ## Probarlo en tu ordenador
 
@@ -116,13 +185,20 @@ export function iniciar(ctx) {
   // ctx.manos          -> mandos: { grip, activa, gatillo, gatilloPulsado, posicion }
   // ctx.raton          -> ratón en modo escritorio: { rayo, clic, velocidadPx, ... }
   // ctx.enVR()         -> true si se está jugando con gafas
+  // ctx.bloquearCambio(bool) -> mientras sea true no se puede pasar de juego (balón cogido); se reinicia al cambiar
   // ctx.adjuntarAMano(mano, objeto), ctx.recurso(geometriaOMaterial)
   // ctx.crearPanel(...), ctx.sonido(nombre), ctx.vibrar(mano, fuerza, ms)
   // ctx.sonidoContinuo('motor') -> { ajustar(valor 0-1, volumen), parar() } (la shell lo para al salir)
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
+  // ctx.crearMano('izquierda' | 'derecha', { color, colorPuno }) -> { objeto, cerrar(0-1) }: una mano que se
+  //   abre y se cierra, para adjuntar con ctx.adjuntarAMano (ver «Las manos se ven»)
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
+  // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
+  // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
+  // ctx.fondo(color, { nubes, estrellas, luna, sol, niebla: [cerca, lejos], paisaje: { tipo, color } })
+  // ctx.arboles(lista, { tipo: 'pino' | 'frondoso' | 'palmera' }) -> grupo, ctx.geometriaArbol(tipo), ctx.orientarFondo(giro)
   // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»)
   return {
     actualizar(dt, t) { /* se llama en cada fotograma */ },
@@ -131,7 +207,7 @@ export function iniciar(ctx) {
 }
 ```
 
-2. Añade una miniatura cuadrada (`juegos/<id>/miniatura.svg`; si es `.png` o `.jpg`, indícalo en el catálogo con `miniatura`).
+2. Añade su portada cuadrada (`juegos/<id>/miniatura.svg`) siguiendo [`docs/PORTADAS.md`](docs/PORTADAS.md), para que sea de la misma familia que las demás. `node herramientas/calidad.mjs` comprueba lo técnico. Después, su imagen para compartir: `node herramientas/portadas-compartir.mjs` (ver «Buscadores y enlaces compartidos»).
 3. Añade la entrada en `juegos/catalogo.js` con su género (una clave de `generos` en los idiomas: `arcade`, `deportes`, `disparos`…):
 
 ```js
@@ -207,6 +283,8 @@ Cada juego tiene su clasificación: la **de siempre** y la **del mes**, con el t
 
 ## Calidad gráfica y rendimiento
 
+**El estándar completo está en [`docs/CALIDAD.md`](docs/CALIDAD.md)** (rendimiento, sensación de juego, HUD, aspecto y lista antes de subir) y el de las portadas en [`docs/PORTADAS.md`](docs/PORTADAS.md) y se comprueba con `node herramientas/calidad.mjs` (`--avisos` para ver también las recomendaciones). Ningún juego se sube con errores.
+
 El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los fotogramas del Quest. La shell ya pone tone mapping, un cielo con degradado (`ctx.fondo(color)`) y un mapa de entorno sacado de ese cielo, así que los `MeshStandardMaterial` tienen reflejos sin coste extra. El estándar para cada juego:
 
 - **Suelos y superficies grandes con textura** generada por código (`ctx.texturas.*`, registradas con `ctx.recurso()`). Si el juego tiene su propio suelo, oculta el de la shell con `ctx.sueloBase(false)`.
@@ -214,6 +292,15 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
+- **Las manos se ven, en todos los juegos.** En VR siempre tiene que haber algo donde están tus manos: lo que llevas (raqueta, pistola, taco, guantes…) o, si el juego no pone nada en ellas, unas manos. La shell no dibuja nada por su cuenta. Lo más fácil es `ctx.crearMano('izquierda' | 'derecha', { color, colorPuno })` con `ctx.adjuntarAMano(mano, m.objeto)` y `m.cerrar(0…1)` en cada fotograma: abierta en reposo y cerrada al apretar o al agarrar. Si el objeto de la mano no va en el mando (por ejemplo, un taco que se coge con las dos manos), pon manos igualmente donde lo sujetas. Sin gafas, lo equivalente: que se vea qué controlas tú (los guantes delante de la cámara, el muñeco que se mueve, la mano que cuelga de la presa…).
+
+## Encargos de voz (Discord → Claude)
+
+Un bot de Discord (carpeta `voz-a-claude`, **fuera** de este repositorio, junto a `vr-play`) escucha el canal de voz mientras habláis. Cada vez que el usuario dice **«Claude»**, su frase siguiente es un encargo («Claude, haz más fácil el minigolf»): el bot crea un issue en este repositorio con esa frase y las etiquetas `voz` y `claude-implementar`, y avisa en el chat de Discord. Lo demás de la charla no sale del PC. Solo valen los encargos de las voces de `DISCORD_VOCES_PERMITIDAS` (la del usuario).
+
+La etiqueta lanza `.github/workflows/claude-implementar.yml`: Claude Code lee `CLAUDE.md` y programa el encargo en una rama; después el workflow la pone encima de main, pasa las comprobaciones (sintaxis, idiomas, marcadores, estructura y calidad) y, si todo va bien, **la sube a main** (la web se publica sola), cuenta el commit en el issue y lo cierra. Si algo falla, no se sube nada y lo dice en el issue. Los encargos van de uno en uno. En los issues y Pull Requests también se le puede pedir algo con `@claude …` (solo dueños y colaboradores); eso no se sube solo a main.
+
+Para que funcione hace falta, una vez: instalar la app de Claude en el repositorio (`/install-github-app` en Claude Code) y añadir el secreto `ANTHROPIC_API_KEY` (o `CLAUDE_CODE_OAUTH_TOKEN`, de `claude setup-token`, para usar la suscripción; entonces hay que cambiar la línea comentada del workflow). Cómo arrancar el bot: su propio `README.md`.
 
 ## Foro de sugerencias
 
@@ -221,9 +308,10 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 
 - Cada sugerencia es un hilo con un **estado**: nueva, en estudio, en desarrollo, hecha, ya existe o descartada.
 - Cuando se hace un juego, la respuesta oficial de VR Play queda **anclada** arriba del hilo, con un botón «Jugar». El hilo **sigue abierto** para que la gente opine sobre el juego. Si hay otra respuesta oficial más tarde (por ejemplo, «Actualizado: …»), pasa a ser la anclada y la anterior queda en el historial.
-- **Juegos en pruebas.** Un juego enlazado a una sugerencia que aún no está hecha (nueva, en estudio o en desarrollo) no sale en el catálogo ni en la rotación aleatoria, aunque ya esté subido a main. Se juega con su enlace directo (`play.html#id`), por ejemplo desde «▶ Probar» en `admin.html`. Al pasar la sugerencia a «hecha», aparece solo. La lista la da `/api/juegos-en-pruebas`, y si el servidor no responde (en local) no se esconde nada. Un juego ya publicado por otra sugerencia (hecha o ya existe) no se esconde aunque tenga una mejora en desarrollo.
+- **Juegos en pruebas.** Un juego enlazado a una sugerencia que aún no está hecha (nueva, en estudio o en desarrollo) no sale en el catálogo ni en la rotación aleatoria, aunque ya esté subido a main. Se juega con su enlace directo (`play.html#id`), por ejemplo desde «▶ Probar» en `admin.html`. Al pasar la sugerencia a «hecha», aparece solo. La lista la da `/api/juegos-en-pruebas`, y si el servidor no responde (en local) no se esconde nada. Un juego ya publicado por otra sugerencia (hecha o ya existe) no se esconde aunque tenga una mejora en desarrollo. Un juego que no viene del foro se deja en pruebas con `pruebas: true` en su línea de `juegos/catalogo.js` (sale en `admin.html` como «Juegos nuevos sin publicar», con su enlace para probarlo; se esconde también en local); para publicarlo, se quita la marca.
 - Contra el spam: límites por hora y por IP (solo se guarda un hash de la IP), nombres reservados (nadie puede firmar como «VR Play») y, si se configura, el captcha invisible de Cloudflare (Turnstile).
 - La moderación (cambiar estados, responder como VR Play, ocultar) necesita la clave `ADMIN_TOKEN` y se hace con `herramientas/foro.mjs` o desde el navegador en `admin.html`: un panel con las sugerencias por estado (empieza por «en desarrollo»), incluidas las ocultas. La página es pública, pero sin la clave no muestra nada, porque el servidor la comprueba en cada petición. La clave se guarda solo en ese navegador, y solo si marcas «Recordar».
+- **Denuncias.** Cada sugerencia y cada comentario (salvo las respuestas oficiales) tienen un botón «Denunciar»: se elige el motivo (spam, ofensivo, datos personales, ilegal u otro) y, si se quiere, se explica. Va a la tabla `denuncias` (`/api/denuncias`, una por conexión y contenido, como mucho 10 por hora). En `admin.html`, pestaña «Denuncias», salen agrupadas por contenido: «Ocultar» lo quita del foro y «No hace falta» la da por revisada.
 
 ### Ponerlo en marcha (una vez)
 
@@ -256,7 +344,7 @@ node herramientas/foro.mjs ocultar 12                   # o mostrar, ocultar-com
 
 ## Cuentas de usuario
 
-Son opcionales: se juega igual sin cuenta. La especificación completa está en `PERFILES.md`, y el código, en `servidor/cuenta.js` (rutas `/api/cuenta/*`), `servidor/sesion.js`, `servidor/google.js`, `servidor/correo.js`, `shell/cuenta.js`, `entrar.html` y `cuenta.html`.
+Son opcionales: se juega igual sin cuenta. La especificación completa está en `docs/PERFILES.md`, y el código, en `servidor/cuenta.js` (rutas `/api/cuenta/*`), `servidor/sesion.js`, `servidor/google.js`, `servidor/correo.js`, `shell/cuenta.js`, `entrar.html` y `cuenta.html`.
 
 - **Entrar.** Con Google o con el correo. Al correo llega un enlace y un código de 6 cifras. Los dos caducan en 15 minutos y solo sirven una vez. El código sirve para entrar en un dispositivo distinto del que lee el correo, por ejemplo, en las gafas. No hay contraseñas. Si el correo coincide, Google y el enlace llevan a la misma cuenta.
 - **La primera vez** se elige el alias, se escribe el año de nacimiento (hay que tener 14 años o más; si no, la cuenta se borra en el acto) y se aceptan el aviso legal y la privacidad.
@@ -281,7 +369,7 @@ Son opcionales: se juega igual sin cuenta. La especificación completa está en 
 
 **Publicarlas.** `CUENTAS` en `wrangler.jsonc` (`vars`) decide si se ve el botón «Entrar». Con `"0"` solo lo ve quien abre la web con `?perfiles=1`, que se recuerda en ese navegador (`?perfiles=0` lo quita): sirve para probarlas en producción antes de enseñarlas. Para publicarlas, cambia el valor a `"1"` y súbelo a main. Quien ya ha entrado ve siempre su avatar.
 
-**Aún no están hechos** (ver `LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», bloquear cuentas, avisos de nuevos seguidores, recomendaciones en «Para ti», y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
+**Aún no están hechos** (ver `docs/LANZAMIENTO.md`): récords en la cuenta y clasificaciones, récords e insignias en el perfil, «Idea de @alias», bloquear cuentas, avisos de nuevos seguidores, recomendaciones en «Para ti», y vincular las gafas desde el menú de pausa en VR (de momento, en las gafas se entra en `entrar.html` con el código del correo).
 
 ### Probar el foro en local
 

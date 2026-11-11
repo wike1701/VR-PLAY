@@ -5,7 +5,7 @@
 //
 //   orden          'mayor' (más es mejor) o 'menor' (menos es mejor: tiempos, golpes)
 //   unidad         'puntos' | 'tiempo' (segundos, con décimas) | 'golpes' | 'diferencia' (al ganar a
-//                  la máquina: tus puntos menos los suyos; solo se envía si ganas)
+//                  la máquina: tus puntos menos los suyos; solo se envía si ganas) | 'recepciones' | 'metros'
 //   min, max       los valores posibles de una partida (contra trampas: el servidor rechaza lo demás)
 //   maxPorSegundo  en los juegos sin final fijo (sobrevivir), el máximo según lo que ha durado la partida
 //   minSegundos    lo mínimo que puede durar una partida, desde que se abre el juego o termina la anterior
@@ -35,7 +35,88 @@ export const MARCADORES = {
   tirapichon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 36, minSegundos: 10 },
   mosquitos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 3, minSegundos: 3 },
   // Slot: el circuito cambia en cada carrera, así que no se comparan tiempos sino puntos (1000 = la carrera perfecta)
+  // Picnic: 1 punto la mosca posada, 2 al vuelo y el doble la moscarda; sin final fijo (hasta que se pudren 3 platos)
+  picnic: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 5, minSegundos: 5 },
   slot: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1300, minSegundos: 10 },
+  // Dardos: 5 rondas de 3 dardos, como mucho 60 cada uno (triple 20)
+  dardos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
+  // Saco de Boxeo: 1 por diana (3 la dorada) × multiplicador de racha (hasta ×4), +1 si el golpe es potente
+  boxeo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 50 },
+  // Simón de Colores: 1 punto por tecla bien pulsada; sin final fijo (hasta el primer error)
+  simon: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 3, minSegundos: 3 },
+  // Balanceo: 1 punto por cubo esquivado (3 si pasa rozando) y 5 cada 15 s en equilibrio; sin final fijo (hasta que se cae)
+  balanceo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 8, minSegundos: 3 },
+  // Cazafantasmas: de 10 a 25 puntos por fantasma, +5 o +10 si se deshace lejos; sin final fijo (hasta que uno te alcanza)
+  cazafantasmas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 200000, maxPorSegundo: 45, minSegundos: 5 },
+  // Malabares: la cadena de recepciones seguidas más larga (como mucho unas 3 por segundo con 5 bolas)
+  malabares: { orden: 'mayor', unidad: 'recepciones', min: 0, max: 5000, maxPorSegundo: 4, minSegundos: 5 },
+  // Air Hockey: partido a 7 goles; solo cuenta si ganas, con la diferencia (de 7-6 a 7-0)
+  airhockey: { orden: 'mayor', unidad: 'diferencia', min: 1, max: 7, minSegundos: 20 },
+  // Cinta Mecánica: 1 punto por objeto bien clasificado; sale uno cada 0,9 s como mucho (hasta 3 fallos)
+  cinta: { orden: 'mayor', unidad: 'puntos', min: 0, max: 10000, maxPorSegundo: 1.5, minSegundos: 5 },
+  // Canoa: metros recorridos río abajo hasta volcar 3 veces (la canoa no pasa de ~9 m/s)
+  canoa: { orden: 'mayor', unidad: 'metros', min: 0, max: 100000, maxPorSegundo: 10, minSegundos: 5 },
+  // Last Call: turno de 60 s; cada bebida da de 3 a 10 puntos (con la propina), el doble si es especial
+  bar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 600, minSegundos: 55 },
+  // ¡Que no explote!: 3 bombas (2, 3 y 4 módulos); por bomba, 100 por módulo + 5 por segundo que sobra - 20 por error
+  bomba: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1600, minSegundos: 12 },
+  // Fusión de Frutas (cajón en 3D): 150 s; puntos por cada fruta creada (2 a 50) por el combo (hasta x6).
+  // En las simulaciones salen de 1.200 a 3.300; margen para los combos largos
+  fusion: { orden: 'mayor', unidad: 'puntos', min: 0, max: 8000, maxPorSegundo: 60, minSegundos: 25 },
+  // Penaltis de Balonmano: 10 lanzamientos; gol 10 (+5 a la escuadra), el doble desde el tercer gol seguido.
+  // El máximo es 15 + 15 + 8 × 30 = 270; cada lanzamiento tarda al menos unos 3 s con el silbato y la pausa
+  balonmano: { orden: 'mayor', unidad: 'puntos', min: 0, max: 270, minSegundos: 25 },
+  // Torre de Bloques: 1 punto por bloque y 2 si es perfecto; sin final fijo (hasta que uno no toca la torre)
+  torre: { orden: 'mayor', unidad: 'puntos', min: 0, max: 5000, maxPorSegundo: 6, minSegundos: 3 },
+  // Atrapa Huevos: 1 punto por huevo y 5 el dorado; sin final fijo (hasta romper 3 o coger 3 podridos)
+  huevos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 6, minSegundos: 3 },
+  // Tumba Latas: 5 rondas; 1 por lata (42 en total) y por ronda 5 por tirarlas todas + 5 por pelota que sobra (como mucho 15)
+  latas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 120, minSegundos: 20 },
+  // Lanza Aros: 10 aros; cada uno vale de 1 a 4 según la fila de la botella y 5 la dorada
+  aros: { orden: 'mayor', unidad: 'puntos', min: 0, max: 50, minSegundos: 10 },
+  // Laberinto: 2 minutos; 100 por laberinto + hasta 60 por rapidez (como mucho unos 10 laberintos)
+  laberinto: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 110 },
+  // Tambores: canción de 75 s; perfecto 3 y bien 1, por la racha (hasta x4). Unas 220 notas como mucho
+  tambores: { orden: 'mayor', unidad: 'puntos', min: 0, max: 3500, minSegundos: 70 },
+  // Bomberos: 10-15 puntos por fuego, sin límite de tiempo (acaba cuando se quema el edificio)
+  bomberos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 12, minSegundos: 5 },
+  // Tortitas: hasta 15 puntos por vuelta y 10 por tortita servida, en 75 s
+  tortitas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1200, maxPorSegundo: 15, minSegundos: 70 },
+  // Bolas de nieve: 10-15 puntos por acierto, sin tiempo (acaba al recibir tres bolas)
+  nieve: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 5 },
+  // Skee-Ball: 9 bolas, de 10 a 100 puntos cada una
+  skeeball: { orden: 'mayor', unidad: 'puntos', min: 0, max: 900, minSegundos: 15 },
+  // Toques con pala: 1-6 puntos por toque y 10 por estrella, sin tiempo (acaba al caer tres pelotas)
+  toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
+  // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
+  // Xilófono: perfecto 3 y bien 1 por la racha (hasta x4), y 10 × el número de la canción al completarla
+  // (como mucho 150); sin final fijo (hasta perder 3 notas). Simulando partidas perfectas sale de 28 puntos/s
+  // a los 5 minutos a 43 en una hora, cuando ya va a la velocidad máxima
+  xilofono: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 5 },
+  // Frontón de Ping Pong: 1 punto por golpe dentro de la zona de la pared y +5 por diana; sin final fijo
+  // (hasta que la bola sale, no llega, bota dos veces o se escapa)
+  fronton: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
+  // Leñador: 1 punto por hachazo; sin final fijo (hasta que te da una rama o se acaba la barra de tiempo).
+  // La barra obliga a ir cada vez más deprisa (hasta unos 3,75 hachazos por segundo); con ratón o dos dedos se puede ir mucho más rápido
+  lenador: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 14, minSegundos: 2 },
+  // Defensa del Castillo: 10/20/40 puntos por soldado/escudero/ariete (+5 desde lejos) y 15 por globo;
+  // sin final fijo (hasta que la puerta recibe 5 golpes). Los enemigos salen como mucho cada 0,4 s
+  castillo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 10 },
+  // Billar de Trucos: 25 por reto cumplido y, por mesa superada, 100 + 60 por tiro de sobra (+150 si todo de un
+  // tiro); sin final fijo (hasta perder 3 vidas). Cada mesa necesita al menos unos segundos
+  billar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 100, minSegundos: 10 },
+  // Combate de Boxeo: daño hecho al robot (de 2 a ~24 por golpe), +5 por esquivar y, por K.O., 50 × el número de
+  // combate (+100 si no te ha dado); sin final fijo (hasta que tu vida llega a 0)
+  ring: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 8 },
+  // Futbolín: 100 × el número de máquina por gol tuyo y 500 × la máquina por partido ganado; la racha acaba
+  // al perder un partido (a 5 goles, así que dura al menos unos segundos)
+  futbolin: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 300, minSegundos: 20 },
+  // Prisma: 100 × el número de sala por sala superada; sin final fijo (hasta que se acaba el reloj, que empieza
+  // con 3 minutos y recupera de 1 minuto a medio por sala). Cada sala necesita al menos unos segundos
+  prisma: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 250, minSegundos: 5 },
+  // Escalada contra la Lava: metros subidos hasta caer o hasta que te alcanza la lava (con ratón se sube como
+  // mucho ~1 m por clic y la pared tarda un momento en llegar; con las manos, bastante menos)
+  escalada: { orden: 'mayor', unidad: 'metros', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

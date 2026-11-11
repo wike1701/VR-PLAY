@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Tensa el arco. Respira. Suelta.",
+    "frases": [
+      {
+        "texto": "En realidad virtual, el arco lo tensas tú de verdad.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Los patos cruzan el cielo delante de ti.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Los dorados valen cinco puntos.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mira esta flecha a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sesenta segundos para cazar todos los que puedas.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Draw the bow. Breathe. Release.",
+    "frases": [
+      {
+        "texto": "In virtual reality, you really draw the bow yourself.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Ducks fly across the sky in front of you.",
+        "plano": "pov"
+      },
+      {
+        "texto": "The golden ones are worth five points.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Watch this arrow in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sixty seconds to hit as many as you can.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

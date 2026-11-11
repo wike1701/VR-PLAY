@@ -42,7 +42,7 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
   const azar = (a, b) => a + Math.random() * (b - a);
 
-  ctx.fondo(0x070a1c, { cenit: new THREE.Color(0x020309), horizonte: new THREE.Color(0x0d1233), suelo: new THREE.Color(0x020309) });
+  ctx.fondo(0x070a1c, { cenit: new THREE.Color(0x020309), horizonte: new THREE.Color(0x0d1233), suelo: new THREE.Color(0x020309), estrellas: 0.5, niebla: [70, 150] });
   ctx.sueloBase(false);
   // Sin gafas, la cámara va en la cabina (centro de la cabina a 1,2 m, ver centroCabina)
   // (un poco detrás de los ojos: sin gafas el campo de visión es más estrecho)
@@ -52,10 +52,6 @@ export function iniciar(ctx) {
   const camaraLejos = ctx.camara.far;
   ctx.camara.far = 600;
   ctx.camara.updateProjectionMatrix();
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 70;
-  niebla.far = 150;
 
   // Todo lo del espacio va en este grupo (ver el comentario de arriba)
   const mundo = new THREE.Group();
@@ -106,7 +102,7 @@ export function iniciar(ctx) {
   const centroCabina = new THREE.Vector3(0, 1.2, 0);       // dónde está la cabina en la sala
   const matBlanco = R(new THREE.MeshStandardMaterial({ color: 0xe8ecf2, metalness: 0.5, roughness: 0.35 }));
   const matAzul = R(new THREE.MeshStandardMaterial({ color: 0x1e88e5, metalness: 0.4, roughness: 0.3 }));
-  const matPanel = R(new THREE.MeshStandardMaterial({ color: 0x263238, metalness: 0.6, roughness: 0.5 }));
+  const matPanel = R(new THREE.MeshLambertMaterial({ color: 0x263238 }));
   const matGris = R(new THREE.MeshStandardMaterial({ color: 0x78909c, metalness: 0.8, roughness: 0.3 }));
   const salpicadero = new THREE.Mesh(R(new THREE.BoxGeometry(1.0, 0.12, 0.32)), matPanel);
   salpicadero.position.set(0, -0.02, -0.52);
@@ -173,7 +169,7 @@ export function iniciar(ctx) {
     geoRoca.computeVertexNormals();
   }
   const MAX_ASTEROIDES = 60;
-  const mallaAsteroides = new THREE.InstancedMesh(geoRoca, R(new THREE.MeshStandardMaterial({ color: 0x8d7b6a, roughness: 0.95, flatShading: true })), MAX_ASTEROIDES);
+  const mallaAsteroides = new THREE.InstancedMesh(geoRoca, R(new THREE.MeshLambertMaterial({ color: 0x8d7b6a, flatShading: true })), MAX_ASTEROIDES);
   mallaAsteroides.frustumCulled = false;
   mallaAsteroides.count = 0;
   mundo.add(mallaAsteroides);
@@ -225,8 +221,8 @@ export function iniciar(ctx) {
   });
 
   // ─── Cazas enemigos ────────────────────────────────────────────────────
-  const matCaza = R(new THREE.MeshStandardMaterial({ color: 0x8e2b2b, metalness: 0.5, roughness: 0.45 }));
-  const matCazaOscuro = R(new THREE.MeshStandardMaterial({ color: 0x37323a, metalness: 0.6, roughness: 0.4 }));
+  const matCaza = R(new THREE.MeshLambertMaterial({ color: 0x8e2b2b }));
+  const matCazaOscuro = R(new THREE.MeshLambertMaterial({ color: 0x37323a }));
   const matOjo = R(new THREE.MeshBasicMaterial({ color: 0xff1744 }));
   const geoCuerpoCaza = R(new THREE.OctahedronGeometry(0.4, 0).scale(1, 0.45, 1.5));
   const geoAlaCaza = R(new THREE.BoxGeometry(1.5, 0.05, 0.4));
@@ -248,14 +244,14 @@ export function iniciar(ctx) {
   // ─── Nave nodriza ──────────────────────────────────────────────────────
   const jefe = { activo: false, grupo: new THREE.Group(), pos: new THREE.Vector3(), vel: new THREE.Vector3(), vida: VIDA_JEFE, tiempo: 0, proximoDisparo: 0, radio: 2.6, escapando: false, golpe: 0 };
   {
-    const matCasco = R(new THREE.MeshStandardMaterial({ color: 0x455a64, metalness: 0.7, roughness: 0.4 }));
+    const matCasco = R(new THREE.MeshLambertMaterial({ color: 0x455a64 }));
     const casco = new THREE.Mesh(R(new THREE.BoxGeometry(4.2, 0.9, 3.2)), matCasco);
     const proa = new THREE.Mesh(R(new THREE.ConeGeometry(1.2, 2, 4).rotateX(Math.PI / 2).rotateZ(Math.PI / 4)), matCazaOscuro);
     proa.scale.set(1.6, 0.6, 1);
     proa.position.z = 2.4;
     const alas = new THREE.Mesh(R(new THREE.BoxGeometry(8.5, 0.25, 1.8)), matCaza);
     alas.position.z = -0.4;
-    const nucleo = new THREE.Mesh(R(new THREE.SphereGeometry(0.65, 20, 14)), R(new THREE.MeshStandardMaterial({ color: 0xff1744, emissive: 0xff1744, emissiveIntensity: 1 })));
+    const nucleo = new THREE.Mesh(R(new THREE.SphereGeometry(0.65, 20, 14)), R(new THREE.MeshLambertMaterial({ color: 0xff1744, emissive: 0xff1744, emissiveIntensity: 1 })));
     nucleo.position.set(0, -0.35, 1.6);
     const geoCanon = R(new THREE.CylinderGeometry(0.12, 0.15, 1.2, 8).rotateX(Math.PI / 2));
     for (const s of [-1, 1]) {
@@ -468,6 +464,7 @@ export function iniciar(ctx) {
     ctx.sonido('impacto');
     ctx.destello(0xff1744, 0.35);
     for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.9, 200);
+    ctx.efectos.impacto('medio');
     if (escudo <= 0) {
       explosion(tmp.copy(posNave).add(tmp3.set(0, 0, -1.5)), 2.2, 0xff6d00);
       ctx.destello(0xff6d00, 0.6);
@@ -795,6 +792,8 @@ export function iniciar(ctx) {
           sumar(PUNTOS.caza);
           derribos++;
           explosion(c.pos, 1.2);
+          ctx.efectos.impacto('medio');
+          ctx.efectos.texto(c.pos, `+${PUNTOS.caza}`, { color: '#ffd740', tam: 1.6 });
         } else {
           explosion(c.pos, 0.4, 0xffffff);
         }
@@ -824,9 +823,11 @@ export function iniciar(ctx) {
           jefe.activo = false;
           sumar(PUNTOS.jefe);
           derribos++;
-          for (let k = 0; k < 4; k++) explosion(tmp.copy(jefe.pos).add(new THREE.Vector3(azar(-3, 3), azar(-0.6, 0.6), azar(-1, 1))), 2.2, k % 2 ? 0xff6d00 : 0xffd740);
+          for (let k = 0; k < 4; k++) explosion(tmp.copy(jefe.pos).add(tmp3.set(azar(-3, 3), azar(-0.6, 0.6), azar(-1, 1))), 2.2, k % 2 ? 0xff6d00 : 0xffd740);
           jefe.grupo.visible = false;
           ctx.destello(0xffd740, 0.4);
+          ctx.efectos.impacto('grande');
+          ctx.efectos.texto(jefe.pos, `+${PUNTOS.jefe}`, { color: '#ffd740', tam: 3, vida: 1.6 });
           terminarMision(ctx.t('cumplida'), '#b9f6ca', true);
         }
       }
@@ -1043,8 +1044,6 @@ export function iniciar(ctx) {
       propulsor.parar();
       ctx.camara.far = camaraLejos;
       ctx.camara.updateProjectionMatrix();
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

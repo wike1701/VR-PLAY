@@ -1,0 +1,46 @@
+{
+  "es": {
+    "gancho": "La petanca del pueblo, en realidad virtual.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y lanza la bola con tu mano.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Acércala al boliche todo lo que puedas.",
+        "plano": "pov"
+      },
+      {
+        "texto": "O saca la del rival de un golpe.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Partida a siete puntos contra la máquina.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Classic pétanque, in virtual reality.",
+    "frases": [
+      {
+        "texto": "Put on your headset and throw the ball by hand.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Get it as close to the jack as you can.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Or knock your opponent’s ball away in one shot.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "A game to seven points against the CPU.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

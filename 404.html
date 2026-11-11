@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title data-i18n="noEncontrada.tituloPagina">Página no encontrada · VR Play</title>
+<!-- Cloudflare la sirve (con estado 404) en cualquier dirección que no existe, también en /a/b/c:
+     por eso todas las rutas de esta página empiezan por «/». -->
+<script src="/idiomas/detectar.js"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#0a0b10">
+<link rel="preload" href="/estilos/fuentes/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/estilos/base.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+  main { max-width: 520px; padding: 32px 16px; text-align: center; }
+  .logo { display: inline-block; margin-bottom: 28px; font-weight: 800; font-size: 1.3rem; letter-spacing: 0.04em; text-decoration: none; color: var(--fg); }
+  .logo span { color: var(--accent); }
+  .codigo { margin: 0; font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 0.2em; color: var(--accent-2); }
+  h1 { margin: 6px 0 12px; font-size: clamp(1.6rem, 5vw, 2.2rem); line-height: 1.15; }
+  p { color: var(--muted); }
+  .acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+  .boton {
+    display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 12px;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--sobre-accent);
+    font-weight: 600; text-decoration: none;
+  }
+  .boton:hover { filter: brightness(1.1); }
+  .boton.secundario { background: transparent; color: var(--fg); border-color: var(--line); }
+  .boton.secundario:hover { border-color: var(--accent); filter: none; }
+  .idioma { margin-top: 32px; }
+  .selector-idioma {
+    padding: 4px 8px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--fg); font: inherit; font-size: 0.85rem; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="logo" href="/">VR<span>·</span>Play</a>
+  <p class="codigo">404</p>
+  <h1 data-i18n="noEncontrada.titulo">Esta página no existe</h1>
+  <p data-i18n="noEncontrada.texto">Puede que el enlace esté mal escrito o que la página ya no exista. Los juegos siguen en su sitio.</p>
+  <div class="acciones">
+    <a class="boton" href="/" data-i18n="noEncontrada.irAJuegos">Ir a los juegos</a>
+    <a class="boton secundario" href="/foro.html" data-i18n="noEncontrada.sugerir">Sugerir un juego</a>
+  </div>
+  <div class="idioma"><span data-selector-idioma></span></div>
+</main>
+<script type="module" src="/idiomas/idiomas.js"></script>
+</body>
+</html>

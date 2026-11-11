@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "¿Le ganarías un punto a la máquina?",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y estás en la arena.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Golpea el balón con las manos.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Pásalo por encima de la red.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Mira este remate a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Partido a once puntos contra la máquina.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "Sun, sand and a one-on-one.",
+    "frases": [
+      {
+        "texto": "Put on your headset and you’re on the beach.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Hit the ball with your hands.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Send it over the net.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Watch this spike in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "A match to eleven against the CPU.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

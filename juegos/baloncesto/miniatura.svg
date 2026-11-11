@@ -1,31 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1f1a2e"/>
-      <stop offset="0.72" stop-color="#3b2f55"/>
-      <stop offset="0.72" stop-color="#c8935a"/>
-      <stop offset="1" stop-color="#a87442"/>
+      <stop offset="0" stop-color="#151226"/>
+      <stop offset="1" stop-color="#2e2440"/>
     </linearGradient>
+    <radialGradient id="foco" cx="0.66" cy="0.3" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="parquet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9a066"/>
+      <stop offset="1" stop-color="#9a6436"/>
+    </linearGradient>
+    <radialGradient id="balon" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffab5e"/>
+      <stop offset="0.6" stop-color="#e2671f"/>
+      <stop offset="1" stop-color="#9a3d0e"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Tablero -->
-  <rect x="190" y="40" width="180" height="110" rx="4" fill="#f5f5f5"/>
-  <rect x="250" y="84" width="60" height="46" fill="none" stroke="#ff5722" stroke-width="5"/>
-  <!-- Aro y red -->
-  <ellipse cx="280" cy="140" rx="42" ry="9" fill="none" stroke="#ff5722" stroke-width="6"/>
-  <path d="M238 140 L254 196 L306 196 L322 140" fill="none" stroke="#fff" stroke-width="2.5"/>
-  <path d="M252 142 L266 196 M266 144 L276 196 M280 145 L280 196 M294 144 L286 196 M308 142 L296 196" stroke="#fff" stroke-width="2" opacity="0.8"/>
-  <!-- Trayectoria -->
-  <path d="M70 330 Q150 30 268 120" fill="none" stroke="#ffcc80" stroke-width="4" stroke-dasharray="10 12" opacity="0.7"/>
-  <!-- Balón -->
-  <g transform="translate(232 112)">
-    <circle r="30" fill="#e8681c"/>
-    <path d="M-30 0 H30 M0 -30 V30" stroke="#2b1a10" stroke-width="3"/>
-    <path d="M-21 -21 Q-6 0 -21 21 M21 -21 Q6 0 21 21" fill="none" stroke="#2b1a10" stroke-width="3"/>
+  <!-- Gradas y focos del pabellón -->
+  <g fill="#2a50a8" opacity="0.8"><rect x="0" y="236" width="400" height="10"/><rect x="0" y="254" width="400" height="10"/><rect x="0" y="272" width="400" height="10"/></g>
+  <g fill="#fff6e0"><rect x="40" y="26" width="60" height="8" rx="3"/><rect x="170" y="20" width="60" height="8" rx="3"/><rect x="300" y="26" width="60" height="8" rx="3"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <path d="M0 290 H400 V400 H0 Z" fill="url(#parquet)"/>
+  <path d="M120 400 L170 290 H230 L280 400 Z" fill="#b8402e" opacity="0.8"/>
+  <!-- Tablero y aro -->
+  <rect x="268" y="214" width="12" height="80" fill="#2b2f36"/>
+  <rect x="196" y="56" width="168" height="112" rx="8" fill="#f4f6f8"/>
+  <rect x="196" y="56" width="168" height="112" rx="8" fill="none" stroke="#c43c2c" stroke-width="8"/>
+  <rect x="246" y="102" width="68" height="50" fill="none" stroke="#c43c2c" stroke-width="6"/>
+  <ellipse cx="280" cy="164" rx="44" ry="11" fill="none" stroke="#ff5a2a" stroke-width="7"/>
+  <path d="M238 166 L254 220 M262 170 L268 222 M296 170 L290 222 M322 166 L306 220 M248 192 Q280 204 312 192" fill="none" stroke="#f1f1f1" stroke-width="3.5" opacity="0.9"/>
+  <!-- Balón entrando, con su parábola -->
+  <path d="M30 380 Q90 70 250 120" fill="none" stroke="url(#estela)" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="268" cy="132" r="42" fill="url(#balon)"/>
+  <g fill="none" stroke="#3b1505" stroke-width="3.5" opacity="0.75">
+    <path d="M226 132 H310"/><path d="M268 90 V174"/><path d="M238 102 Q258 132 238 162"/><path d="M298 102 Q278 132 298 162"/>
   </g>
-  <!-- Estrellas de canasta -->
-  <g fill="#ffeb3b">
-    <path d="M150 70 l6 13 14 2 -11 9 4 14 -13 -8 -13 8 4 -14 -11 -9 14 -2z"/>
-    <path d="M352 210 l5 10 11 2 -8 7 3 11 -11 -6 -10 6 3 -11 -8 -7 11 -2z"/>
-  </g>
+  <ellipse cx="282" cy="160" rx="44" ry="11" fill="none" stroke="#ff5a2a" stroke-width="7" stroke-dasharray="0 70 60 200"/>
+  <g fill="#ffd0b8"><circle cx="210" cy="96" r="4"/><circle cx="196" cy="128" r="3"/><circle cx="318" cy="100" r="3.5"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

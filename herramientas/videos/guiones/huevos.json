@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Las gallinas no paran de poner.",
+    "frases": [
+      {
+        "texto": "Coge los huevos con las cestas.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Si una gallina cacarea, va a soltar uno.",
+        "plano": "pov"
+      },
+      {
+        "texto": "El dorado vale cinco puntos.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Y el podrido, déjalo caer.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cada vez van más rápido.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "These hens never stop laying.",
+    "frases": [
+      {
+        "texto": "Catch the eggs with your baskets.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "When a hen clucks, an egg is coming.",
+        "plano": "pov"
+      },
+      {
+        "texto": "The golden one is worth five.",
+        "plano": "partida"
+      },
+      {
+        "texto": "And the rotten one, let it drop.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "They just keep getting faster.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

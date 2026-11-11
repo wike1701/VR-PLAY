@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a77a4c"/>
+      <stop offset="0.5" stop-color="#8a6038"/>
+      <stop offset="1" stop-color="#5a3d22"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#ffd9a0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="interior" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4626"/>
+      <stop offset="1" stop-color="#3e2714"/>
+    </linearGradient>
+    <linearGradient id="liston" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2b277"/>
+      <stop offset="1" stop-color="#b9824a"/>
+    </linearGradient>
+    <radialGradient id="sandia" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#7fd06c"/>
+      <stop offset="0.6" stop-color="#3d9a46"/>
+      <stop offset="1" stop-color="#1f5e2a"/>
+    </radialGradient>
+    <radialGradient id="naranja" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#ffd08a"/>
+      <stop offset="0.6" stop-color="#ff9a2e"/>
+      <stop offset="1" stop-color="#c8641a"/>
+    </radialGradient>
+    <radialGradient id="melon" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#f1f8c6"/>
+      <stop offset="0.6" stop-color="#c8e27d"/>
+      <stop offset="1" stop-color="#8fae4c"/>
+    </radialGradient>
+    <radialGradient id="uva" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#c9a0f0"/>
+      <stop offset="0.6" stop-color="#8e4fc0"/>
+      <stop offset="1" stop-color="#55267f"/>
+    </radialGradient>
+    <radialGradient id="cereza" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#ff8a9a"/>
+      <stop offset="0.6" stop-color="#d81b3c"/>
+      <stop offset="1" stop-color="#8e0f26"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+    <clipPath id="boca"><path d="M96 168 L304 168 L336 300 L64 300 Z"/></clipPath>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Mantel de cuadros en perspectiva -->
+  <path d="M30 150 H370 L400 400 H0 Z" fill="#f4eadb"/>
+  <g fill="#d6403a" opacity="0.45">
+    <path d="M60 150 h30 l-12 250 h-40 Z"/><path d="M140 150 h30 l-4 250 h-40 Z"/><path d="M230 150 h30 l6 250 h-40 Z"/><path d="M310 150 h30 l16 250 h-40 Z"/>
+    <rect x="20" y="190" width="370" height="26"/><rect x="10" y="270" width="385" height="32"/><rect x="0" y="360" width="400" height="38"/>
+  </g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="372" rx="170" ry="20" fill="url(#sombra)"/>
+  <!-- Interior del cajón, visto desde arriba -->
+  <path d="M96 168 L304 168 L336 300 L64 300 Z" fill="url(#interior)"/>
+  <g fill="#8a5a30" opacity="0.6"><path d="M100 184 H300 l3 12 H97 Z"/><path d="M104 206 H296 l3 12 H101 Z"/></g>
+  <!-- Frutas amontonadas dentro -->
+  <g clip-path="url(#boca)">
+    <circle cx="140" cy="262" r="62" fill="url(#sandia)"/>
+    <g fill="none" stroke="#1f5e2a" stroke-width="6" opacity="0.55"><path d="M110 210 Q100 260 116 318"/><path d="M144 200 Q132 262 146 324"/><path d="M178 214 Q170 262 180 312"/></g>
+    <circle cx="266" cy="262" r="50" fill="url(#melon)"/>
+    <path d="M266 214 Q252 262 266 310" stroke="#eef7c4" stroke-width="6" fill="none"/>
+    <circle cx="214" cy="226" r="34" fill="url(#naranja)"/>
+    <circle cx="270" cy="200" r="24" fill="url(#uva)"/>
+    <circle cx="180" cy="200" r="19" fill="url(#cereza)"/>
+  </g>
+  <!-- Aro coral donde quedará apoyada la cereza, encima del montón -->
+  <ellipse cx="180" cy="184" rx="20" ry="8" fill="none" stroke="#ff6a3d" stroke-width="5"/>
+  <!-- Paredes de listones: delante (más grande) y laterales -->
+  <path d="M64 300 L336 300 L336 360 L64 360 Z" fill="url(#liston)"/>
+  <g fill="#6e4423"><rect x="64" y="318" width="272" height="5"/><rect x="64" y="340" width="272" height="5"/></g>
+  <path d="M64 300 L96 168 L84 168 L50 300 Z" fill="#c48d55"/>
+  <path d="M336 300 L304 168 L316 168 L350 300 Z" fill="#a8743f"/>
+  <path d="M84 160 H316 L320 170 H80 Z" fill="#d9a768"/>
+  <path d="M50 296 H350 V306 H50 Z" fill="#e7bb80"/>
+  <g fill="#7a4c26"><rect x="48" y="296" width="18" height="68" rx="3"/><rect x="334" y="296" width="18" height="68" rx="3"/></g>
+  <!-- Cereza cayendo por la guía hacia su aro -->
+  <path d="M176 40 L184 40 L184 176 L176 176 Z" fill="url(#estela)"/>
+  <circle cx="180" cy="72" r="24" fill="url(#cereza)"/>
+  <path d="M180 50 Q186 32 200 22" stroke="#4f8f2f" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="206" cy="26" rx="12" ry="5" transform="rotate(-25 206 26)" fill="#4caf50"/>
+  <ellipse cx="172" cy="64" rx="7" ry="4" fill="#ffffff" opacity="0.5"/>
+  <!-- Chispas -->
+  <g fill="#ffd0b8"><circle cx="130" cy="120" r="4"/><circle cx="240" cy="110" r="3.5"/><circle cx="226" cy="146" r="3"/></g>
+  <g fill="#ff6a3d"><circle cx="150" cy="140" r="3"/><circle cx="250" cy="132" r="3"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

@@ -1,31 +1,102 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
-    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2b1846"/>
-      <stop offset="1" stop-color="#8a2f3c"/>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1233"/>
+      <stop offset="0.62" stop-color="#3a1f45"/>
+      <stop offset="1" stop-color="#24140f"/>
     </linearGradient>
+    <linearGradient id="papel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d9a4" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffb070" stop-opacity="0.42"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.52" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffb37a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffb37a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="corteza" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#8fd16a"/>
+      <stop offset="0.55" stop-color="#3d8f3a"/>
+      <stop offset="1" stop-color="#1d4f22"/>
+    </radialGradient>
+    <linearGradient id="pulpa" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7a86"/>
+      <stop offset="1" stop-color="#e2294a"/>
+    </linearGradient>
+    <linearGradient id="hoja" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9aa6b4"/>
+      <stop offset="0.5" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#b9c4d0"/>
+    </linearGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#ff6a3d" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd0b8" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+    <clipPath id="arriba"><path d="M0 0 H400 L0 400 Z"/></clipPath>
+    <clipPath id="abajo"><path d="M400 0 V400 H0 Z"/></clipPath>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
-  <circle cx="320" cy="80" r="46" fill="#ff7043" opacity="0.35"/>
-  <g transform="translate(205 220) rotate(-16)">
-    <path d="M-135 0 A135 135 0 0 0 135 0 Z" fill="#2e7d32"/>
-    <path d="M-121 0 A121 121 0 0 0 121 0 Z" fill="#c8e6c9"/>
-    <path d="M-110 0 A110 110 0 0 0 110 0 Z" fill="#ff4060"/>
-    <g fill="#1b1b1b">
-      <ellipse cx="-62" cy="28" rx="6" ry="10" transform="rotate(-20 -62 28)"/>
-      <ellipse cx="-24" cy="58" rx="6" ry="10" transform="rotate(-8 -24 58)"/>
-      <ellipse cx="18" cy="30" rx="6" ry="10"/>
-      <ellipse cx="56" cy="56" rx="6" ry="10" transform="rotate(12 56 56)"/>
-      <ellipse cx="78" cy="22" rx="6" ry="10" transform="rotate(24 78 22)"/>
-      <ellipse cx="-4" cy="82" rx="6" ry="10"/>
+  <!-- Mampara de papel iluminada y vigas -->
+  <rect x="0" y="70" width="400" height="250" fill="url(#papel)"/>
+  <g fill="#2a1710" opacity="0.55">
+    <rect x="0" y="134" width="400" height="5"/><rect x="0" y="200" width="400" height="5"/><rect x="0" y="266" width="400" height="5"/>
+    <rect x="66" y="70" width="5" height="250"/><rect x="200" y="70" width="5" height="250"/><rect x="334" y="70" width="5" height="250"/>
+  </g>
+  <g fill="#1e100a"><rect x="0" y="58" width="400" height="16"/><rect x="128" y="58" width="14" height="262"/><rect x="262" y="58" width="14" height="262"/></g>
+  <rect x="0" y="318" width="400" height="82" fill="#2a1710"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="205" cy="338" rx="120" ry="16" fill="url(#sombra)"/>
+  <!-- Estela del corte -->
+  <path d="M40 360 Q120 170 352 46 Q170 210 70 372 Z" fill="url(#estela)"/>
+  <!-- Sandía partida: mitad de arriba a la izquierda -->
+  <g transform="translate(-16 -16)" clip-path="url(#arriba)">
+    <circle cx="205" cy="205" r="108" fill="url(#corteza)"/>
+    <g fill="none" stroke="#1d4f22" stroke-width="9" opacity="0.5">
+      <path d="M140 118 Q120 200 150 290"/><path d="M190 98 Q175 200 200 310"/><path d="M240 100 Q235 160 260 220"/>
     </g>
   </g>
-  <path d="M62 338 L338 62" stroke="#ffffff" stroke-width="22" stroke-linecap="round" opacity="0.18"/>
-  <path d="M62 338 L338 62" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
-  <g fill="#ff4060">
-    <circle cx="250" cy="120" r="9"/>
-    <circle cx="276" cy="150" r="6"/>
-    <circle cx="228" cy="96" r="5"/>
-    <circle cx="120" cy="300" r="7"/>
+  <!-- Mitad de abajo a la derecha, con la cara del corte a la vista -->
+  <g transform="translate(16 16)">
+    <g clip-path="url(#abajo)">
+      <circle cx="205" cy="205" r="108" fill="url(#corteza)"/>
+      <g fill="none" stroke="#1d4f22" stroke-width="9" opacity="0.5">
+        <path d="M300 150 Q290 240 250 300"/><path d="M262 120 Q270 220 220 312"/>
+      </g>
+    </g>
+    <g transform="rotate(-45 205 205)">
+      <ellipse cx="205" cy="205" rx="108" ry="34" fill="#2e6f2e"/>
+      <ellipse cx="205" cy="205" rx="101" ry="30" fill="#e6f5d0"/>
+      <ellipse cx="205" cy="205" rx="93" ry="26" fill="url(#pulpa)"/>
+      <g fill="#2a1414">
+        <ellipse cx="150" cy="200" rx="5" ry="3"/><ellipse cx="180" cy="214" rx="5" ry="3"/><ellipse cx="208" cy="196" rx="5" ry="3"/>
+        <ellipse cx="236" cy="212" rx="5" ry="3"/><ellipse cx="262" cy="200" rx="5" ry="3"/><ellipse cx="196" cy="221" rx="4" ry="2.5"/>
+      </g>
+      <ellipse cx="180" cy="196" rx="40" ry="6" fill="#ffffff" opacity="0.22"/>
+    </g>
   </g>
+  <!-- Katana atravesando el corte -->
+  <g transform="rotate(-45 200 200)">
+    <path d="M200 192 H392 L402 199 L392 206 H200 Z" fill="url(#hoja)"/>
+    <path d="M200 203 H394" stroke="#ff6a3d" stroke-width="3" opacity="0.9"/>
+    <rect x="186" y="185" width="12" height="30" rx="3" fill="#2b2420"/>
+    <rect x="96" y="191" width="90" height="18" rx="6" fill="#1b1414"/>
+    <g fill="#c9b994" opacity="0.85">
+      <path d="M104 191 l8 9 l-8 9 z"/><path d="M124 191 l8 9 l-8 9 z"/><path d="M144 191 l8 9 l-8 9 z"/><path d="M164 191 l8 9 l-8 9 z"/>
+    </g>
+  </g>
+  <!-- Gotas de zumo y chispas -->
+  <g fill="#ff4a64">
+    <circle cx="300" cy="112" r="11"/><circle cx="330" cy="150" r="7"/><circle cx="276" cy="82" r="6"/>
+    <circle cx="96" cy="250" r="9"/><circle cx="72" cy="214" r="5"/>
+  </g>
+  <g fill="#ffd0b8"><circle cx="352" cy="98" r="4"/><circle cx="116" cy="290" r="3.5"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

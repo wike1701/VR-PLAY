@@ -1,0 +1,80 @@
+{
+  "es": {
+    "gancho": "¡Esto *no* es un juego de móvil!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "La espada… la llevo *yo*.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "¡Zas! ¡Zas! ¡*Zas*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "¡No se me escapa *ni una*!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "Pero si tocas una *bomba*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "¡Se *acabó*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "¿Cuántas cortas *tú*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Juega *gratis* en VR Play. ¡Sin descargar nada!"
+  },
+  "en": {
+    "gancho": "This is *not* a phone game!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "The sword… is in *my* hand.",
+        "plano": "espectador",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "Slash! Slash! *Slash*!",
+        "plano": "pov",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Not a *single one* gets away!",
+        "plano": "zoom",
+        "golpe": true,
+        "efecto": "rampa"
+      },
+      {
+        "texto": "But hit a *bomb*…",
+        "plano": "partida",
+        "enfasis": 0.7
+      },
+      {
+        "texto": "and it's *over*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1
+      },
+      {
+        "texto": "How many can *you* slice?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Play it *free* on VR Play. No downloads!"
+  }
+}

@@ -42,7 +42,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b2230);
+  ctx.fondo(0x1b2230, { estrellas: 0.8 }); // feria de noche
   const vistaPos = new THREE.Vector3(0, 1.62, 0.3);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 1.85, Z_BARRA));
 
@@ -555,6 +555,8 @@ export function iniciar(ctx) {
     trozos(punto, matPalillo, 7, 1.2);
     ctx.sonido('clac');
     ctx.sonido('punto');
+    ctx.efectos.impacto(h.tipo.puntos >= 3 ? 'grande' : 'medio', { pos: punto, color: 0xffd54f });
+    ctx.efectos.texto(punto, `+${h.tipo.puntos}`, { color: '#b9f6ca', tam: 1.2 });
     avisar(ctx.t('premio', { n: h.tipo.puntos }), '#b9f6ca');
   }
 

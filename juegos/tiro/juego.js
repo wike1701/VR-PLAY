@@ -24,7 +24,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b2230);
+  ctx.fondo(0x1b2230, { estrellas: 0.8 }); // feria de noche
   const vistaPos = new THREE.Vector3(0, 1.6, 0.4);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 1.3, -6));
 
@@ -172,7 +172,6 @@ export function iniciar(ctx) {
     (x, y, z, nz) => (nz > 0.9 ? [x / (RADIO_CABEZA * 2) + 0.5, y / (RADIO_CABEZA * 2) + 0.5] : [0.5, 0.01]),
   ));
   const geoBase = R(new THREE.BoxGeometry(0.7, 0.08, 0.3));
-  const geoChispa = R(new THREE.TetrahedronGeometry(0.03));
 
   // Cartón pintado: color, grano, borde oscuro y el poste de madera en una esquina
   function pintarCarton(g, tam, azar, color) {
@@ -298,7 +297,6 @@ export function iniciar(ctx) {
   const matCabezaMalo = materialCarton(texCabezaMalo);
   const matCabezaBueno = materialCarton(texCabezaBueno);
   const matBase = R(new THREE.MeshLambertMaterial({ map: R(ctx.texturas.madera(0x4a3a30, { semilla: 9 })) }));
-  const matChispa = R(new THREE.MeshBasicMaterial({ color: 0xffe082 }));
 
   // Las bases no se mueven: todas en una malla instanciada
   const bases = new THREE.InstancedMesh(geoBase, matBase, HUECOS.length);
@@ -346,15 +344,36 @@ export function iniciar(ctx) {
   const geoFogonazo = R(new THREE.SphereGeometry(0.04, 8, 6));
   const matFogonazo = R(new THREE.MeshBasicMaterial({ color: 0xffd54f }));
   // Metal pavonado y cachas de madera, compartidos por las tres pistolas
-  const geoArmazon = R(fusionar([
-    new THREE.BoxGeometry(0.035, 0.05, 0.2).translate(0, 0.03, -0.08),
-    new THREE.CylinderGeometry(0.011, 0.011, 0.03, 12).rotateX(Math.PI / 2).translate(0, 0.035, -0.19),
-    new THREE.BoxGeometry(0.006, 0.012, 0.012).translate(0, 0.061, -0.17),
-    new THREE.BoxGeometry(0.012, 0.035, 0.035).translate(0, -0.005, -0.045),
-  ]));
+  const piezasArma = [
+    new THREE.BoxGeometry(0.032, 0.03, 0.2).translate(0, 0.043, -0.08),              // corredera
+    new THREE.BoxGeometry(0.029, 0.022, 0.15).translate(0, 0.017, -0.065),           // armazón
+    new THREE.CylinderGeometry(0.0105, 0.0105, 0.02, 12).rotateX(Math.PI / 2).translate(0, 0.036, -0.185), // boca del cañón
+    new THREE.BoxGeometry(0.005, 0.01, 0.01).translate(0, 0.062, -0.17),             // punto de mira
+    new THREE.BoxGeometry(0.009, 0.009, 0.008).translate(-0.007, 0.061, 0.012),      // alza (dos dientes)
+    new THREE.BoxGeometry(0.009, 0.009, 0.008).translate(0.007, 0.061, 0.012),
+    new THREE.TorusGeometry(0.019, 0.003, 6, 12, Math.PI).rotateY(Math.PI / 2).rotateX(Math.PI).translate(0, 0.006, -0.05), // guardamonte
+    new THREE.BoxGeometry(0.005, 0.02, 0.006).rotateX(0.3).translate(0, 0, -0.048),  // gatillo
+    new THREE.BoxGeometry(0.01, 0.016, 0.01).rotateX(-0.5).translate(0, 0.058, 0.026), // martillo
+  ];
+  // Estrías de agarre en la parte de atrás de la corredera
+  for (let i = 0; i < 6; i++) piezasArma.push(new THREE.BoxGeometry(0.0335, 0.024, 0.0018).translate(0, 0.045, 0.006 - i * 0.0055));
+  const geoArmazon = R(fusionar(piezasArma));
   const matMetal = R(new THREE.MeshStandardMaterial({ color: 0x3a4148, metalness: 0.85, roughness: 0.32 }));
   const geoEmpunadura = R(new THREE.BoxGeometry(0.03, 0.1, 0.045));
-  const matEmpunadura = R(new THREE.MeshStandardMaterial({ color: 0x6d4330, metalness: 0, roughness: 0.6 }));
+  // Cachas de nogal con picado a cuadros
+  const texCachas = R(ctx.texturaCanvas((g, tam, azar) => {
+    g.fillStyle = '#6d4330';
+    g.fillRect(0, 0, tam, tam);
+    g.strokeStyle = 'rgba(30,15,5,0.55)';
+    g.lineWidth = 1;
+    for (let i = -tam; i < tam * 2; i += 5) {
+      g.beginPath(); g.moveTo(i, 0); g.lineTo(i + tam, tam); g.stroke();
+      g.beginPath(); g.moveTo(i, tam); g.lineTo(i + tam, 0); g.stroke();
+    }
+    g.fillStyle = 'rgba(255,220,180,0.08)';
+    for (let i = 0; i < 60; i++) g.fillRect(azar() * tam, azar() * tam, 2, 2);
+  }, { tam: 64, semilla: 43 }));
+  const matEmpunadura = R(new THREE.MeshStandardMaterial({ map: texCachas, metalness: 0, roughness: 0.6 }));
 
   function crearPistola() {
     const arma = new THREE.Group();
@@ -399,7 +418,6 @@ export function iniciar(ctx) {
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
-  const particulas = [];
   const rayo = new THREE.Raycaster();
   rayo.far = ALCANCE;
   let puntos = 0;
@@ -486,24 +504,24 @@ export function iniciar(ctx) {
       puntos = Math.max(0, puntos - CASTIGO_INOCENTE);
       avisar(ctx.t('inocente', { castigo: CASTIGO_INOCENTE }));
       ctx.sonido('fallo');
-      ctx.destello(0x1e88e5, 0.45);
+      ctx.destello(0xff1744, 0.45);
+      ctx.efectos.texto(choque.point, `−${CASTIGO_INOCENTE}`, { color: '#ff5d5d' });
     } else {
       aciertos += 1;
-      puntos += cabeza ? PUNTOS_CABEZA : PUNTOS_CUERPO;
+      const valor = cabeza ? PUNTOS_CABEZA : PUNTOS_CUERPO;
+      puntos += valor;
       if (cabeza) avisar(ctx.t('cabeza', { puntos: PUNTOS_CABEZA }));
       ctx.sonido('golpe');
       ctx.sonido('punto');
+      // A la cabeza, impacto medio; al cuerpo, pequeño (la vibración del disparo ya la da arriba)
+      ctx.efectos.impacto(cabeza ? 'medio' : 'pequeño', { pos: choque.point, color: 0xffcc80 });
+      ctx.efectos.texto(choque.point, `+${valor}`, { color: cabeza ? '#ffd54f' : '#ffffff', tam: cabeza ? 1.3 : 1 });
     }
   }
 
+  // Astillas de cartón donde da el disparo (partículas de la shell, sin crear mallas)
   function chispas(punto) {
-    for (let i = 0; i < 8; i++) {
-      const c = new THREE.Mesh(geoChispa, matChispa);
-      c.position.copy(punto);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.8 + 0.2, Math.random() - 0.5).multiplyScalar(3);
-      raiz.add(c);
-      particulas.push({ malla: c, vel, vida: 0.5 });
-    }
+    ctx.efectos.estallido(punto, { color: 0xffe082, cantidad: 9, fuerza: 2.6, tam: 0.014 });
   }
 
   function actualizarMuneco(m, dt, t) {
@@ -626,18 +644,6 @@ export function iniciar(ctx) {
     for (const m of munecos) actualizarMuneco(m, dt, t);
     raiz.updateMatrixWorld();
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      p.vida -= dt;
-      p.vel.y -= 6 * dt;
-      p.malla.position.addScaledVector(p.vel, dt);
-      p.malla.scale.setScalar(Math.max(0.01, p.vida / 0.5));
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
-    }
-
     const mallas = mallasActivas();
     if (ctx.enVR()) {
       pivote.visible = false;
@@ -654,7 +660,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      particulas.length = 0;
       bases.dispose();
       bombillas.dispose();
     },

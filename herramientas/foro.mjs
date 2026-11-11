@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Herramienta para leer y moderar el foro de sugerencias desde la terminal.
-// La usa Claude Code para "mira el foro e implementa una sugerencia" (ver CLAUDE.md).
+// La usa Claude Code para "mira el foro e implementa una sugerencia" (ver docs/FORO.md).
 //
 //   node herramientas/foro.mjs listar [--estado nueva] [--orden votos|recientes|actividad] [--ocultas]
 //   node herramientas/foro.mjs ver <id>

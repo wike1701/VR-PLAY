@@ -1,0 +1,27 @@
+{
+  "name": "vr-play-videos",
+  "private": true,
+  "type": "module",
+  "description": "Fábrica de vídeos de VR Play: TikToks de los juegos y edición de grabaciones (solo en local)",
+  "scripts": {
+    "estudio": "remotion studio remotion/index.jsx"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.538",
+    "@remotion/cli": "4.0.538",
+    "@remotion/effects": "4.0.538",
+    "@remotion/google-fonts": "4.0.538",
+    "@remotion/media-utils": "4.0.538",
+    "@remotion/motion-blur": "4.0.538",
+    "@remotion/renderer": "4.0.538",
+    "@remotion/transitions": "4.0.538",
+    "iwer": "^2.7.0",
+    "playwright": "1.55.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.538"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}

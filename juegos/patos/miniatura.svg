@@ -1,37 +1,71 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5aa9e6"/>
-      <stop offset="1" stop-color="#bfe3f7"/>
+      <stop offset="0" stop-color="#3f8fd1"/>
+      <stop offset="1" stop-color="#bfe2f5"/>
     </linearGradient>
+    <linearGradient id="lago" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fb2d6"/>
+      <stop offset="1" stop-color="#2f6f97"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.68" cy="0.3" r="0.45">
+      <stop offset="0" stop-color="#fff6dc" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#fff6dc" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ala" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a68a6a"/>
+      <stop offset="1" stop-color="#5d4632"/>
+    </linearGradient>
+    <linearGradient id="cuerpo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9c836a"/>
+      <stop offset="1" stop-color="#5a4535"/>
+    </linearGradient>
+    <linearGradient id="arco" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c58a4e"/>
+      <stop offset="1" stop-color="#6e4422"/>
+    </linearGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#cielo)"/>
-  <rect y="300" width="400" height="100" fill="#3a7ca5"/>
-  <g stroke="#558b2f" stroke-width="6" stroke-linecap="round">
-    <line x1="20" y1="400" x2="28" y2="300"/>
-    <line x1="44" y1="400" x2="40" y2="318"/>
-    <line x1="370" y1="400" x2="362" y2="306"/>
-    <line x1="388" y1="400" x2="394" y2="322"/>
+  <g fill="#ffffff" opacity="0.85">
+    <ellipse cx="80" cy="70" rx="60" ry="16"/><ellipse cx="120" cy="60" rx="40" ry="18"/>
+    <ellipse cx="320" cy="140" rx="54" ry="12"/>
   </g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Bosque en la otra orilla -->
+  <g fill="#3d6b46"><circle cx="20" cy="236" r="26"/><circle cx="64" cy="228" r="30"/><circle cx="112" cy="238" r="24"/><circle cx="156" cy="230" r="28"/><circle cx="204" cy="238" r="24"/><circle cx="250" cy="228" r="30"/><circle cx="300" cy="236" r="26"/><circle cx="346" cy="228" r="30"/><circle cx="392" cy="236" r="24"/></g>
+  <rect x="0" y="240" width="400" height="160" fill="url(#lago)"/>
+  <g fill="#ffffff" opacity="0.35"><rect x="40" y="270" width="80" height="3"/><rect x="200" y="300" width="120" height="3"/><rect x="90" y="340" width="70" height="3"/></g>
   <!-- Pato volando -->
-  <g transform="translate(250 130)">
-    <ellipse cx="0" cy="0" rx="58" ry="30" fill="#8d6e63"/>
-    <path d="M-10 -10 L-60 -70 L20 -16 Z" fill="#6d4c41"/>
-    <circle cx="58" cy="-22" r="22" fill="#2e7d32"/>
-    <path d="M76 -26 L104 -18 L76 -12 Z" fill="#ffa000"/>
-    <circle cx="64" cy="-28" r="4" fill="#111"/>
-    <path d="M-56 -4 L-80 -18 L-74 6 Z" fill="#6d4c41"/>
+  <g transform="translate(262 112) rotate(-12)">
+    <path d="M-60 6 Q-20 -60 40 -70 Q10 -20 -10 10 Z" fill="url(#ala)"/>
+    <ellipse cx="0" cy="18" rx="56" ry="24" fill="url(#cuerpo)"/>
+    <ellipse cx="-10" cy="28" rx="40" ry="10" fill="#c9b9a2"/>
+    <circle cx="56" cy="2" r="18" fill="#2e7d4f"/>
+    <rect x="44" y="16" width="22" height="6" fill="#f5f5f5"/>
+    <path d="M70 -2 L96 4 L70 12 Z" fill="#f7b32b"/>
+    <circle cx="61" cy="-3" r="3.2" fill="#121212"/>
+    <path d="M-54 14 L-80 4 L-74 22 Z" fill="#5a4535"/>
+    <path d="M-40 8 Q0 -40 60 -48 Q20 -8 4 14 Z" fill="#7c6450" opacity="0.8"/>
   </g>
-  <!-- Plumas -->
-  <g fill="#fff" opacity="0.9">
-    <ellipse cx="190" cy="176" rx="10" ry="4" transform="rotate(-30 190 176)"/>
-    <ellipse cx="214" cy="196" rx="9" ry="4" transform="rotate(20 214 196)"/>
-  </g>
-  <!-- Flecha en vuelo -->
-  <line x1="70" y1="330" x2="200" y2="172" stroke="#d7b98e" stroke-width="6" stroke-linecap="round"/>
-  <path d="M206 164 L188 172 L200 184 Z" fill="#b0bec5"/>
-  <!-- Arco -->
-  <path d="M40 220 Q120 250 110 360" stroke="#795548" stroke-width="12" fill="none" stroke-linecap="round"/>
-  <line x1="40" y1="220" x2="110" y2="360" stroke="#f5f5f5" stroke-width="2"/>
-  <path d="M60 342 L82 344 L70 322 Z" fill="#e53935"/>
+  <!-- Flecha volando hacia el pato -->
+  <path d="M40 380 L220 170" stroke="url(#estela)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M150 262 L222 172" stroke="#d9b07a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M214 164 L236 152 L228 178 Z" fill="#dfe6ee"/>
+  <path d="M150 262 l-14 2 l6 -12 z M150 262 l2 -14 l8 10 z" fill="#ff6a3d"/>
+  <!-- Arco en primer plano -->
+  <path d="M-20 170 Q90 230 70 420" fill="none" stroke="url(#arco)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M-10 172 L64 410" stroke="#f5f5f5" stroke-width="3"/>
+  <rect x="62" y="264" width="24" height="56" rx="10" fill="#3e2723" transform="rotate(-8 74 292)"/>
+  <!-- Juncos -->
+  <g stroke="#3f6b2a" stroke-width="5" stroke-linecap="round"><path d="M330 400 L320 300"/><path d="M350 400 L356 290"/><path d="M372 400 L366 316"/></g>
+  <g fill="#6b3f22"><rect x="316" y="296" width="9" height="26" rx="4"/><rect x="352" y="286" width="9" height="26" rx="4"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

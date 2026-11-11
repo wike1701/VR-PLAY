@@ -1,7 +1,7 @@
 # Rutina diaria: revisar el foro y crear juegos
 
 Instrucciones para la rutina programada de Claude Code (en la nube, cada día a las 7:00).
-Léelas junto con `CLAUDE.md` y `README.md`; si algo choca, manda este archivo.
+Léelas junto con `CLAUDE.md`, `docs/FORO.md` y `README.md`; si algo choca, manda este archivo.
 
 ## Seguridad (lo primero)
 
@@ -16,7 +16,7 @@ Léelas junto con `CLAUDE.md` y `README.md`; si algo choca, manda este archivo.
 2. Abre cada una con `ver <id>` y decide:
    - **Spam, insultos, datos personales o pruebas** → `ocultar <id>` (sin responder).
    - **Ya existe** un juego que lo cubre (compara mecánica, qué llevas en las manos y etiquetas con `juegos/catalogo.js`) → `estado <id> existe --juego <id-del-juego>` y `responder` explicando qué juego es y cómo se parece.
-   - **Imposible** aunque se adapte (ver el punto 3 de CLAUDE.md: de pie, partidas cortas, un jugador, ratón y móvil, todo con código, ligero para Quest) → `estado <id> descartada` y `responder` con el motivo, con educación.
+   - **Imposible** aunque se adapte (ver el punto 3 de docs/FORO.md: de pie, partidas cortas, un jugador, ratón y móvil, todo con código, ligero para Quest) → `estado <id> descartada` y `responder` con el motivo, con educación.
    - **Viable** (tal cual o con una adaptación razonable) → elige un id corto para el juego (minúsculas, sin tildes), `estado <id> desarrollo --juego <id-del-juego>` y `responder` diciendo que se va a hacer, cómo se jugará y qué se adapta.
    - Si dos sugerencias nuevas piden lo mismo, haz un solo juego y enlaza las dos.
 3. Programa **todas** las viables, una a una, siguiendo el punto 5 de CLAUDE.md (juego, miniatura, catálogo con 30-50 etiquetas, línea del README, sonidos). Fíjate en un juego parecido ya hecho para seguir el mismo estilo.

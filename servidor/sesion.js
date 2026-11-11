@@ -1,4 +1,4 @@
-// Sesiones de las cuentas de usuario (ver PERFILES.md).
+// Sesiones de las cuentas de usuario (ver docs/PERFILES.md).
 // - La sesión va en una cookie HttpOnly, Secure y SameSite=Lax con un token aleatorio. En la base de
 //   datos solo se guarda su hash, así que una copia de la base de datos no sirve para entrar.
 // - Dura 90 días y se renueva al usarla.

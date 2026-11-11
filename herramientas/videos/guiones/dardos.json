@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "¿Llegarás al ciento ochenta?",
+    "frases": [
+      {
+        "texto": "Una diana de verdad en la pared de una taberna.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Con las gafas, el dardo lo lanzas con tu mano.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Dobles, triples y el cincuenta del centro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Mira este triple veinte a cámara lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Cinco rondas de tres dardos.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Can you hit one hundred and eighty?",
+    "frases": [
+      {
+        "texto": "A real dartboard on a pub wall.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "With a headset, you throw the dart by hand.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Doubles, trebles and the fifty bullseye.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Watch this treble twenty in slow motion.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Five rounds of three darts.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

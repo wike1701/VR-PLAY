@@ -21,12 +21,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x8ec5e8);
-  // Los patos vuelan lejos: alejamos la niebla mientras dura este juego
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 30;
-  niebla.far = 70;
+  // Los patos vuelan lejos: niebla lejana, nubes y un bosque en el horizonte
+  ctx.fondo(0x8ec5e8, { nubes: 0.5, niebla: [30, 70], paisaje: { tipo: 'bosque', color: 0x3c6a46 } });
 
   const vistaPos = new THREE.Vector3(0, 1.6, 0.4);
   ctx.vistaEscritorio(vistaPos, new THREE.Vector3(0, 3, -12));
@@ -192,7 +188,6 @@ export function iniciar(ctx) {
   const geoOjo = R(new THREE.SphereGeometry(0.018, 6, 4));
   const geoAla = R(new THREE.BoxGeometry(0.34, 0.025, 0.2));
   geoAla.translate(0.17, 0, 0);
-  const geoPluma = R(new THREE.PlaneGeometry(0.06, 0.03));
 
   const matPato = R(new THREE.MeshLambertMaterial({ color: 0x8d6e63 }));
   // El pato dorado es metálico de verdad (MeshStandard: brilla con el cielo)
@@ -201,7 +196,6 @@ export function iniciar(ctx) {
   const matPico = R(new THREE.MeshLambertMaterial({ color: 0xffa000 }));
   const matOjo = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
   const matAla = R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 }));
-  const matPluma = R(new THREE.MeshBasicMaterial({ color: 0xfafafa, side: THREE.DoubleSide }));
 
   function crearPato(dorado) {
     const grupo = new THREE.Group();
@@ -229,15 +223,35 @@ export function iniciar(ctx) {
 
   // ─── Arco ──────────────────────────────────────────────────────────────
   // En el espacio del mando: -Z hacia delante, las palas del arco arriba y abajo.
+  // Recurvo: las palas se doblan hacia el arquero y las puntas se abren hacia delante
   const curvaArco = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0, -0.5, CUERDA_Z),
-    new THREE.Vector3(0, -0.28, -0.02),
+    new THREE.Vector3(0, -0.455, CUERDA_Z + 0.022),
+    new THREE.Vector3(0, -0.36, 0.03),
+    new THREE.Vector3(0, -0.2, -0.035),
     new THREE.Vector3(0, 0, -0.05),
-    new THREE.Vector3(0, 0.28, -0.02),
+    new THREE.Vector3(0, 0.2, -0.035),
+    new THREE.Vector3(0, 0.36, 0.03),
+    new THREE.Vector3(0, 0.455, CUERDA_Z + 0.022),
     new THREE.Vector3(0, 0.5, CUERDA_Z),
   ]);
-  const geoArco = R(new THREE.TubeGeometry(curvaArco, 48, 0.016, 8));
-  const geoPuno = R(new THREE.CylinderGeometry(0.025, 0.025, 0.14, 14));
+  const geoArco = R(new THREE.TubeGeometry(curvaArco, 64, 0.013, 8));
+  // Las palas son planas (más anchas de lado que de frente), como las de verdad
+  geoArco.scale(1.45, 1, 0.8);
+  // Cuerpo central (empuñadura de madera oscura), reposaflechas y puntas de las palas
+  const piezasCuerpo = [
+    new THREE.BoxGeometry(0.03, 0.3, 0.036).translate(0, 0, -0.053),
+    new THREE.BoxGeometry(0.03, 0.03, 0.03).translate(0.017, 0.075, -0.05),
+    new THREE.SphereGeometry(0.011, 8, 6).translate(0, 0.5, CUERDA_Z),
+    new THREE.SphereGeometry(0.011, 8, 6).translate(0, -0.5, CUERDA_Z),
+  ].map((g) => (g.index ? g.toNonIndexed() : g));
+  const geoCuerpoArco = R(new THREE.BufferGeometry());
+  for (const nombre of ['position', 'normal']) {
+    geoCuerpoArco.setAttribute(nombre, new THREE.BufferAttribute(new Float32Array(piezasCuerpo.flatMap((g) => [...g.attributes[nombre].array])), 3));
+  }
+  for (const g of piezasCuerpo) g.dispose();
+  const matCuerpoArco = R(new THREE.MeshStandardMaterial({ color: 0x2e1d14, roughness: 0.35, metalness: 0.1 }));
+  const geoPuno = R(new THREE.CylinderGeometry(0.024, 0.024, 0.12, 14));
   // Madera barnizada con la veta a lo largo de las palas y puño de cuero
   const texArco = R(ctx.texturas.madera(0x8a5a32, { semilla: 6 }));
   texArco.repeat.set(3, 1);
@@ -272,7 +286,7 @@ export function iniciar(ctx) {
 
   function crearArco() {
     const arco = new THREE.Group();
-    arco.add(new THREE.Mesh(geoArco, matArco), new THREE.Mesh(geoPuno, matPuno));
+    arco.add(new THREE.Mesh(geoArco, matArco), new THREE.Mesh(geoCuerpoArco, matCuerpoArco), new THREE.Mesh(geoPuno, matPuno));
     const puntos = new Float32Array([0, 0.5, CUERDA_Z, 0, 0, CUERDA_Z, 0, -0.5, CUERDA_Z]);
     const geoCuerda = new THREE.BufferGeometry();
     geoCuerda.setAttribute('position', new THREE.BufferAttribute(puntos, 3));
@@ -326,7 +340,6 @@ export function iniciar(ctx) {
   // ─── Estado ────────────────────────────────────────────────────────────
   const patos = [];
   const flechas = [];
-  const particulas = [];
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
@@ -401,13 +414,13 @@ export function iniciar(ctx) {
     ctx.sonido('golpe');
     ctx.sonido('cuac');
     ctx.sonido('punto');
-    for (let i = 0; i < 12; i++) {
-      const p = new THREE.Mesh(geoPluma, matPluma);
-      p.position.copy(pato.grupo.position);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.6, Math.random() - 0.5).multiplyScalar(3);
-      raiz.add(p);
-      particulas.push({ malla: p, vel, vida: 1.2, giro: (Math.random() - 0.5) * 12 });
-    }
+    // Plumas que caen despacio (partículas de la shell, sin crear mallas) y el número que salta,
+    // más grande cuanto más lejos esté el pato para que se lea
+    const pos = pato.grupo.position;
+    const distancia = Math.max(1, -pos.z);
+    ctx.efectos.impacto(pato.dorado ? 'grande' : lejos ? 'medio' : 'pequeño', { pos, color: pato.dorado ? 0xffd54f : 0xf5f0e6 });
+    ctx.efectos.estallido(pos, { color: 0x8d6e4a, cantidad: 10, fuerza: 2.2, tam: 0.05, gravedad: 1.2, vida: 1.3 });
+    ctx.efectos.texto(pos, `+${valor}`, { color: pato.dorado ? '#ffd54f' : '#ffffff', tam: 1 + distancia * 0.11 });
   }
 
   function actualizarPatos(dt, t) {
@@ -637,20 +650,6 @@ export function iniciar(ctx) {
     actualizarPatos(dt, t);
     actualizarFlechas(dt);
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      p.vida -= dt;
-      p.vel.y -= 2 * dt;
-      p.vel.multiplyScalar(1 - dt * 1.5);
-      p.malla.position.addScaledVector(p.vel, dt);
-      p.malla.rotation.x += p.giro * dt;
-      p.malla.rotation.y += p.giro * dt;
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
-    }
-
     if (ctx.enVR()) {
       pivote.visible = false;
       arcoVR(dt);
@@ -669,11 +668,8 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       patos.length = 0;
       flechas.length = 0;
-      particulas.length = 0;
     },
   };
 }

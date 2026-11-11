@@ -26,10 +26,10 @@ export class MenuPausa {
     this.titulo.mesh.position.y = SEPARACION * 1.6;
     this.grupo.add(this.titulo.mesh);
 
-    // Botones: id de la acción y panel
-    this.botones = ['continuar', 'megusta', 'favorito', 'catalogo'].map((accion, i) => {
+    // Botones: id de la acción y panel. "anterior" (volver al juego anterior) solo sale
+    // si has pasado por otro juego antes; los demás se colocan en escribir().
+    this.botones = ['continuar', 'anterior', 'megusta', 'favorito', 'catalogo'].map((accion) => {
       const panel = crearPanel({ ancho: ANCHO_BOTON, alto: ALTO_BOTON, resolucion: 384 });
-      panel.mesh.position.y = -i * SEPARACION + SEPARACION * 0.4;
       panel.mesh.material.color.copy(COLOR_NORMAL);
       panel.mesh.userData.accion = accion;
       this.grupo.add(panel.mesh);
@@ -37,7 +37,6 @@ export class MenuPausa {
     });
     // Debajo de los botones: las 5 primeras de la clasificación y tu puesto (no se puede pulsar)
     this.clasificacion = crearPanel({ ancho: ANCHO_BOTON, alto: 0.3, resolucion: 512 });
-    this.clasificacion.mesh.position.y = -3 * SEPARACION + SEPARACION * 0.4 - ALTO_BOTON / 2 - 0.03 - 0.15;
     this.clasificacion.mesh.visible = false;
     this.grupo.add(this.clasificacion.mesh);
     // Que se vea por encima del juego aunque haya algo delante
@@ -68,21 +67,33 @@ export class MenuPausa {
     this.delante = new THREE.Vector3();
     this.derecha = new THREE.Vector3();
     this.mallas = this.botones.map((b) => b.panel.mesh);
+    this.colocar();
   }
 
-  // Textos: { titulo, meGusta: bool, total: número|null, favorito: bool }
-  escribir({ titulo, meGusta, total, favorito }) {
+  // Coloca en columna los botones visibles y, debajo, la clasificación
+  colocar() {
+    const visibles = this.botones.filter((b) => b.panel.mesh.visible);
+    visibles.forEach((b, i) => { b.panel.mesh.position.y = -i * SEPARACION + SEPARACION * 0.4; });
+    this.clasificacion.mesh.position.y = -(visibles.length - 1) * SEPARACION + SEPARACION * 0.4 - ALTO_BOTON / 2 - 0.03 - 0.15;
+    this.mallas = visibles.map((b) => b.panel.mesh);
+  }
+
+  // Textos: { titulo, meGusta: bool, total: número|null, favorito: bool, anterior: título|null }
+  escribir({ titulo, meGusta, total, favorito, anterior = null }) {
     this.titulo.escribir([
       { texto: t('jugar.vr.pausa'), tam: 1, color: '#b9a8ff' },
       { texto: titulo, tam: 0.75 },
     ]);
     const textos = {
       continuar: { texto: `▶  ${t('pausa.continuar')}`, color: '#ffffff' },
+      anterior: { texto: `⟲  ${t('jugar.volverA', { juego: anterior || '' })}`, color: '#b9a8ff' },
       megusta: { texto: `${meGusta ? `♥  ${t('pausa.teGusta')}` : `♡  ${t('pausa.meGusta')}`}${total ? `  ·  ${total}` : ''}`, color: meGusta ? '#ff7aa2' : '#ffffff' },
       favorito: { texto: favorito ? `★  ${t('pausa.enFavoritos')}` : `☆  ${t('pausa.guardarFavorito')}`, color: favorito ? '#ffd54f' : '#ffffff' },
       catalogo: { texto: `←  ${t('pausa.volverCatalogo')}`, color: '#ffffff' },
     };
     for (const b of this.botones) b.panel.escribir([{ ...textos[b.accion], tam: 1 }]);
+    this.botones[1].panel.mesh.visible = !!anterior;
+    this.colocar();
   }
 
   // Líneas del panel de la clasificación (null: se oculta)

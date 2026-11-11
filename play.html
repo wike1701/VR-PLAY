@@ -5,27 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title data-i18n="jugar.tituloPagina">Jugar · VR Play</title>
   <script src="idiomas/detectar.js"></script>
+  <!-- Al compartir el enlace (WhatsApp, redes sociales): título, texto e imagen -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VR Play">
+  <meta property="og:title" content="VR Play">
+  <meta property="og:description" data-i18n-attr="content:inicio.metaDescripcion" content="Juegos de realidad virtual gratis que se juegan en el navegador: con gafas Meta Quest, con el ratón o en el móvil.">
+  <meta property="og:url" content="https://vrplaygame.com/play">
+  <meta property="og:image" content="https://vrplaygame.com/iconos/compartir.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
-  <meta name="theme-color" content="#0f0f14">
+  <meta name="theme-color" content="#0a0b10">
   <!-- iPhone: al abrirla desde la pantalla de inicio, sin barras de Safari -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="VR Play">
+<link rel="preload" href="estilos/fuentes/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="estilos/base.css">
   <style>
-    :root {
-      --bg: #0f0f14;
-      --panel: rgba(26, 26, 36, 0.88);
-      --text: #f2f2f7;
-      --muted: #a4a4bb;
-      --accent: #7c5cff;
-    }
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--font-body);
       /* En el móvil: sin rebote al arrastrar, sin seleccionar texto ni menú al mantener el dedo */
       overscroll-behavior: none; user-select: none; -webkit-user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
@@ -44,12 +47,12 @@
     .titulo { font-weight: 800; font-size: 1.1rem; margin-right: auto; }
     button {
       font: inherit; font-size: 0.9rem; font-weight: 600;
-      padding: 9px 16px; border-radius: 999px; border: 1px solid #3a3a52;
+      padding: 9px 16px; border-radius: 12px; border: 1px solid var(--line);
       background: var(--panel); color: var(--text); cursor: pointer;
     }
     button:hover:not(:disabled) { border-color: var(--accent); }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
-    button.principal { background: var(--accent); border-color: var(--accent); }
+    button.principal { background: var(--accent); border-color: var(--accent); color: var(--sobre-accent); }
     .corto { display: none; }
     kbd {
       font: inherit; font-size: 0.75rem; padding: 1px 6px; margin-left: 4px;
@@ -64,7 +67,7 @@
       pointer-events: none;
     }
     .pie p { margin: 4px 0; }
-    #estado { color: #c9bcff; }
+    #estado { color: var(--accent-2); }
 
     .carga {
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -78,30 +81,40 @@
       position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
       padding: 16px; background: rgba(8, 8, 14, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     }
-    .pausa[hidden] { display: none; }
+    .pausa[hidden], #btn-anterior[hidden], .pausa-caja button[hidden] { display: none; }
     .pausa-caja {
       display: grid; gap: 10px; width: min(340px, 100%); padding: 20px;
       border-radius: 16px; background: var(--panel); border: 1px solid var(--accent);
     }
-    .pausa-sello { margin: 0; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #b9a8ff; }
+    .pausa-sello { margin: 0; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-2); }
     .pausa h2 { margin: 0 0 6px; font-size: 1.3rem; }
     .pausa button { width: 100%; padding: 12px 16px; font-size: 1rem; text-align: left; border-radius: 12px; }
     .pausa button.activo-megusta { color: #ff7aa2; border-color: #ff7aa2; }
-    .pausa button.activo-favorito { color: #ffd54f; border-color: #ffd54f; }
+    .pausa button.activo-favorito { color: var(--oro); border-color: var(--oro); }
     /* Clasificación en el menú de pausa y aviso del puesto al terminar una partida */
     .pausa-clasificacion { display: grid; gap: 4px; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 0.9rem; }
     .pausa-clasificacion:empty { display: none; }
-    .pausa-clasificacion strong { color: #ffd54f; }
+    .pausa-clasificacion strong { color: var(--oro); }
     .pausa-clasificacion ol { margin: 0; padding-left: 22px; }
-    .pausa-clasificacion p { margin: 0; color: #b9a8ff; font-size: 0.85rem; }
-    .pausa-clasificacion a { color: var(--accent-2, #00e5ff); font-size: 0.85rem; }
+    .pausa-clasificacion p { margin: 0; color: var(--accent-2); font-size: 0.85rem; }
+    .pausa-clasificacion a { color: var(--accent-2); font-size: 0.85rem; }
     .aviso-clasificacion {
       position: fixed; z-index: 15; left: 50%; top: max(64px, calc(env(safe-area-inset-top) + 56px)); transform: translateX(-50%);
-      max-width: calc(100% - 32px); padding: 10px 18px; border-radius: 999px;
-      background: rgba(12, 14, 28, 0.9); border: 1px solid #ffd54f; color: #ffe082; font-weight: 600; text-align: center;
+      max-width: calc(100% - 32px); padding: 10px 18px; border-radius: 12px;
+      background: rgba(12, 14, 28, 0.9); border: 1px solid var(--oro); color: #ffe082; font-weight: 600; text-align: center;
       pointer-events: none;
     }
     .aviso-clasificacion[hidden], body.en-vr .aviso-clasificacion { display: none; }
+    /* Instrucciones de los primeros segundos de cada juego (en VR salen en un panel 3D) */
+    .intro-juego {
+      position: fixed; z-index: 14; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(520px, calc(100% - 32px)); padding: 18px 22px; border-radius: 16px; text-align: center;
+      background: rgba(12, 14, 28, 0.88); border: 1px solid var(--accent-2); color: #fff; pointer-events: none;
+    }
+    .intro-juego h2 { margin: 0 0 8px; font-size: 1.4rem; color: #ffd54f; }
+    .intro-juego p { margin: 0 0 8px; font-size: 1.05rem; line-height: 1.4; }
+    .intro-juego .intro-cuenta { margin: 0; color: var(--accent-2); font-weight: 600; }
+    .intro-juego[hidden], body.en-vr .intro-juego { display: none; }
 
     /* Pantalla completa (o app instalada): solo el juego y dos botones flotantes */
     body.inmersivo .barra, body.inmersivo .pie { display: none; }
@@ -121,6 +134,12 @@
       background: var(--panel); border: 1px solid var(--accent);
     }
     .aviso-completa[hidden] { display: none; }
+
+    /* En pantallas medianas, «Juego anterior» solo con su icono (si no, la barra salta a dos filas) */
+    @media (max-width: 1100px) {
+      #btn-anterior .largo, #btn-anterior kbd { display: none; }
+      #btn-anterior .corto { display: inline; }
+    }
 
     /* Móvil en vertical: todo en una fila y textos cortos para dejar sitio al juego */
     @media (max-width: 600px) {
@@ -149,6 +168,7 @@
     <a class="volver" href="index.html" data-i18n-attr="aria-label:pausa.volverCatalogo" aria-label="Volver al catálogo">←<span class="largo"> <span data-i18n="jugar.catalogo">Catálogo</span></span></a>
     <div class="titulo" id="titulo" data-i18n="comun.cargando">Cargando…</div>
     <button id="btn-completa" type="button" data-i18n-attr="title:jugar.pantallaCompleta; aria-label:jugar.pantallaCompleta" title="Pantalla completa" aria-label="Pantalla completa" hidden>⛶<span class="largo"> <span data-i18n="jugar.pantallaCompleta">Pantalla completa</span></span></button>
+    <button id="btn-anterior" type="button" hidden data-i18n-attr="aria-label:jugar.juegoAnterior" aria-label="Juego anterior"><span class="corto" aria-hidden="true">⟲</span><span class="largo">⟲ <span data-i18n="jugar.juegoAnterior">Juego anterior</span></span> <kbd>B</kbd></button>
     <button id="btn-pausa" type="button" data-i18n-attr="title:jugar.pausaYMenu; aria-label:pausa.sello" title="Pausa y menú" aria-label="Pausa">⏸<span class="largo"> <span data-i18n="pausa.sello">Pausa</span></span> <kbd>Esc</kbd></button>
     <button id="btn-siguiente" type="button"><span class="corto" data-i18n="jugar.siguiente">Siguiente</span><span class="largo" data-i18n="jugar.siguienteJuego">Siguiente juego</span> <kbd>N</kbd></button>
     <button id="btn-vr" class="principal" type="button" data-i18n="jugar.comprobandoVR" disabled>Comprobando VR…</button>
@@ -174,6 +194,7 @@
       <p class="pausa-sello" data-i18n="pausa.sello">Pausa</p>
       <h2 id="pausa-titulo"></h2>
       <button type="button" class="principal" data-accion="continuar">▶ <span data-i18n="pausa.continuar">Continuar</span></button>
+      <button type="button" data-accion="anterior" hidden></button>
       <button type="button" data-accion="megusta"></button>
       <button type="button" data-accion="favorito"></button>
       <button type="button" data-accion="catalogo">← <span data-i18n="pausa.volverCatalogo">Volver al catálogo</span></button>
@@ -181,6 +202,11 @@
     </div>
   </div>
   <div class="aviso-clasificacion" id="aviso-clasificacion" role="status" hidden></div>
+  <div class="intro-juego" id="intro-juego" hidden>
+    <h2 id="intro-titulo"></h2>
+    <p id="intro-texto"></p>
+    <p class="intro-cuenta" id="intro-cuenta"></p>
+  </div>
 
   <script type="module" src="shell/shell.js"></script>
   <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->

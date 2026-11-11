@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3e5a9a"/>
+      <stop offset="0.55" stop-color="#ffb27a"/>
+      <stop offset="1" stop-color="#f0a070"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.62" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff1d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="piedraMuro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b0a596"/>
+      <stop offset="1" stop-color="#6a6258"/>
+    </linearGradient>
+    <linearGradient id="madera" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9a066"/>
+      <stop offset="1" stop-color="#7a4a24"/>
+    </linearGradient>
+    <radialGradient id="globo" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff0a0"/>
+      <stop offset="0.5" stop-color="#ffd23f"/>
+      <stop offset="1" stop-color="#b8860b"/>
+    </radialGradient>
+    <radialGradient id="roca" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#c8c0b0"/>
+      <stop offset="1" stop-color="#5a5248"/>
+    </radialGradient>
+    <radialGradient id="impacto">
+      <stop offset="0" stop-color="#fff1d6" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#ff6a3d" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <circle cx="300" cy="150" r="34" fill="#fff1d6" opacity="0.8"/>
+  <!-- Montes, valle y camino -->
+  <path d="M0 196 Q90 150 170 186 Q260 140 330 176 Q370 166 400 172 V400 H0 Z" fill="#51625a"/>
+  <path d="M0 214 Q120 196 220 210 Q320 198 400 206 V400 H0 Z" fill="#5f8a42"/>
+  <path d="M250 214 Q236 240 262 262 Q290 288 240 330 L330 330 Q356 288 300 262 Q276 240 266 214 Z" fill="#9a7650"/>
+  <g fill="#2f5a3a"><path d="M40 238 L56 196 L72 238 Z"/><path d="M350 236 L366 194 L382 236 Z"/><path d="M196 226 L208 196 L220 226 Z"/></g>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Globo con cofre -->
+  <path d="M96 106 L104 134 M124 106 L116 134" stroke="#3a2a1a" stroke-width="3"/>
+  <ellipse cx="110" cy="82" rx="30" ry="36" fill="url(#globo)"/>
+  <rect x="98" y="132" width="24" height="16" rx="2" fill="#7a4a24"/>
+  <rect x="98" y="132" width="24" height="4" fill="#d4a53a"/>
+  <!-- Soldado alcanzado en el camino -->
+  <ellipse cx="282" cy="276" rx="18" ry="5" fill="url(#sombra)"/>
+  <g transform="rotate(-18 282 272)">
+    <rect x="274" y="248" width="16" height="24" rx="3" fill="#9a2030"/>
+    <circle cx="282" cy="242" r="7" fill="#d9a77a"/>
+    <path d="M274 240 Q282 228 290 240 Z" fill="#8a909a"/>
+  </g>
+  <circle cx="282" cy="250" r="34" fill="url(#impacto)"/>
+  <!-- Trayectoria de la piedra desde el tirachinas -->
+  <path d="M150 300 Q196 160 276 246 Q206 196 162 306 Z" fill="url(#estela)"/>
+  <circle cx="270" cy="244" r="9" fill="url(#roca)"/>
+  <!-- Almenas -->
+  <rect x="0" y="318" width="400" height="82" fill="url(#piedraMuro)"/>
+  <rect x="0" y="282" width="70" height="40" fill="url(#piedraMuro)"/>
+  <rect x="330" y="282" width="70" height="40" fill="url(#piedraMuro)"/>
+  <g stroke="#5a5248" stroke-width="3" opacity="0.7"><path d="M0 346 H400 M0 374 H400 M60 318 V346 M160 318 V346 M260 318 V346 M110 346 V374 M210 346 V374 M310 346 V374"/></g>
+  <!-- Tirachinas en primer plano, con la goma estirada -->
+  <g transform="translate(150 400) scale(1.55) translate(-150 -400)">
+  <path d="M136 400 L150 318 L162 318 L156 400 Z" fill="url(#madera)"/>
+  <path d="M150 322 L118 262 L130 256 L160 316 Z" fill="url(#madera)"/>
+  <path d="M158 316 L182 252 L194 258 L168 322 Z" fill="url(#madera)"/>
+  <path d="M124 258 L150 300 L188 254" stroke="#c8a050" stroke-width="5" fill="none"/>
+  <rect x="140" y="294" width="20" height="12" rx="3" fill="#6a3a1e"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

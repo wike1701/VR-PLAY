@@ -42,12 +42,8 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x8ec9f0);
   // La valla está lejos: alejamos la niebla mientras dura este juego
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 45;
-  niebla.far = 170;
+  ctx.fondo(0x8ec9f0, { niebla: [45, 170] });
   ctx.vistaEscritorio(new THREE.Vector3(-0.35, 1.5, 2.3), new THREE.Vector3(0.3, 1.1, -DISTANCIA_LANZADOR));
 
   // ─── Campo ─────────────────────────────────────────────────────────────
@@ -329,9 +325,13 @@ export function iniciar(ctx) {
 
   // ─── Bates ─────────────────────────────────────────────────────────────
   // Puño en el origen y el bate hacia delante (-Z), como las espadas de Corta Fruta
-  const geoBate = R(new THREE.CylinderGeometry(0.033, 0.014, 0.84, 20, 4));
+  const perfilBate = [
+    [0, 0], [0.024, 0.002], [0.025, 0.01], [0.014, 0.024], [0.0125, 0.12], [0.013, 0.26], [0.0175, 0.4],
+    [0.025, 0.54], [0.031, 0.66], [0.0335, 0.76], [0.033, 0.82], [0.029, 0.84], [0.016, 0.85], [0, 0.852],
+  ].map(([r, y]) => new THREE.Vector2(r, y));
+  const geoBate = R(new THREE.LatheGeometry(perfilBate, 20));
   geoBate.rotateX(-Math.PI / 2);
-  geoBate.translate(0, 0, -0.35);
+  geoBate.translate(0, 0, 0.085);
   const geoPomo = R(new THREE.CylinderGeometry(0.022, 0.022, 0.02, 16));
   geoPomo.rotateX(-Math.PI / 2);
   geoPomo.translate(0, 0, 0.075);
@@ -482,8 +482,11 @@ export function iniciar(ctx) {
       ctx.sonido('ovacion');
       ctx.destello(0xffd740, 0.3);
       for (const m of bate.manos) ctx.vibrar(m, 1, 300);
+      ctx.efectos.estallido(bola.position, { color: 0xffd740, cantidad: 30, fuerza: 4, vida: 1.2, gravedad: 3 });
+      ctx.efectos.texto(bola.position, `+${puntosGolpe}`, { color: '#ffd740', tam: 2.5, vida: 1.6 });
     } else if (puntosGolpe > 0) {
       ctx.sonido('punto');
+      ctx.efectos.texto(bola.position, `+${puntosGolpe}`, { color: '#ffffff', tam: 1.6 + puntosGolpe * 0.3 });
     } else {
       ctx.sonido('fallo');
     }
@@ -631,6 +634,8 @@ export function iniciar(ctx) {
     estela.visible = true;
     ctx.sonido('bate');
     for (const m of bate.manos) ctx.vibrar(m, 1, 120);
+    // Batazo: micro-pausa y astillas blancas; más fuerte cuanto más rápida sale la bola
+    ctx.efectos.impacto(vel.length() > VELOCIDAD_MAXIMA * 0.6 ? 'grande' : 'medio', { pos, color: 0xfff8e1 });
   }
 
   function moverBola(dt) {
@@ -787,8 +792,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
       puntosEstela.length = 0;
     },
   };

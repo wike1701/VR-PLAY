@@ -1,60 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3a4258"/>
-      <stop offset="1" stop-color="#232a3a"/>
+      <stop offset="0" stop-color="#2b3246"/>
+      <stop offset="1" stop-color="#1a1f2c"/>
     </linearGradient>
-    <pattern id="bordillo" width="16" height="16" patternUnits="userSpaceOnUse">
-      <rect width="8" height="16" fill="#e53935"/><rect x="8" width="8" height="16" fill="#f5f5f5"/>
-    </pattern>
+    <radialGradient id="foco" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#fff3d6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff3d6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tablero" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5cb84a"/>
+      <stop offset="1" stop-color="#2e7d32"/>
+    </linearGradient>
+    <linearGradient id="rojo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b62"/>
+      <stop offset="1" stop-color="#b31b22"/>
+    </linearGradient>
+    <linearGradient id="azul" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6aa8ff"/>
+      <stop offset="1" stop-color="#1c4fb8"/>
+    </linearGradient>
+    <radialGradient id="chispa">
+      <stop offset="0" stop-color="#fff0e6"/>
+      <stop offset="0.4" stop-color="#ff6a3d" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#fondo)"/>
-  <!-- Mesa con tablero verde -->
-  <rect x="14" y="54" width="372" height="300" rx="10" fill="#6d4426"/>
-  <rect x="26" y="66" width="348" height="276" rx="6" fill="#3f8f3a"/>
-  <!-- Pista: bordillo, asfalto, ranuras -->
-  <g fill="none" stroke-linejoin="round">
-    <path id="trazado" d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="url(#bordillo)" stroke-width="76"/>
-    <path d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="#3b3e44" stroke-width="62"/>
-    <!-- Dos ranuras a ±16 px de la línea central: trazos anchos superpuestos -->
-    <path d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="#c9cdd2" stroke-width="40"/>
-    <path d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="#0a0a0a" stroke-width="35"/>
-    <path d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="#c9cdd2" stroke-width="30"/>
-    <path d="M120 290 L280 290 C340 290 352 250 340 210 C330 175 300 160 270 165 C240 170 225 195 200 195 C175 195 165 140 130 130 C90 120 60 150 62 200 C64 250 80 290 120 290 Z" stroke="#3b3e44" stroke-width="26"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Mesa con el circuito en perspectiva -->
+  <path d="M20 120 H380 L400 380 H0 Z" fill="#6d4426"/>
+  <path d="M36 132 H364 L380 366 H20 Z" fill="url(#tablero)"/>
+  <!-- Pista: dos carriles con su bordillo rojo y blanco -->
+  <path d="M110 330 Q40 330 56 250 Q70 170 160 166 L250 162 Q340 160 336 230 Q332 300 250 300 Q190 300 190 330 Z" fill="none" stroke="#e53935" stroke-width="64" stroke-linejoin="round"/>
+  <path d="M110 330 Q40 330 56 250 Q70 170 160 166 L250 162 Q340 160 336 230 Q332 300 250 300 Q190 300 190 330 Z" fill="none" stroke="#f5f5f5" stroke-width="64" stroke-dasharray="14 14" stroke-linejoin="round"/>
+  <path d="M110 330 Q40 330 56 250 Q70 170 160 166 L250 162 Q340 160 336 230 Q332 300 250 300 Q190 300 190 330 Z" fill="none" stroke="#2a2d33" stroke-width="54" stroke-linejoin="round"/>
+  <g fill="none" stroke="#c9ccd2" stroke-width="2.5">
+    <path d="M110 318 Q54 318 68 250 Q80 182 160 178 L250 174 Q324 172 322 230 Q320 288 250 288 Q178 288 178 330"/>
+    <path d="M110 342 Q28 342 44 250 Q60 156 160 154 L250 150 Q354 148 350 230 Q346 312 250 312 Q202 312 202 330"/>
   </g>
-  <!-- Meta a cuadros -->
-  <g>
-    <rect x="150" y="259" width="10" height="62" fill="#f5f5f5"/>
-    <rect x="150" y="259" width="5" height="8" fill="#111"/><rect x="155" y="267" width="5" height="8" fill="#111"/>
-    <rect x="150" y="275" width="5" height="8" fill="#111"/><rect x="155" y="283" width="5" height="8" fill="#111"/>
-    <rect x="150" y="291" width="5" height="8" fill="#111"/><rect x="155" y="299" width="5" height="8" fill="#111"/>
-    <rect x="150" y="307" width="5" height="8" fill="#111"/><rect x="155" y="315" width="5" height="6" fill="#111"/>
+  <g fill="#2e5d24"><path d="M180 240 l12 -34 l12 34 z"/><path d="M220 232 l9 -26 l9 26 z"/><path d="M146 252 l8 -22 l8 22 z"/></g>
+  <!-- Coche rojo derrapando en la curva y coche azul detrás -->
+  <g transform="translate(300 190) rotate(62)">
+    <rect x="-17" y="-34" width="34" height="68" rx="10" fill="url(#azul)"/>
+    <rect x="-11" y="-12" width="22" height="18" rx="5" fill="#a9d4ff"/>
   </g>
-  <!-- Coches -->
-  <g transform="translate(232 304)">
-    <rect x="-26" y="-8" width="52" height="16" rx="6" fill="#e53935"/>
-    <rect x="-34" y="-11" width="8" height="22" rx="2" fill="#b71c1c"/><rect x="26" y="-10" width="6" height="20" rx="2" fill="#b71c1c"/>
-    <rect x="-20" y="-14" width="10" height="6" rx="2" fill="#111"/><rect x="-20" y="8" width="10" height="6" rx="2" fill="#111"/>
-    <rect x="12" y="-13" width="9" height="5" rx="2" fill="#111"/><rect x="12" y="8" width="9" height="5" rx="2" fill="#111"/>
-    <circle cx="-2" cy="0" r="5" fill="#ffd54f"/>
+  <circle cx="130" cy="186" r="40" fill="url(#chispa)"/>
+  <g transform="translate(110 200) rotate(-58)">
+    <rect x="-26" y="-50" width="52" height="100" rx="14" fill="url(#rojo)"/>
+    <rect x="-16" y="-18" width="32" height="26" rx="6" fill="#ffd3cc"/>
+    <rect x="-24" y="34" width="48" height="10" rx="3" fill="#1c1c1c"/>
+    <rect x="-6" y="-50" width="12" height="100" fill="#ffffff" opacity="0.5"/>
   </g>
-  <g transform="translate(300 213) rotate(-70)">
-    <rect x="-26" y="-8" width="52" height="16" rx="6" fill="#1e63d6"/>
-    <rect x="-34" y="-11" width="8" height="22" rx="2" fill="#0d3c8c"/><rect x="26" y="-10" width="6" height="20" rx="2" fill="#0d3c8c"/>
-    <rect x="-20" y="-14" width="10" height="6" rx="2" fill="#111"/><rect x="-20" y="8" width="10" height="6" rx="2" fill="#111"/>
-    <rect x="12" y="-13" width="9" height="5" rx="2" fill="#111"/><rect x="12" y="8" width="9" height="5" rx="2" fill="#111"/>
-    <circle cx="-2" cy="0" r="5" fill="#fff"/>
+  <g fill="#ff6a3d"><circle cx="160" cy="220" r="4"/><circle cx="172" cy="206" r="3"/><circle cx="150" cy="236" r="3"/></g>
+  <!-- Mando de pistola en primer plano -->
+  <g transform="rotate(18 336 340)">
+    <rect x="312" y="290" width="54" height="40" rx="12" fill="#263238"/>
+    <rect x="320" y="326" width="36" height="80" rx="14" fill="#37474f"/>
+    <rect x="300" y="318" width="14" height="40" rx="5" fill="#e53935"/>
   </g>
-  <!-- Árboles -->
-  <g fill="#2e7d32">
-    <circle cx="200" cy="245" r="14"/><circle cx="230" cy="240" r="10"/><circle cx="120" cy="215" r="12"/>
-    <circle cx="350" cy="90" r="12"/><circle cx="46" cy="320" r="11"/><circle cx="270" cy="105" r="10"/>
-  </g>
-  <!-- Mando de slot con su cable -->
-  <path d="M330 400 C320 370 330 350 300 340" stroke="#111" stroke-width="5" fill="none"/>
-  <g transform="translate(345 345) rotate(-20)">
-    <rect x="-16" y="0" width="32" height="70" rx="10" fill="#37474f"/>
-    <rect x="-20" y="-18" width="40" height="26" rx="8" fill="#455a64"/>
-    <rect x="-24" y="2" width="9" height="26" rx="4" fill="#e53935"/>
-  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Ahora el portero eres tú.",
+    "frases": [
+      {
+        "texto": "Con las gafas, el balón viene directo a tu cara.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Para con los guantes o con el cuerpo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Diez penaltis por tanda.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Ojo con los tiros con efecto.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "¿Cuántos eres capaz de parar?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Now you’re the goalkeeper.",
+    "frases": [
+      {
+        "texto": "With a headset, the ball flies straight at your face.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Save it with your gloves or your body.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Ten penalties per shootout.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Watch out for the curved shots.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "How many can you save?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

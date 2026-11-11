@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Dos iguales se funden en una más grande.",
+    "frases": [
+      {
+        "texto": "El juego de fusionar frutas, ahora en 3D y en realidad virtual.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Suelta la fruta en la caja.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cereza, fresa, uva… hasta la sandía.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Enlaza fusiones y los puntos se multiplican.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Pero si rebosa la línea roja, se acabó.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "Two of a kind merge into a bigger one.",
+    "frases": [
+      {
+        "texto": "The fruit merge game, now in 3D and virtual reality.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Drop the fruit into the crate.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Cherry, strawberry, grape… all the way to watermelon.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Chain merges and your points multiply.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "But if it goes over the red line, it’s over.",
+        "plano": "lenta"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1a48"/>
+      <stop offset="0.55" stop-color="#7a4a7e"/>
+      <stop offset="0.72" stop-color="#e08a6a"/>
+      <stop offset="1" stop-color="#3a2418"/>
+    </linearGradient>
+    <linearGradient id="serrin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b98a58"/>
+      <stop offset="1" stop-color="#6e4a2c"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.55" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#ffb37a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffb37a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rojo" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ff8a80"/>
+      <stop offset="0.6" stop-color="#e53935"/>
+      <stop offset="1" stop-color="#8e1b1b"/>
+    </radialGradient>
+    <radialGradient id="amarillo" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff59d"/>
+      <stop offset="0.6" stop-color="#fdd835"/>
+      <stop offset="1" stop-color="#b08a10"/>
+    </radialGradient>
+    <radialGradient id="azul" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#90caf9"/>
+      <stop offset="0.6" stop-color="#1e88e5"/>
+      <stop offset="1" stop-color="#0d3f7a"/>
+    </radialGradient>
+    <radialGradient id="guante" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d6d0c4"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#ff6a3d" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffd0b8" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+    <clipPath id="cRoja"><circle cx="296" cy="92" r="46"/></clipPath>
+    <clipPath id="cAzul"><circle cx="300" cy="262" r="40"/></clipPath>
+    <clipPath id="cAmarilla"><circle cx="128" cy="236" r="44"/></clipPath>
+    <clipPath id="carpa"><path d="M150 268 V214 L232 150 L314 214 V268 Z"/></clipPath>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <!-- Colinas y carpa a rayas al fondo -->
+  <path d="M0 262 Q90 232 180 252 T400 244 V300 H0 Z" fill="#3a3558"/>
+  <g clip-path="url(#carpa)">
+    <rect x="150" y="140" width="170" height="130" fill="#f3ead8"/>
+    <g fill="#c62828">
+      <path d="M232 150 L150 214 V268 H170 V214 Z"/><path d="M232 150 L190 214 V268 H210 V214 Z"/>
+      <path d="M232 150 L230 214 V268 H250 V214 Z"/><path d="M232 150 L270 214 V268 H290 V214 Z"/>
+    </g>
+  </g>
+  <path d="M150 214 H314" stroke="#e0a82e" stroke-width="5"/>
+  <path d="M232 150 V126 L254 133 L232 140" fill="#ffc928" stroke="#6d4c41" stroke-width="3"/>
+  <path d="M212 268 L232 230 L252 268 Z" fill="#2a1418"/>
+  <!-- Guirnalda de bombillas -->
+  <path d="M0 96 Q110 150 220 104 T400 112" fill="none" stroke="#2b2222" stroke-width="2"/>
+  <g fill="#ffe7a3">
+    <circle cx="30" cy="112" r="4"/><circle cx="70" cy="128" r="4"/><circle cx="112" cy="134" r="4"/><circle cx="154" cy="128" r="4"/>
+    <circle cx="196" cy="114" r="4"/><circle cx="262" cy="96" r="4"/><circle cx="306" cy="102" r="4"/><circle cx="350" cy="114" r="4"/>
+  </g>
+  <!-- Pista de serrín con el bordillo -->
+  <path d="M0 300 Q200 268 400 300 V400 H0 Z" fill="url(#serrin)"/>
+  <path d="M0 300 Q200 268 400 300" fill="none" stroke="#c62828" stroke-width="12" stroke-dasharray="26 18"/>
+  <path d="M0 300 Q200 268 400 300" fill="none" stroke="#f3ead8" stroke-width="12" stroke-dasharray="18 26" stroke-dashoffset="-26"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="170" cy="360" rx="120" ry="16" fill="url(#sombra)"/>
+  <!-- Estelas de las bolas en el aire -->
+  <path d="M96 300 Q150 30 300 92 Q170 70 120 302 Z" fill="url(#estela)"/>
+  <path d="M312 120 Q340 200 300 262" fill="none" stroke="#ff6a3d" stroke-width="7" stroke-linecap="round" opacity="0.55"/>
+  <!-- Bola roja arriba, en lo alto del arco -->
+  <g transform="rotate(-20 296 92)">
+    <circle cx="296" cy="92" r="46" fill="url(#rojo)"/>
+    <g clip-path="url(#cRoja)">
+    <path d="M250 82 Q296 96 342 82" fill="none" stroke="#fbf7ee" stroke-width="9"/>
+    <path d="M251 104 Q296 118 341 104" fill="none" stroke="#fbf7ee" stroke-width="9"/>
+    <path d="M296 46 Q276 92 296 138" fill="none" stroke="#5a1010" stroke-width="2.5" opacity="0.6"/>
+    </g>
+    <ellipse cx="280" cy="70" rx="13" ry="8" fill="#ffffff" opacity="0.35"/>
+  </g>
+  <!-- Bola azul bajando a la derecha -->
+  <g transform="rotate(25 300 262)">
+    <circle cx="300" cy="262" r="40" fill="url(#azul)"/>
+    <g clip-path="url(#cAzul)">
+    <path d="M260 254 Q300 266 340 254" fill="none" stroke="#fbf7ee" stroke-width="8"/>
+    <path d="M261 274 Q300 286 339 274" fill="none" stroke="#fbf7ee" stroke-width="8"/>
+    <path d="M300 222 Q284 262 300 302" fill="none" stroke="#0a2a52" stroke-width="2.5" opacity="0.6"/>
+    </g>
+    <ellipse cx="286" cy="244" rx="11" ry="7" fill="#ffffff" opacity="0.35"/>
+  </g>
+  <!-- Guante de payaso recibiendo la bola amarilla -->
+  <g transform="rotate(-18 128 300)">
+    <rect x="80" y="318" width="96" height="44" rx="14" fill="#e53935"/>
+    <rect x="80" y="314" width="96" height="10" rx="5" fill="#ffc928"/>
+    <ellipse cx="128" cy="300" rx="64" ry="34" fill="url(#guante)"/>
+    <ellipse cx="190" cy="282" rx="20" ry="13" transform="rotate(-40 190 282)" fill="url(#guante)"/>
+  </g>
+  <g transform="rotate(-30 128 236)">
+    <circle cx="128" cy="236" r="44" fill="url(#amarillo)"/>
+    <g clip-path="url(#cAmarilla)">
+    <path d="M84 228 Q128 242 172 228" fill="none" stroke="#fbf7ee" stroke-width="9"/>
+    <path d="M85 250 Q128 264 171 250" fill="none" stroke="#e53935" stroke-width="9"/>
+    <path d="M128 192 Q110 236 128 280" fill="none" stroke="#6b5208" stroke-width="2.5" opacity="0.6"/>
+    </g>
+    <ellipse cx="112" cy="214" rx="13" ry="8" fill="#ffffff" opacity="0.4"/>
+  </g>
+  <!-- Dedos cerrándose sobre la bola -->
+  <g fill="url(#guante)">
+    <ellipse cx="72" cy="258" rx="14" ry="24" transform="rotate(-20 72 258)"/>
+    <ellipse cx="92" cy="272" rx="13" ry="22" transform="rotate(-30 92 272)"/>
+  </g>
+  <!-- Chispas de la recepción -->
+  <g fill="#ffd0b8">
+    <circle cx="186" cy="196" r="5"/><circle cx="60" cy="196" r="4"/><circle cx="200" cy="232" r="3.5"/><circle cx="352" cy="64" r="4"/>
+  </g>
+  <g fill="#ff6a3d"><circle cx="176" cy="176" r="3.5"/><circle cx="70" cy="180" r="3"/></g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

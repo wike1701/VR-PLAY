@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "¿Cuántas metes en un minuto?",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y tienes la canasta delante.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Coge el balón con la mano y lanza.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Las limpias valen tres puntos.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Y si vas en racha, cuentan el doble.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sesenta segundos de tiros libres sin parar.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Entra en VR Play y juega gratis, sin descargar nada."
+  },
+  "en": {
+    "gancho": "How many can you sink in a minute?",
+    "frases": [
+      {
+        "texto": "Put on your headset and the hoop is right there.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Grab the ball with your hand and shoot.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Swishes are worth three points.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "And on a streak, they count double.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Sixty seconds of nonstop free throws.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Head to VR Play and play free, no download needed."
+  }
+}

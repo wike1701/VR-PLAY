@@ -99,7 +99,7 @@ export function iniciar(ctx) {
   const grupoCable = new THREE.Group();
   raiz.add(grupoCable);
   const matCable = R(new THREE.MeshStandardMaterial({ color: 0xd08a4a, metalness: 0.85, roughness: 0.3 }));
-  const matSalida = R(new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.6 }));
+  const matSalida = R(new THREE.MeshLambertMaterial({ color: 0x2e7d32 }));
   const matLlegada = R(new THREE.MeshStandardMaterial({ color: 0xffc400, metalness: 0.4, roughness: 0.4 }));
   const matPoste = R(new THREE.MeshLambertMaterial({ color: 0x37474f }));
   const geoPoste = R(new THREE.CylinderGeometry(0.012, 0.016, 1, 10));
@@ -254,7 +254,7 @@ export function iniciar(ctx) {
   const geosAro = Array.from({ length: CABLES }, (_, i) => R(new THREE.TorusGeometry(radioAro(i), GROSOR_ARO, 8, 40).rotateY(Math.PI / 2)));
   const matAro = R(new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.25 }));
   const geoMango = R(new THREE.CylinderGeometry(0.016, 0.018, 0.11, 12).rotateX(Math.PI / 2).translate(0, 0, -0.01));
-  const matMango = R(new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.7 }));
+  const matMango = R(new THREE.MeshLambertMaterial({ color: 0xd32f2f }));
   const geoVarilla = R(new THREE.CylinderGeometry(0.004, 0.004, 1, 6).rotateX(Math.PI / 2));
 
   function crearVarita() {
@@ -421,6 +421,8 @@ export function iniciar(ctx) {
       ctx.destello(0xffc400, 0.25);
       luzBombilla = 1;
       colorBombilla.setHex(0x69f0ae);
+      ctx.efectos.impacto('grande', { pos: aro.centro, mano: aro.mano, color: 0x69f0ae });
+      ctx.efectos.texto(aro.centro, `+${puntosCable}`, { color: '#b9f6ca', tam: 1.3 });
     } else {
       mensaje = ctx.t(punto ? 'calambrazo' : 'tiempo', { progreso: Math.round(progreso * 100) });
       colorMensaje = '#ff8a80';
@@ -432,6 +434,7 @@ export function iniciar(ctx) {
         alarma = true;
         colorBombilla.setHex(0xff1744);
         if (aro.mano) ctx.vibrar(aro.mano, 1, 450);
+        ctx.efectos.impacto('medio');
       } else {
         ctx.sonido('fallo');
       }

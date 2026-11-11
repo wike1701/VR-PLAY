@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1530"/>
+      <stop offset="0.7" stop-color="#3a2a3a"/>
+      <stop offset="1" stop-color="#2a2230"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.55" cy="0.38" r="0.5">
+      <stop offset="0" stop-color="#ffb070" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffb070" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fachada" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7a5444"/>
+      <stop offset="1" stop-color="#4e362e"/>
+    </linearGradient>
+    <radialGradient id="llama" cx="0.5" cy="0.75" r="0.6">
+      <stop offset="0" stop-color="#fff2a8"/>
+      <stop offset="0.45" stop-color="#ff6a3d"/>
+      <stop offset="1" stop-color="#c8321a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="laton" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a6420"/>
+      <stop offset="0.5" stop-color="#f1cf72"/>
+      <stop offset="1" stop-color="#8a6420"/>
+    </linearGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <g fill="#ffffff" opacity="0.7"><circle cx="40" cy="40" r="1.6"/><circle cx="110" cy="22" r="1.2"/><circle cx="350" cy="50" r="1.5"/><circle cx="300" cy="18" r="1.1"/></g>
+  <circle cx="345" cy="70" r="16" fill="#f3efe0"/>
+  <!-- Fachada -->
+  <rect x="70" y="60" width="300" height="300" fill="url(#fachada)"/>
+  <g fill="#1d2233">
+    <rect x="95" y="90" width="60" height="70"/><rect x="190" y="90" width="60" height="70"/><rect x="285" y="90" width="60" height="70"/>
+    <rect x="95" y="200" width="60" height="70"/><rect x="285" y="200" width="60" height="70"/>
+  </g>
+  <rect x="190" y="200" width="60" height="70" fill="#ffcf6a"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Humo -->
+  <g fill="#6a6470" opacity="0.6"><circle cx="210" cy="170" r="26"/><circle cx="240" cy="150" r="22"/><circle cx="225" cy="125" r="18"/></g>
+  <!-- Llamas grandes (coral) -->
+  <path d="M175 285 C170 240 200 230 195 195 C215 215 220 180 232 165 C238 200 262 210 258 240 C270 230 272 260 268 285Z" fill="url(#llama)"/>
+  <path d="M300 160 C298 135 315 128 312 108 C325 122 330 108 336 100 C338 122 348 135 342 160Z" fill="url(#llama)" opacity="0.85"/>
+  <!-- Chorro de agua -->
+  <path d="M120 360 Q170 230 212 236" fill="none" stroke="#bfe6ff" stroke-width="14" stroke-linecap="round" opacity="0.85"/>
+  <path d="M120 360 Q170 230 212 236" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  <g fill="#ffffff" opacity="0.9"><circle cx="212" cy="232" r="7"/><circle cx="226" cy="246" r="5"/><circle cx="200" cy="250" r="5"/><circle cx="232" cy="226" r="4"/></g>
+  <ellipse cx="150" cy="386" rx="110" ry="14" fill="url(#sombra)"/>
+  <!-- Manguera y boquilla -->
+  <path d="M10 400 Q60 360 100 368" fill="none" stroke="#b02a22" stroke-width="22" stroke-linecap="round"/>
+  <path d="M90 372 L130 340 L142 352 L104 386Z" fill="url(#laton)"/>
+  <rect x="124" y="334" width="24" height="16" rx="4" fill="#d9b25a" transform="rotate(-40 136 342)"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

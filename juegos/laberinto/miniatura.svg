@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a4a32"/>
+      <stop offset="1" stop-color="#3a2618"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#ffe2a8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffe2a8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sombra">
+      <stop offset="0" stop-color="#05060a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tablero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2d7a2"/>
+      <stop offset="1" stop-color="#c9a066"/>
+    </linearGradient>
+    <linearGradient id="pared" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8763c"/>
+      <stop offset="1" stop-color="#7a4520"/>
+    </linearGradient>
+    <radialGradient id="acero" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#c3cad2"/>
+      <stop offset="1" stop-color="#4a525c"/>
+    </radialGradient>
+    <linearGradient id="estela" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#fondo)"/>
+  <rect x="250" y="30" width="120" height="90" fill="#9cc8e6"/><rect x="246" y="26" width="128" height="8" fill="#4a2e1a"/><rect x="306" y="30" width="6" height="90" fill="#4a2e1a"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <ellipse cx="200" cy="350" rx="170" ry="24" fill="url(#sombra)"/>
+  <!-- Tablero inclinado -->
+  <g transform="rotate(-8 200 220)">
+    <rect x="44" y="78" width="312" height="280" rx="10" fill="#6a3a1c"/>
+    <rect x="58" y="92" width="284" height="252" rx="4" fill="url(#tablero)"/>
+    <g fill="url(#pared)">
+      <rect x="58" y="160" width="160" height="12"/><rect x="250" y="160" width="92" height="12"/>
+      <rect x="130" y="230" width="150" height="12"/><rect x="58" y="296" width="90" height="12"/><rect x="200" y="296" width="12" height="48"/>
+      <rect x="130" y="92" width="12" height="80"/><rect x="270" y="230" width="12" height="70"/>
+    </g>
+    <g fill="#1a0f08"><circle cx="100" cy="128" r="14"/><circle cx="310" cy="270" r="14"/><circle cx="170" cy="268" r="14"/></g>
+    <g fill="none" stroke="#8a8f96" stroke-width="3"><circle cx="100" cy="128" r="15"/><circle cx="310" cy="270" r="15"/><circle cx="170" cy="268" r="15"/></g>
+    <circle cx="300" cy="124" r="16" fill="#1a0f08"/><circle cx="300" cy="124" r="19" fill="none" stroke="#ff6a3d" stroke-width="6"/>
+    <!-- Recorrido coral de la bola -->
+    <path d="M110 330 Q150 260 225 210 Q250 196 262 200" fill="none" stroke="url(#estela)" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="242" cy="200" r="26" fill="#05060a" opacity="0.3"/>
+    <circle cx="236" cy="194" r="26" fill="url(#acero)"/>
+    <ellipse cx="228" cy="184" rx="9" ry="6" fill="#ffffff" opacity="0.8"/>
+  </g>
+  <rect width="400" height="400" fill="url(#vineta)"/>
+</svg>

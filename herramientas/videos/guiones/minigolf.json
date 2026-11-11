@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Nueve hoyos nuevos cada vez.",
+    "frases": [
+      {
+        "texto": "Ponte las gafas y el palo lo mueves tú.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Curvas, postes, pasillos estrechos y molinos.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Calcula la fuerza y golpea.",
+        "plano": "partida"
+      },
+      {
+        "texto": "¿Hoyo en uno?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Gana quien dé menos golpes.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Nine new holes every round.",
+    "frases": [
+      {
+        "texto": "Put on your headset and swing the club yourself.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Bends, posts, narrow passages and windmills.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Judge the power and putt.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Hole in one?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Fewest strokes wins.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

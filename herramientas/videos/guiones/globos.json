@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "La caseta de feria, sin salir de casa.",
+    "frases": [
+      {
+        "texto": "Con las gafas, el dardo lo lanzas tú.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Pincha los globos del tablero.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Y los que cruzan por delante.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Los dorados suben rápido: no los dejes escapar.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sesenta segundos. ¿Cuántos explotas?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis en VR Play, desde el navegador de tus gafas."
+  },
+  "en": {
+    "gancho": "The fairground stall, without leaving home.",
+    "frases": [
+      {
+        "texto": "With a headset, you throw the dart yourself.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Pop the balloons on the board.",
+        "plano": "pov"
+      },
+      {
+        "texto": "And the ones crossing in front.",
+        "plano": "partida"
+      },
+      {
+        "texto": "The golden ones float up fast: don’t let them get away.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Sixty seconds. How many can you pop?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Free on VR Play, right in your headset browser."
+  }
+}

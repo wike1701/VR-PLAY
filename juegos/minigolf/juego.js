@@ -2,8 +2,9 @@
 // 9 hoyos generados al azar en cada ronda: recorridos con curvas, postes, estrechamientos y
 // molinos que giran. En VR el palo va en la mano y su cabeza se apoya sola en el suelo (no hace
 // falta agacharse); con ratón o con el dedo se hace clic donde quieres que llegue la bola.
-// El jugador no se desplaza: tras cada golpe, un parpadeo recoloca el campo para que la bola
-// quede a tus pies mirando hacia donde sigue el recorrido.
+// El jugador no se desplaza: tras cada golpe, un parpadeo mueve el campo para que la bola quede
+// justo debajo de ti (en VR; con ratón, delante). El campo no gira: su orientación se fija al
+// empezar cada hoyo y eres tú quien se gira hacia donde quiere tirar.
 //
 // Coordenadas: el campo vive en su propio grupo (x, z en metros, el suelo en y = 0). La física
 // de la bola es en 2D, en coordenadas del campo. Para recolocar, solo se mueve y gira el grupo.
@@ -30,6 +31,7 @@ const POS_BOLA = new THREE.Vector3(0, 0, -0.45); // dónde queda la bola respect
 const LARGO_MIN = 0.35;
 const LARGO_MAX = 0.8;            // como un putter corto: más largo resultaba incómodo
 const INCLINACION = THREE.MathUtils.degToRad(60); // la vara sale del mando inclinada 60° hacia abajo
+const PUNTA_MANO = new THREE.Vector3(0, 0, -0.07); // la vara empieza en la punta de la mano (delante del agarre)
 const RADIO_CABEZA = 0.06;       // tamaño de la cabeza del palo para el choque
 
 export function iniciar(ctx) {
@@ -37,7 +39,7 @@ export function iniciar(ctx) {
   const R = (recurso) => ctx.recurso(recurso);
   const azar = (a, b) => a + Math.random() * (b - a);
 
-  ctx.fondo(0x8ecbf2);
+  ctx.fondo(0x8ecbf2, { nubes: 0.5, niebla: [14, 45], paisaje: { tipo: 'colinas', color: 0x4f8a4a } });
   ctx.sueloBase(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.75, 1.4), new THREE.Vector3(0, 0, -3.5));
 
@@ -52,7 +54,7 @@ export function iniciar(ctx) {
   const matPoste = R(new THREE.MeshStandardMaterial({ color: 0xffb300, metalness: 0.3, roughness: 0.5 }));
   const matMolino = R(new THREE.MeshStandardMaterial({ color: 0x5c6bc0, metalness: 0.2, roughness: 0.5 }));
   const matTronco = R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 }));
-  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0x2e7d32 }));
+  const matCopa = R(new THREE.MeshLambertMaterial({ color: 0x3f7f3a, flatShading: true }));
 
   // Fusiona geometrías estáticas (cada una con su matriz) en una sola: una llamada de dibujo
   function fusionar(piezas) {
@@ -144,7 +146,11 @@ export function iniciar(ctx) {
   let paredes = [];     // segmentos { ax, az, bx, bz }
   let postes = [];      // { x, z, r }
   let molinoDatos = null; // { x, z, angulo, vel, medio }
+  let giroHoyo = null;    // orientación del campo en este hoyo (fija mientras dura)
   const hoyoPos = new THREE.Vector2();
+  const puntoHoyo = new THREE.Vector3();
+  const CERO2 = new THREE.Vector2();
+  const ARRIBA = new THREE.Vector3(0, 1, 0);
   const posBola = new THREE.Vector2();   // en el campo
   const velBola = new THREE.Vector2();
   const ultimaQuieta = new THREE.Vector2();
@@ -206,6 +212,7 @@ export function iniciar(ctx) {
 
   function generarHoyo(numero) {
     limpiarHoyo();
+    giroHoyo = null; // el primer recolocar del hoyo decide su orientación
     const n = 4 + Math.floor(numero / 2) + Math.floor(Math.random() * 3);
     const camino = generarCamino(n);
     casillas = camino.map(([i, j]) => ({ i, j, x: i * LADO, z: -j * LADO }));
@@ -311,21 +318,22 @@ export function iniciar(ctx) {
     prado.position.set(cx, -0.002, cz);
     const troncos = [];
     const copas = [];
-    const geoTronco = new THREE.CylinderGeometry(0.12, 0.16, 1.2, 8).translate(0, 0.6, 0);
-    const geoCopa = new THREE.ConeGeometry(0.9, 2.2, 9).translate(0, 2.1, 0);
+    // Pinos y frondosos del kit de la shell, fusionados en una malla por hoyo
+    const pino = ctx.geometriaArbol('pino');
+    const frondoso = ctx.geometriaArbol('frondoso');
     for (let k = 0; k < 14; k++) {
       const a = (k / 14) * Math.PI * 2 + azar(-0.2, 0.2);
       const dist = Math.max(maxX - minX, maxZ - minZ) / 2 + azar(4, 9);
       const x = cx + Math.cos(a) * dist;
       const z = cz + Math.sin(a) * dist;
-      const s = azar(0.8, 1.4);
-      const mat = new THREE.Matrix4().compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion(), new THREE.Vector3(s, s, s));
-      troncos.push([geoTronco, mat]);
-      copas.push([geoCopa, mat]);
+      const s = azar(0.7, 1.1);
+      const mat = new THREE.Matrix4().compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromAxisAngle(THREE.Object3D.DEFAULT_UP, azar(0, 6.3)), new THREE.Vector3(s, s, s));
+      const tipo = k % 3 ? pino : frondoso;
+      troncos.push([tipo.tronco, mat]);
+      copas.push([tipo.copa, mat]);
     }
     hoyoGrupo.add(prado, new THREE.Mesh(fusionar(troncos), matTronco), new THREE.Mesh(fusionar(copas), matCopa));
-    geoTronco.dispose();
-    geoCopa.dispose();
+    for (const g of [pino.copa, pino.tronco, frondoso.copa, frondoso.tronco]) g.dispose();
 
     bandera.position.set(hoyoPos.x, 0, hoyoPos.y);
     agujero.position.set(hoyoPos.x, 0.003, hoyoPos.y);
@@ -359,9 +367,10 @@ export function iniciar(ctx) {
     return true;
   }
 
-  // La bola queda en POS_BOLA, mirando al hoyo si se ve o, si no, a la casilla más lejana
-  // del recorrido que se ve desde ella
-  function recolocar(conParpadeo = true) {
+  // Al empezar el hoyo, el campo se orienta mirando al hoyo si se ve o, si no, a la casilla más
+  // lejana del recorrido que se ve desde la salida. Después ya no gira: solo se mueve para que la
+  // bola quede debajo del jugador (en VR, justo bajo la cabeza; con ratón, en POS_BOLA)
+  function orientacionInicial() {
     let dx = hoyoPos.x - posBola.x;
     let dz = hoyoPos.y - posBola.y;
     if (!seVe(posBola.x, posBola.y, hoyoPos.x, hoyoPos.y)) {
@@ -375,11 +384,18 @@ export function iniciar(ctx) {
       }
     }
     if (Math.hypot(dx, dz) < 1e-3) dz = -1;
-    const giro = Math.atan2(dx, -dz);
-    campo.rotation.y = giro;
-    // posición = POS_BOLA − giro(bola)
-    tmp.set(posBola.x, 0, posBola.y).applyAxisAngle(new THREE.Vector3(0, 1, 0), giro);
-    campo.position.set(POS_BOLA.x - tmp.x, 0, POS_BOLA.z - tmp.z);
+    return Math.atan2(dx, -dz);
+  }
+  const debajo = new THREE.Vector3();
+  function recolocar(conParpadeo = true) {
+    if (giroHoyo === null) giroHoyo = orientacionInicial();
+    campo.rotation.y = giroHoyo;
+    // Dónde tiene que quedar la bola: bajo la cabeza en VR (estés donde estés de la habitación)
+    if (ctx.enVR()) ctx.camara.getWorldPosition(debajo).setY(0);
+    else debajo.copy(POS_BOLA);
+    // posición = destino − giro(bola)
+    tmp.set(posBola.x, 0, posBola.y).applyAxisAngle(THREE.Object3D.DEFAULT_UP, giroHoyo);
+    campo.position.set(debajo.x - tmp.x, 0, debajo.z - tmp.z);
     campo.updateMatrixWorld(true);
     if (conParpadeo) ctx.destello(0x000000, 1);
   }
@@ -453,7 +469,7 @@ export function iniciar(ctx) {
           return;
         }
         // Demasiado rápida: roza el borde y sigue (se frena y se desvía un poco)
-        velBola.multiplyScalar(0.75).rotateAround(new THREE.Vector2(), azar(-0.25, 0.25));
+        velBola.multiplyScalar(0.75).rotateAround(CERO2, azar(-0.25, 0.25));
       }
     }
     if (velBola.length() > VEL_MAXIMA) velBola.setLength(VEL_MAXIMA);
@@ -489,6 +505,9 @@ export function iniciar(ctx) {
     ctx.sonido('hoyo');
     if (diferencia < 0) ctx.destello(0xffd740, 0.25);
     for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.5, 120);
+    // Embocar: confeti del color del resultado (más cuanto mejor) y el nombre del golpe saltando
+    ctx.efectos.impacto(golpes === 1 || diferencia < 0 ? 'grande' : diferencia === 0 ? 'medio' : 'pequeño', { pos: bola.getWorldPosition(puntoHoyo), color: diferencia < 0 ? 0xffd740 : 0xb9f6ca });
+    ctx.efectos.texto(puntoHoyo.setY(puntoHoyo.y + 0.25), mensaje, { color: colorMensaje, tam: 1.1, vida: 1.4 });
   }
 
   // Distancia que recorre la bola si sale a velocidad v (con el rozamiento de arriba)
@@ -510,7 +529,8 @@ export function iniciar(ctx) {
   let cabezaLista = false;
   let manoPalo = null;
   const direccion = new THREE.Vector3();
-  const haciaCabeza = new THREE.Vector3();
+  const puntaPalo = new THREE.Vector3();          // donde empieza la vara (la punta de la mano)
+  const ejeCabeza = new THREE.Vector3();          // hacia dónde va la cabeza del palo (sigue al mando)
 
   function actualizarPalo(dt) {
     const activas = ctx.manos.filter((m) => m.activa);
@@ -528,26 +548,27 @@ export function iniciar(ctx) {
     }
     if (mano !== manoPalo) cabezaLista = false;
     manoPalo = mano;
-    // La vara va fija en el mando: sale hacia el +X del mando en la mano derecha (el -X en la
-    // izquierda) y 60° hacia abajo (el -Y), que, cogido como un putter, queda por delante, hacia la
-    // bola. (Con el -X en la derecha apuntaba hacia el jugador; con el -Z, a un lado.)
-    const lado = mano.lado === 'left' ? -1 : 1;
-    direccion.set(lado * Math.cos(INCLINACION), -Math.sin(INCLINACION), 0).transformDirection(mano.grip.matrixWorld);
+    // La vara va fija en el mando: sale de la punta de la mano hacia el -Z del mando (hacia donde
+    // apunta) y 60° hacia abajo (el -Y), igual en las dos manos. Es la dirección de antes (el +X,
+    // hacia fuera en la mano derecha) girada 90° a la izquierda, como se pidió al probarlo.
+    mano.grip.localToWorld(puntaPalo.copy(PUNTA_MANO));
+    direccion.set(0, -Math.sin(INCLINACION), -Math.cos(INCLINACION)).transformDirection(mano.grip.matrixWorld);
     // La cabeza, donde esa línea toca el suelo (con el largo de un putter)
     let largo = LARGO_MAX;
-    if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(mano.posicion.y / -direccion.y, LARGO_MIN, LARGO_MAX);
-    tmp.copy(mano.posicion).addScaledVector(direccion, largo);
+    if (direccion.y < -0.15) largo = THREE.MathUtils.clamp(puntaPalo.y / -direccion.y, LARGO_MIN, LARGO_MAX);
+    tmp.copy(puntaPalo).addScaledVector(direccion, largo);
     if (tmp.y < 0.018) tmp.y = 0.018;
     cabezaPalo.position.copy(tmp);
-    // Cabeza horizontal, de punta a talón a lo largo de la vara vista desde arriba (como un putter),
-    // con la cara hacia el golpe
-    haciaCabeza.set(direccion.x, 0, direccion.z);
-    if (haciaCabeza.lengthSq() < 1e-6) haciaCabeza.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
-    cabezaPalo.rotation.set(0, Math.atan2(-haciaCabeza.z, haciaCabeza.x), 0);
-    palo.position.copy(mano.posicion);
-    tmp2.subVectors(tmp, mano.posicion);
+    // La cabeza gira con el mando, no sola: va a lo largo del eje lateral del mando (su +X), visto
+    // desde arriba, y siempre plana sobre el césped. Si giras la muñeca o el mando, gira con él; si
+    // solo mueves la mano, no cambia. (Es solo visual: el golpe se calcula por su posición.)
+    ejeCabeza.set(1, 0, 0).transformDirection(mano.grip.matrixWorld).setY(0);
+    if (ejeCabeza.lengthSq() < 1e-4) ejeCabeza.set(0, 0, -1).transformDirection(mano.grip.matrixWorld).setY(0);
+    cabezaPalo.rotation.set(0, Math.atan2(-ejeCabeza.z, ejeCabeza.x), 0);
+    palo.position.copy(puntaPalo);
+    tmp2.subVectors(tmp, puntaPalo);
     varaPalo.scale.y = tmp2.length();
-    palo.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tmp2.normalize());
+    palo.quaternion.setFromUnitVectors(ARRIBA, tmp2.normalize());
 
     // Choque con la bola (en coordenadas del campo, por subpasos)
     inversa.copy(campo.matrixWorld).invert();

@@ -1,34 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5aa9e6"/>
-      <stop offset="0.45" stop-color="#cfe9f7"/>
-      <stop offset="0.45" stop-color="#5aa83f"/>
-      <stop offset="1" stop-color="#3f8a2c"/>
+      <stop offset="0" stop-color="#3a86cc"/>
+      <stop offset="1" stop-color="#bfe0f2"/>
     </linearGradient>
+    <radialGradient id="foco" cx="0.5" cy="0.62" r="0.5">
+      <stop offset="0" stop-color="#fff6dc" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff6dc" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="asfalto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5c6068"/>
+      <stop offset="1" stop-color="#2c2f35"/>
+    </linearGradient>
+    <linearGradient id="pintura" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5a52"/>
+      <stop offset="1" stop-color="#a3141c"/>
+    </linearGradient>
+    <radialGradient id="rueda" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#3a3a3e"/>
+      <stop offset="1" stop-color="#0e0e10"/>
+    </radialGradient>
+    <linearGradient id="velocidad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6a3d" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ff6a3d" stop-opacity="0.7"/>
+    </linearGradient>
+    <radialGradient id="vineta" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.62" stop-color="#05060a" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
   <rect width="400" height="400" fill="url(#cielo)"/>
-  <!-- Circuito en curva -->
-  <path d="M60 400 Q120 260 260 200 Q330 175 400 182 L400 215 Q330 210 280 232 Q170 285 170 400 Z" fill="#4a4d52"/>
-  <path d="M60 400 Q120 260 260 200 Q330 175 400 182" fill="none" stroke="#e53935" stroke-width="8" stroke-dasharray="14 14"/>
-  <path d="M170 400 Q170 285 280 232 Q330 210 400 215" fill="none" stroke="#fafafa" stroke-width="6" stroke-dasharray="14 14"/>
-  <!-- Coche rival -->
-  <g transform="translate(300 196)">
-    <rect x="-22" y="-10" width="44" height="14" rx="3" fill="#1e88e5"/>
-    <rect x="-12" y="-18" width="24" height="10" rx="2" fill="#223344"/>
+  <g fill="#ffffff" opacity="0.8"><ellipse cx="300" cy="56" rx="70" ry="14"/><ellipse cx="80" cy="84" rx="50" ry="10"/></g>
+  <path d="M0 170 L60 128 L120 160 L190 112 L270 158 L330 126 L400 150 V190 H0 Z" fill="#7a98a8"/>
+  <path d="M0 186 L80 160 L160 182 L240 154 L320 180 L400 166 V200 H0 Z" fill="#4f6e5f"/>
+  <rect x="0" y="196" width="400" height="204" fill="#5aa83f"/>
+  <g fill="#2f6b3a"><path d="M24 206 l12 -40 l12 40 z"/><path d="M356 204 l14 -46 l14 46 z"/><path d="M318 200 l9 -30 l9 30 z"/></g>
+  <!-- Curva de la pista con pianos -->
+  <path d="M-20 400 Q60 230 260 200 Q380 190 420 210 V262 Q330 250 260 262 Q120 290 110 400 Z" fill="url(#asfalto)"/>
+  <path d="M-20 400 Q60 230 260 200 Q380 190 420 210" fill="none" stroke="#e53935" stroke-width="12" stroke-dasharray="18 18"/>
+  <path d="M-20 400 Q60 230 260 200 Q380 190 420 210" fill="none" stroke="#f5f5f5" stroke-width="12" stroke-dasharray="18 18" stroke-dashoffset="18"/>
+  <rect width="400" height="400" fill="url(#foco)"/>
+  <!-- Estelas de velocidad -->
+  <g stroke="url(#velocidad)" stroke-width="7" stroke-linecap="round">
+    <path d="M10 270 H150"/><path d="M30 300 H140"/><path d="M0 330 H120"/>
   </g>
-  <!-- Cabina: capó y volante -->
-  <path d="M60 400 L110 300 L290 300 L340 400 Z" fill="#d32f2f"/>
-  <rect x="0" y="352" width="400" height="48" fill="#2b2b2b"/>
-  <circle cx="200" cy="372" r="62" fill="none" stroke="#1d1d1d" stroke-width="14"/>
-  <rect x="140" y="366" width="120" height="10" fill="#1d1d1d"/>
-  <circle cx="200" cy="371" r="12" fill="#d32f2f"/>
-  <!-- Bandera a cuadros -->
-  <g transform="translate(40 50) rotate(-8)">
-    <rect x="0" y="0" width="6" height="90" fill="#555"/>
-    <g>
-      <rect x="6" y="0" width="70" height="46" fill="#fff"/>
-      <path d="M6 0h14v11.5H6zM34 0h14v11.5H34zM62 0h14v11.5H62zM20 11.5h14V23H20zM48 11.5h14V23H48zM6 23h14v11.5H6zM34 23h14v11.5H34zM62 23h14v11.5H62zM20 34.5h14V46H20zM48 34.5h14V46H48z" fill="#111"/>
-    </g>
-  </g>
+  <!-- Monoplaza de perfil, a toda velocidad -->
+  <ellipse cx="226" cy="340" rx="168" ry="16" fill="#0c0d10" opacity="0.45"/>
+  <rect x="58" y="226" width="62" height="6" rx="2" fill="#a3141c"/>
+  <rect x="58" y="232" width="62" height="14" rx="3" fill="#1c1c1c"/>
+  <rect x="80" y="244" width="10" height="56" fill="#1c1c1c"/>
+  <path d="M84 312 L94 274 Q108 254 150 254 L194 252 Q204 238 222 240 L242 254 L300 264 Q352 274 374 296 L374 312 Z" fill="url(#pintura)"/>
+  <path d="M140 302 H300" stroke="#7a0f15" stroke-width="10" opacity="0.5"/>
+  <path d="M120 286 Q200 278 300 284 Q340 288 366 300" fill="none" stroke="#f5f5f5" stroke-width="7" stroke-linecap="round"/>
+  <path d="M192 252 Q214 222 244 250" fill="none" stroke="#1c1c1c" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="216" cy="240" r="14" fill="#f2f2f2"/>
+  <path d="M216 234 h14 v8 h-14 z" fill="#ff6a3d"/>
+  <rect x="318" y="306" width="72" height="9" rx="3" fill="#1c1c1c"/>
+  <rect x="380" y="288" width="9" height="26" rx="2" fill="#a3141c"/>
+  <circle cx="132" cy="310" r="38" fill="url(#rueda)"/>
+  <circle cx="132" cy="310" r="15" fill="#8a8f98"/>
+  <circle cx="320" cy="314" r="31" fill="url(#rueda)"/>
+  <circle cx="320" cy="314" r="12" fill="#8a8f98"/>
+  <path d="M110 286 a38 38 0 0 1 44 0" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.25"/>
+  <rect width="400" height="400" fill="url(#vineta)"/>
 </svg>

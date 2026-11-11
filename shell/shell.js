@@ -11,17 +11,20 @@
 import * as THREE from 'three';
 import { t } from '../idiomas/idiomas.js';
 import { JUEGOS } from '../juegos/catalogo.js';
-import { juegosEnPruebas } from '../juegos/en-pruebas.js';
+import { juegosEnPruebas } from './en-pruebas.js';
 import { BotonCambio } from './boton-cambio.js';
 import { MenuPausa } from './menu-pausa.js';
-import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida } from './valoraciones.js';
+import { CatalogoVR } from './catalogo-vr.js';
+import { esFavorito, alternarFavorito, leGusta, alternarMeGusta, totalesMeGusta, contarPartida, favoritos, meGustaMios, estadisticasJuegos } from './valoraciones.js';
 import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hayCuenta } from './clasificacion.js';
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
+import { crearEfectos } from './efectos.js';
+import { crearHorizonte, crearArboles, geometriaArbol } from './paisaje.js';
 import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
-  texturas, texturaCanvas, crearSombra, colocarSombra,
+  texturas, texturaCanvas, crearSombra, colocarSombra, crearMano,
 } from './graficos.js';
 
 const COLOR_FONDO = 0x141826;
@@ -63,17 +66,35 @@ const entorno = crearGeneradorEntorno(renderer);
 const camara = new THREE.PerspectiveCamera(FOV_ESCRITORIO, window.innerWidth / window.innerHeight, 0.05, 100);
 escena.add(camara);
 
-const hemisferio = new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.6);
+const hemisferio = new THREE.HemisphereLight(0xdfe6ff, 0x30304a, 1.25);
 escena.add(hemisferio);
-const sol = new THREE.DirectionalLight(0xfff4e5, 1.8);
-sol.position.set(2, 5, 2);
+const sol = new THREE.DirectionalLight(0xfff1dc, 2.5);
+sol.position.set(3.5, 5, 2.5); // luz principal de lado y desde arriba: marca el volumen de las cosas
 escena.add(sol);
 
+// Horizonte lejano (montes, ciudad...) del juego actual, si lo pide
+let horizonte = null;
+// Giro del cielo y del horizonte (para juegos en los que el mundo gira alrededor del jugador)
+let giroFondo = 0;
+
 // Cambia el cielo, la niebla y el color de las luces para que todo case.
+// opciones: { cenit, horizonte, suelo, dia, nubes, estrellas, niebla: [cerca, lejos],
+//             paisaje: { tipo: 'montes' | 'colinas' | 'dunas' | 'bosque' | 'ciudad', color } }
 function aplicarFondo(color, opciones = {}) {
   const colores = { ...coloresCielo(color), ...opciones };
   cielo.aplicar(colores);
   escena.fog.color.set(colores.horizonte);
+  [escena.fog.near, escena.fog.far] = opciones.niebla || [7, 16];
+  giroFondo = 0;
+  if (horizonte) {
+    escena.remove(horizonte);
+    liberarObjeto(horizonte);
+    horizonte = null;
+  }
+  if (opciones.paisaje) {
+    horizonte = crearHorizonte({ ...opciones.paisaje, horizonte: colores.horizonte });
+    escena.add(horizonte);
+  }
   hemisferio.color.set(colores.dia ? 0xe6f0ff : 0xc8ccff).lerp(new THREE.Color(colores.cenit), 0.25);
   hemisferio.groundColor.set(colores.suelo).multiplyScalar(colores.dia ? 1 : 1.6);
   escena.environment = entorno.generar(colores);
@@ -275,12 +296,18 @@ function guardarRatonAnterior() {
 }
 
 // ─── Carga, montaje y desmontaje de juegos ───────────────────────────────
+// Kit de efectos común (ctx.efectos): impactos, estallidos y puntos que saltan (shell/efectos.js)
+const efectos = crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR: () => renderer.xr.isPresenting });
+// Los paneles 3D se pintan con Geist: hay que pedirla, porque un canvas no la descarga solo
+document.fonts?.load('700 40px Geist').catch(() => {});
+
 const modulos = new Map(); // índice -> Promise<módulo>
 let actual = null;         // { indice, instancia, raiz, adjuntos, recursos }
 // El juego inicial llega en la URL: play.html#topos (o play.html?juego=topos)
 const idInicial = location.hash.slice(1) || new URLSearchParams(location.search).get('juego');
 let indiceActual = Math.max(0, JUEGOS.findIndex((j) => j.id === idInicial));
 let cambiando = false;
+let cambioBloqueado = false; // el juego lo activa mientras el jugador lleva algo en la mano (ctx.bloquearCambio)
 let errorJuego = false;
 
 // ─── Orden aleatorio sin repetir ─────────────────────────────────────────
@@ -288,6 +315,9 @@ let errorJuego = false;
 // se baraja una vuelta nueva (sin empezar por el juego que acabas de jugar).
 // La primera vuelta incluye el juego inicial, así que solo baraja los demás.
 let cola = barajar(JUEGOS.map((_, i) => i).filter((i) => i !== indiceActual));
+// Juegos por los que has pasado, para poder volver al anterior (el último, al final)
+const historial = [];
+const MAX_HISTORIAL = 20;
 
 // Los juegos en pruebas no entran en la rotación (sí se pueden abrir con su
 // enlace). La lista llega del servidor al poco de arrancar.
@@ -352,6 +382,8 @@ function montar(indice, modulo) {
   const ctx = {
     raiz, escena, camara, renderer, manos, raton,
     enVR: () => renderer.xr.isPresenting,
+    // Mientras vale true no se puede pasar de juego (p. ej. con el balón cogido). Se reinicia al cambiar.
+    bloquearCambio(valor) { cambioBloqueado = !!valor; },
     tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
     // El juego la llama al terminar CADA partida con su resultado: puntos, segundos, golpes… según
     // juegos/marcadores.js. Con cuenta, va a la clasificación; la shell enseña el puesto.
@@ -377,6 +409,9 @@ function montar(indice, modulo) {
     },
     crearPanel,
     sonido,
+    // Sensación de juego común (docs/CALIDAD.md): ctx.efectos.impacto('pequeño'|'medio'|'grande', { pos, mano, color, sonido }),
+    // ctx.efectos.estallido(pos, { color, cantidad }), ctx.efectos.texto(pos, '+3', { color })
+    efectos: efectos.api,
     // Sonido que dura (por ejemplo 'motor'): devuelve { ajustar(valor 0-1, volumen), parar() }.
     // La shell lo para sola al cambiar de juego.
     sonidoContinuo(nombre) {
@@ -387,8 +422,19 @@ function montar(indice, modulo) {
     vibrar,
     destello: (color, fuerza) => fundido.destello(color, fuerza),
     // Cielo con degradado a partir de un color. opciones: { cenit, horizonte, suelo, dia }
+    // y, si se quiere, nubes/estrellas, niebla y un horizonte lejano (ver shell/paisaje.js):
+    //   ctx.fondo(0x8ec9f0, { niebla: [20, 70], paisaje: { tipo: 'montes', color: 0x4a6a58 } })
     fondo(color, opciones) {
       aplicarFondo(color, opciones);
+    },
+    // Árboles en InstancedMesh (3 llamadas de dibujo para todos): devuelve un grupo
+    // para añadir a ctx.raiz. lista: [{ x, z, escala }], opciones: { tipo, hojas, madera }
+    arboles: crearArboles,
+    // Geometrías de un árbol del kit ({ copa, tronco }) para quien mueve sus propias instancias
+    geometriaArbol,
+    // Gira el cielo y el horizonte (radianes, sobre el eje vertical)
+    orientarFondo(giro) {
+      giroFondo = giro;
     },
     // Kit gráfico: texturas procedurales y sombras de mancha (ver shell/graficos.js).
     // Las texturas que crea un juego hay que registrarlas con ctx.recurso().
@@ -400,6 +446,10 @@ function montar(indice, modulo) {
     },
     crearSombra,
     colocarSombra,
+    // Una mano que se abre y se cierra, para los juegos que no llevan nada en las manos (README,
+    // «Las manos se ven»): const m = ctx.crearMano('derecha', { color }); ctx.adjuntarAMano(mano, m.objeto);
+    // m.cerrar(0…1) en cada fotograma.
+    crearMano,
     vistaEscritorio(posicion, objetivo) {
       vista.posicion.copy(posicion);
       vista.objetivo.copy(objetivo);
@@ -422,6 +472,7 @@ function montar(indice, modulo) {
   // jugado: segundos de juego sin contar la pausa; a los SEGUNDOS_PARTIDA cuenta como una partida
   actual = { indice, instancia, raiz, adjuntos, recursos, continuos, jugado: 0, contada: false };
   errorJuego = false;
+  iniciarIntro();
 }
 
 function desmontar() {
@@ -440,6 +491,7 @@ function desmontar() {
   for (const r of actual.recursos) liberarRecurso(r);
   for (const s of actual.continuos) s.parar();
   actual = null;
+  efectos.limpiar();
 
   // Volver al estado base de la shell
   aplicarFondo(COLOR_FONDO);
@@ -448,14 +500,25 @@ function desmontar() {
   vista.objetivo.copy(VISTA_POR_DEFECTO.objetivo);
 }
 
-async function cambiarA(indice) {
-  if (cambiando) return;
+// volviendo: true cuando se vuelve al juego anterior (entonces no se apunta en el historial)
+async function cambiarA(indice, { volviendo = false } = {}) {
+  if (cambiando || (cambioBloqueado && actual)) return;
   cambiando = true;
   ocultarAviso();
   reanudar();
+  if (enCatalogo) {
+    await fundido.a(1, 0.3);
+    cerrarCatalogoVR();
+  }
+  const desde = actual ? indiceActual : null;
   try {
     if (actual) await fundido.a(1, 0.3);
     desmontar();
+    cambioBloqueado = false;
+    if (!volviendo && desde !== null && desde !== indice) {
+      historial.push(desde);
+      if (historial.length > MAX_HISTORIAL) historial.shift();
+    }
     indiceActual = indice;
     cola = cola.filter((i) => i !== indice); // ya jugado en esta vuelta
     actualizarInterfaz();
@@ -476,6 +539,9 @@ async function cambiarA(indice) {
     }
 
     montar(indice, modulo);
+    // Compilar ya los materiales del juego (con la pantalla en negro): si no, la GPU los compila
+    // al verlos por primera vez y el juego da tirones en los primeros segundos
+    renderer.compile(escena, camara);
     history.replaceState(null, '', `#${JUEGOS[indice].id}`);
     aplicarVista();
   } catch (e) {
@@ -505,9 +571,17 @@ function anunciarSiguiente() {
 }
 
 function siguienteJuego() {
-  if (cambiando) return;
+  if (cambiando || cambioBloqueado) return;
   sonido('boton');
   cambiarA(siguienteIndice());
+}
+
+// Vuelve al juego por el que pasaste antes (si lo pasaste sin querer o te gustó)
+const juegoAnteriorIndice = () => (historial.length ? historial[historial.length - 1] : null);
+function juegoAnterior() {
+  if (cambiando || cambioBloqueado || !historial.length) return;
+  sonido('boton');
+  cambiarA(historial.pop(), { volviendo: true });
 }
 
 // ─── Botón de cambio detrás del hombro derecho ───────────────────────────
@@ -528,30 +602,111 @@ aviso.mesh.visible = false;
 escena.add(aviso.mesh);
 let tiempoAviso = 0;
 let colocarAviso = false;
+let avisoSiguiente = null; // [lineas, segundos] que salen al acabar el aviso actual
 
-function mostrarAviso(lineas, segundos) {
+function mostrarAviso(lineas, segundos, despues = null) {
   aviso.escribir(lineas);
   tiempoAviso = segundos;
   colocarAviso = true;
+  avisoSiguiente = despues;
 }
 function ocultarAviso() {
   tiempoAviso = 0;
+  avisoSiguiente = null;
 }
 function actualizarAviso(dt) {
+  if (tiempoAviso <= 0 && avisoSiguiente && renderer.xr.isPresenting) mostrarAviso(...avisoSiguiente);
   if (tiempoAviso <= 0 || !renderer.xr.isPresenting) {
     aviso.mesh.visible = false;
     return;
   }
   tiempoAviso -= dt;
   if (colocarAviso) {
-    // Delante de la cabeza, a 1,3 m
+    // Delante de la cabeza, a 1,3 m y algo por debajo de los ojos: así no se monta
+    // con las guías de los botones de los hombros (que salen a la altura de los ojos)
     const delante = cabezaDir.clone().setY(0).normalize().multiplyScalar(1.3);
     aviso.mesh.position.copy(cabezaPos).add(delante);
-    aviso.mesh.position.y = cabezaPos.y - 0.05;
+    aviso.mesh.position.y = cabezaPos.y - 0.38;
     aviso.mesh.lookAt(cabezaPos);
     colocarAviso = false;
   }
   aviso.mesh.visible = true;
+}
+
+// ─── Instrucciones al empezar cada juego ─────────────────────────────────
+// Durante los primeros segundos de cada juego (que espera congelado, como en la pausa) se ven
+// el título y cómo se juega. Sirve para todos los juegos: usa los textos de controles del catálogo.
+const SEGUNDOS_INTRO = 5;
+let introRestante = 0;
+let introColocada = false;
+const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
+introPanel.mesh.visible = false;
+// Es interfaz: se dibuja siempre por encima de los objetos del juego, nunca queda detrás de nada
+introPanel.mesh.material.depthTest = false;
+introPanel.mesh.renderOrder = 950;
+escena.add(introPanel.mesh);
+const $intro = document.getElementById('intro-juego');
+const $introTitulo = document.getElementById('intro-titulo');
+const $introTexto = document.getElementById('intro-texto');
+const $introCuenta = document.getElementById('intro-cuenta');
+
+// Parte un texto en líneas de unos «max» caracteres (también el que no lleva espacios, como el japonés)
+function partirTexto(texto, max) {
+  const lineas = [];
+  let linea = '';
+  for (const palabra of texto.split(' ')) {
+    for (let i = 0; i < palabra.length; i += max) {
+      const trozo = palabra.slice(i, i + max);
+      if (linea && (linea + ' ' + trozo).length > max) {
+        lineas.push(linea);
+        linea = trozo;
+      } else {
+        linea = linea ? linea + ' ' + trozo : trozo;
+      }
+    }
+  }
+  if (linea) lineas.push(linea);
+  return lineas;
+}
+
+function iniciarIntro() {
+  introRestante = SEGUNDOS_INTRO;
+  introColocada = false;
+}
+
+function actualizarIntro(dt) {
+  const visible = !!actual && !errorJuego && !pausado && !enCatalogo && introRestante > 0;
+  if (visible) introRestante -= dt;
+  if (!visible || introRestante <= 0) {
+    introPanel.mesh.visible = false;
+    $intro.hidden = true;
+    return;
+  }
+  const juego = JUEGOS[actual.indice];
+  const n = Math.ceil(introRestante);
+  const cuenta = t('jugar.introEmpieza', { n });
+  const textoWeb = TACTIL ? juego.controlesTactil || juego.controlesEscritorio : juego.controlesEscritorio;
+  $introTitulo.textContent = juego.titulo;
+  $introTexto.textContent = textoWeb;
+  $introCuenta.textContent = cuenta;
+  $intro.hidden = false;
+  if (!renderer.xr.isPresenting) {
+    introPanel.mesh.visible = false;
+    introColocada = false;
+    return;
+  }
+  introPanel.escribir([
+    { texto: juego.titulo, tam: 1.3, color: '#ffd54f' },
+    ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
+    { texto: cuenta, tam: 0.9, color: '#80e8dc' },
+  ]);
+  // Se recoloca en cada fotograma, delante y hacia la izquierda de la mirada, para leerlo sin girar mucho
+  const delante = cabezaDir.clone().setY(0).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.5).multiplyScalar(1.3);
+  introPanel.mesh.position.copy(cabezaPos).add(delante);
+  introPanel.mesh.position.y = cabezaPos.y - 0.05;
+  introPanel.mesh.lookAt(cabezaPos);
+  introColocada = true;
+  introPanel.mesh.visible = true;
 }
 
 // ─── Clasificación: aviso al terminar una partida ────────────────────────
@@ -624,18 +779,69 @@ async function clasificacionPausa(juego) {
 // con ratón o en el móvil, con el botón ⏸ o la tecla Esc (menú HTML). El juego
 // no recibe actualizar() mientras está en pausa, así que se queda congelado.
 const menuPausa = new MenuPausa(crearPanel, renderer, escena);
+
+// ─── Catálogo dentro de la VR ────────────────────────────────────────────
+// Con las gafas puestas, «Volver al catálogo» no sale de la realidad virtual: se cierra el
+// juego y aparece el catálogo en 3D (shell/catalogo-vr.js). Al elegir un juego, empieza ahí mismo.
+const catalogoVR = new CatalogoVR(renderer, escena);
+let enCatalogo = false;
+let estadisticasCatalogo = {};
+
+async function abrirCatalogoVR() {
+  if (cambiando || enCatalogo) return;
+  cambiando = true;
+  reanudar();
+  ocultarAviso();
+  if (actual) {
+    await fundido.a(1, 0.3);
+    // El juego que dejas queda como "anterior" (para volver desde el catálogo o luego)
+    historial.push(indiceActual);
+    if (historial.length > MAX_HISTORIAL) historial.shift();
+    desmontar();
+  }
+  enCatalogo = true;
+  const anterior = juegoAnteriorIndice();
+  catalogoVR.abrir({
+    juegos: JUEGOS,
+    indices: indicesPublicos(),
+    favoritos: favoritos(),
+    meGusta: meGustaMios(),
+    estadisticas: estadisticasCatalogo,
+    anterior: anterior === null ? null : JUEGOS[anterior].titulo,
+  }, cabezaPos, cabezaDir);
+  document.title = `${t('catalogoVR.titulo')} · VR Play`;
+  // Las partidas y los «me gusta» llegan después, sin hacer esperar
+  estadisticasJuegos().then((e) => {
+    estadisticasCatalogo = e;
+    if (enCatalogo) catalogoVR.actualizarEstadisticas(e);
+  });
+  await fundido.a(0, 0.35);
+  cambiando = false;
+}
+
+function cerrarCatalogoVR() {
+  enCatalogo = false;
+  catalogoVR.cerrar();
+}
 const $pausa = document.getElementById('pausa');
 const $pausaTitulo = document.getElementById('pausa-titulo');
 const $pausaMeGusta = $pausa.querySelector('[data-accion="megusta"]');
 const $pausaFavorito = $pausa.querySelector('[data-accion="favorito"]');
+const $pausaAnterior = $pausa.querySelector('[data-accion="anterior"]');
 let pausado = false;
 let totalMeGusta = null;
 
 function textosPausa() {
   const juego = JUEGOS[indiceActual];
-  const datos = { titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id) };
+  const anterior = juegoAnteriorIndice();
+  const datos = {
+    titulo: juego.titulo, meGusta: leGusta(juego.id), total: totalMeGusta, favorito: esFavorito(juego.id),
+    anterior: anterior === null ? null : JUEGOS[anterior].titulo,
+  };
   menuPausa.escribir(datos);
   $pausaTitulo.textContent = datos.titulo;
+  $pausaAnterior.hidden = !datos.anterior;
+  if (datos.anterior) $pausaAnterior.textContent = `⟲ ${t('jugar.volverA', { juego: datos.anterior })}`;
   $pausaMeGusta.textContent = `${datos.meGusta ? `♥ ${t('pausa.teGusta')}` : `♡ ${t('pausa.meGusta')}`}${datos.total ? ` · ${datos.total}` : ''}`;
   $pausaMeGusta.classList.toggle('activo-megusta', datos.meGusta);
   $pausaFavorito.textContent = datos.favorito ? `★ ${t('pausa.enFavoritos')}` : `☆ ${t('pausa.guardarFavorito')}`;
@@ -656,6 +862,7 @@ function pausar() {
     }
   });
   clasificacionPausa(id);
+  ocultarAviso(); // que el aviso de VR no quede encima del menú
   if (renderer.xr.isPresenting) menuPausa.abrir(cabezaPos, cabezaDir);
   else $pausa.hidden = false;
   sonido('tic');
@@ -673,6 +880,9 @@ async function accionPausa(accion) {
   if (accion === 'continuar') {
     sonido('boton');
     reanudar();
+  } else if (accion === 'anterior') {
+    reanudar();
+    juegoAnterior();
   } else if (accion === 'megusta') {
     const r = await alternarMeGusta(id);
     if (r.total !== null) totalMeGusta = r.total;
@@ -683,8 +893,8 @@ async function accionPausa(accion) {
     textosPausa();
   } else if (accion === 'catalogo') {
     sonido('boton');
-    const sesion = renderer.xr.getSession();
-    if (sesion) sesion.end().catch(() => {}).finally(() => { location.href = 'index.html'; });
+    // En VR, el catálogo se abre dentro de la VR; sin gafas, la portada de la web
+    if (renderer.xr.isPresenting) abrirCatalogoVR();
     else location.href = 'index.html';
   }
 }
@@ -708,6 +918,7 @@ const $estado = document.getElementById('estado');
 const $carga = document.getElementById('carga');
 const $btnVR = document.getElementById('btn-vr');
 const $btnSiguiente = document.getElementById('btn-siguiente');
+const $btnAnterior = document.getElementById('btn-anterior');
 
 function actualizarInterfaz() {
   const juego = JUEGOS[indiceActual];
@@ -718,12 +929,19 @@ function actualizarInterfaz() {
     ? juego.controlesTactil || juego.controlesEscritorio
     : t('jugar.controles', { raton: juego.controlesEscritorio, vr: juego.controlesVR });
   $btnSiguiente.title = t('jugar.pasarA', { juego: siguiente.titulo });
+  const anterior = juegoAnteriorIndice();
+  $btnAnterior.hidden = anterior === null;
+  if (anterior !== null) $btnAnterior.title = t('jugar.volverA', { juego: JUEGOS[anterior].titulo });
   $estado.textContent = t('jugar.siguientePrecargando', { juego: siguiente.titulo });
 }
 
 $btnSiguiente.addEventListener('click', () => {
   activarAudio();
   siguienteJuego();
+});
+$btnAnterior.addEventListener('click', () => {
+  activarAudio();
+  juegoAnterior();
 });
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
@@ -734,6 +952,9 @@ window.addEventListener('keydown', (e) => {
   } else if (e.key === 'n' || e.key === 'N') {
     activarAudio();
     siguienteJuego();
+  } else if (e.key === 'b' || e.key === 'B') {
+    activarAudio();
+    juegoAnterior();
   }
 });
 
@@ -774,16 +995,28 @@ function alEntrarVR() {
   reanudar();
   boton.reiniciar();
   botonPausa.reiniciar();
+  // Primero, la seguridad (espacio libre y descansos); después, cómo se usan los botones de los hombros
   mostrarAviso([
+    { texto: t('jugar.vr.seguridadTitulo'), tam: 1.1, color: '#ff8a62' },
+    { texto: t('jugar.vr.seguridadEspacio'), tam: 0.75 },
+    { texto: t('jugar.vr.seguridadLimite'), tam: 0.75 },
+    { texto: t('jugar.vr.seguridadDescansos'), tam: 0.75 },
+  ], 5, [[
     { texto: t('jugar.vr.botones'), tam: 1.1, color: '#b9a8ff' },
     { texto: t('jugar.vr.derecha'), tam: 0.75 },
     { texto: t('jugar.vr.izquierda'), tam: 0.75 },
     { texto: t('jugar.vr.dejala'), tam: 0.65 },
-  ], 9);
+  ], 9]);
 }
 
 function alSalirVR() {
   document.body.classList.remove('en-vr');
+  // Si sales de VR desde el catálogo (sin juego abierto), sigues en el catálogo de la web
+  if (enCatalogo) {
+    cerrarCatalogoVR();
+    location.href = 'index.html';
+    return;
+  }
   // Si sales de VR con el juego en pausa, el menú pasa a la pantalla
   if (pausado) {
     menuPausa.cerrar();
@@ -808,10 +1041,20 @@ window.addEventListener('resize', alRedimensionar);
 const SEGUNDOS_PARTIDA = 15;
 const reloj = new THREE.Clock();
 let tiempo = 0;
+const posCamara = new THREE.Vector3();
 
 renderer.setAnimationLoop(() => {
   const dt = Math.min(reloj.getDelta(), 0.05);
   tiempo += dt;
+  cielo.actualizar(tiempo);
+  // El cielo y el horizonte van con la cámara: siempre igual de lejos, nunca se atraviesan
+  camara.getWorldPosition(posCamara);
+  cielo.mesh.position.copy(posCamara);
+  cielo.mesh.rotation.y = giroFondo;
+  if (horizonte) {
+    horizonte.position.set(posCamara.x, 0, posCamara.z);
+    horizonte.rotation.y = giroFondo;
+  }
   const enVR = renderer.xr.isPresenting;
 
   escena.updateMatrixWorld();
@@ -821,9 +1064,13 @@ renderer.setAnimationLoop(() => {
   camara.getWorldDirection(cabezaDir);
 
   // Un error dentro de un juego no debe bloquear la shell (ni el botón de cambio)
-  if (actual && !errorJuego && !pausado) {
+  efectos.antes(); // quitar la sacudida del fotograma anterior antes de que el juego mueva nada
+  const enIntro = introRestante > 0; // el juego espera mientras se ven las instrucciones
+  actualizarIntro(dt);
+  if (actual && !errorJuego && !pausado && !enIntro) {
     try {
-      actual.instancia.actualizar?.(dt, tiempo);
+      // Durante la micro-pausa de un impacto el juego recibe un dt casi nulo
+      actual.instancia.actualizar?.(efectos.escalaTiempo(dt), tiempo);
       actual.jugado += dt;
       if (!actual.contada && actual.jugado >= SEGUNDOS_PARTIDA) {
         actual.contada = true;
@@ -837,11 +1084,27 @@ renderer.setAnimationLoop(() => {
   }
   guardarRatonAnterior();
 
-  boton.grupo.visible = enVR && !pausado;
-  if (!enVR || pausado) boton.ocultarGuia();
-  botonPausa.grupo.visible = enVR && !pausado;
-  if (!enVR || pausado) botonPausa.ocultarGuia();
-  if (enVR && pausado) {
+  // Los botones de los hombros, solo jugando (ni en pausa ni en el catálogo)
+  const sinBotones = !enVR || pausado || enCatalogo;
+  boton.grupo.visible = botonPausa.grupo.visible = !sinBotones;
+  if (sinBotones) {
+    boton.ocultarGuia();
+    botonPausa.ocultarGuia();
+  }
+  if (enVR && enCatalogo) {
+    const r = catalogoVR.actualizar(manos);
+    if (r.pasar) vibrar(r.pasar, 0.15, 15);
+    const a = r.accion;
+    if (a?.tipo === 'jugar') {
+      sonido('boton');
+      cambiarA(a.indice);
+    } else if (a?.tipo === 'anterior') {
+      juegoAnterior();
+    } else if (a?.tipo === 'salir') {
+      sonido('boton');
+      renderer.xr.getSession()?.end();
+    }
+  } else if (enVR && pausado) {
     const accion = menuPausa.actualizar(manos);
     if (accion) accionPausa(accion);
   } else if (enVR) {
@@ -869,6 +1132,7 @@ renderer.setAnimationLoop(() => {
     }
   }
 
+  efectos.actualizar(pausado ? 0 : dt);
   fundido.actualizar(dt);
   actualizarAviso(dt);
   renderer.render(escena, camara);
@@ -877,6 +1141,7 @@ renderer.setAnimationLoop(() => {
 // Ayuda para depurar desde la consola del navegador: vrPlay.siguienteJuego(), vrPlay.memoria()...
 window.vrPlay = {
   siguienteJuego,
+  juegoAnterior,
   cambiarA,
   memoria: () => ({ ...renderer.info.memory }),
   dibujado: () => ({ ...renderer.info.render }), // llamadas y triángulos del último fotograma

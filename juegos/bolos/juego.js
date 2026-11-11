@@ -15,6 +15,8 @@ const ANCHO = 1.5;
 const CANAL = 0.16;            // ancho de cada canal
 const Z_FALTA = -0.5;          // línea de falta, justo delante del jugador
 const Z_BOLO1 = -10;           // bolo de cabeza (en una bolera real está a 18,3 m)
+const CENTRO_BOLOS = new THREE.Vector3(0, 0.45, Z_BOLO1 - 0.45); // donde estallan plenos y semiplenos
+const golpeBolo = new THREE.Vector3();
 const Z_FIN = -11.7;           // final de la pista: foso
 const R_BOLA = 0.12;
 const MASA_BOLA = 6;
@@ -38,13 +40,9 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x231a3a);
   // La niebla de la shell empieza a 7 m: aquí los bolos están a 11 m y se veían
   // apagados. Se aleja mientras dure el juego.
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 22;
-  niebla.far = 45;
+  ctx.fondo(0x231a3a, { niebla: [22, 45] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.45, 1.1), new THREE.Vector3(0, 0.15, Z_BOLO1));
 
   // ─── Bolera ────────────────────────────────────────────────────────────
@@ -541,10 +539,12 @@ export function iniciar(ctx) {
       ctx.destello(0x7c5cff, 0.35);
       for (const mano of ctx.manos) ctx.vibrar(mano, 0.8, 200);
       animar('pleno', ctx.t('animPleno'));
+      ctx.efectos.impacto('grande', { pos: CENTRO_BOLOS, color: 0xffd54f });
     } else if (tipo === 'semipleno') {
       ctx.sonido('punto');
       ctx.sonido('ovacion');
       animar('semipleno', ctx.t('animSemipleno'));
+      ctx.efectos.impacto('medio', { pos: CENTRO_BOLOS, color: 0xff8a3d });
     } else {
       animar('normal', derribados === 0 ? ctx.t('animCero') : ctx.t('animBolos', { n: derribados }));
     }
@@ -627,6 +627,7 @@ export function iniciar(ctx) {
           const fuerza = choque(posBola2, velBola2, MASA_BOLA, b.pos, b.vel, MASA_BOLO, R_BOLA + (b.caido ? R_BOLO_CAIDO : R_BOLO), 0.5);
           if (fuerza > 0) {
             ctx.sonido('golpe');
+            ctx.efectos.estallido(golpeBolo.set(b.pos.x, 0.2, b.pos.y), { color: 0xfff3e0, cantidad: 6, fuerza: 1.2 + fuerza * 0.3, tam: 0.016 });
             if (fuerza > VELOCIDAD_CAIDA) b.caido = true;
           }
         }
@@ -841,8 +842,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }

@@ -3,15 +3,21 @@
 // terminada (nueva, en estudio o en desarrollo). El catálogo y la rotación
 // aleatoria los esconden hasta que la sugerencia pasa a "hecha". Un juego que ya
 // salió por otra sugerencia (hecha o existe) no se esconde aunque tenga una mejora
-// en desarrollo.
+// en desarrollo. Las fichas y el mapa del sitio (fichas.js) también los esconden.
 import { json, sinBaseDeDatos } from './comun.js';
 
-export async function onRequestGet({ env }) {
-  const falta = sinBaseDeDatos(env);
-  if (falta) return falta;
+// Los ids de esos juegos (sin base de datos, ninguno)
+export async function juegosOcultos(env) {
+  if (!env.DB) return [];
   const { results } = await env.DB.prepare(
     `SELECT juego FROM sugerencias WHERE juego != '' GROUP BY juego
      HAVING SUM(estado IN ('hecha', 'existe')) = 0 AND SUM(estado IN ('nueva', 'estudio', 'desarrollo')) > 0`,
   ).all();
-  return json({ juegos: results.map((f) => f.juego) });
+  return results.map((f) => f.juego);
+}
+
+export async function onRequestGet({ env }) {
+  const falta = sinBaseDeDatos(env);
+  if (falta) return falta;
+  return json({ juegos: await juegosOcultos(env) });
 }

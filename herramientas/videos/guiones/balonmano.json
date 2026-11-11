@@ -1,0 +1,54 @@
+{
+  "es": {
+    "gancho": "Siete metros. Tú contra el portero.",
+    "frases": [
+      {
+        "texto": "Con las gafas, lanzas el balón con tu brazo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "El portero se tira a por él.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Por la escuadra vale cinco puntos más.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tres goles seguidos y los puntos se doblan.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Diez lanzamientos. ¿Cuántos metes?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Está gratis en VR Play: sin descargas ni registro."
+  },
+  "en": {
+    "gancho": "Seven metres. You against the keeper.",
+    "frases": [
+      {
+        "texto": "With a headset, you throw the ball with your own arm.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "The keeper dives for it.",
+        "plano": "pov"
+      },
+      {
+        "texto": "The top corner is worth five extra points.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Three goals in a row and your points double.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Ten throws. How many can you score?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "It's free on VR Play: no downloads, no sign-up."
+  }
+}

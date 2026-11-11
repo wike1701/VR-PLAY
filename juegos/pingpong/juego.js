@@ -46,7 +46,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (recurso) => ctx.recurso(recurso);
 
-  ctx.fondo(0x1b2338);
+  ctx.fondo(0x1b2338, { niebla: [18, 35] });
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.4, 0.95), new THREE.Vector3(0, 0.75, -2.3));
 
   // ─── Sala ──────────────────────────────────────────────────────────────
@@ -71,10 +71,6 @@ export function iniciar(ctx) {
 
   // ─── Ambiente: sala de club de tenis de mesa ───────────────────────────
   // Niebla más lejos para que se vean las paredes (la de la shell empieza a 7 m)
-  const niebla = ctx.escena.fog;
-  const nieblaOriginal = { near: niebla.near, far: niebla.far };
-  niebla.near = 18;
-  niebla.far = 35;
   // Paredes con zócalo oscuro, pared azulada, carteles y un friso con el nombre del club
   const texPared = R(ctx.texturaCanvas((g, tam, azar) => {
     g.fillStyle = '#3d5a80';
@@ -296,6 +292,7 @@ export function iniciar(ctx) {
   let mejorPeloteo = ctx.leer('peloteo', 0);
 
   const tmp = new THREE.Vector3();
+  const velPala = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
   const anterior = new THREE.Vector3();
   const relativa = new THREE.Vector3();
@@ -406,6 +403,8 @@ export function iniciar(ctx) {
     if (quien === 'jugador') {
       ctx.sonido('punto');
       for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
+      ctx.efectos.impacto('medio', { pos: bola.position, color: 0xb9f6ca });
+      ctx.efectos.texto(bola.position, '+1', { color: '#b9f6ca' });
     } else {
       ctx.sonido('fallo');
     }
@@ -466,6 +465,7 @@ export function iniciar(ctx) {
     golpesSeguidos += 1;
     enfriamiento = 0.15;
     ctx.sonido('toc');
+    if (quien === 'jugador') ctx.efectos.impacto('pequeño', { pos: bola.position, color: 0xffffff });
     return true;
   }
 
@@ -494,7 +494,7 @@ export function iniciar(ctx) {
     const d = relativa.subVectors(bola.position, centro).dot(normal);
     const enPlano = relativa.addScaledVector(normal, -d).length();
     if (enPlano > R_PALA + R_BOLA * 0.5 || Math.abs(d) > R_BOLA + GROSOR_PALA / 2) return false;
-    const velPala = new THREE.Vector3().subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4)).multiplyScalar(FUERZA_PALA);
+    velPala.subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4)).multiplyScalar(FUERZA_PALA);
     relativa.subVectors(vel, velPala);
     const vn = relativa.dot(normal);
     if (vn * Math.sign(d || 1) >= 0) return false; // ya se aleja de la pala
@@ -727,8 +727,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      niebla.near = nieblaOriginal.near;
-      niebla.far = nieblaOriginal.far;
     },
   };
 }
