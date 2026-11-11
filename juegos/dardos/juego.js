@@ -375,7 +375,7 @@ export function iniciar(ctx) {
   }
   // Los 3 dardos de la ronda: vuelan, se clavan y se recogen al terminarla
   const dardos = Array.from({ length: DARDOS_RONDA }, () => ({
-    malla: crearDardo(), vel: new THREE.Vector3(), estado: 'libre', vida: 0, sombra: null,
+    malla: crearDardo(), vel: new THREE.Vector3(), estado: 'libre', vida: 0, sombra: null, mano: null,
   }));
   for (const d of dardos) {
     d.sombra = ctx.crearSombra({ radio: 0.03, opacidad: 0.35 });
@@ -388,10 +388,7 @@ export function iniciar(ctx) {
     const malla = new THREE.Mesh(geoDardoJugador, matDardo);
     malla.visible = false;
     raiz.add(malla);
-    return {
-      mano, malla, agarrado: false, recarga: 0,
-      historial: Array.from({ length: 12 }, () => ({ pos: new THREE.Vector3(), dt: 0 })), n: 0, i: 0,
-    };
+    return { mano, malla, agarrado: false, recarga: 0 };
   });
 
   // Dardo preparado y mira (ratón y móvil)
@@ -472,9 +469,10 @@ export function iniciar(ctx) {
   }
 
   // ─── Vuelo ─────────────────────────────────────────────────────────────
-  function lanzar(vel, desde, giro) {
+  function lanzar(vel, desde, giro, mano = null) {
     if (quedan <= 0) return;
     const d = dardos[siguiente % DARDOS_RONDA];
+    d.mano = mano; // la que vibra al clavarse
     siguiente += 1;
     quedan -= 1;
     d.estado = 'vuela';
@@ -489,6 +487,7 @@ export function iniciar(ctx) {
 
   function aterrizar(d, valor, pos, mano) {
     d.estado = 'clavado';
+    if (!ctx.partida.activa) return;
     puntos += valor;
     puntosRonda += valor;
     if (valor === 0) {
@@ -573,22 +572,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  // Velocidad media de la mano en los últimos ~70 ms
-  function velocidadMano(m, salida) {
-    let tiempo = 0;
-    let k = 0;
-    const ultimo = m.historial[(m.i - 1 + 12) % 12];
-    let viejo = ultimo;
-    while (k < m.n - 1 && tiempo < 0.07) {
-      const e = m.historial[(m.i - 1 - k + 24) % 12];
-      tiempo += e.dt;
-      k += 1;
-      viejo = m.historial[(m.i - 1 - k + 24) % 12];
-    }
-    if (tiempo <= 0) return salida.set(0, 0, 0);
-    return salida.subVectors(ultimo.pos, viejo.pos).divideScalar(tiempo);
-  }
-
+  // La velocidad de la mano la mide la shell en tiempo real (media de los últimos ~70 ms)
   function manosVR(dt) {
     const puede = estado === 'jugando' && quedan > 0;
     for (const m of manos) {
@@ -597,14 +581,8 @@ export function iniciar(ctx) {
       if (!mano.activa) {
         m.malla.visible = false;
         m.agarrado = false;
-        m.n = 0;
         continue;
       }
-      const e = m.historial[m.i];
-      e.pos.copy(mano.posicion);
-      e.dt = dt;
-      m.i = (m.i + 1) % 12;
-      m.n = Math.min(12, m.n + 1);
 
       const visible = puede && m.recarga <= 0;
       m.malla.visible = visible;
@@ -622,10 +600,10 @@ export function iniciar(ctx) {
         ctx.vibrar(mano, 0.25, 25);
       } else if (!aprieta && m.agarrado) {
         m.agarrado = false;
-        velocidadMano(m, tmp);
+        mano.velocidadReciente(0.07, tmp);
         if (tmp.length() >= VEL_MINIMA) {
           tmp.multiplyScalar(FUERZA_VR);
-          lanzar(ayudar(m.malla.position, tmp), m.malla.position, m.malla.quaternion);
+          lanzar(ayudar(m.malla.position, tmp), m.malla.position, m.malla.quaternion, mano);
           m.recarga = RECARGA_MANO;
           m.malla.visible = false;
           for (const otra of manos) otra.recarga = Math.max(otra.recarga, 0.15);
@@ -691,7 +669,7 @@ export function iniciar(ctx) {
       } else {
         estado = 'fin';
         reloj = 6;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);
@@ -705,12 +683,12 @@ export function iniciar(ctx) {
     } else if (estado === 'fin' && reloj <= 0) {
       puntos = 0;
       ronda = 1;
+      ctx.partida.empezar();
       empezarRonda();
     }
 
-    const manoActiva = manos.find((m) => m.mano.activa)?.mano || null;
     for (const d of dardos) {
-      if (d.estado === 'vuela') vueloDardo(d, dt, manoActiva);
+      if (d.estado === 'vuela') vueloDardo(d, dt, d.mano);
       if (d.malla.visible) {
         d.sombra.position.set(d.malla.position.x, 0.004, d.malla.position.z);
         d.sombra.visible = d.estado === 'vuela';

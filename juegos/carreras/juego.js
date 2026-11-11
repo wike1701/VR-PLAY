@@ -580,7 +580,7 @@ export function iniciar(ctx) {
         estado = 'fin';
         reloj = 9;
         puestoFinal = puesto;
-        ctx.puntuacion(tiempoCarrera); // tiempo de carrera: menos es mejor (juegos/marcadores.js)
+        ctx.partida.terminar(tiempoCarrera); // tiempo de carrera: menos es mejor (juegos/marcadores.js)
         if (!mejorTiempo || tiempoCarrera < mejorTiempo) {
           mejorTiempo = tiempoCarrera;
           ctx.guardar('mejorTiempo', mejorTiempo);
@@ -594,6 +594,7 @@ export function iniciar(ctx) {
       }
     } else if (estado === 'fin' && reloj <= 0) {
       colocarEnParrilla();
+      ctx.partida.empezar();
       estado = 'salida';
       reloj = 4;
       segundoAnterior = 5;
@@ -635,6 +636,8 @@ export function iniciar(ctx) {
     actualizarPantallas();
   }
 
+  // Las manos (con guantes) ya van en el volante: sin las de la shell en los mandos
+  ctx.manosPorDefecto(false);
   colocarEnParrilla();
   actualizarPantallas();
 

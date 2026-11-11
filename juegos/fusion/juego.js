@@ -472,8 +472,11 @@ export function iniciar(ctx) {
   }
 
   // ─── Fusiones ──────────────────────────────────────────────────────────
+  let ultimaMano = null; // la que soltó la última fruta: es la que vibra con las fusiones
   function fusionar(a, b) {
-    const k = ctx.manos[0];
+    const k = ultimaMano;
+    // Con la partida terminada las frutas aún se funden, pero ya no suman (ni suenan a premio)
+    const suma = ctx.partida.activa;
     const total = a.nivel;
     // Se leen antes de liberar las dos: la fruta nueva puede ocupar el hueco de una de ellas
     const vx = (a.vx + b.vx) / 2;
@@ -496,6 +499,7 @@ export function iniciar(ctx) {
     if (total >= RADIOS.length - 1) {
       // Dos sandías: estallido
       const ganado = PUNTOS_SANDIAS * mult;
+      if (!suma) return;
       puntos += ganado;
       ctx.efectos.impacto('grande', { pos, mano: k, color, sonido: 'ovacion' });
       ctx.efectos.estallido(pos, { color: 0xff6a8a, cantidad: 36, fuerza: 3, tam: 0.03, vida: 0.9 });
@@ -517,6 +521,7 @@ export function iniciar(ctx) {
     f.pop = 0.3;
     f.edad = 0.5;
     const ganado = PUNTOS[nuevo] * mult;
+    if (!suma) return;
     puntos += ganado;
     const nivelImpacto = nuevo >= 6 ? 'grande' : nuevo >= 4 ? 'medio' : 'pequeño';
     ctx.efectos.impacto(nivelImpacto, { pos, mano: k, color: COLORES[nuevo], sonido: nuevo >= 4 ? 'punto' : 'boton' });
@@ -675,14 +680,15 @@ export function iniciar(ctx) {
     siguiente = nivelAlAzar();
     recarga = 0.3;
     estado = 'jugando';
+    ctx.partida.empezar();
     ctx.sonido('clac');
   }
 
   function terminar(porRebose) {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una vez
     estado = 'fin';
     espera = 6;
     rebosa = porRebose;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js): los puntos de las fusiones
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -710,6 +716,7 @@ export function iniciar(ctx) {
       siguiente = nivelAlAzar();
     }
     recarga = RECARGA;
+    ultimaMano = mano || null;
     ctx.sonido('tic');
     if (mano) ctx.vibrar(mano, 0.3, 40);
   }

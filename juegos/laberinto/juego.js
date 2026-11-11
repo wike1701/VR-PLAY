@@ -385,6 +385,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     puntos = 0;
     nivel = 0;
     caidas = 0;
@@ -394,10 +395,10 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una vez
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);

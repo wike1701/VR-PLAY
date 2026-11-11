@@ -204,9 +204,18 @@ export function iniciar(ctx) {
     vertexColors: true, side: THREE.DoubleSide, roughness: 0.55, metalness: 0.25,
   }));
 
-  function crearFlecha() {
-    return new THREE.Mesh(geoFlecha, matFlecha);
-  }
+  // Bolsa de flechas: se crean al montar y se reutilizan (nada nuevo mientras se juega)
+  const MAX_FLECHAS = 14;
+  const bolsaFlechas = Array.from({ length: MAX_FLECHAS }, () => {
+    const malla = new THREE.Mesh(geoFlecha, matFlecha);
+    malla.visible = false;
+    raiz.add(malla);
+    return {
+      malla, sombra: null, activa: false,
+      vel: new THREE.Vector3(), punta: new THREE.Vector3(), anterior: new THREE.Vector3(),
+      minimo: Infinity, pasada: false, clavada: 0,
+    };
+  });
 
   // Sombras de mancha para las flechas en vuelo (ayudan a calcular por dónde vienen)
   const sombrasLibres = [];
@@ -322,27 +331,33 @@ export function iniciar(ctx) {
     objetivo.y += 0.5 * GRAVEDAD * vuelo * vuelo;
     const dir = objetivo.sub(torre.salida).normalize();
 
-    const malla = crearFlecha();
+    let f = null;
+    for (const x of bolsaFlechas) {
+      if (!x.activa) {
+        f = x;
+        break;
+      }
+    }
+    if (!f) return; // no caben más en el aire a la vez
+    const malla = f.malla;
     malla.position.copy(torre.salida);
     malla.lookAt(tmp2.copy(torre.salida).add(dir));
-    raiz.add(malla);
-    flechas.push({
-      malla,
-      sombra: sombrasLibres.pop() || null,
-      vel: dir.clone().multiplyScalar(velocidad),
-      punta: torre.salida.clone().addScaledVector(dir, LARGO_FLECHA / 2 + 0.1),
-      anterior: new THREE.Vector3(),
-      minimo: Infinity,   // distancia mínima a la cabeza
-      pasada: false,
-      clavada: 0,         // > 0 mientras queda clavada en el suelo
-    });
+    malla.visible = true;
+    f.activa = true;
+    f.sombra = sombrasLibres.pop() || null;
+    f.vel.copy(dir).multiplyScalar(velocidad);
+    f.punta.copy(torre.salida).addScaledVector(dir, LARGO_FLECHA / 2 + 0.1);
+    f.minimo = Infinity;   // distancia mínima a la cabeza
+    f.pasada = false;
+    f.clavada = 0;         // > 0 mientras queda clavada en el suelo
+    flechas.push(f);
     ctx.sonido('corte');
   }
 
   function recibirImpacto(flecha) {
     flecha.pasada = true; // ya no puede dar puntos
-    if (invulnerable > 0) return;
-    vidas -= 1;
+    if (invulnerable > 0 || !ctx.partida.activa) return;
+    vidas = Math.max(0, vidas - 1);
     invulnerable = INVULNERABLE;
     ctx.destello(0xff1744, 0.6);
     ctx.sonido('golpe');
@@ -356,10 +371,10 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una vez
     estado = 'fin';
     reloj = 5;
     for (const t of torres) apagarTorre(t);
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -369,6 +384,7 @@ export function iniciar(ctx) {
 
   function empezar() {
     estado = 'jugando';
+    ctx.partida.empezar();
     puntos = 0;
     vidas = VIDAS;
     tiempoJuego = 0;
@@ -410,7 +426,7 @@ export function iniciar(ctx) {
           }
         }
         // Ha pasado de largo: punto (y extra si fue por los pelos)
-        if (!f.pasada && tmp.subVectors(f.punta, cabeza).dot(f.vel) > 0.3 * f.vel.length()) {
+        if (!f.pasada && ctx.partida.activa && tmp.subVectors(f.punta, cabeza).dot(f.vel) > 0.3 * f.vel.length()) {
           f.pasada = true;
           puntos += 1;
           if (f.minimo < CASI) {
@@ -436,14 +452,18 @@ export function iniciar(ctx) {
     }
   }
 
+  // Devuelve la flecha a la bolsa (se cambia por la última de la lista: sin crear arrays)
   function quitar(i) {
-    const { sombra } = flechas[i];
-    if (sombra) {
-      sombra.visible = false;
-      sombrasLibres.push(sombra);
+    const f = flechas[i];
+    if (f.sombra) {
+      f.sombra.visible = false;
+      sombrasLibres.push(f.sombra);
+      f.sombra = null;
     }
-    raiz.remove(flechas[i].malla);
-    flechas.splice(i, 1);
+    f.malla.visible = false;
+    f.activa = false;
+    flechas[i] = flechas[flechas.length - 1];
+    flechas.pop();
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
@@ -460,7 +480,9 @@ export function iniciar(ctx) {
       const progreso = Math.min(1, tiempoJuego / 75);
       proximoDisparo -= dt;
       const maxCargando = 1 + Math.floor(progreso * 3);
-      if (proximoDisparo <= 0 && torres.filter((x) => x.cargando).length < maxCargando) {
+      let cargando = 0;
+      for (const x of torres) if (x.cargando) cargando++;
+      if (proximoDisparo <= 0 && cargando < maxCargando) {
         cargarTorre(progreso);
         proximoDisparo = 1.6 - progreso * 1.15 + Math.random() * 0.4;
       }

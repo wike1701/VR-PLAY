@@ -323,25 +323,42 @@ export function iniciar(ctx) {
   const geosDardo = [0xe53935, 0x1e88e5, 0x43a047, 0xfdd835].map(geoDardo);
   const matDardo = R(new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.45, roughness: 0.4, side: THREE.DoubleSide }));
   let colorDardo = 0;
-  function crearDardo() {
-    const malla = new THREE.Mesh(geosDardo[colorDardo++ % geosDardo.length], matDardo);
+  // Bolsa de dardos: se crean al montar y se reutilizan (nada de mallas nuevas al lanzar)
+  const N_DARDOS = 24;
+  const bolsaDardos = Array.from({ length: N_DARDOS }, (_, i) => {
+    const malla = new THREE.Mesh(geosDardo[i % geosDardo.length], matDardo);
+    malla.visible = false;
+    malla.userData.libre = true;
     raiz.add(malla);
     return malla;
-  }
-
-  const enVuelo = [];   // { malla, vel, vida, reventados }
+  });
+  const enVuelo = [];   // registros de la bolsa «vuelos» que están volando
   const clavados = [];  // mallas clavadas en la caseta o en el suelo
+  const vuelos = Array.from({ length: 12 }, () => ({ malla: null, vel: new THREE.Vector3(), vida: 0, reventados: 0, mano: null, activo: false }));
+
+  function crearDardo() {
+    let malla = null;
+    for (let k = 0; k < N_DARDOS && !malla; k++) {
+      const m = bolsaDardos[(colorDardo + k) % N_DARDOS];
+      if (m.userData.libre) malla = m;
+    }
+    colorDardo++;
+    if (!malla) malla = clavados.shift(); // sin libres: se recoge el clavado más antiguo
+    if (!malla) return null;
+    malla.userData.libre = false;
+    malla.visible = true;
+    malla.scale.setScalar(1);
+    return malla;
+  }
+  function soltarDardo(malla) {
+    malla.visible = false;
+    malla.userData.libre = true;
+  }
 
   const puestos = PUESTOS_VR.map((pos) => ({ pos, dardo: null, recarga: 0 }));
 
-  // Manos visibles en VR
-  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
-  geoMano.scale(1, 0.6, 1.3);
-  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const manos = ctx.manos.map((mano) => {
-    ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
-    return { mano, dardo: null, historial: [], apretonAntes: false };
-  });
+  // En VR, las manos las pone la shell (se abren y se cierran al coger el dardo)
+  const manos = ctx.manos.map((mano) => ({ mano, dardo: null, apretonAntes: false }));
 
   // Dardo preparado en la "mano" del ratón
   const dardoRaton = new THREE.Mesh(geosDardo[0], matDardo);
@@ -472,6 +489,7 @@ export function iniciar(ctx) {
     if (estado !== 'jugando') return;
     reventados += 1;
     let valor = g.valor;
+    if (!ctx.partida.activa) return; // con la partida terminada, ni puntos
     if (dardo) {
       dardo.reventados += 1;
       if (dardo.reventados === 1) aciertos += 1;
@@ -479,8 +497,9 @@ export function iniciar(ctx) {
     }
     puntos += valor;
     ctx.sonido('punto');
-    for (const m of ctx.manos) ctx.vibrar(m, 0.35, 50);
-    ctx.efectos.impacto(valor >= 3 ? 'medio' : 'pequeño');
+    // Vibra solo la mano que lanzó el dardo
+    ctx.efectos.impacto(valor >= 3 ? 'medio' : 'pequeño', { mano: dardo?.mano || null });
+    if (dardo?.mano) ctx.vibrar(dardo.mano, 0.35, 50);
     ctx.efectos.texto(g.pos, `+${valor}`, { color: g.dorado || valor >= 3 ? '#ffd54f' : '#ffffff', tam: 1 + valor * 0.1 });
     if (dardo && dardo.reventados >= 2) avisar(ctx.t('variosDeUnDardo', { n: dardo.reventados, valor }));
     else if (g.dorado) avisar(ctx.t('dorado', { valor }));
@@ -597,17 +616,34 @@ export function iniciar(ctx) {
   }
 
   // ─── Vuelo de los dardos ───────────────────────────────────────────────
-  function lanzar(malla, vel) {
+  function lanzar(malla, vel, mano = null) {
+    let v = null;
+    for (const x of vuelos) {
+      if (!x.activo) {
+        v = x;
+        break;
+      }
+    }
+    if (!v) {
+      soltarDardo(malla);
+      return;
+    }
     if (estado === 'jugando') lanzamientos += 1;
     ctx.sonido('zas');
-    enVuelo.push({ malla, vel: vel.clone(), vida: 4, reventados: 0 });
+    v.activo = true;
+    v.malla = malla;
+    v.vel.copy(vel);
+    v.vida = 4;
+    v.reventados = 0;
+    v.mano = mano;
+    enVuelo.push(v);
   }
 
   function clavar(d, sonido) {
     d.malla.quaternion.setFromUnitVectors(MENOS_Z, dir);
     if (sonido) ctx.sonido('dardo');
     clavados.push(d.malla);
-    while (clavados.length > MAX_CLAVADOS) raiz.remove(clavados.shift());
+    while (clavados.length > MAX_CLAVADOS) soltarDardo(clavados.shift());
   }
 
   // Devuelve true si el dardo ha dejado de volar
@@ -655,7 +691,7 @@ export function iniciar(ctx) {
     d.malla.quaternion.setFromUnitVectors(MENOS_Z, dir);
     d.vida -= dt;
     if (d.vida <= 0) {
-      raiz.remove(d.malla);
+      soltarDardo(d.malla);
       return true;
     }
     return false;
@@ -674,13 +710,13 @@ export function iniciar(ctx) {
   }
 
   // Corrige un buen lanzamiento VR hacia el globo al que se apuntaba
+  const ideal = new THREE.Vector3();
+  const objetivo = new THREE.Vector3();
   function ayudar(origen, vel) {
     const rapidez = vel.length();
     if (rapidez < 2) return vel;
     let mejor = null;
     let mejorAngulo = ANGULO_AYUDA;
-    const ideal = new THREE.Vector3();
-    const objetivo = new THREE.Vector3();
     for (const g of globos) {
       if (!g.vivo || g.inflado < 0.5) continue;
       const t = g.pos.distanceTo(origen) / rapidez;
@@ -702,7 +738,7 @@ export function iniciar(ctx) {
     for (const p of puestos) {
       if (!vr) {
         if (p.dardo) {
-          raiz.remove(p.dardo);
+          soltarDardo(p.dardo);
           p.dardo = null;
         }
         continue;
@@ -711,6 +747,7 @@ export function iniciar(ctx) {
         p.recarga -= dt;
         if (p.recarga <= 0) {
           p.dardo = crearDardo();
+          if (!p.dardo) continue;
           p.dardo.position.copy(p.pos);
           p.dardo.rotation.set(0.12, 0, 0);
         }
@@ -719,32 +756,18 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  function velocidadMano(m) {
-    // Media de los últimos ~80 ms para que el lanzamiento no dependa de un solo fotograma
-    const h = m.historial;
-    let tiempo = 0;
-    let i = h.length - 1;
-    while (i > 0 && tiempo < 0.08) {
-      tiempo += h[i].dt;
-      i--;
-    }
-    if (tiempo <= 0) return new THREE.Vector3();
-    return h[h.length - 1].pos.clone().sub(h[i].pos).divideScalar(tiempo);
-  }
-
+  // La velocidad de la mano la mide la shell en tiempo real: media de los últimos 80 ms
+  const velLanzamiento = new THREE.Vector3();
   function manosVR(dt) {
     for (const m of manos) {
       const mano = m.mano;
       if (!mano.activa) {
         if (m.dardo) {
-          raiz.remove(m.dardo);
+          soltarDardo(m.dardo);
           m.dardo = null;
         }
-        m.historial.length = 0;
         continue;
       }
-      m.historial.push({ pos: mano.posicion.clone(), dt });
-      if (m.historial.length > 12) m.historial.shift();
 
       const apretonPulsado = mano.apreton && !m.apretonAntes;
       m.apretonAntes = mano.apreton;
@@ -778,8 +801,8 @@ export function iniciar(ctx) {
         mano.grip.getWorldQuaternion(quatTmp);
         m.dardo.quaternion.copy(quatTmp).multiply(GIRO_DARDO);
         if (!mano.gatillo && !mano.apreton) {
-          const vel = velocidadMano(m).multiplyScalar(FUERZA_VR);
-          lanzar(m.dardo, ayudar(m.dardo.position, vel));
+          const vel = mano.velocidadReciente(0.08, velLanzamiento).multiplyScalar(FUERZA_VR);
+          lanzar(m.dardo, ayudar(m.dardo.position, vel), mano);
           m.dardo = null;
         }
       }
@@ -829,6 +852,7 @@ export function iniciar(ctx) {
     if (r.clic && recargaRaton <= 0) {
       const t = objetivoRaton.distanceTo(MANO_RATON) / V_RATON;
       const malla = crearDardo();
+      if (!malla) return;
       malla.position.copy(MANO_RATON);
       malla.quaternion.copy(dardoRaton.quaternion);
       lanzar(malla, velocidadHacia(MANO_RATON, objetivoRaton, t, tmp2));
@@ -839,12 +863,13 @@ export function iniciar(ctx) {
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezar() {
     estado = 'jugando';
+    ctx.partida.empezar();
     puntos = 0;
     reventados = 0;
     lanzamientos = 0;
     aciertos = 0;
     tiempoRestante = DURACION;
-    for (const m of clavados) raiz.remove(m);
+    for (const m of clavados) soltarDardo(m);
     clavados.length = 0;
     preparar();
   }
@@ -857,10 +882,9 @@ export function iniciar(ctx) {
       empezar();
     } else if (estado === 'jugando') {
       tiempoRestante -= dt;
-      if (tiempoRestante <= 0) {
+      if (tiempoRestante <= 0 && ctx.partida.terminar(puntos)) { // a la clasificación (juegos/marcadores.js)
         estado = 'fin';
         reloj = 6;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);
@@ -881,7 +905,11 @@ export function iniciar(ctx) {
 
     moverGlobos(dt, t);
     for (let i = enVuelo.length - 1; i >= 0; i--) {
-      if (moverDardo(enVuelo[i], dt)) enVuelo.splice(i, 1);
+      if (moverDardo(enVuelo[i], dt)) {
+        enVuelo[i].activo = false;
+        enVuelo[i] = enVuelo[enVuelo.length - 1];
+        enVuelo.pop();
+      }
     }
     dibujarGlobos(t);
     moverTrozos(dt);

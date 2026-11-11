@@ -552,6 +552,7 @@ export function iniciar(ctx) {
   }
 
   function deshacer(f, mano) {
+    if (!ctx.partida.activa) return;
     const dist = Math.hypot(f.pos.x - cabeza.x, f.pos.z - cabeza.z);
     const extra = dist > 4 ? 10 : dist > 2.5 ? 5 : 0;
     const valor = f.tipo.puntos + extra;
@@ -569,12 +570,12 @@ export function iniciar(ctx) {
   }
 
   function atrapado(f) {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una vez
     estado = 'fin';
     reloj = 6;
     aviso = null;
     f.estado = 'ataca';
     f.tiempo = 0;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -589,6 +590,7 @@ export function iniciar(ctx) {
 
   function empezar() {
     estado = 'jugando';
+    ctx.partida.empezar();
     puntos = 0;
     tiempoJugado = 0;
     proximo = 0.4; // el primero sale casi enseguida

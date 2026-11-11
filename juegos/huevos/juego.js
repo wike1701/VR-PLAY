@@ -287,6 +287,7 @@ export function iniciar(ctx) {
     tiempoJuego = 0;
     proximo = 1.2;
     estado = 'juego';
+    ctx.partida.empezar();
     for (const h of huevos) {
       h.activo = false;
       h.malla.visible = h.sombra.visible = false;
@@ -294,10 +295,11 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    // El fin de partida ocurre una vez (lo que aún cae al perder no vuelve a terminarla)
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js)
     estado = 'fin';
     reloj = 5;
     ctx.sonido('fallo');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -305,7 +307,8 @@ export function iniciar(ctx) {
   }
 
   function perderVida(pos, mano, texto) {
-    vidas -= 1;
+    if (estado !== 'juego' || !ctx.partida.activa) return; // con la partida terminada no se pierde nada
+    vidas = Math.max(0, vidas - 1);
     aviso = texto;
     tiempoAviso = 1.3;
     ctx.efectos.impacto('grande', { pos, mano, color: 0x9a8a3a, sonido: 'podrido' });
@@ -370,6 +373,7 @@ export function iniciar(ctx) {
     h.activo = false;
     h.malla.visible = h.sombra.visible = false;
     cesta.balanceo = 1;
+    if (estado !== 'juego' || !ctx.partida.activa) return; // tras el fin, ni puntos ni vidas
     tmp.copy(cesta.centro);
     tmp.y += 0.08;
     if (h.tipo === 'podrido') {
@@ -412,8 +416,9 @@ export function iniciar(ctx) {
   }
 
   // Coloca una cesta colgando de un punto (siempre derecha, con un balanceo que se apaga)
-  function colocarCesta(c, x, y, z, dt) {
-    c.velX = (x - c.antesX) / Math.max(dt, 1e-3);
+  // dtReal: la velocidad de la mano se mide en tiempo real (la micro-pausa no la dispara)
+  function colocarCesta(c, x, y, z, dt, dtReal) {
+    c.velX = c.mano ? c.mano.velocidad.x : (x - c.antesX) / Math.max(dtReal, 1e-3);
     c.antesX = x;
     c.centro.set(x, y, z);
     c.grupo.position.copy(c.centro);
@@ -424,7 +429,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezar();
@@ -433,11 +438,11 @@ export function iniciar(ctx) {
     const vr = ctx.enVR();
     for (const c of cestas) {
       c.grupo.visible = c.sombra.visible = vr && c.mano.activa;
-      if (c.grupo.visible) colocarCesta(c, c.mano.posicion.x, c.mano.posicion.y - BAJO_MANO, c.mano.posicion.z, dt);
+      if (c.grupo.visible) colocarCesta(c, c.mano.posicion.x, c.mano.posicion.y - BAJO_MANO, c.mano.posicion.z, dt, dtReal);
     }
     cestaRaton.grupo.visible = cestaRaton.sombra.visible = !vr && (ctx.raton.dentro || ctx.tactil);
     if (!vr && ctx.raton.rayo.ray.intersectPlane(plano, tmp)) {
-      colocarCesta(cestaRaton, THREE.MathUtils.clamp(tmp.x, -0.95, 0.95), THREE.MathUtils.clamp(tmp.y, 0.45, 1.6), Z_CAIDA, dt);
+      colocarCesta(cestaRaton, THREE.MathUtils.clamp(tmp.x, -0.95, 0.95), THREE.MathUtils.clamp(tmp.y, 0.45, 1.6), Z_CAIDA, dt, dtReal);
     }
 
     if (estado === 'juego') {

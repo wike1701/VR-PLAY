@@ -29,7 +29,6 @@ const CARTELES_Y = 1.26;        // tablero de carteles, al otro lado de la cinta
 const CARTELES_Z = -1.0;
 const R_COGER = 0.13;           // distancia de la mano para coger un objeto (VR)
 const GRAVEDAD = 9.8;
-const HISTORIAL = 8;
 
 // Los 4 colores (y el de cada cubo) y los 4 tipos de objeto
 const COLORES = [0xe53935, 0x1e88e5, 0xfdd835, 0x43a047];
@@ -410,7 +409,6 @@ export function iniciar(ctx) {
     ctx.adjuntarAMano(mano, pinza);
     return {
       mano, dedos, punto: new THREE.Vector3(), objeto: null,
-      posiciones: Array.from({ length: HISTORIAL }, () => new THREE.Vector3()), tiempos: new Float64Array(HISTORIAL).fill(-1), idx: 0,
     };
   });
 
@@ -549,7 +547,7 @@ export function iniciar(ctx) {
     o.vida = 0.5;
     o.cubo = cubo.indice;
     o.sombra.visible = false;
-    if (estado !== 'juego') return;
+    if (estado !== 'juego' || !ctx.partida.activa) return;
     if (correcto(o, cubo)) {
       puntos++;
       racha++;
@@ -570,8 +568,8 @@ export function iniciar(ctx) {
   }
 
   function fallo(texto, o) {
-    if (estado !== 'juego') return;
-    vidas--;
+    if (estado !== 'juego' || !ctx.partida.activa) return;
+    vidas = Math.max(0, vidas - 1);
     racha = 0;
     ctx.sonido('zumbador');
     ctx.destello(0xff1744, 0.3);
@@ -583,9 +581,10 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    // objetos bien clasificados, a la clasificación (juegos/marcadores.js); solo una vez
+    if (!ctx.partida.terminar(puntos)) return;
     estado = 'fin';
     reloj = 6;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js): objetos bien clasificados
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -597,6 +596,7 @@ export function iniciar(ctx) {
 
   function empezar() {
     estado = 'juego';
+    ctx.partida.empezar();
     puntos = 0;
     racha = 0;
     vidas = VIDAS;
@@ -642,7 +642,6 @@ export function iniciar(ctx) {
 
   // ─── VR ────────────────────────────────────────────────────────────────
   function actualizarVR(dt) {
-    const real = performance.now() / 1000; // tiempo real: la micro-pausa de los efectos no cambia la velocidad
     manos.forEach((m, i) => {
       const cerrada = m.mano.gatillo;
       m.dedos[0].position.x = cerrada ? -0.011 : -0.022;
@@ -652,9 +651,6 @@ export function iniciar(ctx) {
         return;
       }
       m.mano.grip.localToWorld(m.punto.set(0, 0, -0.06));
-      m.posiciones[m.idx].copy(m.punto);
-      m.tiempos[m.idx] = real;
-      m.idx = (m.idx + 1) % HISTORIAL;
       if (m.mano.gatilloPulsado && !m.objeto && estado === 'juego') {
         // Coge el objeto más cercano a la pinza
         let elegidoVR = null;
@@ -684,19 +680,9 @@ export function iniciar(ctx) {
     const o = m.objeto;
     m.objeto = null;
     if (!o || o.estado !== 'mano') return;
-    // Velocidad de la mano en los últimos ~70 ms
-    const n = HISTORIAL;
-    const actual = (m.idx - 1 + n) % n;
-    let j = actual;
-    for (let i = 1; i < n; i++) {
-      const k = (actual - i + n) % n;
-      if (m.tiempos[k] < 0) break;
-      j = k;
-      if (m.tiempos[actual] - m.tiempos[k] >= 0.07) break;
-    }
-    const dtv = m.tiempos[actual] - m.tiempos[j];
-    if (dtv > 0) velMano.subVectors(m.posiciones[actual], m.posiciones[j]).divideScalar(dtv);
-    else velMano.set(0, 0, 0);
+    // Velocidad de la mano en los últimos ~70 ms (la mide la shell en tiempo real: la micro-pausa
+    // de los efectos no la cambia)
+    m.mano.velocidadReciente(0.07, velMano);
     if (velMano.length() > 7) velMano.setLength(7);
     o.estado = 'vuelo';
     o.vel.copy(velMano);

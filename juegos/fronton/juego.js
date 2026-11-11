@@ -469,6 +469,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     puntos = 0;
     golpes = 0;
     dianas = 0;
@@ -486,7 +487,7 @@ export function iniciar(ctx) {
   }
 
   function perder(clave) {
-    if (estado === 'fin') return;
+    if (estado === 'fin' || !ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js)
     estado = 'fin';
     reloj = 5;
     decir(ctx.t(clave), '#ff8a80', 5);
@@ -494,7 +495,6 @@ export function iniciar(ctx) {
     for (const m of ctx.manos) ctx.vibrar(m, 0.5, 120);
     ctx.destello(0xff2a2a, 0.15);
     quitarDiana();
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       nuevoRecord = true;
@@ -597,13 +597,16 @@ export function iniciar(ctx) {
 
   // ─── Física de la bola ─────────────────────────────────────────────────
   // Choque bola-pala con la pala interpolada entre el fotograma anterior y este
-  function chocarPala(p, f, h) {
+  // dtRealFrame: la pala (la mano) se mide en tiempo real, para que la micro-pausa de un impacto
+  // no multiplique su velocidad
+  let dtRealFrame = 1 / 72;
+  function chocarPala(p, f) {
     const centro = tmp.lerpVectors(p.centroAntes, p.centro, f);
     const normal = tmp2.lerpVectors(p.normalAntes, p.normal, f).normalize();
     const d = relativa.subVectors(bola.position, centro).dot(normal);
     const enPlano = relativa.addScaledVector(normal, -d).length();
     if (enPlano > R_PALA + R_BOLA * 0.5 || Math.abs(d) > R_BOLA + GROSOR_PALA / 2) return false;
-    velPala.subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4)).multiplyScalar(FUERZA_PALA);
+    velPala.subVectors(p.centro, p.centroAntes).divideScalar(Math.max(dtRealFrame, 1e-3)).multiplyScalar(FUERZA_PALA);
     relativa.subVectors(vel, velPala);
     const vn = relativa.dot(normal);
     if (vn * Math.sign(d || 1) >= 0) return false; // ya se aleja de la pala
@@ -619,10 +622,10 @@ export function iniciar(ctx) {
     if (estado === 'saque') {
       // Flota esperando el saque, con un leve vaivén
       bola.position.y = MESA_Y + 0.3 + Math.sin(tiempo * 3) * 0.015;
-      if (palaVR) for (let i = 1; i <= 4; i++) if (chocarPala(palaVR, i / 4, dt)) break;
+      if (palaVR) for (let i = 1; i <= 4; i++) if (chocarPala(palaVR, i / 4)) break;
       return;
     }
-    const rapidez = Math.max(vel.length(), palaVR ? palaVR.centro.distanceTo(palaVR.centroAntes) / dt : 0);
+    const rapidez = Math.max(vel.length(), palaVR ? palaVR.centro.distanceTo(palaVR.centroAntes) / Math.max(dtRealFrame, 1e-3) : 0);
     const pasos = Math.min(24, Math.max(1, Math.ceil((rapidez * dt) / 0.012)));
     const h = dt / pasos;
     for (let i = 1; i <= pasos; i++) {
@@ -648,7 +651,7 @@ export function iniciar(ctx) {
         }
       }
       // Pala VR
-      if (palaVR && estado === 'vuelta' && chocarPala(palaVR, i / pasos, h * pasos)) continue;
+      if (palaVR && estado === 'vuelta' && chocarPala(palaVR, i / pasos)) continue;
       // Suelo
       if (p.y < R_BOLA) {
         p.y = R_BOLA;
@@ -705,13 +708,13 @@ export function iniciar(ctx) {
     return activa;
   }
 
-  function palaRatonActualizar(dt) {
+  function palaRatonActualizar(dt, dtReal) {
     const r = ctx.raton;
     pivoteRaton.visible = r.dentro || ctx.tactil;
     if (r.rayo.ray.intersectPlane(planoRaton, tmp)) {
       tmp.x = THREE.MathUtils.clamp(tmp.x, -ANCHO / 2 - 0.3, ANCHO / 2 + 0.3);
       tmp.y = THREE.MathUtils.clamp(tmp.y, MESA_Y + 0.02, MESA_Y + 0.9);
-      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dt, 1e-3));
+      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dtReal, 1e-3));
       pivoteRaton.position.lerp(tmp, Math.min(1, dt * 25));
     }
     // Inclinación según hacia dónde se mueve (queda más natural)
@@ -764,7 +767,8 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
+    dtRealFrame = dtReal;
     tiempo += dt;
     enfriamiento = Math.max(0, enfriamiento - dt);
     tiempoMensaje -= dt;
@@ -780,7 +784,7 @@ export function iniciar(ctx) {
       palaVR = palasVRActualizar();
     } else {
       for (const p of palasVR) p.objeto.visible = false;
-      palaRatonActualizar(dt);
+      palaRatonActualizar(dt, dtReal);
     }
     if (estado !== 'fin' || bola.position.y > 0.03) moverBola(dt, palaVR);
 

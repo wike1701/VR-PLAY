@@ -309,6 +309,18 @@ export function iniciar(ctx) {
     }
   }
 
+  // Las presas que ya han quedado muy abajo se quitan de la lista (sin crear arrays: se compacta
+  // en el sitio), para que no crezca durante toda la subida
+  function podarPresas(h) {
+    if (presas.length < 140) return;
+    let n = 0;
+    for (const p of presas) {
+      const enUso = agarres[0].presa === p || agarres[1].presa === p || anclaRaton === p || anclaAnterior === p;
+      if (enUso || p.y > h - 6) presas[n++] = p;
+    }
+    presas.length = n;
+  }
+
   function prepararSubida() {
     semilla = Math.floor(Math.random() * 2147483646) + 1;
     presas = [];
@@ -348,6 +360,7 @@ export function iniciar(ctx) {
   function agarrar(presa, t) {
     if (estado === 'listo' || estado === 'fin') {
       estado = 'subiendo';
+      ctx.partida.empezar();
       primeraVez = false;
     }
     if (presa.tipo === 'quebradiza' && presa.estado === 'ok') {
@@ -600,6 +613,7 @@ export function iniciar(ctx) {
       tSubiendo += dt;
       maxAltura = Math.max(maxAltura, h);
       generarHasta(h + 9);
+      podarPresas(h);
       // La lava sube cada vez más deprisa, y si se queda muy atrás, te alcanza antes
       const distancia = h - nivelLava;
       const velocidad = Math.min(1.2, 0.06 + tSubiendo * 0.004) + Math.max(0, distancia - 6) * 0.25;
@@ -636,7 +650,7 @@ export function iniciar(ctx) {
           record = maxAltura;
           ctx.guardar('record', record);
         }
-        ctx.puntuacion(Math.floor(maxAltura)); // metros subidos (juegos/marcadores.js)
+        ctx.partida.terminar(Math.floor(maxAltura)); // metros subidos (juegos/marcadores.js)
         prepararSubida();
         estado = 'fin';
       }

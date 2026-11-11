@@ -417,19 +417,19 @@ export function iniciar(ctx) {
     limon: null,
     kiwi: null,
   };
-  function adornar(malla, t) {
+  // Coloca el rabito y la hoja (ya creados) de una fruta de la bolsa según su tipo
+  function adornar(o, t) {
     const a = ADORNOS[t.nombre];
+    o.rabito.visible = o.hoja.visible = !!a;
     if (!a) return;
-    const rabito = new THREE.Mesh(geoRabito, matRabito);
-    rabito.scale.y = a.rabito[0];
-    rabito.position.y = a.rabito[1] + a.rabito[0] / 2 - 0.01;
-    rabito.rotation.z = a.rabito[2];
-    const hoja = new THREE.Mesh(geoHoja, matHoja);
-    hoja.scale.setScalar(a.hoja[0]);
-    hoja.position.set(a.hoja[0] * 0.9, a.hoja[1], 0);
-    hoja.rotation.set(-1.1, 0, -0.5);
-    malla.add(rabito, hoja);
+    o.rabito.scale.set(1, a.rabito[0], 1);
+    o.rabito.position.set(0, a.rabito[1] + a.rabito[0] / 2 - 0.01, 0);
+    o.rabito.rotation.set(0, 0, a.rabito[2]);
+    o.hoja.scale.setScalar(a.hoja[0]);
+    o.hoja.position.set(a.hoja[0] * 0.9, a.hoja[1], 0);
+    o.hoja.rotation.set(-1.1, 0, -0.5);
   }
+
 
   const geoBomba = R(new THREE.SphereGeometry(0.1, 18, 12));
   const matBomba = R(new THREE.MeshStandardMaterial({ color: 0x26262b, roughness: 0.35, metalness: 0.6, emissive: 0x000000 }));
@@ -523,7 +523,7 @@ export function iniciar(ctx) {
   const estela = new THREE.Line(geoEstela, R(new THREE.LineBasicMaterial({ color: 0xffffff })));
   estela.frustumCulled = false;
   raiz.add(estela);
-  const puntosEstela = [];
+  let nEstela = 0;
   let vidaEstela = 0;
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -534,7 +534,6 @@ export function iniciar(ctx) {
 
   // ─── Estado ────────────────────────────────────────────────────────────
   const objetos = []; // fruta y bombas en el aire
-  const piezas = [];  // mitades, gotas y humo
   let puntos = 0;
   let vidas = VIDAS;
   let record = ctx.leer('record', 0);
@@ -571,12 +570,16 @@ export function iniciar(ctx) {
     }
   }
 
-  function crearObjeto(esBomba) {
-    const x = (Math.random() * 2 - 1) * 0.6;
+  // ─── Bolsas de objetos: todo se crea aquí, al montar el juego, y se reutiliza ──
+  // (crear mallas o vectores mientras se juega hace que el Quest pare a limpiar memoria)
+  const MAX_FRUTAS = 14;
+  const MAX_BOMBAS = 5;
+  const MAX_MITADES = 20;
+  function nuevoObjeto(esBomba) {
     let malla;
-    let radio;
-    let tipo = -1;
     let colision;
+    let rabito = null;
+    let hoja = null;
     if (esBomba) {
       malla = new THREE.Group();
       colision = new THREE.Mesh(geoBomba, matBomba);
@@ -585,32 +588,73 @@ export function iniciar(ctx) {
       const chispa = new THREE.Mesh(geoChispa, matChispa);
       chispa.position.y = 0.15;
       malla.add(colision, mecha, chispa);
-      radio = 0.1;
     } else {
-      tipo = Math.floor(Math.random() * TIPOS.length);
-      malla = new THREE.Mesh(geoFruta[tipo], matPiel[tipo]);
-      adornar(malla, TIPOS[tipo]);
+      malla = new THREE.Mesh(geoFruta[0], matPiel[0]);
+      rabito = new THREE.Mesh(geoRabito, matRabito);
+      hoja = new THREE.Mesh(geoHoja, matHoja);
+      malla.add(rabito, hoja);
       colision = malla;
-      radio = TIPOS[tipo].radio * (TIPOS[tipo].nombre === 'sandia' ? 1.1 : 1);
+    }
+    malla.visible = false;
+    raiz.add(malla);
+    const o = {
+      malla, colision, rabito, hoja, radio: 0.1, tipo: -1, sombra: null, bomba: esBomba,
+      activo: false, cortado: false, gravedad: GRAVEDAD, vel: new THREE.Vector3(), giro: new THREE.Vector3(),
+    };
+    colision.userData.objeto = o;
+    return o;
+  }
+  const bolsaFrutas = Array.from({ length: MAX_FRUTAS }, () => nuevoObjeto(false));
+  const bolsaBombas = Array.from({ length: MAX_BOMBAS }, () => nuevoObjeto(true));
+  // Mitades de la fruta cortada (piel + cara de pulpa), de cualquier tipo
+  const mitades = Array.from({ length: MAX_MITADES }, () => {
+    const grupo = new THREE.Group();
+    const piel = new THREE.Mesh(geoMitad[0], matPiel[0]);
+    const cara = new THREE.Mesh(geoCara[0], matInterior[0]);
+    cara.rotation.x = Math.PI / 2;
+    grupo.add(piel, cara);
+    grupo.visible = false;
+    raiz.add(grupo);
+    return { grupo, piel, cara, vel: new THREE.Vector3(), giro: new THREE.Vector3(), vida: 0 };
+  });
+  let siguienteMitad = 0;
+  const dirMitad = new THREE.Vector3();
+  const normalCorte = new THREE.Vector3();
+
+  function crearObjeto(esBomba) {
+    const bolsa = esBomba ? bolsaBombas : bolsaFrutas;
+    let objeto = null;
+    for (const o of bolsa) {
+      if (!o.activo) {
+        objeto = o;
+        break;
+      }
+    }
+    if (!objeto) return; // nunca hay tantos a la vez; si pasa, este no sale
+    const x = (Math.random() * 2 - 1) * 0.6;
+    if (!esBomba) {
+      const tipo = Math.floor(Math.random() * TIPOS.length);
+      objeto.tipo = tipo;
+      objeto.malla.geometry = geoFruta[tipo];
+      objeto.malla.material = matPiel[tipo];
+      adornar(objeto, TIPOS[tipo]);
+      objeto.radio = TIPOS[tipo].radio * (TIPOS[tipo].nombre === 'sandia' ? 1.1 : 1);
     }
     // Más dificultad: más repartida a lo ancho y más rápida (sube y baja antes,
     // a la misma altura, porque la gravedad y el impulso crecen a la vez)
     const d = dificultad();
     const ancho = 0.6 + d * 0.35;
+    const malla = objeto.malla;
     malla.position.set(x * (ancho / 0.6), 0.15, -1.1 - Math.random() * 0.3);
     malla.rotation.set(Math.random() * 3, Math.random() * 3, 0);
-    raiz.add(malla);
+    malla.visible = true;
     const rapidez = 1 + d * 0.7;
-    const objeto = {
-      malla, colision, radio, tipo,
-      sombra: sombrasLibres.pop() || null,
-      bomba: esBomba,
-      cortado: false,
-      gravedad: GRAVEDAD * rapidez,
-      vel: new THREE.Vector3(-x * 0.35 + (Math.random() * 2 - 1) * 0.25, (3.4 + Math.random() * 0.7) * Math.sqrt(rapidez), 0.1),
-      giro: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(4 * rapidez),
-    };
-    colision.userData.objeto = objeto;
+    objeto.activo = true;
+    objeto.cortado = false;
+    objeto.sombra = sombrasLibres.pop() || null;
+    objeto.gravedad = GRAVEDAD * rapidez;
+    objeto.vel.set(-x * 0.35 + (Math.random() * 2 - 1) * 0.25, (3.4 + Math.random() * 0.7) * Math.sqrt(rapidez), 0.1);
+    objeto.giro.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(4 * rapidez);
     objetos.push(objeto);
   }
 
@@ -629,10 +673,15 @@ export function iniciar(ctx) {
     proximoLanzamiento = 1.6 - d * 0.95 + Math.random() * 0.4;
   }
 
+  // Lo devuelve a su bolsa (sin crear arrays: se cambia por el último de la lista)
   function quitar(objeto) {
     const i = objetos.indexOf(objeto);
-    if (i >= 0) objetos.splice(i, 1);
-    raiz.remove(objeto.malla);
+    if (i >= 0) {
+      objetos[i] = objetos[objetos.length - 1];
+      objetos.pop();
+    }
+    objeto.activo = false;
+    objeto.malla.visible = false;
     if (objeto.sombra) {
       objeto.sombra.visible = false;
       sombrasLibres.push(objeto.sombra);
@@ -640,18 +689,12 @@ export function iniciar(ctx) {
     }
   }
 
-  function agregarPieza(malla, vel, vida, giro = null, encoger = false) {
-    raiz.add(malla);
-    piezas.push({ malla, vel, vida, vidaInicial: vida, giro, encoger });
-  }
-
   function perderVida() {
-    if (estado !== 'jugando') return;
-    vidas--;
-    if (vidas <= 0) {
+    if (estado !== 'jugando' || !ctx.partida.activa) return;
+    vidas = Math.max(0, vidas - 1);
+    if (vidas <= 0 && ctx.partida.terminar(puntos)) { // a la clasificación (juegos/marcadores.js)
       estado = 'fin';
       reloj = 4;
-      ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
       if (puntos > record) {
         record = puntos;
         ctx.guardar('record', record);
@@ -677,7 +720,7 @@ export function iniciar(ctx) {
       return;
     }
 
-    if (estado === 'jugando') puntos++;
+    if (estado === 'jugando' && ctx.partida.activa) puntos++;
     ctx.sonido('corte');
     // Zumo del color de la pulpa, el +1 y, si se cortan varias seguidas, el combo
     const pulpa = TIPOS[objeto.tipo].interior;
@@ -688,33 +731,38 @@ export function iniciar(ctx) {
     if (combo >= 3) ctx.efectos.texto(centro, ctx.t('combo', { n: combo }), { color: '#ffd54f', tam: 1.2 });
     else ctx.efectos.texto(centro, '+1', { color: '#ffffff' });
 
-    // Dos mitades que se separan a lo largo de la normal del corte
-    for (const signo of [1, -1]) {
-      const mitad = new THREE.Group();
-      const piel = new THREE.Mesh(geoMitad[objeto.tipo], matPiel[objeto.tipo]);
-      const cara = new THREE.Mesh(geoCara[objeto.tipo], matInterior[objeto.tipo]);
-      cara.rotation.x = Math.PI / 2;
-      mitad.add(piel, cara);
-      const dir = normal.clone().multiplyScalar(signo);
-      mitad.position.copy(centro).addScaledVector(dir, 0.01);
-      mitad.quaternion.setFromUnitVectors(EJE_Y, dir);
-      const vel = objeto.vel.clone().multiplyScalar(0.5).addScaledVector(dir, 1.2);
-      const giro = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(6);
-      agregarPieza(mitad, vel, 3, giro);
+    // Dos mitades que se separan a lo largo de la normal del corte (de la bolsa de mitades)
+    for (let signo = 1; signo >= -1; signo -= 2) {
+      const m = mitades[siguienteMitad];
+      siguienteMitad = (siguienteMitad + 1) % MAX_MITADES;
+      m.piel.geometry = geoMitad[objeto.tipo];
+      m.piel.material = matPiel[objeto.tipo];
+      m.cara.geometry = geoCara[objeto.tipo];
+      m.cara.material = matInterior[objeto.tipo];
+      dirMitad.copy(normal).multiplyScalar(signo);
+      m.grupo.position.copy(centro).addScaledVector(dirMitad, 0.01);
+      m.grupo.quaternion.setFromUnitVectors(EJE_Y, dirMitad);
+      m.grupo.visible = true;
+      m.vel.copy(objeto.vel).multiplyScalar(0.5).addScaledVector(dirMitad, 1.2);
+      m.giro.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(6);
+      m.vida = 3;
     }
   }
 
+  // Normal del plano de corte (se escribe en normalCorte: sin crear vectores)
   function normalDeCorte(direccionHoja, movimiento) {
-    const n = tmp3.crossVectors(direccionHoja, movimiento);
-    if (n.lengthSq() < 1e-8) return new THREE.Vector3(1, 0, 0);
-    return n.normalize().clone();
+    const n = normalCorte.crossVectors(direccionHoja, movimiento);
+    if (n.lengthSq() < 1e-8) return n.set(1, 0, 0);
+    return n.normalize();
   }
 
   // ─── Cortes con los mandos VR ──────────────────────────────────────────
   function comprobarSegmento(a, b, espada) {
     segmento.set(a, b);
-    for (const objeto of objetos.slice()) {
-      if (objeto.cortado) continue;
+    // Hacia atrás: cortar saca el objeto de la lista cambiándolo por el último (ya revisado)
+    for (let i = objetos.length - 1; i >= 0; i--) {
+      const objeto = objetos[i];
+      if (!objeto || objeto.cortado) continue;
       segmento.closestPointToPoint(objeto.malla.position, true, tmp);
       if (tmp.distanceTo(objeto.malla.position) < objeto.radio + 0.03) {
         const movimiento = tmp2.subVectors(espada.punta, espada.puntaAnterior);
@@ -724,7 +772,10 @@ export function iniciar(ctx) {
     }
   }
 
-  function cortesVR(dt) {
+  // dtReal: la velocidad de la hoja se mide en tiempo real (la micro-pausa de una bomba no la dispara)
+  const medioInicio = new THREE.Vector3();
+  const medioPunta = new THREE.Vector3();
+  function cortesVR(dtReal) {
     for (const espada of espadas) {
       if (!espada.mano.activa) {
         espada.lista = false;
@@ -733,13 +784,13 @@ export function iniciar(ctx) {
       espada.mano.grip.localToWorld(espada.inicio.set(0, 0, INICIO_HOJA));
       espada.mano.grip.localToWorld(espada.punta.set(0, 0, PUNTA_HOJA));
       if (espada.lista) {
-        const velocidad = espada.punta.distanceTo(espada.puntaAnterior) / dt;
+        const velocidad = espada.punta.distanceTo(espada.puntaAnterior) / Math.max(dtReal, 1e-3);
         if (velocidad > VELOCIDAD_CORTE_VR) {
           comprobarSegmento(espada.inicio, espada.punta, espada);
           // Posición intermedia, para no "atravesar" fruta en golpes muy rápidos
-          const a = espada.inicio.clone().lerp(espada.inicioAnterior, 0.5);
-          const b = espada.punta.clone().lerp(espada.puntaAnterior, 0.5);
-          comprobarSegmento(a, b, espada);
+          medioInicio.lerpVectors(espada.inicio, espada.inicioAnterior, 0.5);
+          medioPunta.lerpVectors(espada.punta, espada.puntaAnterior, 0.5);
+          comprobarSegmento(medioInicio, medioPunta, espada);
         }
       }
       espada.inicioAnterior.copy(espada.inicio);
@@ -751,6 +802,8 @@ export function iniciar(ctx) {
   // ─── Cortes con el ratón ───────────────────────────────────────────────
   const rayoAux = new THREE.Raycaster();
   const ndcAux = new THREE.Vector2();
+  const colisiones = [];
+  const choques = [];
 
   function cortesRaton(dt) {
     const raton = ctx.raton;
@@ -758,14 +811,19 @@ export function iniciar(ctx) {
     cursor.visible = visible;
     raton.rayo.ray.at(1.55, cursor.position);
 
-    puntosEstela.push(cursor.position.clone());
-    if (puntosEstela.length > MAX_ESTELA) puntosEstela.shift();
+    // Estela: los últimos puntos del cursor, corriendo el array (sin crear vectores)
+    const pos = geoEstela.attributes.position;
+    const arr = pos.array;
+    if (nEstela < MAX_ESTELA) nEstela++;
+    else arr.copyWithin(0, 3);
+    const k = (nEstela - 1) * 3;
+    arr[k] = cursor.position.x;
+    arr[k + 1] = cursor.position.y;
+    arr[k + 2] = cursor.position.z;
     vidaEstela = raton.velocidadPx > 300 ? 0.12 : Math.max(0, vidaEstela - dt);
     estela.visible = visible && vidaEstela > 0;
-    const pos = geoEstela.attributes.position;
-    puntosEstela.forEach((p, i) => pos.setXYZ(i, p.x, p.y, p.z));
     pos.needsUpdate = true;
-    geoEstela.setDrawRange(0, puntosEstela.length);
+    geoEstela.setDrawRange(0, nEstela);
 
     if (!visible || raton.velocidadPx < VELOCIDAD_CORTE_RATON || objetos.length === 0) return;
 
@@ -776,11 +834,14 @@ export function iniciar(ctx) {
     const normal = normalDeCorte(raton.rayo.ray.direction, movimiento);
 
     // Muestreamos varios rayos entre la posición anterior y la actual del ratón
-    const colisiones = objetos.filter((o) => !o.cortado).map((o) => o.colision);
+    colisiones.length = 0;
+    for (const o of objetos) if (!o.cortado) colisiones.push(o.colision);
     for (let paso = 0; paso <= 3; paso++) {
       ndcAux.lerpVectors(raton.ndcAnterior, raton.ndc, paso / 3);
       rayoAux.setFromCamera(ndcAux, ctx.camara);
-      for (const choque of rayoAux.intersectObjects(colisiones, false)) {
+      choques.length = 0;
+      rayoAux.intersectObjects(colisiones, false, choques);
+      for (const choque of choques) {
         const objeto = choque.object.userData.objeto;
         if (objeto && !objeto.cortado) cortar(objeto, normal, null);
       }
@@ -788,13 +849,15 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     if (estado === 'intro' && reloj <= 0) {
       estado = 'jugando';
+      ctx.partida.empezar();
       proximoLanzamiento = 0.3;
     } else if (estado === 'fin' && reloj <= 0) {
       estado = 'jugando';
+      ctx.partida.empezar();
       puntos = 0;
       vidas = VIDAS;
       tiempoJugado = 0;
@@ -810,10 +873,11 @@ export function iniciar(ctx) {
       if (proximoLanzamiento <= 0) lanzar();
     }
 
-    // Fruta y bombas en el aire
-    const parpadeo = Math.sin(performance.now() / 90) > 0;
+    // Fruta y bombas en el aire (hacia atrás: quitar cambia el objeto por el último, ya movido)
+    const parpadeo = Math.sin(t * 11) > 0;
     matBomba.emissive.setHex(parpadeo ? 0x5a0000 : 0x000000);
-    for (const objeto of objetos.slice()) {
+    for (let i = objetos.length - 1; i >= 0; i--) {
+      const objeto = objetos[i];
       objeto.vel.y -= objeto.gravedad * dt;
       objeto.malla.position.addScaledVector(objeto.vel, dt);
       objeto.malla.rotation.x += objeto.giro.x * dt;
@@ -828,27 +892,24 @@ export function iniciar(ctx) {
       }
     }
 
-    // Trozos y partículas
-    for (let i = piezas.length - 1; i >= 0; i--) {
-      const p = piezas[i];
-      p.vida -= dt;
-      p.vel.y -= GRAVEDAD * 1.6 * dt;
-      p.malla.position.addScaledVector(p.vel, dt);
-      if (p.giro) {
-        p.malla.rotation.x += p.giro.x * dt;
-        p.malla.rotation.z += p.giro.z * dt;
-      }
-      if (p.encoger) p.malla.scale.multiplyScalar(Math.pow(0.02, dt / p.vidaInicial));
-      if (p.vida <= 0 || p.malla.position.y < -0.3) {
-        raiz.remove(p.malla);
-        piezas.splice(i, 1);
+    // Mitades de la fruta cortada
+    for (const m of mitades) {
+      if (m.vida <= 0) continue;
+      m.vida -= dt;
+      m.vel.y -= GRAVEDAD * 1.6 * dt;
+      m.grupo.position.addScaledVector(m.vel, dt);
+      m.grupo.rotation.x += m.giro.x * dt;
+      m.grupo.rotation.z += m.giro.z * dt;
+      if (m.vida <= 0 || m.grupo.position.y < -0.3) {
+        m.vida = 0;
+        m.grupo.visible = false;
       }
     }
 
     if (ctx.enVR()) {
       cursor.visible = false;
       estela.visible = false;
-      cortesVR(dt);
+      cortesVR(dtReal);
     } else {
       cortesRaton(dt);
     }
@@ -864,7 +925,6 @@ export function iniciar(ctx) {
       // La shell retira y libera todo lo que hay en la escena y en las manos,
       // además de los recursos registrados con ctx.recurso(). Aquí no queda nada más.
       objetos.length = 0;
-      piezas.length = 0;
     },
   };
 }

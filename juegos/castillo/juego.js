@@ -314,7 +314,7 @@ export function iniciar(ctx) {
   piedras.setColorAt(0, colorTmp.set(0x8a8478));
   piedras.frustumCulled = false;
   raiz.add(piedras);
-  const estadoPiedras = Array.from({ length: N_PIEDRAS }, () => ({ activa: false, pos: new THREE.Vector3(), vel: new THREE.Vector3(), giro: 0, roca: false, fuego: false, atravesados: 0, tocados: new Set(), estela: 0 }));
+  const estadoPiedras = Array.from({ length: N_PIEDRAS }, () => ({ activa: false, pos: new THREE.Vector3(), vel: new THREE.Vector3(), giro: 0, roca: false, fuego: false, atravesados: 0, tocados: new Set(), estela: 0, mano: null }));
   const ocultar = new THREE.Matrix4().makeScale(0, 0, 0);
   for (let i = 0; i < N_PIEDRAS; i++) piedras.setMatrixAt(i, ocultar);
   const trayectoria = new THREE.InstancedMesh(R(new THREE.SphereGeometry(0.035, 6, 4)), R(new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, toneMapped: false })), N_PUNTOS);
@@ -412,6 +412,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     puntos = 0;
     vidas = VIDAS;
     oleada = 0;
@@ -466,8 +467,9 @@ export function iniciar(ctx) {
   }
 
   // Un enemigo recibe «dano» golpes en «punto»
-  function herir(e, dano, punto) {
-    if (!e.vivo) return;
+  // mano: la que disparó (vibra al acertar); null con ratón
+  function herir(e, dano, punto, mano = null) {
+    if (!e.vivo || !ctx.partida.activa) return;
     e.vida -= dano;
     e.golpe = 0.15;
     if (e.vida > 0) {
@@ -478,7 +480,7 @@ export function iniciar(ctx) {
       } else {
         ctx.sonido('pedrada');
       }
-      ctx.efectos.impacto('pequeño', { pos: punto, color: 0xffffff });
+      ctx.efectos.impacto('pequeño', { pos: punto, mano, color: 0xffffff });
       return;
     }
     // Derribado: cae hacia atrás y se hunde; puntos (y extra si estaba lejos)
@@ -489,7 +491,7 @@ export function iniciar(ctx) {
     const suma = t.puntos + (lejos ? 5 : 0);
     puntos += suma;
     tmp3.copy(e.grupo.position).y += 2.6;
-    ctx.efectos.impacto(e.tipo === 'ariete' ? 'medio' : 'pequeño', { pos: punto, color: 0xd9b27a, sonido: 'derribo' });
+    ctx.efectos.impacto(e.tipo === 'ariete' ? 'medio' : 'pequeño', { pos: punto, mano, color: 0xd9b27a, sonido: 'derribo' });
     ctx.efectos.estallido(punto, { color: 0xb09878, cantidad: 12 });
     ctx.efectos.texto(tmp3, `+${suma}`, { color: lejos ? '#ffd23f' : '#ffffff', tam: 1.6 });
     if (lejos) decir(ctx.t('lejos'), '#ffd23f', 1.2);
@@ -499,7 +501,7 @@ export function iniciar(ctx) {
   function alPuente(e) {
     const dano = TIPOS[e.tipo].dano;
     quitarEnemigo(e);
-    if (estado === 'fin') return; // el castillo ya ha caído
+    if (estado === 'fin' || !ctx.partida.activa) return; // el castillo ya ha caído
     vidas = Math.max(0, vidas - dano);
     temblorPuente = 0.6;
     decir(ctx.t('puerta'), '#ff8a80', 1.4);
@@ -510,11 +512,11 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una vez
     estado = 'fin';
     reloj = 7;
     decir(ctx.t('fin'), '#ff8a80', 7);
     ctx.sonido('fallo');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       nuevoRecord = puntos > 0;
@@ -529,11 +531,20 @@ export function iniciar(ctx) {
   }
 
   // ─── Disparos ──────────────────────────────────────────────────────────
-  function lanzar(origen, vel) {
-    const tiros = poder === 'triple' ? [-0.09, 0, 0.09] : [0];
+  const TIROS_TRIPLE = [-0.09, 0, 0.09];
+  const TIRO_SOLO = [0];
+  function lanzar(origen, vel, mano = null) {
+    const tiros = poder === 'triple' ? TIROS_TRIPLE : TIRO_SOLO;
     for (const giro of tiros) {
-      const p = estadoPiedras.find((k) => !k.activa);
-      if (!p) return;
+      let p = null;
+      for (const k of estadoPiedras) {
+        if (!k.activa) {
+          p = k;
+          break;
+        }
+      }
+      if (!p) break; // sin piedras libres: sale las que haya, pero el disparo suena
+      p.mano = mano;
       p.activa = true;
       p.pos.copy(origen);
       p.vel.copy(vel).applyAxisAngle(arriba, giro);
@@ -546,12 +557,12 @@ export function iniciar(ctx) {
     ctx.sonido('tirachinas');
   }
 
-  function explotar(punto) {
-    ctx.efectos.impacto('medio', { pos: punto, color: 0xff6a3d, sonido: 'explosion' });
+  function explotar(punto, mano = null) {
+    ctx.efectos.impacto('medio', { pos: punto, mano, color: 0xff6a3d, sonido: 'explosion' });
     ctx.efectos.estallido(punto, { color: 0xffb040, cantidad: 26, fuerza: 4 });
     for (const e of enemigos) {
       if (!e.vivo) continue;
-      if (Math.hypot(e.grupo.position.x - punto.x, e.grupo.position.z - punto.z) < 3.2) herir(e, 2, tmp2.copy(e.grupo.position).setY(SUELO + 1.2));
+      if (Math.hypot(e.grupo.position.x - punto.x, e.grupo.position.z - punto.z) < 3.2) herir(e, 2, tmp2.copy(e.grupo.position).setY(SUELO + 1.2), mano);
     }
   }
 
@@ -574,10 +585,10 @@ export function iniciar(ctx) {
           if (dx * dx + dz * dz < (t.radio + radio) ** 2 && dy > -0.2 && dy < t.alto + radio) {
             p.tocados.add(e);
             if (p.fuego) {
-              explotar(p.pos);
+              explotar(p.pos, p.mano);
               p.activa = false;
             } else {
-              herir(e, p.roca ? 3 : 1, p.pos);
+              herir(e, p.roca ? 3 : 1, p.pos, p.mano);
               p.atravesados += 1;
               if (!p.roca || p.atravesados >= 3) p.activa = false;
             }
@@ -587,14 +598,14 @@ export function iniciar(ctx) {
         // Globo
         if (p.activa && globo.visible && p.pos.distanceTo(globo.position) < 0.85 + radio) {
           p.activa = false;
-          romperGlobo();
+          romperGlobo(p.mano);
         }
         // Suelo, agua o muy lejos
         if (p.activa && (p.pos.y < SUELO + 0.05 || p.pos.z < -110 || Math.abs(p.pos.x) > 80)) {
           p.activa = false;
           if (p.pos.y < SUELO + 0.5) {
             p.pos.y = SUELO + 0.05;
-            if (p.fuego) explotar(p.pos);
+            if (p.fuego) explotar(p.pos, p.mano);
             else {
               ctx.efectos.estallido(p.pos, { color: 0x9a8a70, cantidad: 6, fuerza: 1.2 });
               if (p.pos.z > -20) ctx.sonido('grava');
@@ -659,10 +670,11 @@ export function iniciar(ctx) {
     globo.visible = true;
   }
 
-  function romperGlobo() {
+  function romperGlobo(mano = null) {
     globo.visible = false;
+    if (!ctx.partida.activa) return;
     tmp.copy(globo.position);
-    ctx.efectos.impacto('grande', { pos: tmp, color: COLOR_PODER[tipoGlobo], sonido: 'globo' });
+    ctx.efectos.impacto('grande', { pos: tmp, mano, color: COLOR_PODER[tipoGlobo], sonido: 'globo' });
     ctx.efectos.estallido(tmp, { color: COLOR_PODER[tipoGlobo], cantidad: 24 });
     ctx.efectos.texto(tmp, '+15', { color: '#ffd23f', tam: 1.6 });
     puntos += 15;
@@ -721,7 +733,7 @@ export function iniciar(ctx) {
         trayectoria.count = 0;
         diana.visible = false;
         if (estiron > 0.08 && estado !== 'fin') {
-          lanzar(centro, velDisparo);
+          lanzar(centro, velDisparo, m);
           ctx.vibrar(m, 0.6, 40);
           ctx.vibrar(mh, 0.4, 40);
         }
@@ -847,7 +859,9 @@ export function iniciar(ctx) {
         esperaSalida = Math.max(0.4, 2.4 - oleada * 0.1) * (0.7 + Math.random() * 0.6);
       }
       // Oleada terminada: no queda nadie por salir ni en el camino
-      if (porSalir <= 0 && !enemigos.some((e) => e.vivo)) siguienteOleada();
+      let quedanVivos = false;
+      for (const e of enemigos) if (e.vivo) quedanVivos = true;
+      if (porSalir <= 0 && !quedanVivos) siguienteOleada();
       // Globos con poderes
       if (!globo.visible) {
         esperaGlobo -= dt;

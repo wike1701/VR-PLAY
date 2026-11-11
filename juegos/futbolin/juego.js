@@ -323,6 +323,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartido() {
+    ctx.partida.empezar();
     goles = [0, 0];
     decir(ctx.t('partidoN', { n: nivel }), '#ffd23f', 2);
     sacar();
@@ -335,12 +336,13 @@ export function iniciar(ctx) {
     aMundo(tmp.set(equipo === 0 ? X_FONDO : -X_FONDO, MESA_Y + 0.1, Z_CENTRO));
     if (equipo === 0) {
       puntos += 100 * nivel;
-      ctx.efectos.impacto('grande', { pos: tmp, color: 0xffd23f, sonido: 'gol' });
+      ctx.efectos.impacto('grande', { pos: tmp, color: 0xffd23f, sonido: 'gol' }); // sin mano: vibran las dos
       ctx.efectos.texto(tmp, ctx.t('golTuyo'), { color: '#ffd23f', tam: 1.3 });
       decir(ctx.t('golTuyo'), '#ffd23f');
     } else {
       ctx.sonido('fallo');
       ctx.efectos.estallido(tmp, { color: 0x1f5fd1, cantidad: 10 });
+      for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.5, 90); // gol en contra: vibración corta
       decir(ctx.t('golMaquina'), '#ff8a80');
     }
     if (goles[0] >= GOLES || goles[1] >= GOLES) {
@@ -348,12 +350,14 @@ export function iniciar(ctx) {
       reloj = 5;
       if (goles[0] > goles[1]) {
         puntos += 500 * nivel;
+        // Cada partido ganado apunta la racha que llevas (si cambias de juego no se pierde)
+        ctx.partida.terminar(puntos);
         decir(ctx.t('partida.hasGanado'), '#b9f6ca', 5);
         ctx.sonido('ovacion');
         nivel += 1;
       } else {
         // Se acaba la racha: se apuntan los puntos y se vuelve a la primera máquina
-        ctx.puntuacion(puntos);
+        ctx.partida.terminar(puntos);
         decir(ctx.t('partida.ganaMaquina'), '#ff8a80', 5);
         puntos = 0;
         nivel = 1;
@@ -408,7 +412,8 @@ export function iniciar(ctx) {
   function golpeBola(barra, fuerza) {
     aMundo(tmp.set(b.x, MESA_Y + RB, b.z));
     if (barra.equipo === 0) {
-      ctx.efectos.impacto(fuerza > 2 ? 'medio' : 'pequeño', { pos: tmp, color: 0xffffff, sonido: 'toc' });
+      // Vibra la mano que lleva esa barra (en VR)
+      ctx.efectos.impacto(fuerza > 2 ? 'medio' : 'pequeño', { pos: tmp, mano: barra.mano || null, color: 0xffffff, sonido: 'toc' });
       primerGolpe = false;
     } else {
       ctx.sonido('toc');
@@ -478,6 +483,7 @@ export function iniciar(ctx) {
       // La mano lleva la empuñadura: acercarla saca la barra hacia ti
       const s = zMesa(manoPos.z) - (Z_CERCA + Z_PUNO);
       for (const i of izquierda ? MANO_IZQ : MANO_DER) {
+        barras[i].mano = mano;
         barras[i].objetivoS = s;
         barras[i].objetivoPhi = Math.max(-1.6, Math.min(1.6, giro * 1.4));
       }
