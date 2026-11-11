@@ -700,12 +700,17 @@ function actualizarIntro(dt) {
     ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
     { texto: cuenta, tam: 0.9, color: '#80e8dc' },
   ]);
-  // Se recoloca en cada fotograma, delante y hacia la izquierda de la mirada, para leerlo sin girar mucho
-  const delante = cabezaDir.clone().setY(0).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.5).multiplyScalar(1.3);
-  introPanel.mesh.position.copy(cabezaPos).add(delante);
-  introPanel.mesh.position.y = cabezaPos.y - 0.05;
-  introPanel.mesh.lookAt(cabezaPos);
-  introColocada = true;
+  // Se coloca una sola vez, a la izquierda de hacia donde miras al empezar, y se queda quieto en la
+  // sala: giras la cabeza para leerlo y no te sigue
+  if (!introColocada) {
+    const lado = cabezaDir.clone().setY(0);
+    if (lado.lengthSq() < 1e-6) lado.set(0, 0, -1);
+    lado.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.8).multiplyScalar(1.3);
+    introPanel.mesh.position.copy(cabezaPos).add(lado);
+    introPanel.mesh.position.y = cabezaPos.y - 0.05;
+    introPanel.mesh.lookAt(cabezaPos);
+    introColocada = true;
+  }
   introPanel.mesh.visible = true;
 }
 

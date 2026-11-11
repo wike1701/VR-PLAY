@@ -2,8 +2,8 @@
 // El futbolín de toda la vida en un bar de barrio, contra la máquina. Estás de pie en el lateral
 // del futbolín, con las porterías a tu izquierda y a tu derecha: juegas con los rojos y atacas
 // hacia la derecha. Cada equipo: 1 portero, 3 defensas, 3 medios y 4 delanteros. Tienes manos: para
-// mover una barra hay que AGARRAR su empuñadura (acerca la mano y aprieta el gatillo) y puedes llevar
-// dos barras a la vez, una con cada mano. Con la barra cogida, acercar o alejar la mano la desliza y
+// mover una barra hay que AGARRAR su empuñadura (acerca la mano y mantén el gatillo o el botón lateral)
+// y puedes llevar dos barras a la vez, una con cada mano. Con la barra cogida, acercar o alejar la mano la desliza y
 // girar la muñeca hace chutar (cuanto más rápido giras, más fuerte), como en el futbolín de verdad.
 // Partidos a 5 goles: cada partido ganado trae una máquina más rápida, y la racha acaba al perder
 // uno. Cada gol tuyo vale 100 puntos por el número de máquina y cada partido ganado, 500 por máquina más.
@@ -33,12 +33,12 @@ const TRES_D = [-0.2, 0, 0.2];
 const TRES_M = [-0.18, 0, 0.18];
 const BARRAS = [
   { x: -0.525, equipo: 0, munecos: [0], recorrido: 0.17 },
-  { x: -0.375, equipo: 1, munecos: DEL4, recorrido: 0.065 },
+  { x: -0.375, equipo: 1, munecos: DEL4, recorrido: 0.08 },
   { x: -0.225, equipo: 0, munecos: TRES_D, recorrido: 0.1 },
   { x: -0.075, equipo: 1, munecos: TRES_M, recorrido: 0.09 },
   { x: 0.075, equipo: 0, munecos: TRES_M, recorrido: 0.09 },
   { x: 0.225, equipo: 1, munecos: TRES_D, recorrido: 0.1 },
-  { x: 0.375, equipo: 0, munecos: DEL4, recorrido: 0.065 },
+  { x: 0.375, equipo: 0, munecos: DEL4, recorrido: 0.08 },
   { x: 0.525, equipo: 1, munecos: [0], recorrido: 0.17 },
 ];
 const TUYAS = [0, 2, 4, 6];
@@ -271,7 +271,7 @@ export function iniciar(ctx) {
     return m;
   });
   // Estado de cada barra: desplazamiento (z), giro (φ) y sus velocidades
-  const barras = BARRAS.map((b) => ({ ...b, s: 0, sAntes: 0, vs: 0, phi: 0, phiAntes: 0, w: 0, objetivoS: 0, objetivoPhi: 0, chute: 0, cruce: 0, agarrada: false }));
+  const barras = BARRAS.map((b) => ({ ...b, s: 0, sAntes: 0, vs: 0, phi: 0, phiAntes: 0, w: 0, objetivoS: 0, objetivoPhi: 0, chute: 0, cruce: 0, agarrada: false, sF: 0, phiF: 0 }));
 
   // Bola
   const bola = new THREE.Mesh(R(new THREE.SphereGeometry(RB, 16, 12)), R(new THREE.MeshStandardMaterial({ color: 0xf2f2e8, roughness: 0.35 })));
@@ -369,11 +369,14 @@ export function iniciar(ctx) {
   // Pie de un muñeco: un taco en el plano del campo, que solo toca la bola si la barra no está levantada
   function chocarPies(h) {
     for (const barra of barras) {
-      if (Math.abs(Math.sin(barra.phi)) > 0.8 || Math.cos(barra.phi) < 0) continue; // pie levantado
-      const px = barra.x + PIE * Math.sin(barra.phi);
-      const vpx = PIE * barra.w * Math.cos(barra.phi); // velocidad del pie por el giro
+      // Posición y giro de la barra en este subpaso (entre el fotograma anterior y el actual), para
+      // que un chute rápido barra todo su recorrido y no salte por encima de la bola
+      const phi = barra.phiF;
+      if (Math.abs(Math.sin(phi)) > 0.8 || Math.cos(phi) < 0) continue; // pie levantado
+      const px = barra.x + PIE * Math.sin(phi);
+      const vpx = PIE * barra.w * Math.cos(phi); // velocidad del pie por el giro
       for (const mz of barra.munecos) {
-        const pz = Z_CENTRO + mz + barra.s;
+        const pz = Z_CENTRO + mz + barra.sF;
         // Caja del pie (medio ancho 0.014 en x y 0.015 en z) contra la bola
         const cx = Math.max(px - 0.014, Math.min(px + 0.014, b.x));
         const cz = Math.max(pz - 0.015, Math.min(pz + 0.015, b.z));
@@ -491,9 +494,12 @@ export function iniciar(ctx) {
   function manosVR(dt) {
     for (const v of manosVisibles) {
       const mano = v.mano;
-      if (!mano.activa || !mano.gatilloPulsado) soltar(mano);
+      // Se agarra con el gatillo o con el botón lateral, y la barra se lleva mientras sigas apretando
+      // (gatilloPulsado solo vale true el fotograma en que se pulsa: con él la barra se soltaba sola)
+      const aprieta = mano.gatillo || mano.apreton;
+      if (!mano.activa || !aprieta) soltar(mano);
       let g = agarres.get(mano);
-      if (!g && mano.activa && mano.gatilloPulsado) {
+      if (!g && mano.activa && aprieta) {
         // Coge la empuñadura libre más cercana, si la mano está lo bastante cerca
         mano.grip.getWorldPosition(manoPos);
         let mejor = RADIO_AGARRE;
@@ -517,7 +523,7 @@ export function iniciar(ctx) {
         g.barra.objetivoS = g.s0 + (zMesa(manoPos.z) - g.z0);
         g.barra.objetivoPhi = Math.max(-1.6, Math.min(1.6, (giroMano(mano) - g.giro0) * 1.4));
       }
-      v.cierre += ((g ? 1 : mano.gatilloPulsado ? 0.7 : 0.15) - v.cierre) * Math.min(1, dt * 20);
+      v.cierre += ((g ? 1 : aprieta ? 0.7 : 0.15) - v.cierre) * Math.min(1, dt * 20);
       v.m.cerrar(v.cierre);
     }
     // Las barras que no llevas en la mano vuelven con los pies abajo
@@ -665,10 +671,17 @@ export function iniciar(ctx) {
     moverBarras(dt);
     if (estado === 'juego') {
       acumulado += Math.min(dt, 0.05);
-      while (acumulado >= PASO && estado === 'juego') {
+      const pasos = Math.floor(acumulado / PASO);
+      for (let k = 0; k < pasos && estado === 'juego'; k++) {
+        const f = (k + 1) / pasos;
+        for (const barra of barras) {
+          barra.sF = barra.sAntes + (barra.s - barra.sAntes) * f;
+          barra.phiF = barra.phiAntes + (barra.phi - barra.phiAntes) * f;
+        }
         moverBola(PASO);
         acumulado -= PASO;
       }
+      if (estado !== 'juego') acumulado = 0;
       // Bola parada: rueda poco a poco hasta ponerse delante del muñeco más cercano
       const v = Math.hypot(b.vx, b.vz);
       if (rodando && v > 0.25) {
