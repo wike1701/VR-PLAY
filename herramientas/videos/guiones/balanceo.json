@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Head to VR Play and play free, no download needed."
+  },
+  "fr": {
+    "gancho": "Un balai, ta main et plein de canons.",
+    "frases": [
+      {
+        "texto": "Avec le casque, tu es en plein milieu de la piste du cirque.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Garde le balai en équilibre sur ta paume.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Les canons te tirent des cubes de couleur.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Bouge pour qu’il ne tombe pas.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Trois touches, ou il tombe, et c’est fini.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Va sur VR Play et joue gratuitement, sans rien télécharger."
+  },
+  "de": {
+    "gancho": "Ein Besen, deine Hand und jede Menge Kanonen.",
+    "frases": [
+      {
+        "texto": "Mit der Brille stehst du mitten in der Zirkusmanege.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Balancier den Besen auf deiner Handfläche.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Die Kanonen schießen bunte Würfel auf dich.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Beweg dich, damit er nicht umfällt.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Drei Treffer oder er fällt, und es ist vorbei.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Geh auf VR Play und spiel kostenlos, ganz ohne Download."
+  },
+  "it": {
+    "gancho": "Una scopa, la tua mano e un sacco di cannoni.",
+    "frases": [
+      {
+        "texto": "Col visore sei in mezzo alla pista del circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Tieni la scopa in equilibrio sul palmo.",
+        "plano": "pov"
+      },
+      {
+        "texto": "I cannoni ti sparano cubi colorati.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Muoviti, che non deve cadere.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tre colpi, o se cade, ed è finita.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Vai su VR Play e gioca gratis, senza scaricare niente."
+  },
+  "pt": {
+    "gancho": "Uma vassoura, sua mão e um monte de canhões.",
+    "frases": [
+      {
+        "texto": "Com os óculos, você está no meio do picadeiro do circo.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Equilibra a vassoura na palma da mão.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Os canhões disparam cubos coloridos em você.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Se mexe pra ela não cair.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Três batidas, ou se ela cair, acabou.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Entra no VR Play e joga grátis, sem baixar nada."
+  },
+  "ja": {
+    "gancho": "ほうきと、キミの手と、たくさんの大砲。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつければ、サーカスのど真ん中。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "手のひらでほうきのバランスを取って。",
+        "plano": "pov"
+      },
+      {
+        "texto": "大砲がカラフルなキューブを撃ってくる。",
+        "plano": "partida"
+      },
+      {
+        "texto": "倒れないように動いて！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "3回当たるか、倒したら終わり。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで無料で遊ぼう。ダウンロード不要！"
+  },
+  "ko": {
+    "gancho": "빗자루, 네 손, 그리고 대포 잔뜩.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 서커스 무대 한가운데야.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "손바닥 위에 빗자루를 세워서 균형을 잡아.",
+        "plano": "pov"
+      },
+      {
+        "texto": "대포가 알록달록한 큐브를 쏴.",
+        "plano": "partida"
+      },
+      {
+        "texto": "안 떨어지게 움직여!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "세 번 맞거나 떨어뜨리면 끝.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에 들어가서 무료로 즐겨 봐. 다운로드도 필요 없어."
+  },
+  "zh": {
+    "gancho": "一把扫帚、一只手，还有一堆大炮。",
+    "frases": [
+      {
+        "texto": "戴上头显，你就站在马戏团舞台正中央。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "把扫帚立在手掌上保持平衡。",
+        "plano": "pov"
+      },
+      {
+        "texto": "大炮会朝你发射彩色方块。",
+        "plano": "partida"
+      },
+      {
+        "texto": "动起来，别让它倒！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "被打中三次，或者扫帚倒了，就结束。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "打开VR Play免费玩，无需下载。"
   }
 }

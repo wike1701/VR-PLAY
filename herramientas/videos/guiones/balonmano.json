@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Sept mètres. Toi contre le gardien.",
+    "frases": [
+      {
+        "texto": "Avec le casque, tu lances le ballon avec ton bras.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Le gardien plonge dessus.",
+        "plano": "pov"
+      },
+      {
+        "texto": "En pleine lucarne, c’est cinq points de plus.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Trois buts d’affilée et les points doublent.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Dix tirs. Tu en mets combien ?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Sieben Meter. Du gegen den Torwart.",
+    "frases": [
+      {
+        "texto": "Mit der Brille wirfst du den Ball mit deinem eigenen Arm.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Der Torwart hechtet hinterher.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Im Winkel gibt’s fünf Punkte extra.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Drei Tore in Folge und die Punkte verdoppeln sich.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Zehn Würfe. Wie viele machst du rein?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Sette metri. Tu contro il portiere.",
+    "frases": [
+      {
+        "texto": "Col visore lanci la palla con il tuo braccio.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Il portiere si tuffa.",
+        "plano": "pov"
+      },
+      {
+        "texto": "All’incrocio dei pali vale cinque punti in più.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Tre gol di fila e i punti raddoppiano.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Dieci tiri. Quanti ne segni?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Sete metros. Você contra o goleiro.",
+    "frases": [
+      {
+        "texto": "Com os óculos, você arremessa a bola com o próprio braço.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "O goleiro se joga na bola.",
+        "plano": "pov"
+      },
+      {
+        "texto": "No ângulo vale cinco pontos a mais.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Três gols seguidos e os pontos dobram.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Dez arremessos. Quantos você faz?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "7メートル。キミとキーパーの一騎打ち。",
+    "frases": [
+      {
+        "texto": "ヘッドセットなら、自分の腕でボールを投げる。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "キーパーが飛びついてくる。",
+        "plano": "pov"
+      },
+      {
+        "texto": "隅に決めれば、さらに5点。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "3連続ゴールで得点は2倍。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "10本勝負。何本決められる？",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "7미터. 너와 골키퍼의 대결.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 네 팔로 직접 공을 던져.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "골키퍼가 몸을 날려.",
+        "plano": "pov"
+      },
+      {
+        "texto": "구석에 꽂으면 5점 추가.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "세 골 연속이면 점수가 두 배.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "열 번 던져서 몇 골 넣을래?",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "七米线。你对决守门员。",
+    "frases": [
+      {
+        "texto": "戴上头显，用你自己的手臂投球。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "守门员飞身扑救。",
+        "plano": "pov"
+      },
+      {
+        "texto": "打进死角，额外加五分。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "连进三球，分数翻倍。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "十次射门，你能进几个？",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

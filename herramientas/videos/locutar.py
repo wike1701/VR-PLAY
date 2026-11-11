@@ -2,10 +2,10 @@
 
 Uso: python locutar.py <frases.json> <carpeta de salida> [--voz ef_dora] [--velocidad 1.0]
 
-<frases.json> es {"idioma": "es"|"en", "frases": ["texto", …]}. En la carpeta deja frase-01.wav,
+<frases.json> es {"idioma": "es"|"en"|"fr"|"it"|"pt"|"ja"|"zh", "frases": ["texto", …]}. En la carpeta deja frase-01.wav,
 frase-02.wav… (24 kHz, mono, 16 bits) y voz.json con el texto, el archivo y la duración de cada uno.
 Después, transcribir.py saca los tiempos de cada palabra (para los subtítulos palabra a palabra).
-Voces: ef_dora en español y af_heart en inglés. Va en la GPU (CUDA) y, si no puede, en la CPU: con
+Voces: ef_dora en español, af_heart en inglés, ff_siwis (fr), if_sara (it), pf_dora (pt), jf_alpha (ja) y zf_xiaobei (zh); el japonés y el chino necesitan misaki[ja,zh]. Va en la GPU (CUDA) y, si no puede, en la CPU: con
 82M de parámetros, la CPU también va sobrada para un guion. El español necesita espeak-ng: lo trae
 el paquete espeakng-loader, que se instala con kokoro.
 """
@@ -17,6 +17,7 @@ import sys
 import warnings
 
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")  # Windows sin modo desarrollador
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")  # descarga normal (sin el servidor Xet, que puede estar bloqueado)
 warnings.filterwarnings("ignore", category=UserWarning)  # avisos de torch (dropout, weight_norm)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -27,7 +28,11 @@ from kokoro import KPipeline  # noqa: E402
 
 MUESTREO = 24000
 # Código de idioma de Kokoro y voz por defecto
-IDIOMAS = {"es": ("e", "ef_dora"), "en": ("a", "af_heart")}
+# (Kokoro no tiene alemán ni coreano: en de y ko los vídeos salen sin voz, o con Chatterbox)
+IDIOMAS = {
+    "es": ("e", "ef_dora"), "en": ("a", "af_heart"), "fr": ("f", "ff_siwis"), "it": ("i", "if_sara"),
+    "pt": ("p", "pf_dora"), "ja": ("j", "jf_alpha"), "zh": ("z", "zf_xiaobei"),
+}
 SILENCIO = 0.12  # segundos que se dejan al final de cada frase para que no corte en seco
 # Cómo se dice lo que Kokoro lee mal (solo cambia el audio, no el texto del guion).
 # En español, «VR Play» sale «uve erre plai»

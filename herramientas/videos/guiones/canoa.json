@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Free on VR Play, right in your headset browser."
+  },
+  "fr": {
+    "gancho": "Une pagaie dans chaque main.",
+    "frases": [
+      {
+        "texto": "Mets ton casque et descends une rivière sans fin.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Pagaie des deux bras pour aller plus vite.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Et d’un seul pour tourner.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Évite les rochers, les troncs et les rapides.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Ça va de plus en plus vite. Tu as trois vies.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratuit sur VR Play, direct dans le navigateur de ton casque."
+  },
+  "de": {
+    "gancho": "Ein Paddel in jeder Hand.",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und fahr einen endlosen Fluss hinunter.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Paddel mit beiden Armen, um schneller zu werden.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Und mit nur einem, um zu lenken.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Weich Felsen, Baumstämmen und Stromschnellen aus.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Es wird immer schneller. Du hast drei Leben.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play, direkt im Browser deiner Brille."
+  },
+  "it": {
+    "gancho": "Una pagaia in ogni mano.",
+    "frases": [
+      {
+        "texto": "Metti il visore e scendi un fiume senza fine.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Rema con tutte e due le braccia per andare più veloce.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E con uno solo per girare.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Schiva rocce, tronchi e rapide.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Va sempre più veloce. Hai tre vite.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis su VR Play, direttamente dal browser del tuo visore."
+  },
+  "pt": {
+    "gancho": "Um remo em cada mão.",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e desce um rio sem fim.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Rema com os dois braços pra ir mais rápido.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E com um só pra virar.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Desvia de pedras, troncos e corredeiras.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Fica cada vez mais rápido. Você tem três vidas.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Grátis no VR Play, direto no navegador dos seus óculos."
+  },
+  "ja": {
+    "gancho": "両手に1本ずつパドル。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけて、終わりのない川を下ろう。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "両腕でこげばスピードアップ。",
+        "plano": "pov"
+      },
+      {
+        "texto": "片腕だけなら曲がる。",
+        "plano": "partida"
+      },
+      {
+        "texto": "岩も丸太も急流もかわせ！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "どんどん速くなる。ライフは3つ。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで無料。ヘッドセットのブラウザからすぐ遊べる！"
+  },
+  "ko": {
+    "gancho": "양손에 노 하나씩.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰고 끝없는 강을 내려가.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "두 팔로 저으면 더 빨라져.",
+        "plano": "pov"
+      },
+      {
+        "texto": "한쪽만 저으면 방향을 틀어.",
+        "plano": "partida"
+      },
+      {
+        "texto": "바위, 통나무, 급류를 피해!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "점점 빨라져. 목숨은 세 개.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 헤드셋 브라우저에서 바로 즐겨."
+  },
+  "zh": {
+    "gancho": "两只手，各握一支桨。",
+    "frases": [
+      {
+        "texto": "戴上头显，顺着一条没有尽头的河往下漂。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "双臂一起划，速度更快。",
+        "plano": "pov"
+      },
+      {
+        "texto": "只划一边就能转弯。",
+        "plano": "partida"
+      },
+      {
+        "texto": "躲开岩石、树干和急流！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "速度越来越快。你只有三条命。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩，头显浏览器直接打开。"
   }
 }

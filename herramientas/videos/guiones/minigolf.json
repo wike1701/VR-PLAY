@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Neuf nouveaux trous à chaque partie.",
+    "frases": [
+      {
+        "texto": "Mets ton casque et c’est toi qui manies le club.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Des virages, des poteaux, des couloirs étroits et des moulins.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Dose ta force et frappe.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Un trou en un ?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Celui qui fait le moins de coups gagne.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Neun neue Bahnen bei jeder Runde.",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und schwing den Schläger selbst.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Kurven, Pfosten, enge Gänge und Windmühlen.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Schätz die Kraft ab und putte.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Hole-in-One?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Wer die wenigsten Schläge braucht, gewinnt.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Nove buche nuove ogni volta.",
+    "frases": [
+      {
+        "texto": "Metti il visore e la mazza la muovi tu.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Curve, paletti, corridoi stretti e mulini.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Calcola la forza e colpisci.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Buca in uno?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Vince chi fa meno colpi.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "Nove buracos novos a cada partida.",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e quem move o taco é você.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Curvas, postes, corredores estreitos e moinhos.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Calcula a força e bate.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Hole in one?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Ganha quem der menos tacadas.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "毎回、新しい9ホール。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつけて、パターは自分で振る。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "カーブ、ポール、細い通路、風車。",
+        "plano": "pov"
+      },
+      {
+        "texto": "力加減を読んで、打つ。",
+        "plano": "partida"
+      },
+      {
+        "texto": "ホールインワン？",
+        "plano": "lenta"
+      },
+      {
+        "texto": "打数が少ない方が勝ち。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "매번 새로운 9홀.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰고 퍼터를 직접 휘둘러.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "커브, 기둥, 좁은 통로, 풍차까지.",
+        "plano": "pov"
+      },
+      {
+        "texto": "힘 조절해서 쳐.",
+        "plano": "partida"
+      },
+      {
+        "texto": "홀인원?",
+        "plano": "lenta"
+      },
+      {
+        "texto": "타수가 적은 사람이 이겨.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "每次都是全新的九个洞。",
+    "frases": [
+      {
+        "texto": "戴上头显，球杆由你亲手挥。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "弯道、柱子、窄道，还有风车。",
+        "plano": "pov"
+      },
+      {
+        "texto": "算好力度，推杆！",
+        "plano": "partida"
+      },
+      {
+        "texto": "一杆进洞？",
+        "plano": "lenta"
+      },
+      {
+        "texto": "杆数最少的人赢。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

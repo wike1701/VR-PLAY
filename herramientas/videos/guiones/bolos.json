@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Free on VR Play, right in your headset browser."
+  },
+  "fr": {
+    "gancho": "Un bowling dans ton salon.",
+    "frases": [
+      {
+        "texto": "Avec le casque, tu lances la boule avec ton propre bras.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Vise le centre de la piste.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Et fais tomber les dix d’un coup.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Dix frames, avec le comptage officiel.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Tu enchaînes combien de strikes ?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratuit sur VR Play, direct dans le navigateur de ton casque."
+  },
+  "de": {
+    "gancho": "Eine Bowlingbahn in deinem Wohnzimmer.",
+    "frases": [
+      {
+        "texto": "Mit der Brille rollst du die Kugel mit deinem eigenen Arm.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Ziel auf die Mitte der Bahn.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Und räum alle zehn auf einmal ab.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Zehn Frames mit offizieller Wertung.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Wie viele Strikes schaffst du hintereinander?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play, direkt im Browser deiner Brille."
+  },
+  "it": {
+    "gancho": "Un bowling nel tuo salotto.",
+    "frases": [
+      {
+        "texto": "Col visore lanci la palla con il tuo braccio.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Mira al centro della pista.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E butta giù tutti e dieci in un colpo.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Dieci frame con il punteggio ufficiale.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Quanti strike di fila riesci a fare?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Gratis su VR Play, direttamente dal browser del tuo visore."
+  },
+  "pt": {
+    "gancho": "Uma pista de boliche na sua sala.",
+    "frases": [
+      {
+        "texto": "Com os óculos, você joga a bola com o próprio braço.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Mira no meio da pista.",
+        "plano": "pov"
+      },
+      {
+        "texto": "E derruba os dez de uma vez.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Dez frames com a pontuação oficial.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Quantos strikes seguidos você faz?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Grátis no VR Play, direto no navegador dos seus óculos."
+  },
+  "ja": {
+    "gancho": "リビングがボウリング場に。",
+    "frases": [
+      {
+        "texto": "ヘッドセットなら、自分の腕でボールを投げる。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "レーンの真ん中を狙って。",
+        "plano": "pov"
+      },
+      {
+        "texto": "10本まとめて倒せ！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "公式ルールのスコアで10フレーム。",
+        "plano": "partida"
+      },
+      {
+        "texto": "ストライク、何回連続でいける？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playで無料。ヘッドセットのブラウザからすぐ遊べる！"
+  },
+  "ko": {
+    "gancho": "거실에 볼링장이 생겼다.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 네 팔로 직접 공을 굴려.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "레인 한가운데를 노려.",
+        "plano": "pov"
+      },
+      {
+        "texto": "열 개를 한 번에 쓰러뜨려!",
+        "plano": "lenta"
+      },
+      {
+        "texto": "공식 점수 규칙으로 10프레임.",
+        "plano": "partida"
+      },
+      {
+        "texto": "스트라이크 몇 번 연속으로 칠 수 있어?",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 헤드셋 브라우저에서 바로 즐겨."
+  },
+  "zh": {
+    "gancho": "把保龄球馆搬进你家客厅。",
+    "frases": [
+      {
+        "texto": "戴上头显，用你自己的手臂扔球。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "瞄准球道正中间。",
+        "plano": "pov"
+      },
+      {
+        "texto": "一球全倒十个瓶！",
+        "plano": "lenta"
+      },
+      {
+        "texto": "十轮，按正式规则计分。",
+        "plano": "partida"
+      },
+      {
+        "texto": "你能连续打出几个全中？",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩，头显浏览器直接打开。"
   }
 }

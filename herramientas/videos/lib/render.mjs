@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { CARPETA, RAIZ, TRABAJO, crear, chromiumDelSistema } from './comun.mjs';
 import { servirCarpeta } from './servidor.mjs';
+import { recursosDeReserva } from './recursos.mjs';
 
 let preparado = null;
 
@@ -41,6 +42,7 @@ function copiarMedios() {
 }
 
 async function preparar() {
+  await recursosDeReserva();
   copiarMarca();
   copiarMedios();
   const { bundle } = await import('@remotion/bundler');

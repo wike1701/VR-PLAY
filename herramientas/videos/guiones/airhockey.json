@@ -78,5 +78,285 @@
       }
     ],
     "cierre": "Play it *free* on VR Play, right in your headset's browser!"
+  },
+  "fr": {
+    "gancho": "Air hockey… *en VR* !",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Des néons… et la table juste devant.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "Le palet part *à fond* !",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Ça rebondit sur la *bande* !",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "Bloque ! *Bloque* !",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "Et *but* !",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "BUT !"
+      },
+      {
+        "texto": "Tu oses défier la *machine* ?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "C’est *gratuit* sur VR Play, direct dans le navigateur de ton casque !"
+  },
+  "de": {
+    "gancho": "Air Hockey… *in VR*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Neonlichter… und der Tisch direkt vor dir.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "Der Puck *fliegt*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Über die *Bande*!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "Halt ihn! *Halt ihn*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*Tor*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "TOR!"
+      },
+      {
+        "texto": "Traust du dich gegen die *Maschine*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Spiel *kostenlos* auf VR Play, direkt im Browser deiner Brille!"
+  },
+  "it": {
+    "gancho": "Air hockey… *in VR*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Luci al neon… e il tavolo davanti.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "Il disco va a *mille*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Rimbalza sulla *sponda*!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "Para! *Para*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*Golazo*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "GOL!"
+      },
+      {
+        "texto": "Osi sfidare la *macchina*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Gioca *gratis* su VR Play, dal browser del tuo visore!"
+  },
+  "pt": {
+    "gancho": "Air hockey… *em VR*!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "Luzes neon… e a mesa bem na frente.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "O disco tá *voando*!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "Bateu na *borda*!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "Defende! *Defende*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*Golaço*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "GOL!"
+      },
+      {
+        "texto": "Tem coragem de encarar a *máquina*?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "Joga *grátis* no VR Play, direto no navegador dos seus óculos!"
+  },
+  "ja": {
+    "gancho": "エアホッケーを…*VR*で！",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "ネオンが光って…目の前にテーブル。",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "パックが*爆速*！",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "*壁*で跳ね返る！",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "止めて！*止めて*！",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*ゴール*！",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "ゴール！"
+      },
+      {
+        "texto": "*CPU*に挑んでみる？",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "VR Playで*無料*プレイ。ヘッドセットのブラウザからすぐ遊べる！"
+  },
+  "ko": {
+    "gancho": "에어하키를… *VR*로!",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "네온 불빛… 그리고 눈앞의 테이블.",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "퍽이 *총알*처럼 날아가!",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "*벽* 맞고 튕긴다!",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "막아! *막아*!",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*골*!",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "골!"
+      },
+      {
+        "texto": "*컴퓨터*랑 한판 붙어 볼래?",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "VR Play에서 *무료*로! 헤드셋 브라우저에서 바로 즐겨!"
+  },
+  "zh": {
+    "gancho": "桌上冰球……*VR版*！",
+    "enfasis": 1,
+    "frases": [
+      {
+        "texto": "霓虹闪烁……球桌就在眼前。",
+        "plano": "espectador",
+        "enfasis": 0.6
+      },
+      {
+        "texto": "球速*拉满*！",
+        "plano": "pov",
+        "golpe": true
+      },
+      {
+        "texto": "*撞墙*反弹！",
+        "plano": "zoom",
+        "golpe": true
+      },
+      {
+        "texto": "挡住！*挡住*！",
+        "plano": "partida",
+        "golpe": true,
+        "enfasis": 1.05
+      },
+      {
+        "texto": "*进球*！",
+        "plano": "zoom",
+        "golpe": true,
+        "enfasis": 1.1,
+        "efecto": "rampa",
+        "pegatina": "进球！"
+      },
+      {
+        "texto": "敢挑战*电脑*吗？",
+        "plano": "pov"
+      }
+    ],
+    "cierre": "在VR Play*免费*玩，头显浏览器直接打开！"
   }
 }

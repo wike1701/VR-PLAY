@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "Free on VR Play, right in your headset browser."
+  },
+  "fr": {
+    "gancho": "Entraîne-toi comme un boxeur. Chez toi.",
+    "frases": [
+      {
+        "texto": "Mets ton casque et le sac est juste devant toi.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Des cibles s’allument : frappe-les avant qu’elles s’éteignent.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Enchaîne les coups et monte le multiplicateur jusqu’à fois quatre.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Regarde ce coup de poing au ralenti.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Des rounds de soixante secondes.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Gratuit sur VR Play, direct dans le navigateur de ton casque."
+  },
+  "de": {
+    "gancho": "Trainier wie ein Boxer. Bei dir zu Hause.",
+    "frases": [
+      {
+        "texto": "Setz die Brille auf und der Sandsack hängt direkt vor dir.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Ziele leuchten auf: Triff sie, bevor sie ausgehen.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Reih Treffer aneinander und treib den Multiplikator bis auf mal vier.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Schau dir diesen Schlag in Zeitlupe an.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Runden zu je sechzig Sekunden.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play, direkt im Browser deiner Brille."
+  },
+  "it": {
+    "gancho": "Allenati come un pugile. A casa tua.",
+    "frases": [
+      {
+        "texto": "Metti il visore e hai il sacco davanti.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Si accendono dei bersagli: colpiscili prima che si spengano.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Concatena i colpi e porta il moltiplicatore fino a per quattro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Guarda questo pugno al rallentatore.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Round da sessanta secondi.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Gratis su VR Play, direttamente dal browser del tuo visore."
+  },
+  "pt": {
+    "gancho": "Treina como um boxeador. Na sua casa.",
+    "frases": [
+      {
+        "texto": "Coloca os óculos e o saco está bem na sua frente.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Os alvos acendem: acerta antes que apaguem.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Encadeia golpes e sobe o multiplicador até vezes quatro.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "Olha esse soco em câmera lenta.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Rounds de sessenta segundos.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "Grátis no VR Play, direto no navegador dos seus óculos."
+  },
+  "ja": {
+    "gancho": "ボクサーみたいにトレーニング。家にいながら。",
+    "frases": [
+      {
+        "texto": "ヘッドセットをつければ、目の前にサンドバッグ。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "ターゲットが光る。消える前に打ち込め！",
+        "plano": "pov"
+      },
+      {
+        "texto": "連打で倍率は最大4倍まで上がる。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "このパンチをスローで見て。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "1ラウンド60秒。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Playで無料。ヘッドセットのブラウザからすぐ遊べる！"
+  },
+  "ko": {
+    "gancho": "복서처럼 훈련해. 집에서.",
+    "frases": [
+      {
+        "texto": "헤드셋을 쓰면 눈앞에 샌드백이 있어.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "타깃에 불이 들어와. 꺼지기 전에 때려!",
+        "plano": "pov"
+      },
+      {
+        "texto": "연타로 배율을 최대 네 배까지 올려.",
+        "plano": "zoom"
+      },
+      {
+        "texto": "이 펀치, 슬로 모션으로 봐.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "한 라운드는 60초.",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 헤드셋 브라우저에서 바로 즐겨."
+  },
+  "zh": {
+    "gancho": "像拳击手一样训练。就在家里。",
+    "frases": [
+      {
+        "texto": "戴上头显，沙袋就在你面前。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "靶子亮起来了：在熄灭前打中它！",
+        "plano": "pov"
+      },
+      {
+        "texto": "连续出拳，倍数最高翻到四倍。",
+        "plano": "zoom"
+      },
+      {
+        "texto": "慢动作看看这一拳。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "每回合60秒。",
+        "plano": "partida"
+      }
+    ],
+    "cierre": "VR Play免费玩，头显浏览器直接打开。"
   }
 }

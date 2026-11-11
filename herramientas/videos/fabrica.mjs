@@ -4,6 +4,8 @@
 //   node herramientas/videos/fabrica.mjs editar <video> [--clips clips.json] [--encuadre 0.5] [--encajar]
 //   node herramientas/videos/fabrica.mjs bruto <partida en bruto> [--solo-trocear] [--juegos id,id] [--nombre n]
 //   node herramientas/videos/fabrica.mjs voz-prueba <id>   (muestras de entonación para elegir)
+//   node herramientas/videos/fabrica.mjs formato anuncio|top|reto|duelo|foro [<id>…]   (vídeos de varios juegos)
+//   node herramientas/videos/fabrica.mjs lote [--juegos 2]   (los vídeos de la semana y su parrilla)
 //   node herramientas/videos/fabrica.mjs probar-bot <id> [--modo vr|raton] [--segundos 12]   (¿juega bien el bot?)
 // Opciones: --idioma es|en (por defecto los dos), --sin-grabar (monta con la grabación ya hecha),
 //   --modo vr|raton (cómo se graba; por defecto vr), --gancho web|persona|impacto|reto (fuerza el
@@ -21,7 +23,9 @@ const opcion = (nombre) => {
   return i < 0 ? null : args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true;
 };
 const sueltos = args.slice(1).filter((a, i, l) => !a.startsWith('--') && !(l[i - 1]?.startsWith('--') && ['idioma', 'clips', 'encuadre', 'modo', 'gancho', 'voz', 'juegos', 'nombre', 'estilo', 'segundos', 'reloj'].includes(l[i - 1].slice(2))));
-const idiomas = opcion('idioma') ? [opcion('idioma')] : ['es', 'en'];
+// --idioma es | es,en,fr | todos (los 9 de la web). Por defecto, es y en.
+const TODOS_IDIOMAS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'];
+const idiomas = opcion('idioma') === 'todos' ? TODOS_IDIOMAS : typeof opcion('idioma') === 'string' ? opcion('idioma').split(',') : ['es', 'en'];
 
 async function ordenJuego() {
   const catalogo = juegosDelCatalogo();
@@ -104,6 +108,26 @@ async function ordenVozPrueba() {
   for (const m of await pruebaDeVoz(id, idioma, destino)) log(`${m.nombre}: ${path.relative(process.cwd(), m.salida)} (expresividad ${m.expresividad.join(' / ')})`);
 }
 
+async function ordenFormato() {
+  const formato = sueltos[0];
+  const { hacerFormato, FORMATOS } = await import('./lib/formatos.mjs');
+  if (!formato) throw new Error(`Di qué formato: formato ${FORMATOS.join('|')} [<id>…]`);
+  try {
+    await hacerFormato({ formato, idiomas, juegos: sueltos.slice(1), sinGrabar: !!opcion('sin-grabar') });
+  } finally {
+    await (await import('./lib/render.mjs')).cerrarRender();
+  }
+}
+
+async function ordenLote() {
+  const { hacerLote } = await import('./lib/lote.mjs');
+  try {
+    await hacerLote({ idiomas, maxJuegos: +(opcion('juegos') || 2), sinVoz: !!opcion('sin-voz'), motorVoz: opcion('voz') === 'kokoro' ? 'kokoro' : 'natural', modo: opcion('modo') === 'raton' ? 'raton' : 'vr' });
+  } finally {
+    await (await import('./lib/render.mjs')).cerrarRender();
+  }
+}
+
 async function ordenProbarBot() {
   const id = sueltos[0];
   if (!id) throw new Error('Di qué juego: probar-bot <id>');
@@ -114,11 +138,15 @@ async function ordenProbarBot() {
 async function principal() {
   crear(TRABAJO);
   if (orden === 'comprobar') return (await import('./lib/comprobar.mjs')).comprobarInstalacion();
+  // Efectos y música de reserva si faltan (en la nube); antes de elegir la música de cada vídeo
+  if (['juego', 'bruto', 'editar', 'formato', 'lote'].includes(orden)) await (await import('./lib/recursos.mjs')).recursosDeReserva();
   if (orden === 'juego') return ordenJuego();
   if (orden === 'editar') return ordenEditar();
   if (orden === 'bruto') return ordenBruto();
   if (orden === 'voz-prueba') return ordenVozPrueba();
   if (orden === 'probar-bot') return ordenProbarBot();
+  if (orden === 'formato') return ordenFormato();
+  if (orden === 'lote') return ordenLote();
   console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(0, 10).join('\n').replace(/^\/\/ ?/gm, ''));
 }
 

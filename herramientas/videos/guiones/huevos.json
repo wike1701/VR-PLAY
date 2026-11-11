@@ -50,5 +50,187 @@
       }
     ],
     "cierre": "It's free on VR Play: no downloads, no sign-up."
+  },
+  "fr": {
+    "gancho": "Les poules n’arrêtent pas de pondre.",
+    "frases": [
+      {
+        "texto": "Attrape les œufs avec les paniers.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Si une poule caquette, un œuf va tomber.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Le doré vaut cinq points.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Et le pourri, laisse-le tomber.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Et ça va de plus en plus vite.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "C’est gratuit sur VR Play : sans téléchargement ni inscription."
+  },
+  "de": {
+    "gancho": "Die Hühner legen ohne Pause.",
+    "frases": [
+      {
+        "texto": "Fang die Eier mit den Körben.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Gackert ein Huhn, kommt gleich ein Ei.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Das goldene bringt fünf Punkte.",
+        "plano": "partida"
+      },
+      {
+        "texto": "Und das faule lässt du fallen.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "Und es wird immer schneller.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "Kostenlos auf VR Play: kein Download, keine Anmeldung."
+  },
+  "it": {
+    "gancho": "Le galline non smettono di fare uova.",
+    "frases": [
+      {
+        "texto": "Prendi le uova con i cestini.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Se una gallina fa coccodè, sta per arrivare un uovo.",
+        "plano": "pov"
+      },
+      {
+        "texto": "Quello dorato vale cinque punti.",
+        "plano": "partida"
+      },
+      {
+        "texto": "E quello marcio, lascialo cadere.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "E vanno sempre più veloci.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "È gratis su VR Play: niente download, niente registrazione."
+  },
+  "pt": {
+    "gancho": "As galinhas não param de botar.",
+    "frases": [
+      {
+        "texto": "Pega os ovos com as cestas.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "Se uma galinha cacarejar, vem ovo aí.",
+        "plano": "pov"
+      },
+      {
+        "texto": "O dourado vale cinco pontos.",
+        "plano": "partida"
+      },
+      {
+        "texto": "E o podre, deixa cair.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "E fica cada vez mais rápido.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "É grátis no VR Play: sem download e sem cadastro."
+  },
+  "ja": {
+    "gancho": "ニワトリが卵を産みまくる。",
+    "frases": [
+      {
+        "texto": "カゴで卵をキャッチ。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "コケッと鳴いたら、卵が落ちてくる合図。",
+        "plano": "pov"
+      },
+      {
+        "texto": "金のタマゴは5点。",
+        "plano": "partida"
+      },
+      {
+        "texto": "腐ったタマゴは見逃して。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "どんどん速くなる。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Playなら無料。ダウンロードも登録もいらない！"
+  },
+  "ko": {
+    "gancho": "닭들이 쉬지 않고 알을 낳아.",
+    "frases": [
+      {
+        "texto": "바구니로 달걀을 받아.",
+        "plano": "espectador"
+      },
+      {
+        "texto": "닭이 꼬꼬댁 하면 알이 떨어질 거야.",
+        "plano": "pov"
+      },
+      {
+        "texto": "황금 달걀은 5점.",
+        "plano": "partida"
+      },
+      {
+        "texto": "썩은 달걀은 그냥 떨어뜨려.",
+        "plano": "lenta"
+      },
+      {
+        "texto": "점점 더 빨라져.",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play에서 무료! 다운로드도 가입도 필요 없어."
+  },
+  "zh": {
+    "gancho": "母鸡们下蛋停不下来。",
+    "frases": [
+      {
+        "texto": "用篮子接住鸡蛋。",
+        "plano": "espectador"
+      },
+      {
+        "texto": "母鸡一叫，就要下蛋了。",
+        "plano": "pov"
+      },
+      {
+        "texto": "金蛋值五分。",
+        "plano": "partida"
+      },
+      {
+        "texto": "臭蛋就让它掉下去。",
+        "plano": "lenta"
+      },
+      {
+        "texto": "速度越来越快。",
+        "plano": "zoom"
+      }
+    ],
+    "cierre": "VR Play免费玩：无需下载，无需注册。"
   }
 }

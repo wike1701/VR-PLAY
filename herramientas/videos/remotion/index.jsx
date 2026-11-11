@@ -7,6 +7,7 @@ import { ClipHablado } from './ClipHablado.jsx';
 import { AnuncioVR } from './AnuncioVR.jsx';
 import { EdicionPro } from './EdicionPro.jsx';
 import { Ganchos, PRUEBA_GANCHOS } from './ganchos/Ganchos.jsx';
+import { Formato, VACIO_FORMATO } from './Formatos.jsx';
 
 const VACIO_JUEGO = { video: 'vacio.mp4', trozos: [{ tipo: 'gancho', desde: 0, hasta: 3 }], textos: { gancho: '', titulo: '', frases: [] }, miniatura: 'marca/favicon.svg', rastro: [], clics: [], impactos: [] };
 const VACIO_ANUNCIO = { video: 'vacio.mp4', espectador: null, miniatura: 'marca/favicon.svg', gancho: { tipo: 'impacto', texto: '' }, escenas: [{ plano: 'cierre', en: 0, dura: 4 }], subtitulos: [], impactos: [], textos: {}, duracion: 4 };
@@ -35,6 +36,11 @@ function Raiz() {
         id="ClipHablado" component={ClipHablado} width={1080} height={1920} fps={30} durationInFrames={150}
         defaultProps={VACIO_CLIP}
         calculateMetadata={({ props }) => ({ durationInFrames: Math.max(1, Math.round((props.hasta - props.desde) * 30)) })}
+      />
+      <Composition
+        id="Formato" component={Formato} width={1080} height={1920} fps={30} durationInFrames={120}
+        defaultProps={VACIO_FORMATO}
+        calculateMetadata={({ props }) => ({ durationInFrames: Math.round(props.duracion * 30) })}
       />
       <Composition
         id="Ganchos" component={Ganchos} width={1080} height={1920} fps={30} durationInFrames={360}

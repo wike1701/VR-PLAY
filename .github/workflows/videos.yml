@@ -1,0 +1,93 @@
+# Fábrica de vídeos en GitHub Actions: hace los vídeos de la semana sin el ordenador de casa.
+#
+# Cada lunes (y cuando quieras, desde la pestaña Actions → «Vídeos de la semana» → Run workflow)
+# lanza `node herramientas/videos/fabrica.mjs lote`: los TikToks de los juegos que aún no tienen,
+# el anuncio de la web y el formato de la semana (top, reto, duelo o foro), con su parrilla
+# (PARRILLA.md) y los textos de publicación. No publica nada: los vídeos quedan como artefacto de la
+# ejecución («videos-N», 30 días), para revisarlos y subirlos (o pedirle a Claude que los suba).
+#
+# Sin GPU, la fábrica graba con el reloj virtual (fotograma a fotograma, ver herramientas/videos/
+# GUIA.md): tarda más, pero sale igual de fluido. Las partidas grabadas se guardan en la caché para
+# que la semana siguiente los formatos no tengan que volver a grabarlas.
+# No necesita secretos: la voz (Kokoro) y los efectos son gratis y locales.
+
+name: Vídeos de la semana
+
+on:
+  schedule:
+    - cron: '17 4 * * 1' # los lunes a las 04:17 UTC
+  workflow_dispatch:
+    inputs:
+      orden:
+        description: 'Qué hacer: lote · formato anuncio · formato top · juego fruta…'
+        default: 'lote'
+      idiomas:
+        description: 'Idiomas: es,en · todos (los 9)'
+        default: 'es,en'
+      voz:
+        description: 'Con voz en off (Kokoro; tarda más)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: videos
+  cancel-in-progress: false
+
+jobs:
+  videos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: herramientas/videos/package-lock.json
+
+      - name: FFmpeg y fuentes (japonés, coreano, chino y emojis)
+        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-color-emoji
+
+      - name: Dependencias de la fábrica
+        working-directory: herramientas/videos
+        run: npm ci --no-audit --no-fund && npx playwright install --with-deps chromium
+
+      - name: Voz (Kokoro)
+        if: inputs.voz == true
+        working-directory: herramientas/videos
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -q kokoro soundfile faster-whisper "misaki[ja,zh]"
+
+      - name: Partidas grabadas de otras semanas
+        uses: actions/cache@v4
+        with:
+          path: herramientas/videos/trabajo/juegos
+          key: videos-partidas-${{ github.run_id }}
+          restore-keys: videos-partidas-
+
+      - name: Hacer los vídeos
+        env:
+          VRPLAY_RELOJ: virtual
+          ORDEN: ${{ inputs.orden || 'lote' }}
+          IDIOMAS: ${{ inputs.idiomas || 'es,en' }}
+          VOZ: ${{ inputs.voz == true && '--voz kokoro' || '--sin-voz' }}
+        run: node herramientas/videos/fabrica.mjs $ORDEN --idioma "$IDIOMAS" $VOZ
+
+      - name: Guardar los vídeos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            herramientas/videos/salida/**/*.mp4
+            herramientas/videos/salida/**/*.txt
+            herramientas/videos/salida/**/*.jpg
+            herramientas/videos/salida/**/*.md
+            herramientas/videos/salida/**/*.json

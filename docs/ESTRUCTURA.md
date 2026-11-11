@@ -49,10 +49,10 @@ VR-PLAY/
 ├── servidor/               API del Worker (/api/*), fichas y sitemap; index.js reparte las rutas
 ├── bd/esquema.sql          Tablas de la base de datos (D1)
 ├── herramientas/           Scripts de terminal (Node) y la guía de la rutina diaria
-│   └── videos/             Fábrica de vídeos (TikToks de los juegos y editor de grabaciones), con su package.json
+│   └── videos/             Fábrica de vídeos (TikToks de los juegos, formatos, lote semanal y editor de grabaciones), con su package.json
 ├── docs/                   Documentos de diseño y planificación (no se publican)
 ├── .claude/skills/         Skills de Claude Code del proyecto (no se publican)
-├── .github/workflows/      GitHub Actions: Claude programa los encargos de voz (no se publica)
+├── .github/workflows/      GitHub Actions: Claude programa los encargos de voz y los vídeos de cada lunes (no se publica)
 ├── README.md, CLAUDE.md    Documentación principal e instrucciones para Claude
 ├── wrangler.jsonc          Configuración de Cloudflare
 └── .assetsignore, .gitignore
@@ -71,9 +71,9 @@ VR-PLAY/
 | **`servidor/`** | `index.js` (rutas), `comun.js` y `bd.js` (utilidades y tablas), y un archivo por recurso de la API | Un archivo por ruta o grupo de rutas, que exporta `onRequestGet`, `onRequestPost`… |
 | **`bd/`** | `esquema.sql` | Todas las tablas. `servidor/bd.js` crea las nuevas solo, la primera vez. |
 | **`herramientas/`** | `foro.mjs`, `idiomas.mjs`, `marcadores.mjs`, `estructura.mjs`, `calidad.mjs`, `portadas-compartir.mjs`, `foro.json`, `rutina-foro.md` | Scripts que se ejecutan con `node herramientas/<x>.mjs`. No se publican. **No muevas `rutina-foro.md`**: la rutina diaria de la nube lo tiene escrito en sus instrucciones. |
-| **`herramientas/videos/`** | `fabrica.mjs`, `transcribir.py`, `lib/`, `remotion/`, `musica/`, `GUIA.md`, `package.json` | La fábrica de vídeos, con sus propias dependencias (`npm install` dentro). Lo que genera (`salida/`, `trabajo/`), el entorno de Python (`.venv/`) y la música no van a git (`.gitignore`). Guía: `GUIA.md`. |
+| **`herramientas/videos/`** | `fabrica.mjs`, `transcribir.py`, `lib/` (con `jugadas/`, el jugador a medida de cada juego), `remotion/`, `guiones/`, `musica/`, `GUIA.md`, `package.json` | La fábrica de vídeos, con sus propias dependencias (`npm install` dentro). Lo que genera (`salida/`, `trabajo/`), el entorno de Python (`.venv/`) y la música no van a git (`.gitignore`). Guía: `GUIA.md`. |
 | **`docs/`** | `ESTRUCTURA.md` (este), `CALIDAD.md` (estándar de calidad y rendimiento de los juegos), `PORTADAS.md` (estándar de las portadas), `PERFILES.md` (especificación de cuentas), `LANZAMIENTO.md` (lista de lanzamiento), `FORO.md` (cómo trabaja Claude Code con el foro) | Documentos de diseño, especificaciones y planes. No se publican. |
-| **`.claude/skills/`** | Skills de terceros con su licencia y un `README.md` | Ver ese README antes de añadir una. |
+| **`.claude/skills/`** | Skills de terceros con su licencia, la propia `videos-vrplay` (los vídeos) y un `README.md` | Ver ese README antes de añadir una. |
 
 ### El servidor por grupos
 
