@@ -182,26 +182,38 @@ export async function precargar() {}
 
 export function iniciar(ctx) {
   // ctx.raiz           -> grupo donde se añade todo el juego
-  // ctx.manos          -> mandos: { grip, activa, gatillo, gatilloPulsado, posicion }
+  // ctx.manos          -> mandos: { grip, activa, gatillo, gatilloPulsado, posicion, velocidad,
+  //                       velocidadReciente(segundos, destino) }. La velocidad (m/s) la mide la shell con
+  //                       el tiempo REAL: úsala en vez de calcularla tú (no le afecta la micro-pausa).
+  //                       Para lanzar: mano.velocidadReciente(0.08, vectorTuyo), la media de los últimos 80 ms
   // ctx.raton          -> ratón en modo escritorio: { rayo, clic, velocidadPx, ... }
   // ctx.enVR()         -> true si se está jugando con gafas
   // ctx.bloquearCambio(bool) -> mientras sea true no se puede pasar de juego (balón cogido); se reinicia al cambiar
   // ctx.adjuntarAMano(mano, objeto), ctx.recurso(geometriaOMaterial)
-  // ctx.crearPanel(...), ctx.sonido(nombre), ctx.vibrar(mano, fuerza, ms)
+  // ctx.crearPanel(...), ctx.sonido(nombre, { pos, volumen }), ctx.vibrar(mano, fuerza, ms)
+  //   (con pos, el sonido sale de ese sitio: a la izquierda o a la derecha y más bajo de lejos)
   // ctx.sonidoContinuo('motor') -> { ajustar(valor 0-1, volumen), parar() } (la shell lo para al salir)
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
   // ctx.crearMano('izquierda' | 'derecha', { color, colorPuno }) -> { objeto, cerrar(0-1) }: una mano que se
   //   abre y se cierra, para adjuntar con ctx.adjuntarAMano (ver «Las manos se ven»)
+  // ctx.manosPorDefecto(false) -> quita las manos que pone la shell en los mandos vacíos
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
   // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
   // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
+  // ctx.efectos.sinPausa(true) -> sin micro-pausa en los impactos (juegos de ritmo: la música no se para)
   // ctx.fondo(color, { nubes, estrellas, luna, sol, niebla: [cerca, lejos], paisaje: { tipo, color } })
   // ctx.arboles(lista, { tipo: 'pino' | 'frondoso' | 'palmera' }) -> grupo, ctx.geometriaArbol(tipo), ctx.orientarFondo(giro)
-  // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»)
+  // ctx.puntuacion(valor) -> OBLIGATORIO al terminar cada partida, con su resultado (ver «Clasificaciones»).
+  //   Un segundo resultado a menos de 2 s del anterior se ignora (devuelve false)
+  // ctx.partida -> { activa, empezar(), terminar(valor) }: el fin de partida que solo ocurre una vez.
+  //   terminar() devuelve false si ya había terminado; mientras !ctx.partida.activa no sumes puntos
+  //   ni quites vidas. Llama a empezar() al empezar la siguiente partida (la primera ya empieza sola)
   return {
-    actualizar(dt, t) { /* se llama en cada fotograma */ },
+    // dt: segundos de juego (casi 0 durante la micro-pausa de un impacto); dtReal: segundos de verdad,
+    // para lo que se mide en el mundo real (lo que se ha movido una mano o el ratón, el ritmo de la música)
+    actualizar(dt, t, dtReal) { /* se llama en cada fotograma */ },
     liberar() { /* limpia lo que no esté en ctx.raiz */ },
   };
 }
@@ -292,7 +304,7 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
-- **Las manos se ven, en todos los juegos.** En VR siempre tiene que haber algo donde están tus manos: lo que llevas (raqueta, pistola, taco, guantes…) o, si el juego no pone nada en ellas, unas manos. La shell no dibuja nada por su cuenta. Lo más fácil es `ctx.crearMano('izquierda' | 'derecha', { color, colorPuno })` con `ctx.adjuntarAMano(mano, m.objeto)` y `m.cerrar(0…1)` en cada fotograma: abierta en reposo y cerrada al apretar o al agarrar. Si el objeto de la mano no va en el mando (por ejemplo, un taco que se coge con las dos manos), pon manos igualmente donde lo sujetas. Sin gafas, lo equivalente: que se vea qué controlas tú (los guantes delante de la cámara, el muñeco que se mueve, la mano que cuelga de la presa…).
+- **Las manos se ven, en todos los juegos.** En VR siempre tiene que haber algo donde están tus manos: lo que llevas (raqueta, pistola, taco, guantes…) o, si el juego no pone nada en ellas, unas manos. Si el juego no pone nada visible en un mando, la shell pone allí una mano que se cierra con el gatillo y el agarre (se quita con `ctx.manosPorDefecto(false)`); aun así, mejor que cada juego ponga lo suyo. Lo más fácil es `ctx.crearMano('izquierda' | 'derecha', { color, colorPuno })` con `ctx.adjuntarAMano(mano, m.objeto)` y `m.cerrar(0…1)` en cada fotograma: abierta en reposo y cerrada al apretar o al agarrar. Si el objeto de la mano no va en el mando (por ejemplo, un taco que se coge con las dos manos), pon manos igualmente donde lo sujetas. Sin gafas, lo equivalente: que se vea qué controlas tú (los guantes delante de la cámara, el muñeco que se mueve, la mano que cuelga de la presa…).
 
 ## Encargos de voz (Discord → Claude)
 

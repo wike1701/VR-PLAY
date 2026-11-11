@@ -20,7 +20,7 @@ import { abrirPartida, enviarPuntuacion, formatearValor, pedirClasificacion, hay
 import { crearPanel, liberarObjeto, liberarRecurso } from './utilidades.js';
 import { crearEfectos } from './efectos.js';
 import { crearHorizonte, crearArboles, geometriaArbol } from './paisaje.js';
-import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
+import { activarAudio, sonido, sonidoContinuo, colocarOyente } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
@@ -199,6 +199,8 @@ const fundido = {
 };
 
 // ─── Mandos VR ───────────────────────────────────────────────────────────
+// Historial de posiciones de cada mano (tamaño fijo: no se crea nada en cada fotograma)
+const TAM_HISTORIAL = 24;
 const manos = [0, 1].map((indice) => {
   const grip = renderer.xr.getControllerGrip(indice);
   escena.add(grip);
@@ -207,11 +209,21 @@ const manos = [0, 1].map((indice) => {
     fuente: null, lado: null, conectado: false, activa: false,
     gatillo: false, gatilloPulsado: false, apreton: false,
     posicion: new THREE.Vector3(),
+    // Velocidad de la mano (m/s) medida con el tiempo REAL: no le afecta la micro-pausa de los
+    // impactos ni los fps. Para lanzar algo, mejor velocidadReciente(0.08, destino): la media de
+    // los últimos 80 ms (lo que dura el gesto de soltar).
+    velocidad: new THREE.Vector3(),
+    velocidadReciente(ventana, destino) {
+      return velocidadReciente(mano, ventana, destino);
+    },
+    historial: { t: new Float64Array(TAM_HISTORIAL), p: new Float32Array(TAM_HISTORIAL * 3), n: 0, i: 0 },
+    porDefecto: null, // la mano que pone la shell si el juego no pone nada en este mando
   };
   grip.addEventListener('connected', (e) => {
     mano.fuente = e.data;
     mano.lado = e.data.handedness;
     mano.conectado = !!e.data.gamepad;
+    ponerManoPorDefecto(mano);
   });
   grip.addEventListener('disconnected', () => {
     mano.fuente = null;
@@ -220,7 +232,48 @@ const manos = [0, 1].map((indice) => {
   return mano;
 });
 
-function actualizarManos() {
+const tmpVel = new THREE.Vector3();
+
+function velocidadReciente(mano, ventana = 0.08, destino = new THREE.Vector3()) {
+  const h = mano.historial;
+  destino.set(0, 0, 0);
+  if (h.n < 2) return destino;
+  const ultimo = (h.i - 1 + TAM_HISTORIAL) % TAM_HISTORIAL;
+  const tFin = h.t[ultimo];
+  let j = ultimo;
+  for (let k = 1; k < h.n; k++) {
+    const previo = (ultimo - k + TAM_HISTORIAL) % TAM_HISTORIAL;
+    j = previo;
+    if (tFin - h.t[previo] >= ventana) break;
+  }
+  const dt = tFin - h.t[j];
+  if (dt <= 0) return destino;
+  return destino.set(
+    h.p[ultimo * 3] - h.p[j * 3],
+    h.p[ultimo * 3 + 1] - h.p[j * 3 + 1],
+    h.p[ultimo * 3 + 2] - h.p[j * 3 + 2],
+  ).divideScalar(dt);
+}
+
+// La shell pone una mano (shell/graficos.js) en cada mando, que solo se ve si el juego no ha
+// puesto nada en él (README, «Las manos se ven»). ctx.manosPorDefecto(false) la quita en un juego.
+let manosPorDefectoActivas = true;
+function ponerManoPorDefecto(mano) {
+  const lado = mano.lado === 'left' ? 'izquierda' : 'derecha';
+  if (mano.porDefecto?.lado === lado) return;
+  if (mano.porDefecto) {
+    mano.porDefecto.objeto.removeFromParent();
+    liberarObjeto(mano.porDefecto.objeto);
+  }
+  const m = crearMano(lado);
+  m.lado = lado;
+  m.objeto.name = 'mano-shell';
+  m.objeto.visible = false;
+  mano.grip.add(m.objeto);
+  mano.porDefecto = m;
+}
+
+function actualizarManos(dtReal, ahora) {
   const enVR = renderer.xr.isPresenting;
   for (const m of manos) {
     const botones = m.fuente?.gamepad?.buttons;
@@ -228,8 +281,37 @@ function actualizarManos() {
     m.gatillo = !!botones?.[0]?.pressed;
     m.apreton = !!botones?.[1]?.pressed;
     m.gatilloPulsado = m.gatillo && !antes;
+    const estabaActiva = m.activa;
     m.activa = enVR && m.conectado && m.grip.visible;
     m.grip.getWorldPosition(m.posicion);
+    // Velocidad: si la mano acaba de aparecer, se empieza de cero (sin saltos de posición)
+    const h = m.historial;
+    if (!m.activa || !estabaActiva) {
+      h.n = 0;
+      m.velocidad.set(0, 0, 0);
+    } else if (dtReal > 0) {
+      const ultimo = (h.i - 1 + TAM_HISTORIAL) % TAM_HISTORIAL;
+      tmpVel.set(m.posicion.x - h.p[ultimo * 3], m.posicion.y - h.p[ultimo * 3 + 1], m.posicion.z - h.p[ultimo * 3 + 2])
+        .divideScalar(Math.max(1e-4, ahora - h.t[ultimo]));
+      // Suavizado corto (unos 25 ms) para quitar el temblor del seguimiento sin retrasar el gesto
+      m.velocidad.lerp(tmpVel, Math.min(1, dtReal / 0.025));
+    }
+    if (m.activa) {
+      h.t[h.i] = ahora;
+      h.p[h.i * 3] = m.posicion.x;
+      h.p[h.i * 3 + 1] = m.posicion.y;
+      h.p[h.i * 3 + 2] = m.posicion.z;
+      h.i = (h.i + 1) % TAM_HISTORIAL;
+      h.n = Math.min(TAM_HISTORIAL, h.n + 1);
+    }
+    // Mano por defecto: visible solo si el juego no ha puesto nada visible en este mando
+    const def = m.porDefecto;
+    if (def) {
+      let ocupada = false;
+      for (const hijo of m.grip.children) if (hijo !== def.objeto && hijo.visible) { ocupada = true; break; }
+      def.objeto.visible = m.activa && manosPorDefectoActivas && !ocupada;
+      if (def.objeto.visible) def.cerrar(Math.max(botones?.[0]?.value || 0, botones?.[1]?.value || 0));
+    }
   }
 }
 
@@ -297,7 +379,7 @@ function guardarRatonAnterior() {
 
 // ─── Carga, montaje y desmontaje de juegos ───────────────────────────────
 // Kit de efectos común (ctx.efectos): impactos, estallidos y puntos que saltan (shell/efectos.js)
-const efectos = crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR: () => renderer.xr.isPresenting });
+const efectos = crearEfectos({ escena, camara, crearPanel, vibrar, sonido, manos, enVR: () => renderer.xr.isPresenting });
 // Los paneles 3D se pintan con Geist: hay que pedirla, porque un canvas no la descarga solo
 document.fonts?.load('700 40px Geist').catch(() => {});
 
@@ -387,11 +469,31 @@ function montar(indice, modulo) {
     tactil: TACTIL, // pantalla táctil (móvil o tableta): para los textos de ayuda
     // El juego la llama al terminar CADA partida con su resultado: puntos, segundos, golpes… según
     // juegos/marcadores.js. Con cuenta, va a la clasificación; la shell enseña el puesto.
+    // Una partida solo puede terminar una vez: si llega otro resultado a menos de 2 s del anterior
+    // (por ejemplo, un huevo que cae después de perder la última vida) se ignora y devuelve false.
     puntuacion(valor) {
-      if (!Number.isFinite(valor)) return;
+      if (!Number.isFinite(valor)) return false;
+      if (tiempo - ultimaPuntuacion < 2) return false;
+      ultimaPuntuacion = tiempo;
       const abierta = partida;
       partida = abrirPartida(idJuego);
       enviarPuntuacion(idJuego, abierta, valor).then((r) => avisarClasificacion(idJuego, r));
+      return true;
+    },
+    // Estado de la partida, para que el fin solo ocurra una vez:
+    //   ctx.partida.empezar()          al empezar cada partida (la primera ya empieza sola)
+    //   ctx.partida.activa             false después de terminar: no sumes puntos ni quites vidas
+    //   ctx.partida.terminar(valor)    devuelve false si ya había terminado; si no, manda el
+    //                                  resultado a la clasificación (si se pasa valor) y devuelve true
+    partida: {
+      activa: true,
+      empezar() { this.activa = true; },
+      terminar(valor) {
+        if (!this.activa) return false;
+        this.activa = false;
+        if (valor !== undefined) ctx.puntuacion(valor);
+        return true;
+      },
     },
     // Textos en el idioma del jugador (idiomas/<código>.js): ctx.t('fin', { n: puntos }) busca
     // juegos.<id>.juego.fin; las claves 'partida.…' son las compartidas por todos los juegos.
@@ -408,6 +510,8 @@ function montar(indice, modulo) {
       return r;
     },
     crearPanel,
+    // ctx.sonido('golpe') o, para que suene desde un sitio (izquierda/derecha y más bajo lejos),
+    // ctx.sonido('golpe', { pos, volumen })
     sonido,
     // Sensación de juego común (docs/CALIDAD.md): ctx.efectos.impacto('pequeño'|'medio'|'grande', { pos, mano, color, sonido }),
     // ctx.efectos.estallido(pos, { color, cantidad }), ctx.efectos.texto(pos, '+3', { color })
@@ -450,6 +554,9 @@ function montar(indice, modulo) {
     // «Las manos se ven»): const m = ctx.crearMano('derecha', { color }); ctx.adjuntarAMano(mano, m.objeto);
     // m.cerrar(0…1) en cada fotograma.
     crearMano,
+    // La shell pone una mano en cada mando en el que el juego no ha puesto nada visible.
+    // ctx.manosPorDefecto(false) la quita (se vuelve a poner sola al cambiar de juego).
+    manosPorDefecto(valor) { manosPorDefectoActivas = !!valor; },
     vistaEscritorio(posicion, objetivo) {
       vista.posicion.copy(posicion);
       vista.objetivo.copy(objetivo);
@@ -468,10 +575,14 @@ function montar(indice, modulo) {
     },
   };
 
-  const instancia = modulo.iniciar(ctx);
-  // jugado: segundos de juego sin contar la pausa; a los SEGUNDOS_PARTIDA cuenta como una partida
-  actual = { indice, instancia, raiz, adjuntos, recursos, continuos, jugado: 0, contada: false };
+  // jugado: segundos de juego sin contar la pausa; a los SEGUNDOS_PARTIDA cuenta como una partida.
+  // actual se rellena ANTES de iniciar: si iniciar() falla, desmontar() puede retirar lo que el
+  // juego ya hubiera puesto (raíz, objetos en las manos, sonidos continuos).
+  let ultimaPuntuacion = -Infinity;
+  actual = { indice, instancia: null, raiz, adjuntos, recursos, continuos, jugado: 0, contada: false };
   errorJuego = false;
+  manosPorDefectoActivas = true;
+  actual.instancia = modulo.iniciar(ctx);
   iniciarIntro();
 }
 
@@ -540,8 +651,14 @@ async function cambiarA(indice, { volviendo = false } = {}) {
 
     montar(indice, modulo);
     // Compilar ya los materiales del juego (con la pantalla en negro): si no, la GPU los compila
-    // al verlos por primera vez y el juego da tirones en los primeros segundos
-    renderer.compile(escena, camara);
+    // al verlos por primera vez y el juego da tirones en los primeros segundos. compileAsync deja
+    // que el navegador compile en paralelo sin congelar la imagen (las gafas siguen fluidas).
+    try {
+      if (renderer.compileAsync) await renderer.compileAsync(escena, camara);
+      else renderer.compile(escena, camara);
+    } catch (e) {
+      renderer.compile(escena, camara);
+    }
     history.replaceState(null, '', `#${JUEGOS[indice].id}`);
     aplicarVista();
   } catch (e) {
@@ -593,6 +710,8 @@ botonPausa.setEtiqueta([{ texto: t('jugar.vr.pausa'), tam: 1.2, color: '#80e8dc'
 escena.add(botonPausa.grupo);
 // Cada botón responde solo a la mano de su lado (si aún no se sabe, el mando 0 es el izquierdo)
 const esIzquierda = (m) => (m.lado ? m.lado === 'left' : m.indice === 0);
+const manosIzquierda = [];
+const manosDerecha = [];
 const cabezaPos = new THREE.Vector3();
 const cabezaDir = new THREE.Vector3();
 
@@ -669,9 +788,14 @@ function partirTexto(texto, max) {
   return lineas;
 }
 
+const introDestino = new THREE.Vector3();
+const EJE_Y = new THREE.Vector3(0, 1, 0);
+let introEscrita = -1;
+
 function iniciarIntro() {
   introRestante = SEGUNDOS_INTRO;
   introColocada = false;
+  introEscrita = -1;
 }
 
 function actualizarIntro(dt) {
@@ -695,15 +819,24 @@ function actualizarIntro(dt) {
     introColocada = false;
     return;
   }
-  introPanel.escribir([
-    { texto: juego.titulo, tam: 1.3, color: '#ffd54f' },
-    ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
-    { texto: cuenta, tam: 0.9, color: '#80e8dc' },
-  ]);
-  // Se recoloca en cada fotograma, delante y hacia la izquierda de la mirada, para leerlo sin girar mucho
-  const delante = cabezaDir.clone().setY(0).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.5).multiplyScalar(1.3);
-  introPanel.mesh.position.copy(cabezaPos).add(delante);
-  introPanel.mesh.position.y = cabezaPos.y - 0.05;
+  // Solo se repinta cuando cambia el número de la cuenta atrás (no en cada fotograma)
+  const claveIntro = actual.indice * 100 + n;
+  if (claveIntro !== introEscrita) {
+    introEscrita = claveIntro;
+    introPanel.escribir([
+      { texto: juego.titulo, tam: 1.3, color: '#ffd54f' },
+      ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
+      { texto: cuenta, tam: 0.9, color: '#80e8dc' },
+    ]);
+  }
+  // Delante y hacia la izquierda de la mirada, para leerlo sin girar mucho. Sigue la mirada con
+  // suavidad (no va pegado a la cabeza, que marea) y se coloca de golpe la primera vez.
+  introDestino.copy(cabezaDir).setY(0);
+  if (introDestino.lengthSq() < 1e-6) introDestino.set(0, 0, -1);
+  introDestino.normalize().applyAxisAngle(EJE_Y, 0.5).multiplyScalar(1.3).add(cabezaPos);
+  introDestino.y = cabezaPos.y - 0.05;
+  if (introColocada) introPanel.mesh.position.lerp(introDestino, Math.min(1, dt * 4));
+  else introPanel.mesh.position.copy(introDestino);
   introPanel.mesh.lookAt(cabezaPos);
   introColocada = true;
   introPanel.mesh.visible = true;
@@ -982,6 +1115,12 @@ $btnVR.addEventListener('click', async () => {
       optionalFeatures: ['local-floor', 'bounded-floor'],
     });
     sesion.addEventListener('end', alSalirVR);
+    // Al abrir el menú del sistema (botón Meta) o quitarse las gafas, el juego se pausa
+    sesion.addEventListener('visibilitychange', () => {
+      if (sesion.visibilityState !== 'visible' && actual && !enCatalogo) pausar();
+    });
+    // Más nitidez en las gafas que pueden con ella (textos y bordes más limpios)
+    renderer.xr.setFramebufferScaleFactor(escalaNitidez());
     await renderer.xr.setSession(sesion);
     alEntrarVR();
   } catch (e) {
@@ -989,6 +1128,25 @@ $btnVR.addEventListener('click', async () => {
     $estado.textContent = t('jugar.vrError');
   }
 });
+
+// Escala de la imagen de las gafas. Quest 3/3S tienen GPU de sobra para dibujar un 20 % más
+// de resolución por eje; en las demás se deja la nativa. Se puede forzar desde la consola con
+// localStorage.setItem('vrplay:nitidez', '1.3') (entre 0,5 y 1,5).
+function escalaNitidez() {
+  try {
+    const forzada = parseFloat(localStorage.getItem('vrplay:nitidez'));
+    if (forzada >= 0.5 && forzada <= 1.5) return forzada;
+  } catch (e) { /* sin almacenamiento */ }
+  return /Quest 3/i.test(navigator.userAgent) ? 1.2 : 1;
+}
+
+// Si la GPU pierde el contexto (poca memoria, el sistema lo reclama), se recarga la página al
+// recuperarlo en vez de quedarse en negro.
+renderer.domElement.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault();
+  console.warn('Se ha perdido el contexto WebGL');
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => location.reload());
 
 function alEntrarVR() {
   document.body.classList.add('en-vr');
@@ -1058,7 +1216,8 @@ renderer.setAnimationLoop(() => {
   const enVR = renderer.xr.isPresenting;
 
   escena.updateMatrixWorld();
-  actualizarManos();
+  actualizarManos(dt, tiempo);
+  colocarOyente(camara.matrixWorldInverse);
   actualizarRaton(dt);
   camara.getWorldPosition(cabezaPos);
   camara.getWorldDirection(cabezaDir);
@@ -1069,8 +1228,9 @@ renderer.setAnimationLoop(() => {
   actualizarIntro(dt);
   if (actual && !errorJuego && !pausado && !enIntro) {
     try {
-      // Durante la micro-pausa de un impacto el juego recibe un dt casi nulo
-      actual.instancia.actualizar?.(efectos.escalaTiempo(dt), tiempo);
+      // Durante la micro-pausa de un impacto el juego recibe un dt casi nulo. El tercer argumento
+      // es el dt real, para lo que se mide en el mundo real (la velocidad de la mano, la música…)
+      actual.instancia?.actualizar?.(efectos.escalaTiempo(dt), tiempo, dt);
       actual.jugado += dt;
       if (!actual.contada && actual.jugado >= SEGUNDOS_PARTIDA) {
         actual.contada = true;
@@ -1109,7 +1269,9 @@ renderer.setAnimationLoop(() => {
     if (accion) accionPausa(accion);
   } else if (enVR) {
     // Detrás del hombro izquierdo, con la mano izquierda: pausa y menú
-    const p = botonPausa.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa && esIzquierda(m)));
+    manosIzquierda.length = manosDerecha.length = 0;
+    for (const m of manos) if (m.activa) (esIzquierda(m) ? manosIzquierda : manosDerecha).push(m);
+    const p = botonPausa.actualizar(dt, cabezaPos, cabezaDir, manosIzquierda);
     if (p.aviso) vibrar(p.aviso.mano, p.aviso.fuerza, 25);
     if (p.entro) {
       vibrar(p.entro, 0.3, 30);
@@ -1120,7 +1282,7 @@ renderer.setAnimationLoop(() => {
       pausar();
     }
     // Detrás del hombro derecho, con la mano derecha: siguiente juego
-    const r = boton.actualizar(dt, cabezaPos, cabezaDir, manos.filter((m) => m.activa && !esIzquierda(m)));
+    const r = boton.actualizar(dt, cabezaPos, cabezaDir, manosDerecha);
     if (r.aviso) vibrar(r.aviso.mano, r.aviso.fuerza, 25); // guía para encontrar el botón
     if (r.entro) {
       vibrar(r.entro, 0.3, 30);

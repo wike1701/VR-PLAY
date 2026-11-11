@@ -13,6 +13,9 @@ import * as THREE from 'three';
 //
 // En VR la cámara NUNCA se sacude (marea): allí la sacudida se cambia por vibración.
 // Con el sistema en "reducir movimiento" no hay sacudida ni micro-pausa.
+// La micro-pausa no se encadena (entre una y otra pasan al menos 0,3 s) y los juegos de ritmo
+// la quitan con ctx.efectos.sinPausa(true), porque la música no puede pararse.
+// Un impacto 'medio' o 'grande' sin mano vibra, más suave, en las manos que estén jugando.
 // ─────────────────────────────────────────────────────────────────────────
 
 const MAX_PARTICULAS = 320;
@@ -27,7 +30,7 @@ const NIVELES = {
 };
 NIVELES.pequeno = NIVELES.pequeño;
 
-export function crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR }) {
+export function crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR, manos = [] }) {
   // ─── Partículas: una sola malla instanciada (una llamada de dibujo para todas) ─────
   const geo = new THREE.IcosahedronGeometry(1, 0);
   const mat = new THREE.MeshBasicMaterial({ toneMapped: false });
@@ -93,19 +96,32 @@ export function crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR 
 
   function impacto(nivel = 'medio', { pos = null, mano = null, color = 0xffffff, sonido: nombre = null } = {}) {
     const n = NIVELES[nivel] || NIVELES.medio;
-    if (nombre) sonido(nombre);
+    if (nombre) sonido(nombre, { pos });
     if (mano) vibrar(mano, n.vibra[0], n.vibra[1]);
+    else if (n.pausa && enVR()) for (const m of manos) if (m.activa) vibrar(m, n.vibra[0] * 0.6, n.vibra[1]);
     if (pos && n.particulas) estallido(pos, { color, cantidad: n.particulas, fuerza: n.fuerza });
     if (!REDUCIR) {
       if (!enVR()) trauma = Math.min(1, trauma + n.sacudida);
-      pausa = Math.max(pausa, n.pausa);
+      if (!sinMicroPausa && enfriamiento <= 0) pausa = Math.max(pausa, n.pausa);
     }
   }
 
+  // Juegos de ritmo: sin micro-pausa (la shell la vuelve a activar al cambiar de juego)
+  let sinMicroPausa = false;
+  function sinPausa(valor = true) {
+    sinMicroPausa = !!valor;
+    if (sinMicroPausa) pausa = 0;
+  }
+
   // Devuelve el dt que tiene que recibir el juego (casi parado durante la micro-pausa)
+  let enfriamiento = 0; // tiempo que falta para que pueda empezar otra micro-pausa
   function escalaTiempo(dt) {
-    if (pausa <= 0) return dt;
+    if (pausa <= 0) {
+      enfriamiento -= dt;
+      return dt;
+    }
     pausa -= dt;
+    if (pausa <= 0) enfriamiento = 0.3;
     return dt * 0.08;
   }
 
@@ -183,7 +199,9 @@ export function crearEfectos({ escena, camara, crearPanel, vibrar, sonido, enVR 
     antes();
     trauma = 0;
     pausa = 0;
+    enfriamiento = 0;
+    sinMicroPausa = false;
   }
 
-  return { api: { impacto, estallido, texto }, escalaTiempo, antes, actualizar, limpiar };
+  return { api: { impacto, estallido, texto, sinPausa }, escalaTiempo, antes, actualizar, limpiar };
 }

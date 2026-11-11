@@ -130,7 +130,8 @@ export class MenuPausa {
   actualizar(manos) {
     if (!this.abierto) return null;
     let elegido = null;
-    const encima = new Set();
+    const encima = this.encimaSet || (this.encimaSet = new Set());
+    encima.clear();
     manos.forEach((m, i) => {
       const { controlador, laser } = this.punteros[i];
       laser.visible = m.activa;

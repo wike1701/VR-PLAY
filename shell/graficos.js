@@ -206,9 +206,19 @@ export function crearGeneradorEntorno(renderer) {
   );
   escenaEntorno.add(foco);
 
-  let actual = null;
+  // Los mapas ya generados se guardan por colores: al cambiar de juego la shell vuelve al fondo
+  // base y el juego pone el suyo, y sin caché el PMREM se calculaba dos veces en cada cambio.
+  const cache = new Map();
+  const MAX_CACHE = 6;
   return {
     generar(colores, intensidadFoco = 1) {
+      const clave = JSON.stringify([colores.cenit, colores.horizonte, colores.suelo, !!colores.dia, colores.sol, colores.luna, colores.nubes, colores.estrellas, intensidadFoco]);
+      const guardado = cache.get(clave);
+      if (guardado) {
+        cache.delete(clave); // al final: el más reciente
+        cache.set(clave, guardado);
+        return guardado.texture;
+      }
       cielo.aplicar(colores, 0x000000);
       foco.position.copy(cielo.solDir).multiplyScalar(RADIO_CIELO * 0.7);
       foco.material.color.setScalar(colores.dia ? 6 * intensidadFoco : 3 * intensidadFoco);
@@ -217,8 +227,13 @@ export function crearGeneradorEntorno(renderer) {
       renderer.toneMapping = THREE.NoToneMapping;
       const rt = pmrem.fromScene(escenaEntorno, 0, 0.1, RADIO_CIELO * 2);
       renderer.toneMapping = tm;
-      actual?.dispose();
-      actual = rt;
+      cache.set(clave, rt);
+      if (cache.size > MAX_CACHE) {
+        // El más antiguo nunca es el que está puesto (el puesto es siempre el último)
+        const [claveVieja, viejo] = cache.entries().next().value;
+        cache.delete(claveVieja);
+        viejo.dispose();
+      }
       return rt.texture;
     },
   };

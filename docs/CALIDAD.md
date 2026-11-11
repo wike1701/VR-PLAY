@@ -62,6 +62,17 @@ Reglas:
 - **Proporción**: lo normal es `pequeño`; `grande` solo para lo excepcional. Si todo es grande, nada lo parece.
 - **En VR la cámara nunca se mueve sola** (marea): la sacudida solo existe con ratón; en VR la cambia la vibración.
   Con el sistema en «reducir movimiento» no hay sacudida ni micro-pausa.
+- **La micro-pausa solo frena el juego, no al jugador.** Durante ella `actualizar` recibe un `dt` casi nulo, pero
+  las manos se siguen moviendo: nunca calcules la velocidad de una mano, la pala o el ratón dividiendo por `dt`.
+  Usa `mano.velocidad`, `mano.velocidadReciente(0.08, v)` o el tercer argumento, `dtReal`. Una micro-pausa no se
+  encadena con la siguiente (pasan al menos 0,3 s), y los juegos de ritmo la quitan con `ctx.efectos.sinPausa(true)`.
+- **Un impacto `medio` o `grande` sin `mano`** vibra, más suave, en las manos que estén jugando. Si sabes qué mano
+  ha sido, pásala: vibra solo esa, con toda la fuerza.
+- **El fin de partida ocurre una vez.** Usa `ctx.partida.terminar(valor)` y no sumes puntos, quites vidas ni
+  aceptes golpes mientras `!ctx.partida.activa` (por ejemplo, lo que aún está en el aire al perder).
+- **Nada se crea al jugar.** Ni `new THREE.Mesh`/`Vector3` ni `clone()`, `filter`, `map` o `[...a]` en cada
+  fotograma o en cada disparo: bolsas de objetos o `InstancedMesh` preparados en `iniciar`, y vectores temporales
+  reutilizados.
 - **Fallar también se siente**, pero distinto: sonido `fallo`, vibración corta y sin partículas de celebración.
 - **Movimiento con curva, nunca lineal**: lo que aparece, rebota un poco al llegar (sobrepaso); lo que se va,
   frena al final.

@@ -470,11 +470,14 @@ export class CatalogoVR {
   actualizar(manos) {
     const resultado = { accion: null, pasar: null };
     if (!this.abierto) return resultado;
-    const interactivos = [
-      ...this.huecos.filter((m) => m.visible), ...this.chips.map((c) => c.plano.mesh),
-      ...this.flechas.filter((f) => f.mesh.visible).map((f) => f.mesh),
-      ...(this.botonAnterior.mesh.visible ? [this.botonAnterior.mesh] : []), this.botonSalir.mesh,
-    ];
+    // Lo que se puede apuntar, en un array que se reutiliza (sin basura en cada fotograma)
+    const interactivos = this.interactivos || (this.interactivos = []);
+    interactivos.length = 0;
+    for (const m of this.huecos) if (m.visible) interactivos.push(m);
+    for (const c of this.chips) interactivos.push(c.plano.mesh);
+    for (const f of this.flechas) if (f.mesh.visible) interactivos.push(f.mesh);
+    if (this.botonAnterior.mesh.visible) interactivos.push(this.botonAnterior.mesh);
+    interactivos.push(this.botonSalir.mesh);
     let encima = null;
     let manoEncima = null;
     let elegido = null;

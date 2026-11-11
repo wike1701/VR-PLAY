@@ -29,7 +29,7 @@ function tono(f1, f2, duracion, tipo = 'sine', volumen = 0.3, retraso = 0) {
   osc.frequency.exponentialRampToValueAtTime(f2, t0 + duracion);
   g.gain.setValueAtTime(volumen, t0);
   g.gain.exponentialRampToValueAtTime(0.001, t0 + duracion);
-  osc.connect(g).connect(maestro);
+  osc.connect(g).connect(destino || maestro);
   osc.start(t0);
   osc.stop(t0 + duracion + 0.02);
 }
@@ -54,7 +54,7 @@ function ruido(duracion, frecuencia, volumen = 0.3, q = 1) {
   const g = ac.createGain();
   g.gain.setValueAtTime(volumen, t0);
   g.gain.exponentialRampToValueAtTime(0.001, t0 + duracion);
-  fuente.connect(filtro).connect(g).connect(maestro);
+  fuente.connect(filtro).connect(g).connect(destino || maestro);
   fuente.start(t0);
   fuente.stop(t0 + duracion + 0.02);
 }
@@ -200,12 +200,56 @@ const SONIDOS = {
   };
 });
 
-export function sonido(nombre) {
+// ─── Sonido con posición ─────────────────────────────────────────────────
+// La shell coloca el oyente en la cabeza en cada fotograma (colocarOyente). Un sonido con pos
+// suena más a la izquierda o a la derecha según dónde esté respecto a la cabeza, y más bajo
+// cuanto más lejos. Se usa un StereoPanner (barato en las gafas) en vez de un PannerNode HRTF.
+let destino = null; // mientras suena un efecto con posición, sus nodos van aquí en vez de a maestro
+const oyente = { matriz: null }; // matrixWorldInverse de la cámara (la pone la shell)
+
+export function colocarOyente(matrizInversa) {
+  oyente.matriz = matrizInversa;
+}
+
+// pos: THREE.Vector3 en coordenadas del mundo. Devuelve [panorama -1…1, volumen 0…1]
+function espacializar(pos) {
+  const m = oyente.matriz?.elements;
+  if (!m) return [0, 1];
+  // Posición relativa a la cabeza (x: derecha, z: detrás), sin crear objetos
+  const x = m[0] * pos.x + m[4] * pos.y + m[8] * pos.z + m[12];
+  const y = m[1] * pos.x + m[5] * pos.y + m[9] * pos.z + m[13];
+  const z = m[2] * pos.x + m[6] * pos.y + m[10] * pos.z + m[14];
+  const d = Math.sqrt(x * x + y * y + z * z);
+  const panorama = d > 0.05 ? Math.max(-1, Math.min(1, (x / d) * 0.85)) : 0;
+  // Hasta 1,5 m suena igual; después baja poco a poco (a 6 m, algo menos de la mitad)
+  const volumen = 1 / (1 + Math.max(0, d - 1.5) * 0.3);
+  return [panorama, volumen];
+}
+
+// opciones: { pos, volumen } — pos (Vector3 del mundo) para que suene desde ese sitio
+export function sonido(nombre, { pos = null, volumen = 1 } = {}) {
   if (!ac || ac.state !== 'running') return;
+  const crear = SONIDOS[nombre];
+  if (!crear) return;
   try {
-    SONIDOS[nombre]?.();
+    if (pos || volumen !== 1) {
+      const [panorama, atenuacion] = pos ? espacializar(pos) : [0, 1];
+      const g = ac.createGain();
+      g.gain.value = Math.max(0, volumen) * atenuacion;
+      if (panorama && ac.createStereoPanner) {
+        const p = ac.createStereoPanner();
+        p.pan.value = panorama;
+        g.connect(p).connect(maestro);
+      } else {
+        g.connect(maestro);
+      }
+      destino = g;
+    }
+    crear();
   } catch (e) {
     /* un sonido que falla no debe parar el juego */
+  } finally {
+    destino = null;
   }
 }
 
