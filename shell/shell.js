@@ -755,8 +755,17 @@ function actualizarAviso(dt) {
 // ─── Instrucciones al empezar cada juego ─────────────────────────────────
 // Durante los primeros segundos de cada juego (que espera congelado, como en la pausa) se ven
 // el título y cómo se juega. Sirve para todos los juegos: usa los textos de controles del catálogo.
-const SEGUNDOS_INTRO = 5;
+// Duran 8 segundos como mínimo, y más cuanto más largo es el texto de los controles que se ve
+// (el de VR en las gafas y el de ratón o táctil en la página): 1 s más por cada 18 caracteres
+// pasados los 80, hasta 25 s.
+const SEGUNDOS_INTRO_MIN = 8;
+const SEGUNDOS_INTRO_MAX = 25;
+function segundosIntro(texto) {
+  const extra = Math.max(0, (texto || '').length - 80) / 18;
+  return Math.min(SEGUNDOS_INTRO_MAX, SEGUNDOS_INTRO_MIN + extra);
+}
 let introRestante = 0;
+let introTranscurrido = 0;
 let introColocada = false;
 const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
 introPanel.mesh.visible = false;
@@ -788,19 +797,27 @@ function partirTexto(texto, max) {
   return lineas;
 }
 
-const introDestino = new THREE.Vector3();
-const EJE_Y = new THREE.Vector3(0, 1, 0);
 let introEscrita = -1;
+// El texto de controles que se lee ahora: el de VR con las gafas puestas y si no el de la página
+function textoIntro(juego) {
+  if (renderer.xr.isPresenting) return juego.controlesVR;
+  return TACTIL ? juego.controlesTactil || juego.controlesEscritorio : juego.controlesEscritorio;
+}
 
 function iniciarIntro() {
-  introRestante = SEGUNDOS_INTRO;
+  introTranscurrido = 0;
+  introRestante = actual ? segundosIntro(textoIntro(JUEGOS[actual.indice])) : SEGUNDOS_INTRO_MIN;
   introColocada = false;
   introEscrita = -1;
 }
 
 function actualizarIntro(dt) {
   const visible = !!actual && !errorJuego && !pausado && !enCatalogo && introRestante > 0;
-  if (visible) introRestante -= dt;
+  if (visible) {
+    // Se recalcula cada fotograma: si te pones o te quitas las gafas a mitad, cambia el texto
+    introTranscurrido += dt;
+    introRestante = segundosIntro(textoIntro(JUEGOS[actual.indice])) - introTranscurrido;
+  }
   if (!visible || introRestante <= 0) {
     introPanel.mesh.visible = false;
     $intro.hidden = true;
@@ -829,16 +846,17 @@ function actualizarIntro(dt) {
       { texto: cuenta, tam: 0.9, color: '#80e8dc' },
     ]);
   }
-  // Delante y hacia la izquierda de la mirada, para leerlo sin girar mucho. Sigue la mirada con
-  // suavidad (no va pegado a la cabeza, que marea) y se coloca de golpe la primera vez.
-  introDestino.copy(cabezaDir).setY(0);
-  if (introDestino.lengthSq() < 1e-6) introDestino.set(0, 0, -1);
-  introDestino.normalize().applyAxisAngle(EJE_Y, 0.5).multiplyScalar(1.3).add(cabezaPos);
-  introDestino.y = cabezaPos.y - 0.05;
-  if (introColocada) introPanel.mesh.position.lerp(introDestino, Math.min(1, dt * 4));
-  else introPanel.mesh.position.copy(introDestino);
-  introPanel.mesh.lookAt(cabezaPos);
-  introColocada = true;
+  // Se coloca una sola vez, a la izquierda de hacia donde miras al empezar, y se queda quieto en la
+  // sala: giras la cabeza para leerlo y no te sigue
+  if (!introColocada) {
+    const lado = cabezaDir.clone().setY(0);
+    if (lado.lengthSq() < 1e-6) lado.set(0, 0, -1);
+    lado.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.8).multiplyScalar(1.3);
+    introPanel.mesh.position.copy(cabezaPos).add(lado);
+    introPanel.mesh.position.y = cabezaPos.y - 0.05;
+    introPanel.mesh.lookAt(cabezaPos);
+    introColocada = true;
+  }
   introPanel.mesh.visible = true;
 }
 

@@ -1909,8 +1909,8 @@ bomberos: {
     },
     futbolin: {
       titulo: 'Calcio balilla',
-      descripcion: 'Il calcio balilla di sempre, in un bar di quartiere con piastrelle, sgabelli e la partita in TV, contro la macchina. Giochi con i rossi: la mano sinistra muove portiere e difesa, la destra centrocampo e attacco. Fai scorrere le stecche per metterti davanti alla pallina e ruota il polso per tirare: più giri veloce, più forte esce. Le partite sono a 5 gol e ogni vittoria porta una macchina più veloce. La serie finisce quando perdi una partita.',
-      controlesVR: 'Mano sinistra: portiere e difesa; mano destra: centrocampo e attacco. Avvicina o allontana la mano per far scorrere le stecche e ruota il polso per tirare.',
+      descripcion: 'Il calcio balilla di sempre, in un bar di quartiere con piastrelle, sgabelli e la partita in TV, contro la macchina. Giochi con i rossi, con un portiere, tre difensori, tre centrocampisti e quattro attaccanti, e hai le mani: afferra l’impugnatura di una stecca con il grilletto (puoi tenere due stecche insieme, una per mano), falla scorrere per metterti davanti alla pallina e ruota il polso per tirare, come nel calcio balilla vero: più giri veloce, più forte esce. Le partite sono a 5 gol e ogni vittoria porta una macchina più veloce. La serie finisce quando perdi una partita.',
+      controlesVR: 'Porta la mano all’impugnatura di una stecca e premi il grilletto per afferrarla (una stecca per mano). Avvicina o allontana la mano per farla scorrere e ruota il polso per tirare.',
       controlesEscritorio: 'Muovi il mouse su e giù per far scorrere le stecche e fai clic per tirare.',
       controlesTactil: 'Scorri il dito su e giù per muovere le stecche e tocca per tirare.',
       etiquetas: [
@@ -1920,7 +1920,7 @@ bomberos: {
       ],
       juego: {
         titulo: 'CALCIO BALILLA',
-        intro: 'Avvicina o allontana le mani per le stecche; ruota il polso per tirare',
+        intro: 'Afferra un’impugnatura con il grilletto; avvicina o allontana la mano per muovere la stecca e ruota il polso per tirare',
         introRaton: 'Mouse: stecche · clic: tira',
         introTactil: 'Scorri: stecche · tocca: tira',
         partidoN: 'Macchina {n}: a 5 gol!',

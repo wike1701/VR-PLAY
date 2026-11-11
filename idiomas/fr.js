@@ -1911,8 +1911,8 @@ bomberos: {
     },
     futbolin: {
       titulo: 'Baby-foot',
-      descripcion: 'Le baby-foot de toujours, dans un bar de quartier avec carrelage, tabourets et le match à la télé, contre la machine. Tu joues les rouges : la main gauche tient le gardien et la défense, la droite le milieu et les attaquants. Fais glisser les barres pour te placer devant la balle et tourne le poignet pour tirer : plus tu tournes vite, plus le tir est fort. Les matchs se jouent en 5 buts et chaque victoire amène une machine plus rapide. La série s’arrête quand tu perds un match.',
-      controlesVR: 'Main gauche : gardien et défense ; main droite : milieu et attaquants. Rapproche ou éloigne la main pour faire glisser les barres et tourne le poignet pour tirer.',
+      descripcion: 'Le baby-foot de toujours, dans un bar de quartier avec carrelage, tabourets et le match à la télé, contre la machine. Tu joues les rouges, avec un gardien, trois défenseurs, trois milieux et quatre attaquants, et tu as des mains : attrape la poignée d’une barre avec la gâchette (tu peux tenir deux barres à la fois, une dans chaque main), fais-la glisser pour te placer devant la balle et tourne le poignet pour tirer, comme au vrai baby-foot : plus tu tournes vite, plus le tir est fort. Les matchs se jouent en 5 buts et chaque victoire amène une machine plus rapide. La série s’arrête quand tu perds un match.',
+      controlesVR: 'Approche la main de la poignée d’une barre et appuie sur la gâchette pour l’attraper (une barre par main). Rapproche ou éloigne la main pour la faire glisser et tourne le poignet pour tirer.',
       controlesEscritorio: 'Bouge la souris de haut en bas pour faire glisser tes barres et clique pour tirer.',
       controlesTactil: 'Glisse le doigt de haut en bas pour bouger tes barres et touche pour tirer.',
       etiquetas: [
@@ -1922,7 +1922,7 @@ bomberos: {
       ],
       juego: {
         titulo: 'BABY-FOOT',
-        intro: 'Rapproche ou éloigne les mains pour les barres ; tourne le poignet pour tirer',
+        intro: 'Attrape une poignée avec la gâchette ; rapproche ou éloigne la main pour bouger la barre et tourne le poignet pour tirer',
         introRaton: 'Souris : barres · clic : tirer',
         introTactil: 'Glisse : barres · touche : tirer',
         partidoN: 'Machine {n} : en 5 buts !',

@@ -1910,8 +1910,8 @@ bomberos: {
     },
     futbolin: {
       titulo: 'Matraquilhos',
-      descripcion: 'Os matraquilhos de sempre, num café de bairro com azulejos, bancos e o futebol na televisão, contra a máquina. Jogas com os vermelhos: a mão esquerda leva o guarda-redes e a defesa, a direita o meio-campo e os avançados. Desliza as barras para ficares à frente da bola e roda o pulso para rematar: quanto mais depressa rodas, mais forte sai. Os jogos são a 5 golos e cada vitória traz uma máquina mais rápida. A série acaba quando perdes um jogo.',
-      controlesVR: 'Mão esquerda: guarda-redes e defesa; mão direita: meio-campo e avançados. Aproxima ou afasta a mão para deslizar as barras e roda o pulso para rematar.',
+      descripcion: 'Os matraquilhos de sempre, num café de bairro com azulejos, bancos e o futebol na televisão, contra a máquina. Jogas com os vermelhos, com um guarda-redes, três defesas, três médios e quatro avançados, e tens mãos: agarra o punho de uma barra com o gatilho (podes levar duas barras ao mesmo tempo, uma em cada mão), desliza-a para ficares à frente da bola e roda o pulso para rematar, como nos matraquilhos a sério: quanto mais depressa rodas, mais forte sai. Os jogos são a 5 golos e cada vitória traz uma máquina mais rápida. A série acaba quando perdes um jogo.',
+      controlesVR: 'Aproxima a mão do punho de uma barra e aperta o gatilho para a agarrar (uma barra por mão). Aproxima ou afasta a mão para a deslizar e roda o pulso para rematar.',
       controlesEscritorio: 'Move o rato para cima e para baixo para deslizar as tuas barras e clica para rematar.',
       controlesTactil: 'Desliza o dedo para cima e para baixo para mover as tuas barras e toca para rematar.',
       etiquetas: [
@@ -1921,7 +1921,7 @@ bomberos: {
       ],
       juego: {
         titulo: 'MATRAQUILHOS',
-        intro: 'Aproxima ou afasta as mãos para as barras; roda o pulso para rematar',
+        intro: 'Agarra um punho com o gatilho; aproxima ou afasta a mão para mover a barra e roda o pulso para rematar',
         introRaton: 'Rato: barras · clique: rematar',
         introTactil: 'Desliza: barras · toca: rematar',
         partidoN: 'Máquina {n}: a 5 golos!',

@@ -1910,8 +1910,8 @@ bomberos: {
     },
     futbolin: {
       titulo: 'Tischkicker',
-      descripcion: 'Der klassische Tischkicker in einer Eckkneipe mit Fliesen, Barhockern und Fußball im Fernsehen, gegen die Maschine. Du spielst Rot: Die linke Hand führt Torwart und Abwehr, die rechte Mittelfeld und Sturm. Schiebe die Stangen vor den Ball und dreh das Handgelenk zum Schießen: Je schneller du drehst, desto härter der Schuss. Gespielt wird bis 5 Tore, und jeder Sieg bringt eine schnellere Maschine. Deine Serie endet, wenn du ein Spiel verlierst.',
-      controlesVR: 'Linke Hand: Torwart und Abwehr; rechte Hand: Mittelfeld und Sturm. Bewege die Hand vor und zurück, um die Stangen zu schieben, und dreh das Handgelenk zum Schießen.',
+      descripcion: 'Der klassische Tischkicker in einer Eckkneipe mit Fliesen, Barhockern und Fußball im Fernsehen, gegen die Maschine. Du spielst Rot, mit einem Torwart, drei Abwehrspielern, drei Mittelfeldspielern und vier Stürmern, und du hast Hände: Greif den Griff einer Stange mit dem Abzug (du kannst zwei Stangen gleichzeitig halten, eine pro Hand), schieb sie vor den Ball und dreh das Handgelenk zum Schießen, genau wie beim echten Tischkicker: Je schneller du drehst, desto härter der Schuss. Gespielt wird bis 5 Tore, und jeder Sieg bringt eine schnellere Maschine. Deine Serie endet, wenn du ein Spiel verlierst.',
+      controlesVR: 'Führ die Hand an den Griff einer Stange und drück den Abzug, um sie zu greifen (eine Stange pro Hand). Bewege die Hand vor und zurück, um sie zu schieben, und dreh das Handgelenk zum Schießen.',
       controlesEscritorio: 'Bewege die Maus nach oben und unten, um deine Stangen zu schieben, und klicke zum Schießen.',
       controlesTactil: 'Wische mit dem Finger nach oben und unten, um deine Stangen zu bewegen, und tippe zum Schießen.',
       etiquetas: [
@@ -1921,7 +1921,7 @@ bomberos: {
       ],
       juego: {
         titulo: 'TISCHKICKER',
-        intro: 'Hände vor und zurück: Stangen schieben; Handgelenk drehen: schießen',
+        intro: 'Griff mit dem Abzug greifen; Hand vor und zurück: Stange schieben; Handgelenk drehen: schießen',
         introRaton: 'Maus: Stangen · Klick: schießen',
         introTactil: 'Wischen: Stangen · Tippen: schießen',
         partidoN: 'Maschine {n}: bis 5 Tore!',
