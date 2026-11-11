@@ -55,7 +55,7 @@ const LISTA = [
   { id: 'bomberos', genero: 'disparos' },
   { id: 'tortitas', genero: 'habilidad', pruebas: true },
   { id: 'nieve', genero: 'disparos' },
-  { id: 'skeeball', genero: 'deportes', pruebas: true },
+  { id: 'skeeball', genero: 'deportes' },
   { id: 'toques', genero: 'habilidad' },
   { id: 'xilofono', genero: 'ritmo' },
   { id: 'fronton', genero: 'deportes' },
