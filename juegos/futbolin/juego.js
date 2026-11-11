@@ -21,27 +21,29 @@ const Z_CERCA = -0.42;          // banda de tu lado
 const Z_LEJOS = -1.06;          // banda del otro lado
 const Z_CENTRO = (Z_CERCA + Z_LEJOS) / 2;
 const MEDIA_PORTERIA = 0.1;
-const RB = 0.018;               // radio de la bola
-const ALTO_BARRA = 0.075;       // las barras, por encima del campo
-const PIE = 0.075;              // del eje de la barra a la punta del pie
+const RB = 0.015;               // radio de la bola
+const TAM_MUNECO = 0.85;        // los muñecos, a este tamaño de su modelo (que mide 0.075 del eje al pie)
+const PIE = 0.075 * TAM_MUNECO; // del eje de la barra a la punta del pie
+const ALTO_BARRA = PIE;         // las barras, por encima del campo (el pie roza el campo)
 const GOLES = 5;
 const PASO = 1 / 240;
 // Barras de izquierda a derecha: equipo (0 = tú, rojo; 1 = la máquina, azul), muñecos y recorrido.
-// Alineación de cada equipo: 1 portero, 3 defensas, 3 medios y 4 delanteros.
+// Alineación (a = tú, b = la máquina): 1a 3a 4b 3a 3b 4a 3b 1b. Cada equipo: 1 portero, 3 defensas,
+// 3 medios y 4 delanteros.
 const DEL4 = [-0.195, -0.065, 0.065, 0.195];
 const TRES_D = [-0.2, 0, 0.2];
 const TRES_M = [-0.18, 0, 0.18];
 const BARRAS = [
   { x: -0.525, equipo: 0, munecos: [0], recorrido: 0.17 },
-  { x: -0.375, equipo: 1, munecos: DEL4, recorrido: 0.08 },
-  { x: -0.225, equipo: 0, munecos: TRES_D, recorrido: 0.1 },
-  { x: -0.075, equipo: 1, munecos: TRES_M, recorrido: 0.09 },
-  { x: 0.075, equipo: 0, munecos: TRES_M, recorrido: 0.09 },
-  { x: 0.225, equipo: 1, munecos: TRES_D, recorrido: 0.1 },
-  { x: 0.375, equipo: 0, munecos: DEL4, recorrido: 0.08 },
+  { x: -0.375, equipo: 0, munecos: TRES_D, recorrido: 0.1 },
+  { x: -0.225, equipo: 1, munecos: DEL4, recorrido: 0.08 },
+  { x: -0.075, equipo: 0, munecos: TRES_M, recorrido: 0.09 },
+  { x: 0.075, equipo: 1, munecos: TRES_M, recorrido: 0.09 },
+  { x: 0.225, equipo: 0, munecos: DEL4, recorrido: 0.08 },
+  { x: 0.375, equipo: 1, munecos: TRES_D, recorrido: 0.1 },
   { x: 0.525, equipo: 1, munecos: [0], recorrido: 0.17 },
 ];
-const TUYAS = [0, 2, 4, 6];
+const TUYAS = [0, 1, 3, 5];
 const RADIO_AGARRE = 0.13;      // a esta distancia (en la sala) de una empuñadura puedes cogerla
 const Z_PUNO = 0.18;            // las empuñaduras, a esta distancia de cada banda
 // El futbolín se dibuja más grande que sus medidas (que son las de la física): × ESCALA alrededor
@@ -265,8 +267,8 @@ export function iniciar(ctx) {
       caja(0.026, 0.05, 0.036, 0, 0.004, 0),                                                 // camiseta
       caja(0.024, 0.03, 0.03, 0, -0.035, 0),                                                 // pantalón
       caja(0.02, 0.03, 0.026, 0, -0.06, 0),                                                  // pierna
-      caja(0.03, 0.012, 0.026, 0.005, -PIE + 0.006, 0),                                      // pie
-    ], [0xe0b088, 0x1a1210, 0x1a1210, camiseta, pantalon, 0xe0b088, 0x1a1a1e]);
+      caja(0.03, 0.012, 0.026, 0.005, -0.075 + 0.006, 0),                                      // pie
+    ], [0xe0b088, 0x1a1210, 0x1a1210, camiseta, pantalon, 0xe0b088, 0x1a1a1e]).scale(TAM_MUNECO, TAM_MUNECO, TAM_MUNECO);
   }
   const equipos = [geoMuneco(0xc62828, 0xf2f2f2), geoMuneco(0x1f5fd1, 0xf2f2f2)].map((geo, e) => {
     const n = BARRAS.filter((b) => b.equipo === e).reduce((a, b) => a + b.munecos.length, 0);
@@ -384,9 +386,9 @@ export function iniciar(ctx) {
       const vpx = PIE * barra.w * Math.cos(phi); // velocidad del pie por el giro
       for (const mz of barra.munecos) {
         const pz = Z_CENTRO + mz + barra.sF;
-        // Caja del pie (medio ancho 0.014 en x y 0.015 en z) contra la bola
-        const cx = Math.max(px - 0.014, Math.min(px + 0.014, b.x));
-        const cz = Math.max(pz - 0.015, Math.min(pz + 0.015, b.z));
+        // Caja del pie (medio ancho 0.015 en x y en z, a escala del muñeco) contra la bola
+        const cx = Math.max(px - 0.015 * TAM_MUNECO, Math.min(px + 0.015 * TAM_MUNECO, b.x));
+        const cz = Math.max(pz - 0.015 * TAM_MUNECO, Math.min(pz + 0.015 * TAM_MUNECO, b.z));
         const dx = b.x - cx;
         const dz = b.z - cz;
         const d2 = dx * dx + dz * dz;
@@ -412,21 +414,17 @@ export function iniciar(ctx) {
             }
             const v = Math.hypot(b.vx, b.vz);
             if (v > 4.2) { b.vx *= 4.2 / v; b.vz *= 4.2 / v; }
-            if (-vn > 0.4) golpeBola(barra, -vn);
+            if (-vn > 0.4) golpeBola(barra);
           }
         }
       }
     }
   }
 
-  function golpeBola(barra, fuerza) {
-    aMundo(tmp.set(b.x, MESA_Y + RB, b.z));
-    if (barra.equipo === 0) {
-      ctx.efectos.impacto(fuerza > 2 ? 'medio' : 'pequeño', { pos: tmp, color: 0xffffff, sonido: 'toc' });
-      primerGolpe = false;
-    } else {
-      ctx.sonido('toc');
-    }
+  function golpeBola(barra) {
+    // Solo el «toc», sin partículas
+    ctx.sonido('toc');
+    if (barra.equipo === 0) primerGolpe = false;
   }
 
   // Delante del pie del muñeco más cercano (por el lado hacia el que chuta su equipo)
