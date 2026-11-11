@@ -638,6 +638,7 @@ export default {
         conElCuerpo: '用身体挡住！',
         gol: '进球！',
         fuera: '偏出！',
+        fueraRepite: '偏出！重罚',
       },
     },
     petanca: {

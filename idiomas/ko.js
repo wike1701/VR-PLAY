@@ -641,6 +641,7 @@ export default {
         conElCuerpo: '몸으로 막았어요!',
         gol: '골!',
         fuera: '빗나갔어요!',
+        fueraRepite: '빗나갔어요! 다시 찹니다',
       },
     },
     petanca: {

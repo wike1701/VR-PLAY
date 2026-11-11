@@ -234,11 +234,8 @@ export function iniciar(ctx) {
     raiz.add(malla);
     const sombra = ctx.crearSombra({ radio: 0.05, opacidad: 0.35 });
     raiz.add(sombra);
-    return { i, malla, sombra, estado: 'bandeja', mano: null, vel: new THREE.Vector3(), vida: 0, choco: false };
+    return { i, malla, sombra, estado: 'bandeja', mano: null, lanzo: null, vel: new THREE.Vector3(), vida: 0, choco: false };
   });
-
-  // Historial de posiciones de cada mano para la velocidad del lanzamiento
-  const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.1, alto: 0.32 });
@@ -309,16 +306,17 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     ronda = 0;
     puntos = 0;
     montarRonda();
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js); solo una vez
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -327,6 +325,7 @@ export function iniciar(ctx) {
 
   function lanzar(b, vel) {
     b.estado = 'vuelo';
+    b.lanzo = b.mano; // la mano que la ha tirado: es la que vibra cuando la pelota da a una lata
     b.mano = null;
     b.vel.copy(vel);
     b.vida = 4;
@@ -359,7 +358,7 @@ export function iniciar(ctx) {
   }
 
   function contarCaida(l) {
-    if (l.caida) return;
+    if (l.caida || !ctx.partida.activa) return;
     l.caida = true;
     caidasRonda += 1;
     puntos += 1;
@@ -401,25 +400,24 @@ export function iniciar(ctx) {
   }
 
   // ─── Entrada ───────────────────────────────────────────────────────────
-  function entradaVR(dt) {
-    ctx.manos.forEach((mano, k) => {
-      const h = historiales[k];
-      h.n = (h.n + 1) % 8;
-      h.pos[h.n].copy(mano.posicion);
-      h.dt[h.n] = dt;
-      if (!mano.activa) return;
-      const cogida = bolas.find((b) => b.mano === mano);
+  function enManoDe(mano) {
+    for (const b of bolas) if (b.estado === 'mano' && b.mano === mano) return b;
+    return null;
+  }
+  function entradaVR() {
+    for (const mano of ctx.manos) {
+      const cogida = enManoDe(mano);
+      if (!mano.activa) {
+        if (cogida) ponerEnBandeja(cogida); // mando perdido: la pelota vuelve a la bandeja
+        continue;
+      }
       if (cogida) {
         if (!mano.gatillo) {
-          // Velocidad media de los últimos fotogramas
-          const atras = (h.n + 8 - 4) % 8;
-          let tiempo = 0;
-          for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(1.15);
-          lanzar(cogida, tmp);
+          // Velocidad de la mano en los últimos 80 ms (la mide la shell en tiempo real)
+          lanzar(cogida, mano.velocidadReciente(0.08, tmp).multiplyScalar(1.15));
           ctx.vibrar(mano, 0.3, 30);
         }
-        return;
+        continue;
       }
       if (mano.gatilloPulsado && estado === 'ronda') {
         let mejor = null;
@@ -439,7 +437,7 @@ export function iniciar(ctx) {
           ctx.sonido('recepcion');
         }
       }
-    });
+    }
     for (const b of bolas) {
       if (b.estado === 'mano') {
         b.mano.grip.localToWorld(b.malla.position.set(0, -0.01, -0.05));
@@ -449,7 +447,8 @@ export function iniciar(ctx) {
 
   function entradaRaton() {
     if (!ctx.raton.clic || estado !== 'ronda') return;
-    const b = bolas.find((x) => x.estado === 'bandeja');
+    let b = null;
+    for (const x of bolas) if (x.estado === 'bandeja') { b = x; break; }
     if (!b) return;
     if (!ctx.raton.rayo.ray.intersectPlane(planoApunte, tmp)) return;
     // Tiro parabólico desde la mano hasta el punto apuntado
@@ -475,10 +474,10 @@ export function iniciar(ctx) {
         const l = latas[i];
         if (l.de_pie) {
           if (chocaConDePie(p, R_BOLA, l)) {
-            golpearLata(l, p, b.vel, null);
+            golpearLata(l, p, b.vel, b.lanzo);
+            // La pelota pierde fuerza y se desvía un poco hacia el lado por el que ha dado a la lata
             b.vel.multiplyScalar(0.55);
-            b.vel.z = Math.abs(b.vel.z) * (b.vel.z < 0 ? -1 : 1);
-            if (!b.choco) ctx.vibrar(ctx.manos[0], 0.2, 20);
+            b.vel.x += (p.x - l.pos.x) * 6;
             b.choco = true;
           }
         } else if (l.pos.distanceTo(p) < R_LATA + R_BOLA) {
@@ -585,7 +584,7 @@ export function iniciar(ctx) {
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
 
-    if (ctx.enVR()) entradaVR(dt);
+    if (ctx.enVR()) entradaVR();
     else entradaRaton();
 
     // Estante que se mueve en la última ronda
@@ -606,7 +605,8 @@ export function iniciar(ctx) {
     bombillas.position.y = Math.sin(t * 1.3) * 0.004;
 
     if (estado === 'ronda') {
-      const quedanBolas = bolas.some((b) => b.estado === 'bandeja' || b.estado === 'mano' || b.estado === 'vuelo');
+      let quedanBolas = false;
+      for (const b of bolas) if (b.estado === 'bandeja' || b.estado === 'mano' || b.estado === 'vuelo') quedanBolas = true;
       const todas = caidasRonda === nLatas;
       if (todas || !quedanBolas) {
         esperaFinRonda = Math.max(esperaFinRonda, 1.2);

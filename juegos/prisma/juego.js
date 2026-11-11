@@ -282,6 +282,7 @@ export function iniciar(ctx) {
   }
 
   function nuevaPartida() {
+    ctx.partida.empezar();
     sala = 1;
     puntos = 0;
     reloj = TIEMPO;
@@ -571,7 +572,7 @@ export function iniciar(ctx) {
         estado = 'fin';
         tEstado = 0;
         ctx.sonido('zumbador');
-        ctx.puntuacion(puntos);
+        ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
         decir(ctx.t('finTiempo'), '#ff8a80', 6);
       }
     }

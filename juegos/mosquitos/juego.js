@@ -315,7 +315,11 @@ export function iniciar(ctx) {
   // 0 al empezar, 1 a los DIFICULTAD_MAX segundos
   const dificultad = () => Math.min(1, tiempoJugado / DIFICULTAD_MAX);
   const nivel = () => 1 + Math.floor(tiempoJugado / NIVEL_SEGUNDOS);
-  const activos = () => mosquitos.filter((m) => m.estado === 'vuelo' || m.estado === 'ataque');
+  const activos = () => {
+    let n = 0;
+    for (const m of mosquitos) if (m.estado === 'vuelo' || m.estado === 'ataque') n++;
+    return n;
+  };
 
   function actualizarMarcador() {
     const lineas = estado === 'intro'
@@ -344,7 +348,8 @@ export function iniciar(ctx) {
 
   // Sale un mosquito por delante, a 2,5-3,4 m, y revolotea antes de atacar
   function soltarMosquito() {
-    const m = mosquitos.find((x) => x.estado === 'libre');
+    let m = null;
+    for (const x of mosquitos) if (x.estado === 'libre') { m = x; break; }
     if (!m) return;
     const d = dificultad();
     const angulo = azar(-1.35, 1.35);
@@ -398,12 +403,13 @@ export function iniciar(ctx) {
     m.vel.set(azar(-0.3, 0.3), 0.4, azar(-0.3, 0.3));
     m.giro = azar(8, 14);
     m.alas.material = matAlas;
-    if (estado === 'jugando') puntos++;
-    ctx.sonido('plaf');
+    const cuenta = estado === 'jugando' && ctx.partida.activa;
+    if (cuenta) puntos++;
+    ctx.sonido('plaf', { pos: m.grupo.position });
     if (mano) ctx.vibrar(mano, 0.8, 60);
-    ctx.efectos.impacto(atacando ? 'medio' : 'pequeño');
-    if (estado === 'jugando') ctx.efectos.texto(m.grupo.position, '+1', { color: atacando ? '#b9f6ca' : '#ffffff' });
-    if (atacando && estado === 'jugando') avisar(ctx.t('porLosPelos'), '#b9f6ca', 1);
+    ctx.efectos.impacto(atacando ? 'medio' : 'pequeño', { pos: m.grupo.position, mano, color: 0x3a2a1a });
+    if (cuenta) ctx.efectos.texto(m.grupo.position, '+1', { color: atacando ? '#b9f6ca' : '#ffffff' });
+    if (atacando && cuenta) avisar(ctx.t('porLosPelos'), '#b9f6ca', 1);
     // Restos
     let n = 0;
     for (const mota of motas) {
@@ -420,7 +426,7 @@ export function iniciar(ctx) {
     m.estado = 'huye';
     m.tiempo = 1.2;
     m.vel.set(azar(-0.6, 0.6), 1.1, azar(0.2, 0.6));
-    if (estado !== 'jugando') return;
+    if (estado !== 'jugando' || !ctx.partida.activa) return;
     vidas--;
     ctx.sonido('picadura');
     ctx.destello(0xff1744, 0.45);
@@ -434,9 +440,9 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una sola vez
     estado = 'fin';
     reloj = 6;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -453,6 +459,7 @@ export function iniciar(ctx) {
   }
 
   function empezar() {
+    ctx.partida.empezar();
     estado = 'jugando';
     puntos = 0;
     vidas = VIDAS;
@@ -462,14 +469,15 @@ export function iniciar(ctx) {
   }
 
   // ─── Golpes con los mandos ─────────────────────────────────────────────
-  function golpesVR(dt) {
+  // dtReal: la rapidez de la paleta se mide con el tiempo real (la micro-pausa no la infla)
+  function golpesVR(dtReal) {
     for (const pala of palas) {
       if (!pala.mano.activa) {
         pala.lista = false;
         continue;
       }
       pala.mano.grip.localToWorld(pala.centro.set(0, 0, CENTRO_PALETA));
-      if (pala.lista && pala.centro.distanceTo(pala.anterior) / dt > VELOCIDAD_GOLPE_VR) {
+      if (pala.lista && pala.centro.distanceTo(pala.anterior) / Math.max(dtReal, 1e-4) > VELOCIDAD_GOLPE_VR) {
         // Todo el recorrido de la paleta en este fotograma, para no "atravesar" mosquitos en golpes rápidos
         segmento.set(pala.anterior, pala.centro);
         for (const m of mosquitos) {
@@ -511,7 +519,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     colocarCabeza();
     if (estado === 'intro' && reloj <= 0) empezar();
@@ -527,7 +535,7 @@ export function iniciar(ctx) {
       // Cada vez salen más seguidos y caben más a la vez
       const d = dificultad();
       proximo -= dt;
-      if (proximo <= 0 && activos().length < Math.round(3 + d * 11)) {
+      if (proximo <= 0 && activos() < Math.round(3 + d * 11)) {
         soltarMosquito();
         if (Math.random() < d * 0.4) soltarMosquito(); // a veces, de dos en dos
         proximo = (2.6 - d * 1.9) * azar(0.75, 1.25);
@@ -591,7 +599,7 @@ export function iniciar(ctx) {
 
     if (ctx.enVR()) {
       palaRaton.visible = false;
-      golpesVR(dt);
+      golpesVR(dtReal);
     } else {
       golpesRaton(dt);
     }

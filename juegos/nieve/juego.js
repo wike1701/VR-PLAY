@@ -177,7 +177,6 @@ export function iniciar(ctx) {
   const mias = Array.from({ length: N_MIAS }, crearBola);
   const suyas = Array.from({ length: N_SUYAS }, crearBola);
   // Historial de posiciones de cada mano para la velocidad del lanzamiento
-  const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
 
   // Manos visibles (guantes): palma y cuatro dedos curvados alrededor de la bola que sostienes
   const matGuante = R(new THREE.MeshLambertMaterial({ color: 0xd6283a }));
@@ -221,6 +220,7 @@ export function iniciar(ctx) {
   const tmp2 = new THREE.Vector3();
 
   function empezarPartida() {
+    ctx.partida.empezar();
     estado = 'juego';
     jugado = 0;
     puntos = 0;
@@ -236,10 +236,14 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    // El fin solo ocurre una vez (ctx.partida): una bola que aún vuela no vuelve a terminarla
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js)
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    // Lo que queda en el aire se deshace: ya no da ni quita nada
+    for (const b of suyas) if (b.estado === 'suya') { ctx.efectos.estallido(b.malla.position, { color: 0xffffff, cantidad: 6 }); soltar(b); }
+    for (const b of mias) if (b.estado === 'mia') soltar(b);
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -263,7 +267,7 @@ export function iniciar(ctx) {
   }
 
   function lanzarSuya(p) {
-    const b = suyas.find((x) => x.estado === 'libre');
+    const b = libre(suyas);
     if (!b) return;
     // Apunta a donde está tu cabeza ahora, con un poco de error
     ctx.camara.getWorldPosition(cabeza);
@@ -359,6 +363,7 @@ export function iniciar(ctx) {
   }
 
   function golpearPinguino(p, pos) {
+    if (!ctx.partida.activa) return;
     const antes = p.estado === 'subiendo' || p.estado === 'apuntando';
     const gana = antes ? 15 : 10;
     puntos += gana;
@@ -403,21 +408,26 @@ export function iniciar(ctx) {
   }
 
   // ─── Entrada ───────────────────────────────────────────────────────────
-  function entradaVR(dt) {
-    ctx.manos.forEach((mano, k) => {
-      const h = historiales[k];
-      h.n = (h.n + 1) % 8;
-      h.pos[h.n].copy(mano.posicion);
-      h.dt[h.n] = dt;
-      if (!mano.activa) return;
-      const cogida = mias.find((b) => b.mano === mano);
+  const enMano = (mano) => {
+    for (const b of mias) if (b.estado === 'mano' && b.mano === mano) return b;
+    return null;
+  };
+  const libre = (lista) => {
+    for (const b of lista) if (b.estado === 'libre') return b;
+    return null;
+  };
+  function entradaVR() {
+    for (const mano of ctx.manos) {
+      const cogida = enMano(mano);
+      if (!mano.activa) {
+        if (cogida) soltar(cogida); // mando perdido: la bola no se queda colgando
+        continue;
+      }
       if (cogida) {
         mano.grip.localToWorld(cogida.malla.position.set(0, -0.01, -0.06));
         if (!mano.gatillo) {
-          const atras = (h.n + 8 - 4) % 8;
-          let tiempo = 0;
-          for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(2.6);
+          // Velocidad de la mano en los últimos 80 ms, medida por la shell en tiempo real
+          mano.velocidadReciente(0.08, tmp).multiplyScalar(2.6);
           if (tmp.length() < 1.2) {
             soltar(cogida); // la suelta sin lanzarla
           } else {
@@ -429,11 +439,11 @@ export function iniciar(ctx) {
             ctx.vibrar(mano, 0.3, 30);
           }
         }
-        return;
+        continue;
       }
       if (mano.gatilloPulsado && estado === 'juego') {
-        const b = mias.find((x) => x.estado === 'libre');
-        if (!b) return;
+        const b = libre(mias);
+        if (!b) continue;
         b.estado = 'mano';
         b.mano = mano;
         b.malla.visible = true;
@@ -441,12 +451,12 @@ export function iniciar(ctx) {
         ctx.vibrar(mano, 0.2, 20);
         ctx.sonido('grava');
       }
-    });
+    }
   }
 
   function entradaRaton() {
     if (!ctx.raton.clic || estado !== 'juego') return;
-    const b = mias.find((x) => x.estado === 'libre');
+    const b = libre(mias);
     if (!b) return;
     const rayo = ctx.raton.rayo.ray;
     // ¿A qué apunta? Una bola suya o un pingüino; si no, un punto lejano
@@ -577,6 +587,7 @@ export function iniciar(ctx) {
   }
 
   function recibir() {
+    if (!ctx.partida.activa || estado !== 'juego') return; // tras el fin, una bola ya no quita vidas
     vidas -= 1;
     racha = 0;
     ctx.destello(0xffffff, 0.85);
@@ -615,7 +626,7 @@ export function iniciar(ctx) {
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
     if (estado === 'juego') jugado += dt;
 
-    if (ctx.enVR()) entradaVR(dt);
+    if (ctx.enVR()) entradaVR();
     else entradaRaton();
     moverPinguinos(dt, t);
     moverBolas(dt);

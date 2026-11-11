@@ -514,7 +514,8 @@ export function iniciar(ctx) {
   }
 
   function soltarMosca() {
-    const m = moscas.find((x) => x.estado === 'libre');
+    let m = null;
+    for (const x of moscas) if (x.estado === 'libre') { m = x; break; }
     const plato = elegirPlato();
     if (!m || !plato) return;
     const d = dificultad();
@@ -576,7 +577,7 @@ export function iniciar(ctx) {
     m.cae = alVuelo;
     m.vel.set(0, alVuelo ? 0.3 : 0, 0);
     m.angulo = azar(-0.6, 0.6);
-    if (estado !== 'jugando') return;
+    if (estado !== 'jugando' || !ctx.partida.activa) return;
     puntos += valor;
     const nivelImpacto = alVuelo && m.moscarda ? 'grande' : alVuelo || m.moscarda ? 'medio' : 'pequeño';
     ctx.efectos.impacto(nivelImpacto, { pos: m.pos, mano, color: m.moscarda ? 0x76ff03 : 0xffe082, sonido: 'plaf' });
@@ -607,10 +608,10 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js), una sola vez
     estado = 'fin';
     reloj = 6;
     aviso = null;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -620,6 +621,7 @@ export function iniciar(ctx) {
   }
 
   function empezar() {
+    ctx.partida.empezar();
     estado = 'jugando';
     puntos = 0;
     tiempoJugado = 0;
@@ -634,14 +636,15 @@ export function iniciar(ctx) {
   }
 
   // ─── Golpes con los mandos ─────────────────────────────────────────────
-  function golpesVR(dt) {
+  // dtReal: la rapidez de la paleta se mide con el tiempo real (la micro-pausa no la infla)
+  function golpesVR(dtReal) {
     for (const pala of palas) {
       if (!pala.mano.activa) {
         pala.lista = false;
         continue;
       }
       pala.mano.grip.localToWorld(pala.centro.set(0, 0, CENTRO_PALETA));
-      if (pala.lista && pala.centro.distanceTo(pala.anterior) / dt > VELOCIDAD_GOLPE_VR) {
+      if (pala.lista && pala.centro.distanceTo(pala.anterior) / Math.max(dtReal, 1e-4) > VELOCIDAD_GOLPE_VR) {
         // Todo el recorrido de la paleta en este fotograma, para no "atravesar" moscas en golpes rápidos
         segmento.set(pala.anterior, pala.centro);
         let acierto = false;
@@ -738,7 +741,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     reloj -= dt;
     ctx.camara.getWorldPosition(cabeza);
@@ -865,7 +868,7 @@ export function iniciar(ctx) {
     if (ctx.enVR()) {
       pivote.visible = false;
       sombraPala.visible = false;
-      golpesVR(dt);
+      golpesVR(dtReal);
     } else {
       golpesRaton(dt);
     }

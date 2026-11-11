@@ -532,15 +532,20 @@ export function iniciar(ctx) {
   const puntaPalo = new THREE.Vector3();          // donde empieza la vara (la punta de la mano)
   const ejeCabeza = new THREE.Vector3();          // hacia dónde va la cabeza del palo (sigue al mando)
 
-  function actualizarPalo(dt) {
-    const activas = ctx.manos.filter((m) => m.activa);
-    for (const m of activas) {
+  // dtReal: la velocidad de la cabeza del palo se mide con el tiempo real (no la infla la micro-pausa)
+  function actualizarPalo(dtReal) {
+    let mano = null;
+    let primera = null;
+    for (const m of ctx.manos) {
+      if (!m.activa) continue;
       if (m.gatilloPulsado && (m.lado === 'left' || m.lado === 'right') && m.lado !== ladoPalo) {
         ladoPalo = m.lado;
         ctx.sonido('tic');
       }
+      if (!primera) primera = m;
     }
-    const mano = activas.find((m) => m.lado === ladoPalo) || activas[0] || null;
+    for (const m of ctx.manos) if (m.activa && m.lado === ladoPalo) mano = m;
+    if (!mano) mano = primera;
     palo.visible = cabezaPalo.visible = !!mano;
     if (!mano) {
       cabezaLista = false;
@@ -579,8 +584,8 @@ export function iniciar(ctx) {
       return;
     }
     if (estado === 'apuntando' && cabezaPalo.position.y < 0.12) {
-      const vx = (cabezaLocal.x - cabezaAnterior.x) / dt;
-      const vz = (cabezaLocal.z - cabezaAnterior.z) / dt;
+      const vx = (cabezaLocal.x - cabezaAnterior.x) / Math.max(dtReal, 1e-4);
+      const vz = (cabezaLocal.z - cabezaAnterior.z) / Math.max(dtReal, 1e-4);
       const rapidez = Math.hypot(vx, vz);
       for (let p = 1; p <= 4 && rapidez > 0.15; p++) {
         const f = p / 4;
@@ -670,7 +675,7 @@ export function iniciar(ctx) {
     estado = 'apuntando';
   }
 
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempo = t;
 
@@ -683,6 +688,7 @@ export function iniciar(ctx) {
       case 'intro':
         if (reloj <= 0) {
           tarjeta = [];
+          ctx.partida.empezar();
           empezarHoyo(0);
         }
         break;
@@ -715,7 +721,7 @@ export function iniciar(ctx) {
           } else {
             estado = 'fin';
             reloj = 9;
-            ctx.puntuacion(total()); // golpes: menos es mejor (juegos/marcadores.js)
+            ctx.partida.terminar(total()); // golpes: menos es mejor (juegos/marcadores.js)
             if (record === null || total() < record) {
               record = total();
               ctx.guardar('record', record);
@@ -727,6 +733,7 @@ export function iniciar(ctx) {
       case 'fin':
         if (reloj <= 0) {
           tarjeta = [];
+          ctx.partida.empezar();
           empezarHoyo(0);
         }
         break;
@@ -747,7 +754,7 @@ export function iniciar(ctx) {
 
     if (ctx.enVR()) {
       lineaApunte.visible = marcaApunte.visible = false;
-      actualizarPalo(dt);
+      actualizarPalo(dtReal);
     } else {
       palo.visible = cabezaPalo.visible = false;
       apuntarRaton();

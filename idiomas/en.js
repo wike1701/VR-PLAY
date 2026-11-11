@@ -643,6 +643,7 @@ export default {
         conElCuerpo: 'Body block!',
         gol: 'GOAL!',
         fuera: 'Wide!',
+        fueraRepite: 'Wide! Retake',
       },
     },
     petanca: {

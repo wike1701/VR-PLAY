@@ -197,11 +197,12 @@ export function iniciar(ctx) {
   const matOjo = R(new THREE.MeshBasicMaterial({ color: 0x111111 }));
   const matAla = R(new THREE.MeshLambertMaterial({ color: 0x6d4c41 }));
 
-  function crearPato(dorado) {
+  // Los patos se crean al empezar (bolsa) y se reutilizan; el dorado solo cambia de materiales
+  function crearPato() {
     const grupo = new THREE.Group();
-    const material = dorado ? matDorado : matPato;
-    grupo.add(new THREE.Mesh(geoCuerpo, material));
-    const cabeza = new THREE.Mesh(geoCabeza, dorado ? matDorado : matCuello);
+    const cuerpo = new THREE.Mesh(geoCuerpo, matPato);
+    grupo.add(cuerpo);
+    const cabeza = new THREE.Mesh(geoCabeza, matCuello);
     cabeza.position.set(0, 0.14, 0.26);
     const pico = new THREE.Mesh(geoPico, matPico);
     pico.position.set(0, 0.12, 0.39);
@@ -212,13 +213,13 @@ export function iniciar(ctx) {
       grupo.add(ojo);
     }
     const alas = [-1, 1].map((lado) => {
-      const ala = new THREE.Mesh(geoAla, dorado ? matDorado : matAla);
+      const ala = new THREE.Mesh(geoAla, matAla);
       ala.position.set(lado * 0.1, 0.06, 0);
       ala.scale.x = lado; // el ala izquierda es la derecha reflejada
       grupo.add(ala);
       return ala;
     });
-    return { grupo, alas };
+    return { grupo, alas, cuerpo, cabeza };
   }
 
   // ─── Arco ──────────────────────────────────────────────────────────────
@@ -338,8 +339,19 @@ export function iniciar(ctx) {
   raiz.add(marcador.mesh);
 
   // ─── Estado ────────────────────────────────────────────────────────────
-  const patos = [];
-  const flechas = [];
+  // Bolsas: patos (cada uno con su sombra) y flechas, creados aquí y reutilizados
+  const patos = sombrasLibres.map((sombra) => {
+    const pato = crearPato();
+    pato.grupo.visible = false;
+    raiz.add(pato.grupo);
+    return { ...pato, sombra, activo: false, vel: new THREE.Vector3(), dorado: false, cayendo: false, fase: 0, altura: 0 };
+  });
+  const flechas = Array.from({ length: 16 }, () => {
+    const malla = crearFlecha();
+    malla.visible = false;
+    raiz.add(malla);
+    return { malla, activa: false, vel: new THREE.Vector3(), punta: new THREE.Vector3(), anterior: new THREE.Vector3(), clavada: 0 };
+  });
   let puntos = 0;
   let record = ctx.leer('record', 0);
   let estado = 'intro'; // 'intro' | 'jugando' | 'fin'
@@ -388,20 +400,32 @@ export function iniciar(ctx) {
 
   // ─── Patos ─────────────────────────────────────────────────────────────
   function soltarPato(progreso) {
+    let pato = null;
+    for (const p of patos) if (!p.activo) { pato = p; break; }
+    if (!pato) return;
     const dorado = Math.random() < 0.1;
-    const { grupo, alas } = crearPato(dorado);
+    const { grupo } = pato;
+    pato.cuerpo.material = dorado ? matDorado : matPato;
+    pato.cabeza.material = dorado ? matDorado : matCuello;
+    for (const ala of pato.alas) ala.material = dorado ? matDorado : matAla;
     const sentido = Math.random() < 0.5 ? 1 : -1;
     const z = -8 - Math.random() * 12;
     grupo.position.set(-sentido * LIMITE_X, 2.5 + Math.random() * 4, z);
+    grupo.rotation.set(0, 0, 0);
+    grupo.visible = true;
     const rapidez = (2.2 + progreso * 2.5 + Math.random() * 1.2) * (dorado ? 1.6 : 1);
-    const vel = new THREE.Vector3(sentido * rapidez, 0, (Math.random() - 0.5) * 0.8);
-    raiz.add(grupo);
-    const sombra = sombrasLibres.pop() || null;
-    patos.push({ grupo, alas, vel, dorado, cayendo: false, fase: Math.random() * 10, altura: grupo.position.y, sombra });
-    if (Math.random() < 0.5) ctx.sonido('cuac');
+    pato.vel.set(sentido * rapidez, 0, (Math.random() - 0.5) * 0.8);
+    pato.activo = true;
+    pato.dorado = dorado;
+    pato.cayendo = false;
+    pato.fase = Math.random() * 10;
+    pato.altura = grupo.position.y;
+    pato.sombra.visible = true;
+    if (Math.random() < 0.5) ctx.sonido('cuac', { pos: grupo.position });
   }
 
   function cazar(pato) {
+    if (!ctx.partida.activa) return;
     pato.cayendo = true;
     pato.vel.multiplyScalar(0.3);
     pato.vel.y = 1.5;
@@ -424,16 +448,16 @@ export function iniciar(ctx) {
   }
 
   function actualizarPatos(dt, t) {
-    for (let i = patos.length - 1; i >= 0; i--) {
-      const p = patos[i];
+    for (const p of patos) {
+      if (!p.activo) continue;
       const g = p.grupo;
-      if (p.sombra) ctx.colocarSombra(p.sombra, g.position, Y_AGUA);
+      ctx.colocarSombra(p.sombra, g.position, Y_AGUA);
       if (p.cayendo) {
         p.vel.y -= 9.8 * dt;
         g.position.addScaledVector(p.vel, dt);
         g.rotation.x += 6 * dt;
         g.rotation.z += 4 * dt;
-        if (g.position.y < 0) quitarPato(i);
+        if (g.position.y < 0) quitarPato(p);
         continue;
       }
       g.position.addScaledVector(p.vel, dt);
@@ -442,43 +466,41 @@ export function iniciar(ctx) {
       const aleteo = Math.sin(t * 14 + p.fase) * 0.7;
       p.alas[0].rotation.z = -aleteo;
       p.alas[1].rotation.z = aleteo;
-      if (Math.abs(g.position.x) > LIMITE_X + 1) quitarPato(i);
+      if (Math.abs(g.position.x) > LIMITE_X + 1) quitarPato(p);
     }
   }
 
-  function quitarPato(i) {
-    const sombra = patos[i].sombra;
-    if (sombra) {
-      sombra.visible = false;
-      sombrasLibres.push(sombra);
-    }
-    raiz.remove(patos[i].grupo);
-    patos.splice(i, 1);
+  function quitarPato(p) {
+    p.activo = false;
+    p.grupo.visible = false;
+    p.sombra.visible = false;
   }
 
   // ─── Flechas ───────────────────────────────────────────────────────────
   function lanzarFlecha(origen, direccion, rapidez) {
     disparos += 1;
-    const malla = crearFlecha();
+    // Una flecha libre de la bolsa o, si no queda ninguna, la clavada que lleva más tiempo
+    let f = null;
+    for (const x of flechas) if (!x.activa) { f = x; break; }
+    if (!f) for (const x of flechas) if (x.clavada > 0 && (!f || x.clavada < f.clavada)) f = x;
+    if (!f) return;
+    const { malla } = f;
     malla.position.copy(origen).addScaledVector(direccion, LARGO_FLECHA / 2);
     malla.lookAt(tmp.copy(malla.position).add(direccion));
-    raiz.add(malla);
-    flechas.push({
-      malla,
-      vel: direccion.clone().multiplyScalar(rapidez),
-      punta: malla.position.clone().addScaledVector(direccion, LARGO_FLECHA / 2 + 0.08),
-      anterior: new THREE.Vector3(),
-      clavada: 0,
-    });
+    malla.visible = true;
+    f.activa = true;
+    f.vel.copy(direccion).multiplyScalar(rapidez);
+    f.punta.copy(malla.position).addScaledVector(direccion, LARGO_FLECHA / 2 + 0.08);
+    f.clavada = 0;
     ctx.sonido('arco');
   }
 
   function actualizarFlechas(dt) {
-    for (let i = flechas.length - 1; i >= 0; i--) {
-      const f = flechas[i];
+    for (const f of flechas) {
+      if (!f.activa) continue;
       if (f.clavada > 0) {
         f.clavada -= dt;
-        if (f.clavada <= 0) quitarFlecha(i);
+        if (f.clavada <= 0) quitarFlecha(f);
         continue;
       }
       f.vel.y -= GRAVEDAD * dt;
@@ -491,7 +513,7 @@ export function iniciar(ctx) {
       tramo.set(f.anterior, f.punta);
       let acerto = false;
       for (const p of patos) {
-        if (p.cayendo) continue;
+        if (!p.activo || p.cayendo) continue;
         if (tramo.closestPointToPoint(p.grupo.position, true, tmp2).distanceTo(p.grupo.position) < RADIO_PATO) {
           if (estado === 'jugando') cazar(p);
           acerto = true;
@@ -499,35 +521,38 @@ export function iniciar(ctx) {
         }
       }
       if (acerto) {
-        quitarFlecha(i);
+        quitarFlecha(f);
       } else if (f.punta.y <= 0.02) {
         f.clavada = 2; // se queda clavada en el suelo o en el agua
       } else if (f.malla.position.lengthSq() > 60 * 60) {
-        quitarFlecha(i);
+        quitarFlecha(f);
       }
     }
   }
 
-  function quitarFlecha(i) {
-    raiz.remove(flechas[i].malla);
-    flechas.splice(i, 1);
+  function quitarFlecha(f) {
+    f.activa = false;
+    f.clavada = 0;
+    f.malla.visible = false;
   }
 
   // ─── Arco con los mandos VR ────────────────────────────────────────────
   function arcoVR(dt) {
-    const activas = ctx.manos.filter((m) => m.activa);
     // Por defecto el arco va en la mano izquierda (o en la primera que aparezca)
     if (indiceArco === null || !ctx.manos[indiceArco].activa) {
-      const izquierda = activas.find((m) => m.lado === 'left') || activas[0];
+      let izquierda = null;
+      for (const m of ctx.manos) if (m.activa && (!izquierda || m.lado === 'left')) izquierda = m;
       if (izquierda) indiceArco = izquierda.indice;
     }
-    const arco = indiceArco === null ? null : arcos.find((a) => a.mano.indice === indiceArco);
+    let arco = null;
+    if (indiceArco !== null) for (const a of arcos) if (a.mano.indice === indiceArco) arco = a;
     for (const a of arcos) a.arco.visible = a === arco;
     if (!arco) {
       flechaCargada.visible = false;
       return;
     }
-    const manoCuerda = ctx.manos.find((m) => m !== arco.mano && m.activa);
+    let manoCuerda = null;
+    for (const m of ctx.manos) if (m !== arco.mano && m.activa) { manoCuerda = m; break; }
 
     // El botón de agarre de la mano libre cambia el arco de mano (para zurdos)
     const apreton = !!manoCuerda?.apreton;
@@ -593,7 +618,7 @@ export function iniciar(ctx) {
 
     if (tensandoRaton && !raton.pulsado) {
       if (cargaRaton > 0.15) {
-        const direccion = raton.rayo.ray.direction.clone();
+        const direccion = raton.rayo.ray.direction;
         lanzarFlecha(tmp3.copy(raton.rayo.ray.origin).addScaledVector(direccion, 0.4), direccion, 12 + cargaRaton * 26);
       }
       tensandoRaton = false;
@@ -609,6 +634,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezar() {
+    ctx.partida.empezar();
     estado = 'jugando';
     puntos = 0;
     disparos = 0;
@@ -629,14 +655,16 @@ export function iniciar(ctx) {
       const progreso = 1 - tiempoRestante / DURACION;
       proximoPato -= dt;
       const maxPatos = 2 + Math.floor(progreso * 3.5);
-      if (proximoPato <= 0 && patos.filter((p) => !p.cayendo).length < maxPatos) {
+      let volando = 0;
+      for (const p of patos) if (p.activo && !p.cayendo) volando++;
+      if (proximoPato <= 0 && volando < maxPatos) {
         soltarPato(progreso);
         proximoPato = 1.5 - progreso * 0.8 + Math.random() * 0.5;
       }
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 6;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);

@@ -325,12 +325,15 @@ export function iniciar(ctx) {
   // ─── Trayectorias ──────────────────────────────────────────────────────
   // Velocidad para ir de "p" a "destino" (sobre la mesa) con esa rapidez horizontal,
   // subiendo la bola lo justo para que pase por encima de la red.
+  // Vectores de trabajo de los golpes (no se crea nada en cada golpe)
+  const velTrayectoria = new THREE.Vector3();
+  const destinoGolpe = new THREE.Vector3();
   function trayectoria(p, destino, rapidez) {
     const dx = destino.x - p.x;
     const dz = destino.z - p.z;
     const distancia = Math.hypot(dx, dz);
     let t = distancia / rapidez;
-    const v = new THREE.Vector3();
+    const v = velTrayectoria;
     for (let i = 0; i < 10; i++) {
       v.set(dx / t, (destino.y - p.y) / t + 0.5 * G * t, dz / t);
       const tRed = (Z_RED - p.z) / v.z;
@@ -348,7 +351,7 @@ export function iniciar(ctx) {
     const altura = p.y - (MESA_Y + R_BOLA);
     const t = (v.y + Math.sqrt(Math.max(0, v.y * v.y + 2 * G * altura))) / G;
     const caida = tmp2.set(p.x + v.x * t, MESA_Y + R_BOLA, p.z + v.z * t);
-    const destino = new THREE.Vector3(
+    const destino = destinoGolpe.set(
       THREE.MathUtils.clamp(caida.x, -ANCHO / 2 + 0.12, ANCHO / 2 - 0.12),
       MESA_Y + R_BOLA,
       THREE.MathUtils.clamp(caida.z, Z_LEJOS + 0.15, Z_RED - 0.25),
@@ -414,8 +417,9 @@ export function iniciar(ctx) {
     if ((j >= PUNTOS_SET || m >= PUNTOS_SET) && Math.abs(j - m) >= 2) {
       estado = 'fin';
       reloj = 7;
+      // Fin del partido (una sola vez); a la clasificación solo va la diferencia al ganar (juegos/marcadores.js)
+      ctx.partida.terminar(j > m ? j - m : undefined);
       if (j > m) {
-        ctx.puntuacion(j - m); // diferencia al ganar (juegos/marcadores.js)
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
         mensaje = ctx.t('partida.hasGanado');
@@ -488,13 +492,14 @@ export function iniciar(ctx) {
 
   // ─── Física de la bola ─────────────────────────────────────────────────
   // Choque bola-pala con la pala interpolada entre el fotograma anterior y este
-  function chocarPala(p, f, h) {
+  // dtReal: la velocidad de la pala se mide con el tiempo real (la micro-pausa no la infla)
+  function chocarPala(p, f, dtReal) {
     const centro = tmp.lerpVectors(p.centroAntes, p.centro, f);
     const normal = tmp2.lerpVectors(p.normalAntes, p.normal, f).normalize();
     const d = relativa.subVectors(bola.position, centro).dot(normal);
     const enPlano = relativa.addScaledVector(normal, -d).length();
     if (enPlano > R_PALA + R_BOLA * 0.5 || Math.abs(d) > R_BOLA + GROSOR_PALA / 2) return false;
-    velPala.subVectors(p.centro, p.centroAntes).divideScalar(Math.max(h, 1e-4)).multiplyScalar(FUERZA_PALA);
+    velPala.subVectors(p.centro, p.centroAntes).divideScalar(Math.max(dtReal, 1e-4)).multiplyScalar(FUERZA_PALA);
     relativa.subVectors(vel, velPala);
     const vn = relativa.dot(normal);
     if (vn * Math.sign(d || 1) >= 0) return false; // ya se aleja de la pala
@@ -506,9 +511,10 @@ export function iniciar(ctx) {
     return true;
   }
 
-  function moverBola(dt, palaVR) {
-    const rapidez = Math.max(vel.length(), palaVR ? palaVR.centro.distanceTo(palaVR.centroAntes) / dt : 0);
-    const pasos = Math.min(24, Math.max(1, Math.ceil((rapidez * dt) / 0.012)));
+  function moverBola(dt, palaVR, dtReal) {
+    // Subpasos: lo que avanza la bola o la pala en este fotograma, de 1,2 cm en 1,2 cm
+    const recorrido = Math.max(vel.length() * dt, palaVR ? palaVR.centro.distanceTo(palaVR.centroAntes) : 0);
+    const pasos = Math.min(24, Math.max(1, Math.ceil(recorrido / 0.012)));
     const h = dt / pasos;
     for (let i = 1; i <= pasos; i++) {
       anterior.copy(bola.position);
@@ -532,7 +538,7 @@ export function iniciar(ctx) {
         ctx.sonido('zas');
       }
       // Pala VR
-      if (palaVR && chocarPala(palaVR, i / pasos, h * pasos)) continue;
+      if (palaVR && chocarPala(palaVR, i / pasos, dtReal)) continue;
       // Suelo
       if (p.y < R_BOLA) {
         p.y = R_BOLA;
@@ -579,14 +585,14 @@ export function iniciar(ctx) {
     return activa;
   }
 
-  function palaRatonActualizar(dt) {
+  function palaRatonActualizar(dt, dtReal) {
     const r = ctx.raton;
     pivoteRaton.visible = r.dentro || ctx.tactil;
     if (r.rayo.ray.intersectPlane(planoRaton, tmp)) {
       tmp.x = THREE.MathUtils.clamp(tmp.x, -ANCHO / 2 - 0.3, ANCHO / 2 + 0.3);
       tmp.y = THREE.MathUtils.clamp(tmp.y, MESA_Y + 0.02, MESA_Y + 0.9);
-      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dt, 1e-3));
-      pivoteRaton.position.lerp(tmp, Math.min(1, dt * 25));
+      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dtReal, 1e-3));
+      pivoteRaton.position.lerp(tmp, Math.min(1, dtReal * 25)); // la pala del jugador no se para en la micro-pausa
     }
     // Inclinación según hacia dónde se mueve (queda más natural)
     pivoteRaton.rotation.z = THREE.MathUtils.clamp(-velRaton.x * 0.05, -0.5, 0.5);
@@ -600,7 +606,7 @@ export function iniciar(ctx) {
       // El ángulo depende de en qué parte de la pala da; moverla rápido es remate
       const desvio = (p.x - pivoteRaton.position.x) / R_CONTACTO_RATON;
       const remate = THREE.MathUtils.clamp(r.velocidadPx / 2500, 0, 1);
-      const destino = new THREE.Vector3(
+      const destino = destinoGolpe.set(
         THREE.MathUtils.clamp(desvio * 0.6 + velRaton.x * 0.08, -ANCHO / 2 + 0.08, ANCHO / 2 - 0.08),
         MESA_Y + R_BOLA,
         Z_LEJOS + 0.25 + Math.random() * 0.8,
@@ -629,7 +635,7 @@ export function iniciar(ctx) {
 
     // Saque de la máquina
     if (estado === 'saque' && sacador === 'maquina' && reloj <= 0 && golpe('maquina')) {
-      const destinoSaque = new THREE.Vector3((Math.random() - 0.5) * 1.1, MESA_Y + R_BOLA, Z_RED + 0.45 + Math.random() * 0.7);
+      const destinoSaque = destinoGolpe.set((Math.random() - 0.5) * 1.1, MESA_Y + R_BOLA, Z_RED + 0.45 + Math.random() * 0.7);
       vel.copy(trayectoria(bola.position, destinoSaque, 3.8 + Math.random() * 0.8));
       return;
     }
@@ -649,16 +655,16 @@ export function iniciar(ctx) {
         vel.set((objetivo.x - p.x) / t, (objetivo.y - p.y) / t + 0.5 * G * t, (objetivo.z - p.z) / t);
         return;
       }
-      let destinoGolpe;
-      if (fallo === 'largo') destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_CERCA + 0.3 + Math.random() * 0.5);
-      else if (fallo === 'ancho') destinoGolpe = new THREE.Vector3(ladoFallo * (ANCHO / 2 + 0.15 + Math.random() * 0.3), MESA_Y + R_BOLA, Z_RED + 0.4 + Math.random() * 0.8);
-      else destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_RED + 0.35 + Math.random() * (LARGO / 2 - 0.55));
+      if (fallo === 'largo') destinoGolpe.set((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_CERCA + 0.3 + Math.random() * 0.5);
+      else if (fallo === 'ancho') destinoGolpe.set(ladoFallo * (ANCHO / 2 + 0.15 + Math.random() * 0.3), MESA_Y + R_BOLA, Z_RED + 0.4 + Math.random() * 0.8);
+      else destinoGolpe.set((Math.random() - 0.5) * (ANCHO - 0.3), MESA_Y + R_BOLA, Z_RED + 0.35 + Math.random() * (LARGO / 2 - 0.55));
       vel.copy(trayectoria(p, destinoGolpe, rapidez));
     }
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarPartido() {
+    ctx.partida.empezar();
     tanteo.jugador = 0;
     tanteo.maquina = 0;
     primerSacador = primerSacador === 'jugador' ? 'maquina' : 'jugador';
@@ -666,7 +672,7 @@ export function iniciar(ctx) {
     prepararSaque();
   }
 
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     enfriamiento = Math.max(0, enfriamiento - dt);
     const vr = ctx.enVR();
@@ -677,7 +683,7 @@ export function iniciar(ctx) {
       palaVR = palasVRActualizar();
     } else {
       for (const p of palasVR) p.objeto.visible = false;
-      palaRatonActualizar(dt);
+      palaRatonActualizar(dt, dtReal);
     }
 
     switch (estado) {
@@ -694,7 +700,7 @@ export function iniciar(ctx) {
           if (palaVR) {
             // En pasos cortos para que un golpe rápido no atraviese la bola
             const pasos = Math.min(24, Math.max(1, Math.ceil(palaVR.centro.distanceTo(palaVR.centroAntes) / 0.012)));
-            for (let i = 1; i <= pasos; i++) if (chocarPala(palaVR, i / pasos, dt)) break;
+            for (let i = 1; i <= pasos; i++) if (chocarPala(palaVR, i / pasos, dtReal)) break;
           }
         }
         break;
@@ -711,7 +717,7 @@ export function iniciar(ctx) {
     }
 
     maquina(dt);
-    if (estado === 'vivo' || estado === 'punto' || estado === 'fin') moverBola(dt, estado === 'vivo' ? palaVR : null);
+    if (estado === 'vivo' || estado === 'punto' || estado === 'fin') moverBola(dt, estado === 'vivo' ? palaVR : null, dtReal);
     if (estado === 'saque') tiempoPunto = 0;
 
     const ySuelo = sobreMesa(bola.position) && bola.position.y > MESA_Y ? MESA_Y : 0;

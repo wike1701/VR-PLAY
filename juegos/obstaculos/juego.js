@@ -35,6 +35,8 @@ export function iniciar(ctx) {
 
   ctx.fondo(0x9fd4f2, { nubes: 0.45, niebla: [40, 150], paisaje: { tipo: 'montes', color: 0x55786a, radio: 96 } });
   ctx.sueloBase(false);
+  // Las manos se ven sobre el volante (las dibuja el juego y giran con él): sin las de la shell en los mandos
+  ctx.manosPorDefecto(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, OJOS, 0.1), new THREE.Vector3(0, 0.9, -10));
 
   const conjunto = new THREE.Group(); // se ajusta a la altura de tus ojos
@@ -460,7 +462,7 @@ export function iniciar(ctx) {
     if (vidas <= 0) {
       estado = 'fin';
       reloj = 7;
-      ctx.puntuacion(puntos()); // a la clasificación (juegos/marcadores.js)
+      ctx.partida.terminar(puntos()); // a la clasificación (juegos/marcadores.js)
       if (puntos() > record) {
         record = puntos();
         ctx.guardar('record', record);
@@ -474,14 +476,22 @@ export function iniciar(ctx) {
   // ─── Dirección ─────────────────────────────────────────────────────────
   function dirigir(dt) {
     if (ctx.enVR()) {
-      const activas = ctx.manos.filter((m) => m.activa);
-      const izquierda = activas.find((m) => m.lado === 'left') || ctx.manos[0];
-      const derecha = activas.find((m) => m.lado === 'right') || ctx.manos[1];
-      if (izquierda.activa && derecha.activa) {
+      let izquierda = ctx.manos[0];
+      let derecha = ctx.manos[1];
+      let activas = 0;
+      let unica = null;
+      for (const m of ctx.manos) {
+        if (!m.activa) continue;
+        activas++;
+        unica = m;
+        if (m.lado === 'left') izquierda = m;
+        else if (m.lado === 'right') derecha = m;
+      }
+      if (izquierda.activa && derecha.activa && izquierda !== derecha) {
         const d = tmp.subVectors(derecha.posicion, izquierda.posicion);
         giroVolante = Math.atan2(d.y, Math.max(0.05, Math.hypot(d.x, d.z)));
-      } else if (activas.length === 1) {
-        giroVolante = -THREE.MathUtils.clamp(activas[0].posicion.x / 0.25, -1, 1) * GIRO_VOLANTE;
+      } else if (activas === 1) {
+        giroVolante = -THREE.MathUtils.clamp(unica.posicion.x / 0.25, -1, 1) * GIRO_VOLANTE;
       }
       const direccion = THREE.MathUtils.clamp(-giroVolante / GIRO_VOLANTE, -1, 1);
       cocheX += direccion * VELOCIDAD_LATERAL * dt;
@@ -498,6 +508,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezar() {
+    ctx.partida.empezar();
     estado = 'jugando';
     v = VELOCIDAD_INICIAL;
     crucero = VELOCIDAD_INICIAL;
@@ -587,7 +598,10 @@ export function iniciar(ctx) {
     }
 
     // Parpadeo mientras eres invulnerable y un poco de vibración del motor
-    cabina.visible = invulnerable <= 0 || Math.sin(t * 30) > -0.6;
+    // Tras un choque, la carrocería late en rojo suave y se apaga poco a poco (sin parpadeos: en VR la
+    // cabina es lo que te rodea y un parpadeo rápido molesta)
+    const latido = invulnerable > 0 ? (0.5 - 0.5 * Math.cos(t * 7)) * Math.min(1, invulnerable / 0.5) : 0;
+    matCarroceria.emissive.setRGB(0.45 * latido, 0.02 * latido, 0.03 * latido);
     cabina.position.y = Math.sin(t * 40) * 0.002 * (v / VELOCIDAD_MAX);
     // En el aire las ruedas giran libres y el motor se acelera un poco
     motor.ajustar(v / VELOCIDAD_MAX + (altura > 0 ? 0.12 : 0), estado === 'fin' && v < 1 ? 0.06 : 0.14);

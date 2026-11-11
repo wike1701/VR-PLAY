@@ -334,6 +334,7 @@ export function iniciar(ctx) {
   }
 
   function empezar() {
+    ctx.partida.empezar();
     estado = 'juego';
     puntos = 0;
     tiempoBarra = 1;
@@ -341,7 +342,7 @@ export function iniciar(ctx) {
   }
 
   function terminar(clave, lado) {
-    if (estado === 'fin') return;
+    if (estado === 'fin' || !ctx.partida.terminar(puntos)) return; // a la clasificación (juegos/marcadores.js)
     estado = 'fin';
     reloj = 4;
     mensaje = ctx.t(clave);
@@ -355,15 +356,15 @@ export function iniciar(ctx) {
       ctx.sonido('rama');
       for (const h of hachas) if (h.lado === lado) ctx.vibrar(h.mano, 1, 200);
     }
-    ctx.sonido('fallo');
     ctx.destello(0xff2a2a, 0.2);
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       nuevoRecord = puntos > 0;
       ctx.guardar('record', record);
     }
+    // Con récord, la ovación sustituye al sonido de fallo (los dos a la vez se pisaban)
     if (nuevoRecord) ctx.efectos.impacto('grande', { pos: centroTronco, color: 0xffd23f, sonido: 'ovacion' });
+    else ctx.sonido('fallo');
   }
 
   // Un hachazo desde un lado (-1 izquierda, 1 derecha)
@@ -409,7 +410,8 @@ export function iniciar(ctx) {
   }
 
   // ─── VR: la cabeza del hacha entra en el tronco a la altura del corte ──
-  function hachasVR(dt) {
+  // dtReal: lo que se mueve el hacha se mide con el tiempo real (la micro-pausa no infla la rapidez)
+  function hachasVR(dtReal) {
     for (const h of hachas) {
       if (!h.mano.activa) continue;
       // Qué mano es cuál: la del mando si se sabe; si no, por el orden
@@ -421,7 +423,7 @@ export function iniciar(ctx) {
       h.lado = lado;
       h.anterior.copy(h.cabeza);
       h.objeto.localToWorld(h.cabeza.copy(CABEZA_EN_MANO));
-      const rapidez = dt > 0 ? h.cabeza.distanceTo(h.anterior) / dt : 0;
+      const rapidez = dtReal > 0 ? h.cabeza.distanceTo(h.anterior) / dtReal : 0;
       const distancia = Math.hypot(h.cabeza.x, h.cabeza.z - Z_TRONCO);
       const alturaBuena = h.cabeza.y > Y_CORTE - ALTO_TROZO / 2 - 0.1 && h.cabeza.y < Y_CORTE + ALTO_TROZO / 2 + 0.1;
       if (distancia > R_TRONCO + 0.16) h.armada = true;
@@ -480,7 +482,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
   let tiempo = 0;
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     tiempoMensaje -= dt;
     if (estado === 'juego') {
@@ -499,7 +501,7 @@ export function iniciar(ctx) {
     }
     if (ctx.enVR()) {
       hachaRaton.visible = false;
-      hachasVR(dt);
+      hachasVR(dtReal);
     } else {
       raton(dt);
     }

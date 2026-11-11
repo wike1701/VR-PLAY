@@ -672,6 +672,7 @@ export default {
         conElCuerpo: '¡Con el cuerpo!',
         gol: '¡GOL!',
         fuera: '¡Fuera!',
+        fueraRepite: '¡Fuera! Se repite',
       },
     },
     petanca: {

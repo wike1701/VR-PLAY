@@ -643,6 +643,7 @@ export default {
         conElCuerpo: 'Mit dem Körper!',
         gol: 'TOR!',
         fuera: 'Daneben!',
+        fueraRepite: 'Daneben! Wiederholung',
       },
     },
     petanca: {

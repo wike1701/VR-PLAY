@@ -644,6 +644,7 @@ export default {
         conElCuerpo: '体で止めた！',
         gol: 'ゴール！',
         fuera: '外れた！',
+        fueraRepite: '外れた！ やり直し',
       },
     },
     petanca: {

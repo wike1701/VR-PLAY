@@ -25,7 +25,6 @@ const DIFICULTAD_MAX = 240;       // segundos de juego hasta la dificultad máxi
 const VUELO_MINIMO = 0.3;         // segundos en el aire para que cuente como recepción (VR)
 const VENTANA_CIERRE = 0.22;      // segundos tras cerrar la mano en los que aún puede coger una bola (VR)
 const RASTRO = 10;                // puntos de la estela de cada bola
-const HISTORIAL = 8;              // posiciones de la mano para medir su velocidad al soltar
 const COLORES = [0xe53935, 0xfdd835, 0x1e88e5, 0x43a047, 0x8e24aa];
 const ESLABONES = 24;             // eslabones de la cadena que se ven sobre la pista
 const FLOTA = 4;                  // segundos que espera flotando la bola nueva en VR antes de caer
@@ -383,7 +382,6 @@ export function iniciar(ctx) {
     ctx.adjuntarAMano(mano, guante.grupo);
     return {
       mano, ...guante, lado: 0, punto: new THREE.Vector3(), bola: null, cerrada: false, ventana: 0, bloqueo: 0,
-      posiciones: Array.from({ length: HISTORIAL }, () => new THREE.Vector3()), tiempos: new Float64Array(HISTORIAL).fill(-1), idx: 0,
     };
   });
   // Ratón y móvil: dos guantes que se mueven solos
@@ -460,8 +458,9 @@ export function iniciar(ctx) {
         { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(reloj) }), tam: 0.8 }];
     } else {
       const corazones = '♥'.repeat(vidas) + '♡'.repeat(VIDAS - vidas);
-      const esperando = vr && bolas.some((b) => b.estado === 'espera');
-      const nueva = esperando && bolas.some((b) => b.estado === 'espera' && b.deCanon);
+      let esperando = false;
+      let nueva = false;
+      if (vr) for (const b of bolas) if (b.estado === 'espera') { esperando = true; if (b.deCanon) nueva = true; }
       lineas = [{ texto: ctx.t('cadena', { n: cadena }), tam: 1.3, color: rojo > 0 ? '#ff6e6e' : '#ffffff' },
         aviso ? { texto: aviso.texto, tam: 0.8, color: aviso.color }
           : esperando ? { texto: ctx.t(nueva ? 'cogeNueva' : 'cogeBolas'), tam: 0.78, color: '#b3e5fc' }
@@ -602,9 +601,9 @@ export function iniciar(ctx) {
   }
 
   function terminar() {
+    if (!ctx.partida.terminar(mejor)) return; // a la clasificación (juegos/marcadores.js): la cadena más larga
     estado = 'fin';
     reloj = 6;
-    ctx.puntuacion(mejor); // a la clasificación (juegos/marcadores.js): la cadena más larga
     if (mejor > record) {
       record = mejor;
       ctx.guardar('record', record);
@@ -615,6 +614,7 @@ export function iniciar(ctx) {
   }
 
   function empezar() {
+    ctx.partida.empezar();
     estado = 'jugando';
     cadena = 0;
     mejor = 0;
@@ -689,19 +689,8 @@ export function iniciar(ctx) {
     mj.bola = null;
     mj.bloqueo = 0.15;
     if (!b || b.estado !== 'mano') return;
-    // Velocidad de la mano en los últimos ~70 ms
-    const n = HISTORIAL;
-    const actual = (mj.idx - 1 + n) % n;
-    let j = actual;
-    for (let i = 1; i < n; i++) {
-      const k = (actual - i + n) % n;
-      if (mj.tiempos[k] < 0) break;
-      j = k;
-      if (mj.tiempos[actual] - mj.tiempos[k] >= 0.07) break;
-    }
-    const dtv = mj.tiempos[actual] - mj.tiempos[j];
-    if (dtv > 0) velMano.subVectors(mj.posiciones[actual], mj.posiciones[j]).divideScalar(dtv);
-    else velMano.set(0, 0, 0);
+    // Velocidad de la mano en los últimos ~70 ms (la mide la shell en tiempo real: la micro-pausa no la infla)
+    mj.mano.velocidadReciente(0.07, velMano);
     if (velMano.length() > 8) velMano.setLength(8);
     b.estado = 'vuelo';
     b.mano = -1;
@@ -743,7 +732,6 @@ export function iniciar(ctx) {
   }
 
   function actualizarVR(dt) {
-    const real = performance.now() / 1000; // tiempo real: la micro-pausa de los efectos no infla la velocidad
     for (const mj of manosVR) {
       mj.lado = mj.mano.lado === 'left' ? -1 : mj.mano.lado === 'right' ? 1 : (mj === manosVR[0] ? -1 : 1);
       mj.grupo.rotation.z = mj.lado * 0.95; // la palma hacia dentro
@@ -754,9 +742,6 @@ export function iniciar(ctx) {
         continue;
       }
       mj.ancla.getWorldPosition(mj.punto);
-      mj.posiciones[mj.idx].copy(mj.punto);
-      mj.tiempos[mj.idx] = real;
-      mj.idx = (mj.idx + 1) % HISTORIAL;
       const cerrada = !!(mj.mano.gatillo || mj.mano.apreton);
       if (cerrada && !mj.cerrada) mj.ventana = VENTANA_CIERRE;
       if (!cerrada && mj.cerrada && mj.bola) soltarVR(mj);

@@ -167,8 +167,22 @@ export function iniciar(ctx) {
   }
 
   const cuerpos = []; // bolas en la pista y el boliche: { malla, vel, r, masa, equipo }
+  // Bolsa: las bolas de cada equipo y el boliche se crean aquí, cada una con su cuerpo, y se reutilizan
+  // en cada mano (la que se tira es la número BOLAS − quedan)
+  const nuevoCuerpo = (malla, equipo) => {
+    const c = { malla, vel: new THREE.Vector3(), r: equipo === 'boliche' ? R_BOLICHE : R_BOLA, masa: equipo === 'boliche' ? MASA_BOLICHE : MASA_BOLA, equipo };
+    malla.userData.cuerpo = c;
+    return c;
+  };
+  const bolsa = {
+    jugador: Array.from({ length: BOLAS }, () => nuevoCuerpo(crearBola('jugador'), 'jugador')),
+    maquina: Array.from({ length: BOLAS }, () => nuevoCuerpo(crearBola('maquina'), 'maquina')),
+  };
+  const cuerpoBoliche = nuevoCuerpo(new THREE.Mesh(geoBoliche, matBoliche), 'boliche');
+  const siguienteBola = (equipo) => bolsa[equipo][BOLAS - quedan[equipo]].malla;
   function anadirCuerpo(malla, equipo, vel) {
-    const c = { malla, vel: vel.clone(), r: equipo === 'boliche' ? R_BOLICHE : R_BOLA, masa: equipo === 'boliche' ? MASA_BOLICHE : MASA_BOLA, equipo };
+    const c = malla.userData.cuerpo;
+    c.vel.copy(vel);
     raiz.add(malla);
     cuerpos.push(c);
     return c;
@@ -194,7 +208,7 @@ export function iniciar(ctx) {
   const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
   const manos = ctx.manos.map((mano) => {
     ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
-    return { mano, historial: [], apretonAntes: false };
+    return { mano, apretonAntes: false };
   });
   let bolaSoporte = null;   // bola esperando en el soporte (VR)
   let manoConBola = null;
@@ -263,10 +277,10 @@ export function iniciar(ctx) {
     cuerpos.length = 0;
     quedan.jugador = BOLAS;
     quedan.maquina = BOLAS;
-    const pos = new THREE.Vector3((Math.random() - 0.5) * 2, R_BOLICHE, -5.5 - Math.random() * 3);
-    const malla = new THREE.Mesh(geoBoliche, matBoliche);
-    malla.position.copy(pos);
-    boliche = anadirCuerpo(malla, 'boliche', new THREE.Vector3());
+    const malla = cuerpoBoliche.malla;
+    malla.position.set((Math.random() - 0.5) * 2, R_BOLICHE, -5.5 - Math.random() * 3);
+    malla.rotation.set(0, 0, 0);
+    boliche = anadirCuerpo(malla, 'boliche', tmp.set(0, 0, 0));
     anilloPunto.visible = false;
     darTurno(empieza);
   }
@@ -340,8 +354,9 @@ export function iniciar(ctx) {
     if (tanteo[ganador] >= PUNTOS_VICTORIA) {
       estado = 'finPartida';
       reloj = 7;
+      // Fin de partida (una sola vez); a la clasificación solo va la diferencia al ganar (juegos/marcadores.js)
+      ctx.partida.terminar(ganador === 'jugador' ? tanteo.jugador - tanteo.maquina : undefined);
       if (ganador === 'jugador') {
-        ctx.puntuacion(tanteo.jugador - tanteo.maquina); // diferencia al ganar (juegos/marcadores.js)
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
         decir(ctx.t('hasGanado'), '#b9f6ca');
@@ -359,7 +374,10 @@ export function iniciar(ctx) {
 
   // ─── Lanzamientos ──────────────────────────────────────────────────────
   // Velocidad para que una bola salga de "origen" y caiga en "destino" con el ángulo dado
-  function velocidadPara(origen, destino, angulo = ANGULO) {
+  const velTiro = new THREE.Vector3();
+  const objetivoMaquina = new THREE.Vector3();
+  // Escribe la velocidad en "destinoVel" (por defecto velTiro): no se crea nada en cada tiro
+  function velocidadPara(origen, destino, angulo = ANGULO, destinoVel = velTiro) {
     const dx = destino.x - origen.x;
     const dz = destino.z - origen.z;
     const d = Math.hypot(dx, dz);
@@ -367,7 +385,7 @@ export function iniciar(ctx) {
     const c = Math.cos(angulo);
     const denominador = 2 * c * c * (d * Math.tan(angulo) - dy);
     const v = denominador > 0 ? Math.sqrt((G * d * d) / denominador) : 3;
-    return new THREE.Vector3((dx / d) * v * c, v * Math.sin(angulo), (dz / d) * v * c);
+    return destinoVel.set((dx / d) * v * c, v * Math.sin(angulo), (dz / d) * v * c);
   }
 
   // Lo que rueda una bola tras caer en "destino" (sin choques)
@@ -391,23 +409,23 @@ export function iniciar(ctx) {
   function lanzarMaquina() {
     const J = boliche.malla.position;
     const mejor = masCercanas();
-    let caida;
+    const caida = puntoCaida;
     const tirar = mejor.jugador && (!mejor.maquina || mejor.jugador.d < mejor.maquina.d) && mejor.jugador.d < 0.25 && Math.random() < 0.15;
     if (tirar) {
       // "Tirar": intenta caer encima de tu bola para sacarla
       const b = mejor.jugador.c.malla.position;
-      caida = new THREE.Vector3(b.x + azar(0.15 * FALLO_MAQUINA), R_BOLA, b.z + azar(0.15 * FALLO_MAQUINA));
+      caida.set(b.x + azar(0.15 * FALLO_MAQUINA), R_BOLA, b.z + azar(0.15 * FALLO_MAQUINA));
       decir(ctx.t('tiraATuBola'), '#ffab91');
     } else {
       // "Arrimar": cae antes del boliche lo que calcula que va a rodar
-      const objetivo = new THREE.Vector3(J.x, R_BOLA, J.z + 0.04);
+      const objetivo = objetivoMaquina.set(J.x, R_BOLA, J.z + 0.04);
       const dir = tmp.set(objetivo.x - ORIGEN.x, 0, objetivo.z - ORIGEN.z).normalize();
-      caida = objetivo.clone();
+      caida.copy(objetivo);
       for (let i = 0; i < 4; i++) caida.copy(objetivo).addScaledVector(dir, -rodadura(caida));
       caida.x += azar(0.2 * FALLO_MAQUINA);
       caida.z += azar(0.25 * FALLO_MAQUINA);
     }
-    const malla = crearBola('maquina');
+    const malla = siguienteBola('maquina');
     malla.position.copy(ORIGEN);
     lanzar('maquina', malla, velocidadPara(ORIGEN, caida));
   }
@@ -490,29 +508,22 @@ export function iniciar(ctx) {
   }
 
   // ─── Turno del jugador: VR ─────────────────────────────────────────────
-  function velocidadMano(m) {
-    const h = m.historial;
-    let tiempo = 0;
-    let i = h.length - 1;
-    while (i > 0 && tiempo < 0.08) {
-      tiempo += h[i].dt;
-      i--;
-    }
-    if (tiempo <= 0) return new THREE.Vector3();
-    return h[h.length - 1].pos.clone().sub(h[i].pos).divideScalar(tiempo);
-  }
+  // Velocidad de la mano al soltar: la media de los últimos 80 ms, medida por la shell en tiempo real
+  // (la micro-pausa de un impacto no la infla)
+  const velMano = new THREE.Vector3();
+  const velocidadMano = (m) => m.mano.velocidadReciente(0.08, velMano);
 
-  function manosVR(dt) {
+  function manosVR() {
     const miTurno = estado === 'jugador' && quedan.jugador > 0;
     if (miTurno && !bolaSoporte && !manoConBola) {
-      bolaSoporte = crearBola('jugador');
+      bolaSoporte = siguienteBola('jugador');
+      bolaSoporte.rotation.set(0, 0, 0);
       bolaSoporte.position.copy(SOPORTE);
       raiz.add(bolaSoporte);
     }
     for (const m of manos) {
       const mano = m.mano;
       if (!mano.activa) {
-        m.historial.length = 0;
         if (manoConBola === m) {
           // Si se pierde el mando con la bola en la mano, vuelve al soporte
           bolaSoporte.position.copy(SOPORTE);
@@ -520,8 +531,6 @@ export function iniciar(ctx) {
         }
         continue;
       }
-      m.historial.push({ pos: mano.posicion.clone(), dt });
-      if (m.historial.length > 12) m.historial.shift();
       const apretonPulsado = mano.apreton && !m.apretonAntes;
       m.apretonAntes = mano.apreton;
 
@@ -555,7 +564,7 @@ export function iniciar(ctx) {
       // Cae donde has hecho clic, con un pequeño error que crece con la distancia
       const d = Math.hypot(punto.x - ORIGEN.x, punto.z - ORIGEN.z);
       const caida = puntoCaida.set(punto.x + azar(0.025 * d), R_BOLA, punto.z + azar(0.03 * d));
-      const malla = crearBola('jugador');
+      const malla = siguienteBola('jugador');
       malla.position.copy(ORIGEN);
       lanzar('jugador', malla, velocidadPara(ORIGEN, caida));
     }
@@ -563,6 +572,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarPartida() {
+    ctx.partida.empezar();
     tanteo.jugador = 0;
     tanteo.maquina = 0;
     empieza = 'jugador';
@@ -621,7 +631,7 @@ export function iniciar(ctx) {
 
     if (vr) {
       mira.visible = false;
-      manosVR(dt);
+      manosVR();
     } else {
       if (bolaSoporte) {
         raiz.remove(bolaSoporte);

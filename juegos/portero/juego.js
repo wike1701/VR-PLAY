@@ -488,7 +488,9 @@ export function iniciar(ctx) {
 
   function terminarTiro(resultado, texto, color) {
     resuelto = resultado;
-    resultados.push(resultado);
+    // Un tiro que se va fuera sin tocarlo no cuenta como penalti de la tanda: se repite. Así el 10/10
+    // depende solo de ti (los que paras, aunque fueran fuera, sí cuentan como parada)
+    if (resultado !== 'fuera') resultados.push(resultado);
     mensaje = texto;
     colorMensaje = color;
     estado = 'resultado';
@@ -582,7 +584,7 @@ export function iniciar(ctx) {
         } else if (anterior.z < LINEA_GOL && pos.z >= LINEA_GOL) {
           const dentro = Math.abs(pos.x) < ANCHO / 2 - RADIO_BALON && pos.y < ALTO - RADIO_BALON;
           if (dentro) terminarTiro('gol', ctx.t('gol'), '#ff8a80');
-          else terminarTiro('fuera', ctx.t('fuera'), '#fff59d');
+          else terminarTiro('fuera', ctx.t('fueraRepite'), '#fff59d');
           efecto.set(0, -G, 0);
         }
       }
@@ -607,6 +609,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarTanda() {
+    ctx.partida.empezar();
     tiro = 0;
     resultados = [];
     prepararTiro();
@@ -643,15 +646,15 @@ export function iniciar(ctx) {
       }
       case 'vuelo':
         vidaBalon -= dt;
-        if (vidaBalon <= 0 && !resuelto) terminarTiro('fuera', ctx.t('fuera'), '#fff59d');
+        if (vidaBalon <= 0 && !resuelto) terminarTiro('fuera', ctx.t('fueraRepite'), '#fff59d');
         break;
       case 'resultado':
         if (reloj <= 0) {
-          tiro += 1;
+          if (resuelto !== 'fuera') tiro += 1;
           if (tiro >= PENALTIS) {
             estado = 'fin';
             reloj = 7;
-            ctx.puntuacion(paradas()); // a la clasificación (juegos/marcadores.js)
+            ctx.partida.terminar(paradas()); // a la clasificación (juegos/marcadores.js)
             if (paradas() > record) {
               record = paradas();
               ctx.guardar('record', record);

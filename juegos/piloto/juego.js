@@ -183,7 +183,7 @@ export function iniciar(ctx) {
   mallaLaseres.frustumCulled = false;
   mallaLaseres.count = 0;
   mundo.add(mallaLaseres);
-  const laseres = Array.from({ length: MAX_LASERES }, () => ({ activo: false, pos: new THREE.Vector3(), prev: new THREE.Vector3(), vel: new THREE.Vector3(), vida: 0 }));
+  const laseres = Array.from({ length: MAX_LASERES }, () => ({ activo: false, pos: new THREE.Vector3(), prev: new THREE.Vector3(), vel: new THREE.Vector3(), vida: 0, mano: null }));
 
   const MAX_BALAS = 40;
   const mallaBalas = new THREE.InstancedMesh(R(new THREE.SphereGeometry(0.13, 10, 8)), R(new THREE.MeshBasicMaterial({ color: 0xff6e40, fog: false })), MAX_BALAS);
@@ -289,6 +289,7 @@ export function iniciar(ctx) {
   let invulnerable = 0;
   let enfriamiento = 0;
   let alaDisparo = 0;
+  let manoDisparo = null; // el mando que dispara (VR): es el que vibra cuando el láser acierta
   let proximoPatron = 1;
   let patronesHechos = 0;
   let mensajeFinal = '';
@@ -624,7 +625,11 @@ export function iniciar(ctx) {
   }
 
   function quiereDisparar() {
-    if (ctx.enVR()) return ctx.manos.some((m) => m.activa && m.gatillo);
+    manoDisparo = null;
+    if (ctx.enVR()) {
+      for (const m of ctx.manos) if (m.activa && m.gatillo) { manoDisparo = m; return true; }
+      return false;
+    }
     return ctx.raton.pulsado;
   }
 
@@ -637,6 +642,7 @@ export function iniciar(ctx) {
     l.vel.subVectors(objetivo, l.pos).normalize().multiplyScalar(VEL_LASER);
     l.vida = 1.3;
     l.activo = true;
+    l.mano = manoDisparo;
     ctx.sonido('laser');
   }
 
@@ -649,6 +655,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function reiniciar() {
+    ctx.partida.empezar();
     for (const lista of [asteroides, laseres, balas, anillos, cazas]) for (const o of lista) o.activo = false;
     for (const a of anillos) a.malla.visible = false;
     for (const c of cazas) c.grupo.visible = false;
@@ -738,7 +745,7 @@ export function iniciar(ctx) {
         if (reloj <= 0) {
           estado = 'fin';
           reloj = 8;
-          ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+          ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
           if (puntos > record) {
             record = puntos;
             ctx.guardar('record', record);
@@ -792,7 +799,7 @@ export function iniciar(ctx) {
           sumar(PUNTOS.caza);
           derribos++;
           explosion(c.pos, 1.2);
-          ctx.efectos.impacto('medio');
+          ctx.efectos.impacto('medio', { pos: c.pos, mano: l.mano, color: 0xffab40 });
           ctx.efectos.texto(c.pos, `+${PUNTOS.caza}`, { color: '#ffd740', tam: 1.6 });
         } else {
           explosion(c.pos, 0.4, 0xffffff);
@@ -806,8 +813,12 @@ export function iniciar(ctx) {
         a.vida--;
         if (a.vida <= 0) {
           a.activo = false;
-          sumar(a.grande ? PUNTOS.asteroideGrande : PUNTOS.asteroide);
+          const valor = a.grande ? PUNTOS.asteroideGrande : PUNTOS.asteroide;
+          sumar(valor);
           explosion(a.pos, a.grande ? 1.6 : 0.9, 0xbcaaa4);
+          // Un asteroide roto también se siente y dice lo que suma (pequeño: hay muchos; los cazas son el acierto bueno)
+          ctx.efectos.impacto('pequeño', { pos: a.pos, mano: l.mano, color: 0xbcaaa4 });
+          ctx.efectos.texto(a.pos, `+${valor}`, { color: '#d7ccc8', tam: a.grande ? 1.4 : 1.1 });
         } else {
           explosion(l.pos, 0.3, 0xffffff);
         }
@@ -826,7 +837,7 @@ export function iniciar(ctx) {
           for (let k = 0; k < 4; k++) explosion(tmp.copy(jefe.pos).add(tmp3.set(azar(-3, 3), azar(-0.6, 0.6), azar(-1, 1))), 2.2, k % 2 ? 0xff6d00 : 0xffd740);
           jefe.grupo.visible = false;
           ctx.destello(0xffd740, 0.4);
-          ctx.efectos.impacto('grande');
+          ctx.efectos.impacto('grande', { pos: jefe.pos, mano: l.mano, color: 0xffd740 });
           ctx.efectos.texto(jefe.pos, `+${PUNTOS.jefe}`, { color: '#ffd740', tam: 3, vida: 1.6 });
           terminarMision(ctx.t('cumplida'), '#b9f6ca', true);
         }
@@ -865,6 +876,7 @@ export function iniciar(ctx) {
           a.malla.material = matAnilloPasado;
           ctx.sonido('anillo');
           for (const m of ctx.manos) if (m.activa) ctx.vibrar(m, 0.3, 50);
+          ctx.efectos.texto(a.pos, `+${PUNTOS.anillo}`, { color: '#80d8ff', tam: 1.3 });
         }
       }
       a.malla.position.copy(a.pos);
