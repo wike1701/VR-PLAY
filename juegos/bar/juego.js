@@ -36,10 +36,10 @@ const CLIENTE_Z = -1.18;
 const TIEMPO_MEDIDA = 0.5;     // segundos de chorro por medida (VR)
 const TIEMPO_AGITAR = 0.8;     // segundos agitando fuerte (VR)
 const R_COGER = 0.12;
-const HISTORIAL = 8;
 
 // Las 4 botellas: granadina, curaçao, menta y ron
 const LICORES = [0xe53935, 0x1e88e5, 0x7cb342, 0xffa000];
+const CSS_LICORES = LICORES.map((c) => '#' + c.toString(16).padStart(6, '0')); // para pintar los bocadillos sin crear colores
 // Clientes: camisas, pieles y sombreros
 const CAMISAS = [0x8e24aa, 0x00897b, 0xf4511e, 0x3949ab, 0xc0ca33, 0xd81b60];
 const PIELES = [0xf1c27d, 0xe0ac69, 0xc68642, 0x8d5524, 0xffdbac];
@@ -423,7 +423,7 @@ export function iniciar(ctx) {
       g.fillRect(vx + 6, vy + alto - n * medida, ancho - 12, n * medida - 6);
       // Las medidas que lleva, en puntos de su color, encima de la mezcla
       p.medidas.forEach((m, j) => {
-        g.fillStyle = `#${new THREE.Color(LICORES[m]).getHexString()}`;
+        g.fillStyle = CSS_LICORES[m];
         g.beginPath();
         g.arc(vx + 20 + (j % 2) * 38, vy + alto - n * medida + 18 + Math.floor(j / 2) * 30, 13, 0, Math.PI * 2);
         g.fill();
@@ -434,7 +434,7 @@ export function iniciar(ctx) {
     } else {
       const ordenadas = [...p.medidas].sort();
       ordenadas.forEach((m, j) => {
-        g.fillStyle = `#${new THREE.Color(LICORES[m]).getHexString()}`;
+        g.fillStyle = CSS_LICORES[m];
         g.fillRect(vx + 6, vy + alto - (j + 1) * medida, ancho - 12, medida - 4);
       });
     }
@@ -524,7 +524,6 @@ export function iniciar(ctx) {
     ctx.adjuntarAMano(mano, guante);
     return {
       mano, guante, punto: new THREE.Vector3(), quat: new THREE.Quaternion(), objeto: null, tipo: null,
-      posiciones: Array.from({ length: HISTORIAL }, () => new THREE.Vector3()), tiempos: new Float64Array(HISTORIAL).fill(-1), idx: 0,
       vel: new THREE.Vector3(), velAntes: new THREE.Vector3(),
     };
   });
@@ -598,7 +597,8 @@ export function iniciar(ctx) {
   // Un vaso nuevo aparece en el puesto (con un pequeño rebote)
   function nuevoVaso() {
     if (vasoPuesto) return;
-    const v = vasos.find((x) => x.estado === 'libre');
+    let v = null;
+    for (const x of vasos) if (!v && x.estado === 'libre') v = x;
     if (!v) return;
     vaciar(v);
     v.estado = 'aparece';
@@ -702,9 +702,15 @@ export function iniciar(ctx) {
 
   function iguales(v, p) {
     if (!v.medidas.length || v.hielo !== p.hielo || v.agitado !== p.agitado || v.medidas.length !== p.medidas.length) return false;
-    const a = [...v.medidas].sort().join();
-    const b = [...p.medidas].sort().join();
-    return a === b;
+    // Mismas medidas en cualquier orden, sin crear listas: cada medida sale las mismas veces en los dos
+    for (const x of v.medidas) {
+      let enV = 0;
+      let enP = 0;
+      for (const y of v.medidas) if (y === x) enV++;
+      for (const y of p.medidas) if (y === x) enP++;
+      if (enV !== enP) return false;
+    }
+    return true;
   }
 
   function fallo(texto, pos, numero = null) {
@@ -1163,25 +1169,24 @@ export function iniciar(ctx) {
 
   // ─── VR ────────────────────────────────────────────────────────────────
   function actualizarVR(dt) {
-    const real = performance.now() / 1000;
-    manos.forEach((m, i) => {
+    for (let i = 0; i < manos.length; i++) {
+      const m = manos[i];
       chorros[i].visible = false;
       if (!m.mano.activa) {
         if (m.objeto) soltar(m, i);
-        return;
+        continue;
       }
       m.mano.grip.localToWorld(m.punto.set(0, -0.02, -0.04));
       m.mano.grip.getWorldQuaternion(m.quat);
-      m.posiciones[m.idx].copy(m.punto);
-      m.tiempos[m.idx] = real;
-      m.idx = (m.idx + 1) % HISTORIAL;
-      velocidadMano(m, 0.06);
+      // Velocidad del guante en los últimos 60 ms (para empujar el vaso y para agitar): la mide la
+      // shell en tiempo real, así que no le afecta la micro-pausa
+      m.mano.velocidadReciente(0.06, m.vel);
       if (m.mano.gatilloPulsado && !m.objeto && estado === 'juego') coger(m, i);
       if (m.objeto && !m.mano.gatillo) soltar(m, i);
-      if (!m.objeto) return;
+      if (!m.objeto) continue;
       if (m.tipo === 'botella') sujetarBotella(m, i, dt);
       else if (m.tipo === 'vaso') sujetarVaso(m, i, dt);
-    });
+    }
   }
 
   // Coge lo que haya más cerca del guante: una botella, el vaso o un hielo del cubo
@@ -1352,22 +1357,6 @@ export function iniciar(ctx) {
     if (cocteleraEstado === 'vaso' && !v.agitado && v.agitar > 0) devolverCoctelera();
   }
 
-  // Velocidad del guante en los últimos ~segundos (para empujar el vaso y para agitarlo)
-  function velocidadMano(m, ventana) {
-    const n = HISTORIAL;
-    const actual = (m.idx - 1 + n) % n;
-    let j = actual;
-    for (let i = 1; i < n; i++) {
-      const k = (actual - i + n) % n;
-      if (m.tiempos[k] < 0) break;
-      j = k;
-      if (m.tiempos[actual] - m.tiempos[k] >= ventana) break;
-    }
-    const dtv = m.tiempos[actual] - m.tiempos[j];
-    if (dtv > 0) m.vel.subVectors(m.posiciones[actual], m.posiciones[j]).divideScalar(dtv);
-    else m.vel.set(0, 0, 0);
-  }
-
   // Las botellas que se han soltado vuelven a su sitio del raíl
   function moverBotellas(dt) {
     for (const b of botellas) {
@@ -1404,13 +1393,14 @@ export function iniciar(ctx) {
     }
     nuevoVaso();
     ctx.sonido('campana');
+    ctx.partida.empezar();
   }
 
   function terminar() {
     estado = 'fin';
     reloj = 6;
     cerrarAccion();
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js): puntos del turno
+    ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js): puntos del turno, una sola vez
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);

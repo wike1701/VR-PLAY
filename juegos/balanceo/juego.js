@@ -308,6 +308,8 @@ export function iniciar(ctx) {
     raiz.add(sombra);
     return { grupo, tubo: tuboM, retroceso: 0, boca: new THREE.Vector3(), grados };
   });
+  // Con ratón solo disparan los de delante (la escoba solo se inclina a los lados)
+  const canonesDelante = canones.filter((c) => Math.abs(c.grados) < 50);
   for (const c of canones) {
     c.grupo.updateMatrixWorld(true);
     c.tubo.localToWorld(c.boca.set(0, 0, 0.42));
@@ -479,14 +481,18 @@ export function iniciar(ctx) {
 
   // ─── La mano ───────────────────────────────────────────────────────────
   function elegirMano() {
-    const activas = ctx.manos.filter((m) => m.activa);
     // En la cuenta atrás, el gatillo de una mano pasa la escoba a esa mano
-    if (estado === 'intro') for (const m of activas) if (m.gatilloPulsado) manoPalo = m;
-    if (!manoPalo || !manoPalo.activa) manoPalo = activas.find((m) => m.lado === 'right') || activas[0] || null;
+    if (estado === 'intro') for (const m of ctx.manos) if (m.activa && m.gatilloPulsado) manoPalo = m;
+    if (!manoPalo || !manoPalo.activa) {
+      manoPalo = null;
+      for (const m of ctx.manos) if (m.activa && (!manoPalo || m.lado === 'right')) manoPalo = m;
+    }
   }
 
   // Lleva la base (la punta del mango) a donde está la mano en este fotograma
-  function moverBase(dt) {
+  // dtReal: la mano es del jugador, así que se mide con el tiempo real (no le afecta la micro-pausa)
+  function moverBase(dtReal) {
+    const dt = dtReal;
     baseAnterior.copy(base);
     if (ctx.enVR()) {
       elegirMano();
@@ -504,7 +510,7 @@ export function iniciar(ctx) {
       guanteRaton.visible = true;
       guanteRaton.position.set(base.x, base.y - 0.03, base.z);
     }
-    baseVel.subVectors(base, baseAnterior).divideScalar(Math.max(dt, 1e-3));
+    baseVel.subVectors(base, baseAnterior).divideScalar(Math.max(dtReal, 1e-3));
   }
 
   // ─── Física de la escoba ───────────────────────────────────────────────
@@ -587,9 +593,10 @@ export function iniciar(ctx) {
 
   // ─── Cubos ─────────────────────────────────────────────────────────────
   function disparar() {
-    const cubo = cubos.find((c) => c.estado === 'libre');
+    let cubo = null;
+    for (const c of cubos) if (!cubo && c.estado === 'libre') cubo = c;
     if (!cubo) return;
-    const elegibles = ctx.enVR() ? canones : canones.filter((c) => Math.abs(c.grados) < 50);
+    const elegibles = ctx.enVR() ? canones : canonesDelante;
     const canon = elegibles[Math.floor(Math.random() * elegibles.length)];
     const d = dificultad();
     // Apunta a un punto de la escoba (o cerca: algunos pasan de largo solos)
@@ -733,6 +740,7 @@ export function iniciar(ctx) {
     // Un empujoncito para que no empiece perfectamente quieta
     puntaVel.set(azar(-0.12, 0.12), 0, ctx.enVR() ? azar(-0.08, 0.08) : 0);
     ctx.sonido('silbato');
+    ctx.partida.empezar();
   }
 
   function caer() {
@@ -743,7 +751,7 @@ export function iniciar(ctx) {
     if (caidaBaseVel.lengthSq() > 9) caidaBaseVel.setLength(3);
     ctx.sonido('fallo');
     if (manoPalo && ctx.enVR()) ctx.vibrar(manoPalo, 1, 220);
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -757,12 +765,12 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     reloj -= dt;
     ctx.camara.getWorldPosition(cabeza);
 
-    if (estado !== 'cae' && estado !== 'fin') moverBase(dt);
+    if (estado !== 'cae' && estado !== 'fin') moverBase(dtReal);
     else if (!ctx.enVR()) guanteRaton.visible = true;
 
     if (estado === 'intro') {
@@ -771,7 +779,9 @@ export function iniciar(ctx) {
       puntaVel.set(0, 0, 0);
       if (reloj <= 0) empezar();
     } else if (estado === 'jugando') {
-      simularEscoba(dt);
+      // La escoba va unida a la mano del jugador: se simula con el tiempo real para que la micro-pausa
+      // de un acierto no la frene mientras la mano sigue moviéndose (le daría un tirón)
+      simularEscoba(dtReal);
       tiempoJugado += dt;
       const nivelAntes = nivel();
       const premioAntes = Math.floor(enEquilibrio / PREMIO_SEGUNDOS);

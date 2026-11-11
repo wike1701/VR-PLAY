@@ -262,14 +262,13 @@ export function iniciar(ctx) {
   raiz.add(mira);
   const planoPista = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-  // Manos (VR)
-  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
-  geoMano.scale(1, 0.6, 1.3);
-  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const manos = ctx.manos.map((mano) => {
-    ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
-    return { mano, historial: [], apretonAntes: false };
+  // Manos (VR): se cierran al coger la bola
+  const manos = ctx.manos.map((mano, i) => {
+    const dibujo = ctx.crearMano(i === 0 ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0x4a3a8a });
+    ctx.adjuntarAMano(mano, dibujo.objeto);
+    return { mano, dibujo, cierre: 0, apretonAntes: false };
   });
+  const velLanzar = new THREE.Vector3();
   let manoConBola = null;
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -375,7 +374,8 @@ export function iniciar(ctx) {
     }
   }
 
-  let clavePantalla = '';
+  let clavePantalla = -1;
+  const ESTADOS_PANTALLA = ['intro', 'listo', 'rodando', 'recuento', 'fin'];
   function actualizarAnimaciones(dt) {
     const animando = !!anim.tipo;
     if (anim.tipo) {
@@ -383,7 +383,10 @@ export function iniciar(ctx) {
       if (anim.t >= anim.duracion) anim.tipo = null;
     }
     // Repintar (y subir la textura) solo si algo ha cambiado o hay animación
-    const clave = `${estado}|${marco}|${bolos.map((b) => (b.enPie && !b.caido && !b.fuera ? 1 : 0)).join('')}`;
+    // Clave sin crear nada: estado, marco y un bit por bolo en pie
+    let enPieBits = 0;
+    for (let i = 0; i < bolos.length; i++) if (bolos[i].enPie && !bolos[i].caido && !bolos[i].fuera) enPieBits |= 1 << i;
+    const clave = (ESTADOS_PANTALLA.indexOf(estado) * 16 + marco) * 2048 + enPieBits;
     if (animando || clave !== clavePantalla) {
       clavePantalla = clave;
       pintarPantalla();
@@ -393,7 +396,7 @@ export function iniciar(ctx) {
       for (let i = 0; i < N_CONFETI; i++) {
         const c = trozos[i];
         c.vel.y = Math.max(-0.9, c.vel.y - 3 * dt); // cae despacio, como papel
-        c.vel.x *= 0.99;
+        c.vel.x *= Math.pow(0.99, dt * 60);
         c.pos.addScaledVector(c.vel, dt);
         c.giro.x += c.velGiro.x * dt;
         c.giro.y += c.velGiro.y * dt;
@@ -470,7 +473,15 @@ export function iniciar(ctx) {
     }).join(' ');
   }
 
+  // El marcador solo se reescribe cuando cambia algo (sin crear textos en cada fotograma)
+  let marcadorAntes = null;
   function actualizarMarcador() {
+    let tiradas = 0;
+    for (const m of marcos) tiradas += m.length;
+    const vr = ctx.enVR();
+    if (marcadorAntes && marcadorAntes.estado === estado && marcadorAntes.marco === marco && marcadorAntes.tiradas === tiradas &&
+        marcadorAntes.mensaje === mensaje && marcadorAntes.record === record && marcadorAntes.vr === vr) return;
+    marcadorAntes = { estado, marco, tiradas, mensaje, record, vr };
     const lineas = [];
     if (estado === 'intro') {
       lineas.push({ texto: ctx.t('titulo'), tam: 1.3, color: '#b39dff' });
@@ -494,7 +505,7 @@ export function iniciar(ctx) {
     vel.set(0, 0, 0);
     bola.position.copy(SOPORTE);
     bola.visible = true;
-    enPieAntes = bolos.filter((b) => b.enPie).length;
+    enPieAntes = contarEnPie();
   }
 
   function lanzar(velocidad) {
@@ -510,7 +521,7 @@ export function iniciar(ctx) {
   // Al terminar la tirada: contar, anotar y decidir qué pasa con los bolos
   function recontar() {
     for (const b of bolos) if (b.caido || b.fuera) b.enPie = false;
-    const enPie = bolos.filter((b) => b.enPie).length;
+    const enPie = contarEnPie();
     const derribados = enPieAntes - enPie;
     if (!marcos[marco]) marcos[marco] = [];
     const m = marcos[marco];
@@ -686,28 +697,22 @@ export function iniciar(ctx) {
     }
   }
 
+  function contarEnPie() {
+    let n = 0;
+    for (const b of bolos) if (b.enPie) n++;
+    return n;
+  }
+
   function todoQuieto() {
-    return bolos.every((b) => !b.enPie || b.vel.lengthSq() < 1e-4);
+    for (const b of bolos) if (b.enPie && b.vel.lengthSq() >= 1e-4) return false;
+    return true;
   }
 
   // ─── VR ────────────────────────────────────────────────────────────────
-  function velocidadMano(m) {
-    const h = m.historial;
-    let tiempo = 0;
-    let i = h.length - 1;
-    while (i > 0 && tiempo < 0.08) {
-      tiempo += h[i].dt;
-      i--;
-    }
-    if (tiempo <= 0) return new THREE.Vector3();
-    return h[h.length - 1].pos.clone().sub(h[i].pos).divideScalar(tiempo);
-  }
-
   function manosVR(dt) {
     for (const m of manos) {
       const mano = m.mano;
       if (!mano.activa) {
-        m.historial.length = 0;
         if (manoConBola === m) {
           manoConBola = null;
           estadoBola = 'soporte';
@@ -715,8 +720,10 @@ export function iniciar(ctx) {
         }
         continue;
       }
-      m.historial.push({ pos: mano.posicion.clone(), dt });
-      if (m.historial.length > 12) m.historial.shift();
+      // La mano se cierra al coger la bola (con curva, sin saltos)
+      const cierre = manoConBola === m ? 1 : mano.gatillo || mano.apreton ? 0.45 : 0;
+      m.cierre += (cierre - m.cierre) * Math.min(1, dt * 18);
+      m.dibujo.cerrar(m.cierre);
       const apretonPulsado = mano.apreton && !m.apretonAntes;
       m.apretonAntes = mano.apreton;
 
@@ -730,7 +737,8 @@ export function iniciar(ctx) {
         mano.grip.localToWorld(bola.position.set(0, -0.05, -0.06));
         if (!mano.gatillo && !mano.apreton) {
           manoConBola = null;
-          const v = velocidadMano(m).multiplyScalar(FUERZA_VR);
+          // Media de los últimos 80 ms en tiempo real (la shell la mide; no le afecta la micro-pausa)
+          const v = mano.velocidadReciente(0.08, velLanzar).multiplyScalar(FUERZA_VR);
           // Un poco de ayuda: la dirección no se abre más de 10° respecto a la pista
           const angulo = THREE.MathUtils.clamp(Math.atan2(v.x, -v.z), -0.17, 0.17);
           const horizontal = THREE.MathUtils.clamp(Math.hypot(v.x, v.z), V_MIN_VR, V_MAX_VR);
@@ -771,6 +779,7 @@ export function iniciar(ctx) {
     mensaje = '';
     colocarBolos(true);
     prepararTirada();
+    ctx.partida.empezar();
   }
 
   function actualizar(dt) {
@@ -797,7 +806,7 @@ export function iniciar(ctx) {
             estado = 'fin';
             reloj = 8;
             const total = puntuacion();
-            ctx.puntuacion(total); // a la clasificación (juegos/marcadores.js)
+            ctx.partida.terminar(total); // a la clasificación (juegos/marcadores.js), una sola vez
             if (total > record) {
               record = total;
               ctx.guardar('record', record);

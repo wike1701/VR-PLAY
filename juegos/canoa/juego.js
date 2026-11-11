@@ -495,7 +495,8 @@ export function iniciar(ctx) {
     casco100 += (16 + v * 6) * fuerza;
     ultimoGolpe = tiempo;
     const grave = fuerza >= 1 && v > 6.6;
-    const mano = remosVR.find((r) => r.mano.activa)?.mano || null;
+    let mano = null;
+    for (const r of remosVR) if (!mano && r.mano.activa) mano = r.mano;
     tmp.set(0, AGUA_Y + 0.3, -PROA);
     ctx.efectos.impacto(grave || casco100 >= 100 ? 'grande' : 'medio', { pos: tmp, color: 0xd7ccc8, sonido: 'impacto' });
     for (const r of remosVR) ctx.vibrar(r.mano, 0.9, 200);
@@ -617,7 +618,8 @@ export function iniciar(ctx) {
   }
 
   // VR: cuenta la pala dentro del agua yendo hacia atrás (cuanto más rápido, más fuerza)
-  function remarVR(dt) {
+  // dtReal: la pala la mueve el jugador; lo rápido que tira se mide en tiempo real (sin micro-pausa)
+  function remarVR(dt, dtReal) {
     let izq = 0;
     let der = 0;
     for (const r of remosVR) {
@@ -631,7 +633,7 @@ export function iniciar(ctx) {
         r.antes.copy(r.pos);
         r.listo = true;
       }
-      const atras = (r.pos.z - r.antes.z) / Math.max(dt, 1e-3);
+      const atras = (r.pos.z - r.antes.z) / Math.max(dtReal, 1e-3);
       const dentro = r.pos.y < AGUA_Y + 0.2;
       const entra = dentro && !r.dentro && chapoteo <= 0;
       if (entra) chapoteo = 0.12;
@@ -645,7 +647,9 @@ export function iniciar(ctx) {
       r.antes.copy(r.pos);
     }
     palada.ajustar(Math.max(izq, der), Math.max(izq, der) * 0.22);
-    return [izq, der];
+    fuerzas[0] = izq;
+    fuerzas[1] = der;
+    return fuerzas;
   }
 
   // Ratón y móvil: pulsado a un lado, en el otro o en el centro, los remos reman solos a ritmo
@@ -676,7 +680,9 @@ export function iniciar(ctx) {
       if (entra) chapoteo = 0.1;
     }
     palada.ajustar(Math.max(izq, der), Math.max(izq, der) * 0.22);
-    return [izq, der];
+    fuerzas[0] = izq;
+    fuerzas[1] = der;
+    return fuerzas;
   }
 
   function moverCanoa(dt, izq, der) {
@@ -852,7 +858,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 6;
     const metros = distancia();
-    ctx.puntuacion(metros); // a la clasificación (juegos/marcadores.js): metros recorridos
+    ctx.partida.terminar(metros); // a la clasificación (juegos/marcadores.js): metros recorridos, una sola vez
     if (metros > record) {
       record = metros;
       ctx.guardar('record', record);
@@ -874,10 +880,12 @@ export function iniciar(ctx) {
     siguienteHito = 100;
     aviso = null;
     reiniciarRio();
+    ctx.partida.empezar();
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  const fuerzas = [0, 0]; // [izquierda, derecha] de remarVR/remarRaton (reutilizada: nada se crea al jugar)
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     reloj -= dt;
     chapoteo -= dt;
@@ -886,7 +894,9 @@ export function iniciar(ctx) {
     if (estado === 'intro' && reloj <= 0) empezar();
     else if (estado === 'fin' && reloj <= 0) empezar();
 
-    const [izq, der] = ctx.enVR() ? remarVR(dt) : remarRaton(dt);
+    const remada = ctx.enVR() ? remarVR(dt, dtReal) : remarRaton(dt);
+    const izq = remada[0];
+    const der = remada[1];
     for (const r of remosRaton) r.grupo.visible = !ctx.enVR();
 
     let v = 0;

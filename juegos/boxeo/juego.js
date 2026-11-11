@@ -489,14 +489,17 @@ export function iniciar(ctx) {
   }
 
   function encenderDiana(progreso) {
-    const libre = dianas.find((d) => !d.activa);
+    let libre = null;
+    for (const d of dianas) if (!libre && !d.activa) libre = d;
     if (!libre) return;
     // Un sitio de la cara delantera que no pise a otra diana encendida
     for (let intento = 0; intento < 8; intento++) {
       libre.angulo = THREE.MathUtils.degToRad(-50 + Math.random() * 100);
       libre.altura = -0.3 + Math.random() * 0.62;
       libre.pos.set(Math.sin(libre.angulo) * R_SACO, libre.altura, Math.cos(libre.angulo) * R_SACO);
-      if (dianas.every((d) => d === libre || !d.activa || d.pos.distanceTo(libre.pos) > 0.2)) break;
+      let separada = true;
+      for (const d of dianas) if (d !== libre && d.activa && d.pos.distanceTo(libre.pos) <= 0.2) separada = false;
+      if (separada) break;
     }
     libre.activa = true;
     libre.vida = 0;
@@ -574,7 +577,9 @@ export function iniciar(ctx) {
   }
 
   // ─── Puñetazos con los mandos VR ───────────────────────────────────────
-  function golpesVR(dt) {
+  // dtReal: el puño lo mueve el jugador; su velocidad se mide en tiempo real (la micro-pausa de un
+  // acierto no debe hacer que el siguiente puñetazo parezca «potente» sin serlo)
+  function golpesVR(dtReal) {
     saco.updateMatrixWorld();
     for (const g of guantes) {
       if (!g.mano.activa) {
@@ -587,7 +592,7 @@ export function iniciar(ctx) {
         g.listo = true;
         continue;
       }
-      g.vel.subVectors(g.centro, g.anterior).divideScalar(Math.max(dt, 1e-3));
+      g.vel.subVectors(g.centro, g.anterior).divideScalar(Math.max(dtReal, 1e-3));
       g.anterior.copy(g.centro);
       saco.worldToLocal(tmp.copy(g.centro));
       const d = Math.hypot(tmp.x, tmp.z);
@@ -678,7 +683,7 @@ export function iniciar(ctx) {
     matSaco.depthWrite = opacidadSaco > 0.95; // semitransparente, que deje ver lo de detrás
   }
 
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     colocarMarcador();
     transparentarSaco(dt);
     reloj -= dt;
@@ -693,7 +698,8 @@ export function iniciar(ctx) {
       const progreso = 1 - tiempoRestante / DURACION;
       proxima -= dt;
       const maxActivas = 1 + Math.floor(progreso * MAX_DIANAS * 0.99);
-      const activas = dianas.filter((d) => d.activa).length;
+      let activas = 0;
+      for (const d of dianas) if (d.activa) activas++;
       if (proxima <= 0 && activas < maxActivas) {
         encenderDiana(progreso);
         proxima = THREE.MathUtils.lerp(CADENCIA_INICIO, CADENCIA_FINAL, progreso) * (0.8 + Math.random() * 0.4);
@@ -701,7 +707,7 @@ export function iniciar(ctx) {
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 5;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);
@@ -718,6 +724,7 @@ export function iniciar(ctx) {
       racha = 0;
       tiempoRestante = DURACION;
       proxima = 0.6;
+      ctx.partida.empezar();
       ctx.sonido('campana');
     }
 
@@ -735,7 +742,7 @@ export function iniciar(ctx) {
 
     if (ctx.enVR()) {
       for (const g of guantesRaton) g.objeto.visible = false;
-      golpesVR(dt);
+      golpesVR(dtReal);
     } else {
       for (const g of guantesRaton) g.objeto.visible = true;
       golpesRaton(dt);

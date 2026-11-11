@@ -281,14 +281,39 @@ export function iniciar(ctx) {
   }, { tam: 512, semilla: 11 }));
   const matBalon = R(new THREE.MeshStandardMaterial({ map: texBalon, roughness: 0.72, metalness: 0 }));
 
+  // Bolsa de balones (nada se crea al jugar): cada uno lleva su estado de vuelo preparado
+  const N_BALONES = 14;
+  const bolsaBalones = Array.from({ length: N_BALONES }, () => {
+    const malla = new THREE.Mesh(geoBalon, matBalon);
+    malla.visible = false;
+    raiz.add(malla);
+    malla.userData.vuelo = { malla, vel: new THREE.Vector3(), vida: 0, toco: false, anotado: false, fallado: false };
+    malla.userData.libre = true;
+    return malla;
+  });
   function crearBalon() {
-    return new THREE.Mesh(geoBalon, matBalon);
+    let balon = bolsaBalones.find(libre);
+    // Si están todos en uso, se recicla el que más tiempo lleva en el aire
+    if (!balon && enVuelo.length) {
+      balon = enVuelo[0].malla;
+      enVuelo.splice(0, 1);
+    }
+    balon.userData.libre = false;
+    balon.visible = true;
+    balon.rotation.set(0, 0, 0);
+    return balon;
+  }
+  function libre(b) { return b.userData.libre; }
+  function guardarBalon(balon) {
+    balon.visible = false;
+    balon.userData.libre = true;
   }
 
   const puestos = [
     ...PUESTOS_VR.map((pos) => ({ pos, vr: true })),
     { pos: PUESTO_RATON, vr: false },
   ].map((p) => ({ ...p, balon: null, recarga: 0 }));
+  const puestoRaton = puestos.find((p) => !p.vr);
 
   // Poste, brazo, base y los soportes de balones VR: una sola malla gris
   const piezasGris = [
@@ -318,14 +343,13 @@ export function iniciar(ctx) {
     return s;
   });
 
-  // Manos visibles en VR
-  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
-  geoMano.scale(1, 0.6, 1.3);
-  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const manos = ctx.manos.map((mano) => {
-    ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
-    return { mano, balon: null, historial: [], apretonAntes: false };
+  // Manos visibles en VR: se cierran al coger el balón (y un poco con el gatillo)
+  const manos = ctx.manos.map((mano, i) => {
+    const dibujo = ctx.crearMano(i === 0 ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0x8a2b1c });
+    ctx.adjuntarAMano(mano, dibujo.objeto);
+    return { mano, dibujo, cierre: 0, balon: null, apretonAntes: false };
   });
+  const velLanzar = new THREE.Vector3();
 
   // ─── Barra de fuerza (ratón) ───────────────────────────────────────────
   const barra = new THREE.Group();
@@ -396,7 +420,11 @@ export function iniciar(ctx) {
   // ─── Lanzar ────────────────────────────────────────────────────────────
   function lanzar(balon, velocidad) {
     lanzamientos += 1;
-    enVuelo.push({ malla: balon, vel: velocidad.clone(), vida: 6, toco: false, anotado: false });
+    const b = balon.userData.vuelo;
+    b.vel.copy(velocidad);
+    b.vida = 6;
+    b.toco = b.anotado = b.fallado = false;
+    enVuelo.push(b);
   }
 
   // Corrige un poco un buen lanzamiento VR para que entre (lanzar en VR sin peso es difícil)
@@ -431,7 +459,7 @@ export function iniciar(ctx) {
         pos.z = TABLERO_Z + RADIO_BALON;
         b.vel.z *= -0.6;
         b.toco = true;
-        ctx.sonido('bote');
+        ctx.sonido('bote', { pos });
       }
 
       // Aro: punto más cercano de la circunferencia del aro
@@ -447,7 +475,7 @@ export function iniciar(ctx) {
         const vn = b.vel.dot(normal);
         if (vn < 0) {
           b.vel.addScaledVector(normal, -1.55 * vn).multiplyScalar(0.9);
-          if (!b.toco || vn < -1) ctx.sonido('golpe');
+          if (!b.toco || vn < -1) ctx.sonido('golpe', { pos });
           b.toco = true;
         }
       }
@@ -465,7 +493,7 @@ export function iniciar(ctx) {
       if (pos.y < RADIO_BALON) {
         pos.y = RADIO_BALON;
         if (b.vel.y < 0) {
-          if (b.vel.y < -1.2) ctx.sonido('bote');
+          if (b.vel.y < -1.2) ctx.sonido('bote', { pos, volumen: Math.min(1, -b.vel.y / 5) });
           b.vel.y *= -0.62;
           b.vel.x *= 0.85;
           b.vel.z *= 0.85;
@@ -479,8 +507,8 @@ export function iniciar(ctx) {
   const puntoTexto = new THREE.Vector3();
   function canasta(b) {
     meneoRed = 1;
-    ctx.sonido('red');
-    if (estado !== 'jugando') return;
+    ctx.sonido('red', { pos: ARO });
+    if (estado !== 'jugando' || !ctx.partida.activa) return;
     canastas += 1;
     racha += 1;
     let valor = b.toco ? 2 : 3;
@@ -488,8 +516,8 @@ export function iniciar(ctx) {
     puntos += valor;
     ctx.sonido('punto');
     for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
-    // Confeti en el aro y el valor saltando: más grande cuanto mejor la canasta
-    ctx.efectos.impacto(racha >= 3 || !b.toco ? 'grande' : 'medio', { pos: ARO, color: racha >= 3 ? 0xffd54f : 0xff8a3d });
+    // Confeti en el aro y el valor saltando. Lo normal es medio; grande solo cada 5 seguidas (racha larga)
+    ctx.efectos.impacto(racha >= 5 && racha % 5 === 0 ? 'grande' : 'medio', { pos: ARO, color: racha >= 3 ? 0xffd54f : 0xff8a3d });
     puntoTexto.copy(ARO).y += 0.35;
     ctx.efectos.texto(puntoTexto, `+${valor}`, { color: racha >= 3 ? '#ffd54f' : '#ffffff', tam: 1 + valor * 0.1 });
     if (racha >= 3) avisar(ctx.t('racha', { n: racha, valor }));
@@ -503,7 +531,7 @@ export function iniciar(ctx) {
     for (const p of puestos) {
       if (p.vr !== vr) {
         if (p.balon) {
-          raiz.remove(p.balon);
+          guardarBalon(p.balon);
           p.balon = null;
         }
         continue;
@@ -527,32 +555,20 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  function velocidadMano(m) {
-    // Media de los últimos ~80 ms para que el lanzamiento no dependa de un solo fotograma
-    const h = m.historial;
-    let tiempo = 0;
-    let i = h.length - 1;
-    while (i > 0 && tiempo < 0.08) {
-      tiempo += h[i].dt;
-      i--;
-    }
-    if (tiempo <= 0) return new THREE.Vector3();
-    return h[h.length - 1].pos.clone().sub(h[i].pos).divideScalar(tiempo);
-  }
-
   function manosVR(dt) {
     for (const m of manos) {
       const mano = m.mano;
       if (!mano.activa) {
         if (m.balon) {
-          raiz.remove(m.balon);
+          guardarBalon(m.balon);
           m.balon = null;
         }
-        m.historial.length = 0;
         continue;
       }
-      m.historial.push({ pos: mano.posicion.clone(), dt });
-      if (m.historial.length > 12) m.historial.shift();
+      // La mano se cierra al coger el balón (con curva, sin saltos)
+      const cierre = m.balon ? 1 : mano.gatillo || mano.apreton ? 0.45 : 0;
+      m.cierre += (cierre - m.cierre) * Math.min(1, dt * 18);
+      m.dibujo.cerrar(m.cierre);
 
       const apretonPulsado = mano.apreton && !m.apretonAntes;
       m.apretonAntes = mano.apreton;
@@ -577,7 +593,8 @@ export function iniciar(ctx) {
       if (m.balon) {
         mano.grip.localToWorld(m.balon.position.set(0, -0.02, -0.07));
         if (!mano.gatillo && !mano.apreton) {
-          const vel = velocidadMano(m).multiplyScalar(FUERZA_VR);
+          // Media de los últimos 80 ms en tiempo real (la shell la mide; no le afecta la micro-pausa)
+          const vel = mano.velocidadReciente(0.08, velLanzar).multiplyScalar(FUERZA_VR);
           lanzar(m.balon, ayudar(m.balon.position, vel));
           m.balon = null;
         }
@@ -595,7 +612,7 @@ export function iniciar(ctx) {
   }
 
   function raton(dt) {
-    const puesto = puestos.find((p) => !p.vr);
+    const puesto = puestoRaton;
     const r = ctx.raton;
     barra.visible = true;
     const ideal = (velocidadIdeal(PUESTO_RATON) - V_MIN) / (V_MAX - V_MIN);
@@ -634,6 +651,7 @@ export function iniciar(ctx) {
     lanzamientos = 0;
     racha = 0;
     tiempoRestante = DURACION;
+    ctx.partida.empezar();
   }
 
   function actualizar(dt, t) {
@@ -647,7 +665,7 @@ export function iniciar(ctx) {
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 6;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);
@@ -674,7 +692,7 @@ export function iniciar(ctx) {
       if (b.vida <= 0) {
         // Si no entró, se rompe la racha
         if (!b.anotado && estado === 'jugando') racha = 0;
-        raiz.remove(b.malla);
+        guardarBalon(b.malla);
         enVuelo.splice(i, 1);
       } else if (!b.anotado && b.malla.position.y < 1 && b.vel.y < 0 && b.malla.position.z < -1) {
         // Ya ha caído sin entrar: fallo (la racha se pierde una sola vez)

@@ -485,6 +485,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     nivel = 1;
     puntos = 0;
     vidas = VIDAS;
@@ -648,7 +649,7 @@ export function iniciar(ctx) {
     if (vidas <= 0) {
       estado = 'fin';
       reloj = 7;
-      ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+      ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
       if (puntos > record) {
         record = puntos;
         nuevoRecord = puntos > 0;
@@ -666,8 +667,11 @@ export function iniciar(ctx) {
   }
 
   // ─── VR: el taco con las dos manos ─────────────────────────────────────
-  function tacoVR(dt) {
-    const activas = ctx.manos.filter((m) => m.activa);
+  // dtReal: el taco lo mueven las manos, así que su rapidez se mide en tiempo real (sin micro-pausa)
+  const activas = [];
+  function tacoVR(dtReal) {
+    activas.length = 0;
+    for (const m of ctx.manos) if (m.activa) activas.push(m);
     taco.visible = activas.length > 0;
     if (!activas.length) return;
     const blanca = actual.bolas[0];
@@ -694,7 +698,7 @@ export function iniciar(ctx) {
     // Golpe: la punta pasa por la bola yendo hacia delante con algo de rapidez
     if (puntaLista && estado === 'apuntando') {
       const v = tmp2.subVectors(punta, puntaAntes);
-      const avance = v.dot(dirTaco) / Math.max(dt, 1e-3);
+      const avance = v.dot(dirTaco) / Math.max(dtReal, 1e-3);
       const l2 = v.lengthSq();
       let u = l2 > 1e-10 ? tmp.subVectors(bolaPos, puntaAntes).dot(v) / l2 : 0;
       u = Math.max(0, Math.min(1, u));
@@ -805,6 +809,8 @@ export function iniciar(ctx) {
     if (r.tronera >= 0) return ctx.t('retos.meterTronera', { color: color(r.bola) });
     return ctx.t('retos.meter', { color: color(r.bola) });
   }
+  let claveRetos = -2;
+  let mesaRetos = null;
   function actualizarPaneles() {
     const corazones = '♥'.repeat(Math.max(0, vidas)) + '♡'.repeat(VIDAS - Math.max(0, vidas));
     if (estado === 'fin') {
@@ -829,9 +835,17 @@ export function iniciar(ctx) {
       ]);
     }
     if (estado === 'preparando') {
-      panelRetos.escribir([{ texto: ctx.t('preparando'), tam: 0.8, color: '#cfd8dc' }]);
+      if (claveRetos !== -1) panelRetos.escribir([{ texto: ctx.t('preparando'), tam: 0.8, color: '#cfd8dc' }]);
+      claveRetos = -1;
       return;
     }
+    // Los retos solo se reescriben si cambian (nivel, tiros o retos hechos): nada se crea en cada fotograma
+    let hechosN = 0;
+    for (let k = 0; k < hechos.length; k++) if (hechos[k]) hechosN += 1 << k;
+    const clave = (nivel * 64 + tiros) * 4096 + hechosN;
+    if (clave === claveRetos && mesaRetos === actual) return;
+    claveRetos = clave;
+    mesaRetos = actual;
     const lineas = [{ texto: ctx.t('mesa', { n: nivel }) + '   ' + '●'.repeat(Math.max(0, tiros)) + '○'.repeat(Math.max(0, actual.tiros - tiros)), tam: 0.95, color: '#ffd23f' }];
     actual.retos.forEach((r, k) => lineas.push({ texto: (hechos[k] ? '✓  ' : '○  ') + textoReto(r), tam: 0.6, color: hechos[k] ? '#b9f6ca' : '#ffffff' }));
     if (actual.bolas.some((b) => b.tipo === 'negra')) lineas.push({ texto: ctx.t('retos.negras'), tam: 0.56, color: '#ff8a80' });
@@ -839,7 +853,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     tiempoMensaje -= dt;
     reloj -= dt;
@@ -882,7 +896,7 @@ export function iniciar(ctx) {
     } else {
       tiempoFisica += dt; // las barreras móviles siguen moviéndose
     }
-    if (ctx.enVR()) tacoVR(dt);
+    if (ctx.enVR()) tacoVR(dtReal);
     else tacoRaton();
     animar(dt);
     actualizarPaneles();

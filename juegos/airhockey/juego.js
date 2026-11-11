@@ -325,10 +325,7 @@ export function iniciar(ctx) {
   const maquina = crearMaza(0x2979ff);
   const MAZAS = [jugador, maquina];
 
-  // En VR: una bolita de luz en cada mano y una línea de la mano a la maza
-  const matManos = R(new THREE.MeshBasicMaterial({ color: 0xffb199 }));
-  const geoBolita = R(new THREE.SphereGeometry(0.014, 10, 8));
-  for (const mano of ctx.manos) ctx.adjuntarAMano(mano, new THREE.Mesh(geoBolita, matManos));
+  // En VR: las manos las pone la shell (se cierran con el gatillo) y una línea une la mano con la maza
   const posLinea = new Float32Array(6);
   const geoLinea = R(new THREE.BufferGeometry());
   geoLinea.setAttribute('position', new THREE.BufferAttribute(posLinea, 3).setUsage(THREE.DynamicDrawUsage));
@@ -420,6 +417,7 @@ export function iniciar(ctx) {
     aviso = null;
     sacar(true);
     avisar(ctx.t('tuSaque'), '#b3e5fc', 2);
+    ctx.partida.empezar();
   }
 
   function gol(paraJugador) {
@@ -431,7 +429,8 @@ export function iniciar(ctx) {
     if (paraJugador) {
       tanteo.jugador++;
       tmp.set(0, MESA_Y + 0.12, Z_LEJOS + 0.05);
-      ctx.efectos.impacto('grande', { pos: tmp, mano: manoJugador, color: 0xffe14d, sonido: 'gol' });
+      // Un gol es un buen acierto (medio); grande queda para ganar el partido
+      ctx.efectos.impacto('medio', { pos: tmp, mano: manoJugador, color: 0xffe14d, sonido: 'gol' });
       ctx.efectos.texto(tmp.set(0, MESA_Y + 0.3, Z_LEJOS + 0.1), ctx.t('gol'), { color: '#ffe14d', tam: 2.4, vida: 1.3 });
       ctx.destello(0xffe14d, 0.18);
       fiesta = 1.8;
@@ -448,13 +447,16 @@ export function iniciar(ctx) {
       estado = 'fin';
       reloj = 7;
       if (tanteo.jugador > tanteo.maquina) {
-        ctx.puntuacion(tanteo.jugador - tanteo.maquina); // diferencia al ganar (juegos/marcadores.js)
+        ctx.partida.terminar(tanteo.jugador - tanteo.maquina); // diferencia al ganar (juegos/marcadores.js)
+        ctx.efectos.impacto('grande', { pos: tmp.set(0, MESA_Y + 0.3, Z_CENTRO), mano: manoJugador, color: 0xb9f6ca });
         ganadas++;
         ctx.guardar('ganadas', ganadas);
         avisar(ctx.t('partida.hasGanado'), '#b9f6ca', 4);
         ctx.sonido('ovacion');
         fiesta = 4;
       } else {
+        // Perdido: la clasificación solo guarda la diferencia al ganar (juegos/marcadores.js)
+        ctx.partida.terminar();
         avisar(ctx.t('partida.ganaMaquina'), '#ff8a80', 4);
       }
       ctx.sonido('fin');
@@ -471,20 +473,24 @@ export function iniciar(ctx) {
     m.z = limitar(m.z, Z_LEJOS + R_MAZA, Z_CENTRO - R_MAZA);
   }
 
-  function moverJugador(dt) {
+  // dtReal: la maza la mueve el jugador, así que va con el tiempo real (no se para en la micro-pausa)
+  function moverJugador(dtReal) {
     jugador.xAntes = jugador.x;
     jugador.zAntes = jugador.z;
     const exAntes = jugador.ex;
     const ezAntes = jugador.ez;
     linea.visible = false;
     if (ctx.enVR()) {
-      const activas = ctx.manos.filter((m) => m.activa);
       if (indiceMano === null || !ctx.manos[indiceMano].activa) {
-        const derecha = activas.find((m) => m.lado === 'right') || activas[0];
-        indiceMano = derecha ? ctx.manos.indexOf(derecha) : null;
+        indiceMano = null;
+        for (let i = 0; i < ctx.manos.length; i++) {
+          const m = ctx.manos[i];
+          if (m.activa && (indiceMano === null || m.lado === 'right')) indiceMano = i;
+        }
       }
       // El gatillo de la otra mano cambia la maza de mano (zurdos)
-      const libre = activas.find((m) => ctx.manos.indexOf(m) !== indiceMano);
+      let libre = null;
+      for (let i = 0; i < ctx.manos.length; i++) if (i !== indiceMano && ctx.manos[i].activa) libre = ctx.manos[i];
       if (libre && libre.gatilloPulsado) {
         indiceMano = ctx.manos.indexOf(libre);
         ctx.vibrar(libre, 0.3, 40);
@@ -509,7 +515,7 @@ export function iniciar(ctx) {
         const dx = tmp.x - jugador.ex;
         const dz = tmp.z - jugador.ez;
         const dist = Math.hypot(dx, dz);
-        const paso = Math.min(dist, VEL_MAX_MAZA * dt, dist * Math.min(1, dt * 30));
+        const paso = Math.min(dist, VEL_MAX_MAZA * dtReal, dist * Math.min(1, dtReal * 30));
         jugador.x = jugador.ex;
         jugador.z = jugador.ez;
         if (dist > 1e-6) {
@@ -522,8 +528,8 @@ export function iniciar(ctx) {
       }
     }
     // La velocidad que pasa al disco es la de la mano (no la de los empujones del disco a la maza)
-    jugador.vx = (jugador.ex - exAntes) / Math.max(dt, 1e-3);
-    jugador.vz = (jugador.ez - ezAntes) / Math.max(dt, 1e-3);
+    jugador.vx = (jugador.ex - exAntes) / Math.max(dtReal, 1e-3);
+    jugador.vz = (jugador.ez - ezAntes) / Math.max(dtReal, 1e-3);
   }
 
   // ¿Está el disco tocando una banda o una esquina?
@@ -705,8 +711,8 @@ export function iniciar(ctx) {
     if (quien === 'jugador') {
       const mano = indiceMano !== null && ctx.enVR() ? ctx.manos[indiceMano] : null;
       // Respuesta proporcional a lo fuerte que ha sido el golpe
-      if (fuerza > 2.4) ctx.efectos.impacto('grande', { pos: tmp, mano, color: 0xff6a3d, sonido: 'clac' });
-      else if (fuerza > 1.5) ctx.efectos.impacto('medio', { pos: tmp, mano, color: 0xff6a3d, sonido: 'clac' });
+      // Proporción: un golpe fuerte es medio (antes grande: salía decenas de veces por partido)
+      if (fuerza > 2.4) ctx.efectos.impacto('medio', { pos: tmp, mano, color: 0xff6a3d, sonido: 'clac' });
       else if (fuerza > 0.8) ctx.efectos.impacto('pequeño', { pos: tmp, mano, color: 0xffc400, sonido: 'clac' });
       else {
         ctx.sonido('toc');
@@ -815,7 +821,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   let tiempo = 0;
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     reloj -= dt;
     ruidoBanda -= dt;
@@ -831,7 +837,7 @@ export function iniciar(ctx) {
     if (estado === 'juego') tiempoPartido += dt;
     if (aviso && (aviso.tiempo -= dt) <= 0) aviso = null;
 
-    moverJugador(dt);
+    moverJugador(dtReal);
     moverMaquina(dt);
     if (estado === 'juego') moverDisco(dt);
     // ¿Parado? La máquina va a por él sin rodeos y, si sigue atascado (en una esquina, contra una banda),

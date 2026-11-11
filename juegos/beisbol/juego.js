@@ -269,7 +269,7 @@ export function iniciar(ctx) {
   const estela = new THREE.Line(geoEstela, R(new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })));
   estela.frustumCulled = false;
   raiz.add(estela);
-  const puntosEstela = [];
+  let nEstela = 0; // puntos de la estela en el búfer
 
   const matMarca = R(new THREE.MeshBasicMaterial({ color: 0xffd740, side: THREE.DoubleSide }));
   const marca = plano(R(new THREE.RingGeometry(0.6, 0.9, 24)), matMarca, 0, 0.03, 0);
@@ -376,6 +376,10 @@ export function iniciar(ctx) {
     inicioAnterior: new THREE.Vector3(), puntaAnterior: new THREE.Vector3(),
     manos: [], dosManos: false, radio: CHOQUE_VR, activo: false, lista: false,
   };
+  // Listas de manos del bate preparadas de antemano (nada se crea en cada fotograma)
+  const SIN_MANOS = [];
+  const manosDos = [null, null];
+  const manosUna = [null];
   const desvio = () => (ctx.enVR() ? DESVIO_VR : DESVIO_RATON);
 
   // ─── Marcador ──────────────────────────────────────────────────────────
@@ -387,7 +391,7 @@ export function iniciar(ctx) {
   let estado = 'intro'; // 'intro' | 'espera' | 'lanzamiento' | 'vuelo' | 'resultado' | 'fin'
   let reloj = 3.5;
   let turno = 0;        // lanzamiento actual (0..9)
-  let resultados = [];  // { puntos, simbolo }
+  const resultados = [];  // { puntos, simbolo }
   let record = ctx.leer('record', 0);
   let mensaje = '';
   let colorMensaje = '#ffffff';
@@ -407,9 +411,20 @@ export function iniciar(ctx) {
   const segmento = new THREE.Line3();
   const tmp = new THREE.Vector3();
 
-  const puntos = () => resultados.reduce((suma, r) => suma + r.puntos, 0);
+  function puntos() {
+    let suma = 0;
+    for (const r of resultados) suma += r.puntos;
+    return suma;
+  }
 
+  // El marcador solo se reescribe cuando cambia algo (sin crear textos en cada fotograma)
+  const antesMarcador = { estado: '', n: -1, turno: -1, mensaje: '', record: -1, s: -1, vr: false };
   function actualizarMarcador() {
+    const s = estado === 'fin' ? Math.ceil(reloj) : 0;
+    const vr = ctx.enVR();
+    const a = antesMarcador;
+    if (a.estado === estado && a.n === resultados.length && a.turno === turno && a.mensaje === mensaje && a.record === record && a.s === s && a.vr === vr) return;
+    a.estado = estado; a.n = resultados.length; a.turno = turno; a.mensaje = mensaje; a.record = record; a.s = s; a.vr = vr;
     const fila = Array.from({ length: LANZAMIENTOS }, (_, i) => (i < resultados.length ? resultados[i].simbolo : '·')).join(' ');
     if (estado === 'intro') {
       marcador.escribir([
@@ -450,7 +465,8 @@ export function iniciar(ctx) {
     vel.set(0, 0, 0);
     bateada = false;
     resuelto = false;
-    puntosEstela.length = 0;
+    nEstela = 0;
+    geoEstela.setDrawRange(0, 0);
     estela.visible = false;
     marca.visible = false;
   }
@@ -518,15 +534,17 @@ export function iniciar(ctx) {
     if (ctx.enVR()) {
       brazoRaton.visible = false;
       barra.visible = false;
-      const activas = ctx.manos.filter((m) => m.activa);
-      const derecha = activas.find((m) => m.lado === 'right') || activas.find((m) => m.lado !== 'left') || null;
-      const izquierda = activas.find((m) => m !== derecha) || null;
+      let derecha = null;
+      for (const m of ctx.manos) if (m.activa && m.lado === 'right') derecha = m;
+      if (!derecha) for (const m of ctx.manos) if (!derecha && m.activa && m.lado !== 'left') derecha = m;
+      let izquierda = null;
+      for (const m of ctx.manos) if (!izquierda && m.activa && m !== derecha) izquierda = m;
       const arriba = derecha || izquierda;
       bateVR.visible = !!arriba;
       if (!arriba) {
         bate.activo = false;
         bate.lista = false;
-        bate.manos = [];
+        bate.manos = SIN_MANOS;
         return;
       }
       // ¿Agarra el bate con las dos manos? Basta con juntarlas, o con apretar el botón
@@ -536,7 +554,7 @@ export function iniciar(ctx) {
       const dosManos = bate.dosManos
         ? distancia < (apreton ? ALCANCE_APRETON + 0.1 : MANOS_SEPARADAS)
         : distancia < (apreton ? ALCANCE_APRETON : MANOS_JUNTAS);
-      if (dosManos && !bate.dosManos) for (const m of [izquierda, derecha]) ctx.vibrar(m, 0.4, 40); // "clic" al agarrarlo
+      if (dosManos && !bate.dosManos) { ctx.vibrar(izquierda, 0.4, 40); ctx.vibrar(derecha, 0.4, 40); } // "clic" al agarrarlo
       if (dosManos !== bate.dosManos) bate.lista = false; // el bate salta: no cuenta como golpe
       bate.dosManos = dosManos;
 
@@ -549,11 +567,14 @@ export function iniciar(ctx) {
           .multiplyScalar(1.5 * THREE.MathUtils.clamp((distancia - 0.03) / 0.1, 0, 1))
           .add(frente).normalize();
         bateVR.position.copy(izquierda.posicion);
-        bate.manos = [izquierda, derecha];
+        manosDos[0] = izquierda;
+        manosDos[1] = derecha;
+        bate.manos = manosDos;
       } else {
         direccion.copy(frente);
         bateVR.position.copy(arriba.posicion);
-        bate.manos = [arriba];
+        manosUna[0] = arriba;
+        bate.manos = manosUna;
       }
       bateVR.quaternion.setFromUnitVectors(EJE_BATE, direccion);
       bate.inicio.copy(bateVR.position).addScaledVector(direccion, -INICIO_BATE);
@@ -562,7 +583,7 @@ export function iniciar(ctx) {
       golpeando = true; // en VR el bate siempre puede golpear
     } else {
       bateVR.visible = false;
-      bate.manos = [];
+      bate.manos = SIN_MANOS;
       bate.radio = CHOQUE_RATON;
       const raton = ctx.raton;
       if (raton.dentro && giro.fase === 'listo' && raton.rayo.ray.intersectPlane(planoZona, tmp)) {
@@ -606,7 +627,9 @@ export function iniciar(ctx) {
   }
 
   // ¿Toca la bola el bate en este subpaso? f = fracción del fotograma (0..1)
-  function comprobarBate(f, dt) {
+  // dtBate: el tiempo en que se ha movido el bate (en VR, el real: lo mueve el jugador y no se para
+  // en la micro-pausa; con ratón, el del juego, porque el golpe es una animación)
+  function comprobarBate(f, dtBate) {
     const pos = bola.position;
     a.lerpVectors(bate.inicioAnterior, bate.inicio, f);
     b.lerpVectors(bate.puntaAnterior, bate.punta, f);
@@ -619,7 +642,7 @@ export function iniciar(ctx) {
     // Velocidad del bate en el punto de contacto
     velBate.subVectors(bate.inicio, bate.inicioAnterior).multiplyScalar(1 - s)
       .addScaledVector(tmp.subVectors(bate.punta, bate.puntaAnterior), s)
-      .divideScalar(Math.max(dt, 1e-3));
+      .divideScalar(Math.max(dtBate, 1e-3));
     normal.subVectors(pos, cercano);
     if (normal.lengthSq() < 1e-10) normal.set(0, 0, -1);
     normal.normalize();
@@ -638,7 +661,7 @@ export function iniciar(ctx) {
     ctx.efectos.impacto(vel.length() > VELOCIDAD_MAXIMA * 0.6 ? 'grande' : 'medio', { pos, color: 0xfff8e1 });
   }
 
-  function moverBola(dt) {
+  function moverBola(dt, dtBate) {
     const pos = bola.position;
     const movBate = bate.activo && !bateada ? bate.punta.distanceTo(bate.puntaAnterior) : 0;
     const pasos = Math.min(80, Math.max(1, Math.ceil(Math.max(vel.length() * dt, movBate) / 0.03)));
@@ -649,7 +672,7 @@ export function iniciar(ctx) {
       pos.addScaledVector(vel, h);
 
       if (!bateada) {
-        if (bate.activo) comprobarBate(i / pasos, dt);
+        if (bate.activo) comprobarBate(i / pasos, dtBate);
         if (!bateada && !resuelto && pos.z > 0.8) terminar(0, '✘', ctx.t('strike'), '#ff8a80');
       }
 
@@ -702,23 +725,26 @@ export function iniciar(ctx) {
     if (bateada) {
       // Lejos, la bola crece un poco para no perderla de vista
       bola.scale.setScalar(THREE.MathUtils.clamp(Math.hypot(pos.x, pos.z) / 7, 1, 8));
-      puntosEstela.push(pos.clone());
-      if (puntosEstela.length > MAX_ESTELA) puntosEstela.shift();
+      // Estela en un búfer fijo: al llenarse, todos los puntos corren uno hacia atrás
       const atributo = geoEstela.attributes.position;
-      puntosEstela.forEach((p, i) => atributo.setXYZ(i, p.x, p.y, p.z));
+      const a = atributo.array;
+      if (nEstela < MAX_ESTELA) nEstela++;
+      else a.copyWithin(0, 3);
+      atributo.setXYZ(nEstela - 1, pos.x, pos.y, pos.z);
       atributo.needsUpdate = true;
-      geoEstela.setDrawRange(0, puntosEstela.length);
+      geoEstela.setDrawRange(0, nEstela);
     }
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarRonda() {
     turno = 0;
-    resultados = [];
+    resultados.length = 0;
+    ctx.partida.empezar();
     prepararLanzamiento();
   }
 
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     actualizarBate(dt);
     zona.position.x = desvio();
@@ -757,7 +783,7 @@ export function iniciar(ctx) {
           if (turno >= LANZAMIENTOS) {
             estado = 'fin';
             reloj = 7;
-            ctx.puntuacion(puntos()); // a la clasificación (juegos/marcadores.js)
+            ctx.partida.terminar(puntos()); // a la clasificación (juegos/marcadores.js), una sola vez
             if (puntos() > record) {
               record = puntos();
               ctx.guardar('record', record);
@@ -773,7 +799,7 @@ export function iniciar(ctx) {
         break;
     }
 
-    if (estado === 'vuelo' || estado === 'resultado') moverBola(dt);
+    if (estado === 'vuelo' || estado === 'resultado') moverBola(dt, ctx.enVR() ? dtReal : dt);
 
     bate.inicioAnterior.copy(bate.inicio);
     bate.puntaAnterior.copy(bate.punta);
@@ -792,7 +818,7 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      puntosEstela.length = 0;
+      nEstela = 0;
     },
   };
 }

@@ -307,6 +307,9 @@ export function iniciar(ctx) {
   const velRaqueta = new THREE.Vector3();
   const simPos = new THREE.Vector3();
   const simVel = new THREE.Vector3();
+  const velLanzamiento = new THREE.Vector3();
+  const destinoTmp = new THREE.Vector3();
+  const resultadoSim = { distancia: 0, pasaRed: true };
 
   const otro = (q) => (q === 'jugador' ? 'maquina' : 'jugador');
   const dentro = (p) => Math.abs(p.x) <= MEDIO_ANCHO && p.z <= Z_FONDO_JUGADOR && p.z >= Z_FONDO_MAQUINA;
@@ -351,7 +354,9 @@ export function iniciar(ctx) {
       if ((zAntes - Z_RED) * (simPos.z - Z_RED) <= 0 && simPos.y < ALTO_RED + 0.12) pasaRed = false;
       if (simPos.y <= 0) break;
     }
-    return { distancia: Math.hypot(simPos.x - origen.x, simPos.z - origen.z), pasaRed };
+    resultadoSim.distancia = Math.hypot(simPos.x - origen.x, simPos.z - origen.z);
+    resultadoSim.pasaRed = pasaRed;
+    return resultadoSim; // reutilizado: léelo antes de volver a simular
   }
 
   // Velocidad para que el volante caiga en "destino" saliendo con el ángulo dado
@@ -360,7 +365,7 @@ export function iniciar(ctx) {
     const dx = destino.x - origen.x;
     const dz = destino.z - origen.z;
     const objetivo = Math.hypot(dx, dz);
-    const v = new THREE.Vector3();
+    const v = velLanzamiento; // reutilizado: quien lo pide lo copia enseguida
     for (let intento = 0; intento < 8; intento++) {
       let bajo = 1;
       let alto = 45;
@@ -423,12 +428,13 @@ export function iniciar(ctx) {
       estado = 'fin';
       reloj = 7;
       if (j > m) {
-        ctx.puntuacion(j - m); // diferencia al ganar (juegos/marcadores.js)
+        ctx.partida.terminar(j - m); // diferencia al ganar (juegos/marcadores.js)
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
         mensaje = ctx.t('partida.hasGanado');
         ctx.sonido('ovacion');
       } else {
+        ctx.partida.terminar(); // perdido: la clasificación solo guarda la diferencia al ganar
         mensaje = ctx.t('partida.ganaMaquina');
       }
       ctx.sonido('fin');
@@ -472,12 +478,12 @@ export function iniciar(ctx) {
 
   // ─── Raqueta VR ────────────────────────────────────────────────────────
   function raquetasVRActualizar() {
-    const activas = raquetasVR.filter((r) => r.mano.activa);
     if (indiceRaqueta === null || !ctx.manos[indiceRaqueta].activa) {
-      const derecha = activas.find((r) => r.mano.lado === 'right') || activas[0];
-      indiceRaqueta = derecha ? derecha.mano.indice : null;
+      indiceRaqueta = null;
+      for (const r of raquetasVR) if (r.mano.activa && (indiceRaqueta === null || r.mano.lado === 'right')) indiceRaqueta = r.mano.indice;
     }
-    const libre = activas.find((r) => r.mano.indice !== indiceRaqueta);
+    let libre = null;
+    for (const r of raquetasVR) if (!libre && r.mano.activa && r.mano.indice !== indiceRaqueta) libre = r;
     if (libre && libre.mano.gatilloPulsado) {
       indiceRaqueta = libre.mano.indice;
       ctx.vibrar(libre.mano, 0.3, 40);
@@ -504,13 +510,14 @@ export function iniciar(ctx) {
     return activa;
   }
 
-  function chocarRaqueta(r, f, dt) {
+  // dtReal: la raqueta la mueve el jugador (su velocidad se mide en tiempo real, no le afecta la micro-pausa)
+  function chocarRaqueta(r, f, dtReal) {
     const centro = tmp.lerpVectors(r.centroAntes, r.centro, f);
     const normal = tmp2.lerpVectors(r.normalAntes, r.normal, f).normalize();
     const d = relativa.subVectors(pos, centro).dot(normal);
     const enPlano = relativa.addScaledVector(normal, -d).length();
     if (enPlano > R_CABEZA * 1.15 || Math.abs(d) > GROSOR_GOLPE) return false;
-    velRaqueta.subVectors(r.centro, r.centroAntes).divideScalar(Math.max(dt, 1e-4));
+    velRaqueta.subVectors(r.centro, r.centroAntes).divideScalar(Math.max(dtReal, 1e-4));
     relativa.subVectors(vel, velRaqueta);
     const vn = relativa.dot(normal);
     if (vn * Math.sign(d || 1) >= 0) return false;
@@ -530,7 +537,7 @@ export function iniciar(ctx) {
     const r = simular(pos, vel);
     const dir = tmp2.set(vel.x, 0, vel.z).normalize();
     const caida = tmp.copy(pos).addScaledVector(dir, r.distancia);
-    const destino = new THREE.Vector3(
+    const destino = destinoTmp.set(
       THREE.MathUtils.clamp(caida.x, -MEDIO_ANCHO + 0.25, MEDIO_ANCHO - 0.25),
       0,
       THREE.MathUtils.clamp(caida.z, Z_FONDO_MAQUINA + 0.3, Z_RED - 0.8),
@@ -539,14 +546,14 @@ export function iniciar(ctx) {
   }
 
   // ─── Raqueta con ratón ─────────────────────────────────────────────────
-  function raquetaRatonActualizar(dt) {
+  function raquetaRatonActualizar(dtReal) {
     const r = ctx.raton;
     pivoteRaton.visible = r.dentro || ctx.tactil;
     if (r.rayo.ray.intersectPlane(planoRaton, tmp)) {
       tmp.x = THREE.MathUtils.clamp(tmp.x, -MEDIO_ANCHO, MEDIO_ANCHO);
       tmp.y = THREE.MathUtils.clamp(tmp.y, 0.4, 2.7);
-      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dt, 1e-3));
-      pivoteRaton.position.lerp(tmp, Math.min(1, dt * 25));
+      velRaton.subVectors(tmp, pivoteRaton.position).divideScalar(Math.max(dtReal, 1e-3));
+      pivoteRaton.position.lerp(tmp, Math.min(1, dtReal * 25));
     }
     pivoteRaton.rotation.z = THREE.MathUtils.clamp(-velRaton.x * 0.05, -0.5, 0.5);
 
@@ -557,7 +564,7 @@ export function iniciar(ctx) {
       // Dirección según dónde da en la raqueta; moverla rápido es remate (más plano y fuerte)
       const desvio = (pos.x - pivoteRaton.position.x) / R_CONTACTO_RATON;
       const remate = THREE.MathUtils.clamp(r.velocidadPx / 2500, 0, 1);
-      const destino = new THREE.Vector3(
+      const destino = destinoTmp.set(
         THREE.MathUtils.clamp(desvio * 1.2 + velRaton.x * 0.15, -MEDIO_ANCHO + 0.2, MEDIO_ANCHO - 0.2),
         0,
         remate > 0.5 ? Z_RED - 1.2 - Math.random() * 1.2 : Z_FONDO_MAQUINA + 0.4 + Math.random() * 1.8,
@@ -583,26 +590,6 @@ export function iniciar(ctx) {
     golpeRival = Math.max(0, golpeRival - dt * 4);
     raquetaRival.rotation.x = Math.PI / 2 + 0.3 - Math.sin(golpeRival * Math.PI) * 1.2;
 
-    const devolver = (fallo) => {
-      golpeRival = 1;
-      let angulo = Math.random() < 0.6 ? 0.9 : 0.55; // globo o golpe más tenso
-      let destinoGolpe;
-      if (fallo === 'red') {
-        // Golpe bajo que se queda en su campo, contra la red
-        destinoGolpe = new THREE.Vector3(pos.x * 0.5 + (Math.random() - 0.5) * 0.8, 0, Z_RED - 0.2);
-        angulo = 0.25;
-      } else if (fallo === 'largo') {
-        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.4, 0, Z_FONDO_JUGADOR + 0.4 + Math.random() * 0.8);
-      } else if (fallo === 'ancho') {
-        destinoGolpe = new THREE.Vector3(ladoFallo * (MEDIO_ANCHO + 0.3 + Math.random() * 0.5), 0, -0.6 + Math.random() * 1.4);
-      } else {
-        // Siempre a tu alcance: cae junto a ti, a tu izquierda o derecha
-        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.4, 0, 0.15 + Math.random() * 0.6);
-      }
-      vel.copy(lanzamiento(pos, destinoGolpe, angulo));
-      falloMaquina = null;
-    };
-
     if (estado === 'saque' && sacador === 'maquina' && reloj <= 0 && golpe('maquina')) {
       devolver(decidirFallo(0.5)); // el saque falla menos
       return;
@@ -614,10 +601,32 @@ export function iniciar(ctx) {
     }
   }
 
+  // La máquina devuelve el volante (fuera del bucle: así no se crea una función en cada fotograma)
+  function devolver(fallo) {
+      golpeRival = 1;
+      let angulo = Math.random() < 0.6 ? 0.9 : 0.55; // globo o golpe más tenso
+      let destinoGolpe;
+      if (fallo === 'red') {
+        // Golpe bajo que se queda en su campo, contra la red
+        destinoGolpe = destinoTmp.set(pos.x * 0.5 + (Math.random() - 0.5) * 0.8, 0, Z_RED - 0.2);
+        angulo = 0.25;
+      } else if (fallo === 'largo') {
+        destinoGolpe = destinoTmp.set((Math.random() - 0.5) * 1.4, 0, Z_FONDO_JUGADOR + 0.4 + Math.random() * 0.8);
+      } else if (fallo === 'ancho') {
+        destinoGolpe = destinoTmp.set(ladoFallo * (MEDIO_ANCHO + 0.3 + Math.random() * 0.5), 0, -0.6 + Math.random() * 1.4);
+      } else {
+        // Siempre a tu alcance: cae junto a ti, a tu izquierda o derecha
+        destinoGolpe = destinoTmp.set((Math.random() - 0.5) * 1.4, 0, 0.15 + Math.random() * 0.6);
+      }
+      vel.copy(lanzamiento(pos, destinoGolpe, angulo));
+      falloMaquina = null;
+  }
+
   // ─── Física del volante ────────────────────────────────────────────────
-  function moverVolante(dt, raqueta) {
-    const rapidez = Math.max(vel.length(), raqueta ? raqueta.centro.distanceTo(raqueta.centroAntes) / dt : 0);
-    const pasos = Math.min(24, Math.max(1, Math.ceil((rapidez * dt) / 0.02)));
+  function moverVolante(dt, raqueta, dtReal) {
+    // Subpasos para que ni el volante ni la raqueta (que se mueve en tiempo real) se atraviesen
+    const recorrido = Math.max(vel.length() * dt, raqueta ? raqueta.centro.distanceTo(raqueta.centroAntes) : 0);
+    const pasos = Math.min(24, Math.max(1, Math.ceil(recorrido / 0.02)));
     const h = dt / pasos;
     for (let i = 1; i <= pasos; i++) {
       anterior.copy(pos);
@@ -628,7 +637,7 @@ export function iniciar(ctx) {
         vel.set(vel.x * 0.2, Math.min(vel.y, 0), -vel.z * 0.1);
         ctx.sonido('zas');
       }
-      if (raqueta && chocarRaqueta(raqueta, i / pasos, dt)) continue;
+      if (raqueta && chocarRaqueta(raqueta, i / pasos, dtReal)) continue;
       if (pos.y <= 0.02) {
         pos.y = 0.02;
         vel.set(0, 0, 0);
@@ -644,9 +653,10 @@ export function iniciar(ctx) {
     tanteo.maquina = 0;
     sacador = 'jugador';
     prepararSaque();
+    ctx.partida.empezar();
   }
 
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     enfriamiento = Math.max(0, enfriamiento - dt);
     const vr = ctx.enVR();
@@ -656,7 +666,7 @@ export function iniciar(ctx) {
       raqueta = raquetasVRActualizar();
     } else {
       for (const r of raquetasVR) r.objeto.visible = false;
-      raquetaRatonActualizar(dt);
+      raquetaRatonActualizar(dtReal);
     }
 
     switch (estado) {
@@ -668,7 +678,7 @@ export function iniciar(ctx) {
           pos.y = (ctx.enVR() ? SAQUE_VR.y : SAQUE_RATON.y) + Math.sin(t * 3) * 0.03;
           if (raqueta) {
             const pasos = Math.min(24, Math.max(1, Math.ceil(raqueta.centro.distanceTo(raqueta.centroAntes) / 0.02)));
-            for (let i = 1; i <= pasos; i++) if (chocarRaqueta(raqueta, i / pasos, dt)) break;
+            for (let i = 1; i <= pasos; i++) if (chocarRaqueta(raqueta, i / pasos, dtReal)) break;
           }
         } else {
           pos.set(rival.position.x - 0.2, 1.3, rival.position.z + 0.4);
@@ -688,7 +698,7 @@ export function iniciar(ctx) {
     }
 
     maquina(dt);
-    if (estado === 'vivo') moverVolante(dt, raqueta);
+    if (estado === 'vivo') moverVolante(dt, raqueta, dtReal);
 
     // El volante mira hacia donde vuela (el corcho delante)
     if (vel.lengthSq() > 0.01) volante.lookAt(tmp.copy(pos).add(vel));

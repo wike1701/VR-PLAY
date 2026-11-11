@@ -346,13 +346,24 @@ export function iniciar(ctx) {
     tiempoJuego = 0;
     proximo = 1;
     estado = 'juego';
+    ctx.partida.empezar();
+  }
+
+  // Una ventana al azar sin fuego (y, si se pide, sin vecino asomado), sin crear listas
+  function ventanaAlAzar(sinVecino) {
+    let n = 0;
+    for (const v of ventanas) if (!v.ardiendo && (!sinVecino || v.tVecino <= 0)) n++;
+    if (!n) return null;
+    let k = Math.floor(Math.random() * n);
+    for (const v of ventanas) if (!v.ardiendo && (!sinVecino || v.tVecino <= 0) && k-- === 0) return v;
+    return null;
   }
 
   function terminar() {
     estado = 'fin';
     reloj = 6;
     ctx.sonido('derrumbe');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -365,9 +376,14 @@ export function iniciar(ctx) {
     const rapido = v.tam < 0.6;
     const suma = (rapido ? 15 : 10) + (v.gas ? 15 : 0);
     v.gas = false;
+    tmp.set(v.x, v.y + 0.3, FACHADA_Z + 0.4);
+    // El agua que aún vuela al acabar la partida apaga el fuego, pero ya no suma
+    if (!ctx.partida.activa) {
+      ctx.sonido('vapor', { pos: tmp });
+      return;
+    }
     puntos += suma;
     apagados += 1;
-    tmp.set(v.x, v.y + 0.3, FACHADA_Z + 0.4);
     ctx.efectos.impacto(rapido ? 'medio' : 'pequeño', { pos: tmp, mano, color: 0xbfe6ff, sonido: 'vapor' });
     ctx.efectos.texto(tmp, `+${suma}`, { color: rapido ? '#ffe08a' : '#ffffff', tam: 1.4 });
     // Una nube de humo blanco al apagarse
@@ -379,7 +395,7 @@ export function iniciar(ctx) {
   }
 
   function mojarVecino(v, mano) {
-    if (estado === 'juego') puntos = Math.max(0, puntos - 10);
+    if (estado === 'juego' && ctx.partida.activa) puntos = Math.max(0, puntos - 10);
     v.tVecino = 0;
     v.vecino.g.visible = false;
     ctx.vibrar(mano, 0.5, 80);
@@ -538,10 +554,10 @@ export function iniciar(ctx) {
       tiempoJuego += dt;
       proximo -= dt;
       if (proximo <= 0) {
-        const libres = ventanas.filter((v) => !v.ardiendo);
-        if (libres.length) {
+        const libre = ventanaAlAzar(false);
+        if (libre) {
           const gas = tiempoJuego > 20 && Math.random() < 0.2;
-          encender(libres[Math.floor(Math.random() * libres.length)], gas);
+          encender(libre, gas);
           if (gas) {
             aviso = ctx.t('bombona');
             tiempoAviso = 1.5;
@@ -552,9 +568,8 @@ export function iniciar(ctx) {
       // Un vecino se asoma a una ventana sin fuego
       proximoVecino -= dt;
       if (proximoVecino <= 0) {
-        const quietas = ventanas.filter((v) => !v.ardiendo && v.tVecino <= 0);
-        if (quietas.length) {
-          const v = quietas[Math.floor(Math.random() * quietas.length)];
+        const v = ventanaAlAzar(true);
+        if (v) {
           v.tVecino = 3.5;
           v.vecino.g.visible = true;
         }
@@ -578,11 +593,12 @@ export function iniciar(ctx) {
       v.tiempo += dt;
       v.tam = Math.min(1.25, v.tam + dt * 0.06);
       // Las llamas bailan y crecen
-      v.llamas.forEach((l, k) => {
+      for (let k = 0; k < v.llamas.length; k++) {
+        const l = v.llamas[k];
         const s = v.tam * (k === 1 ? 0.8 : 1) * (0.85 + Math.sin(t * (9 + k * 3) + v.x * 4) * 0.15);
         l.scale.set(s, s * (1 + Math.sin(t * 13 + k) * 0.18), s);
         l.rotation.y = t * (2 + k);
-      });
+      }
       v.vidrio.material.color.setRGB(2.2, 1.0 + Math.sin(t * 17 + v.y) * 0.15, 0.35);
       if (estado === 'juego') {
         danio += dt * 0.9 * v.tam;
@@ -597,9 +613,11 @@ export function iniciar(ctx) {
         }
         // Un fuego grande salta a la ventana de al lado
         if (v.tam >= 1.2 && Math.random() < dt * 0.25) {
-          const libres = v.vecinas.filter((k) => !ventanas[k].ardiendo);
-          if (libres.length) {
-            encender(ventanas[libres[Math.floor(Math.random() * libres.length)]]);
+          let libres = 0;
+          for (const k of v.vecinas) if (!ventanas[k].ardiendo) libres++;
+          if (libres) {
+            let n = Math.floor(Math.random() * libres);
+            for (const k of v.vecinas) if (!ventanas[k].ardiendo && n-- === 0) encender(ventanas[k]);
             aviso = ctx.t('propaga');
             tiempoAviso = 1.2;
           }

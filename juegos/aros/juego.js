@@ -189,13 +189,13 @@ export function iniciar(ctx) {
     return { i, malla, sombra, estado: 'poste', mano: null, vel: new THREE.Vector3(), giro: 0, balanceo: 0, vida: 0, botella: null, bajar: 0 };
   });
 
-  const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
-
-  // Manos visibles: así se ve el aro que cogen
-  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
-  geoMano.scale(1, 0.6, 1.3);
-  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  for (const mano of ctx.manos) ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
+  // Manos visibles: se cierran al coger el aro
+  const dibujosMano = ctx.manos.map((mano, i) => {
+    const dibujo = ctx.crearMano(i === 0 ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0xb0413e });
+    ctx.adjuntarAMano(mano, dibujo.objeto);
+    return { dibujo, cierre: 0 };
+  });
+  const velLanzar = new THREE.Vector3();
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.0, alto: 0.3 });
@@ -239,13 +239,14 @@ export function iniciar(ctx) {
     mallaBotellas.setColorAt(dorada, colorTmp.set(0xffc83a));
     mallaBotellas.instanceColor.needsUpdate = true;
     estado = 'juego';
+    ctx.partida.empezar();
   }
 
   function terminar() {
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -311,27 +312,32 @@ export function iniciar(ctx) {
 
   // ─── Entrada ───────────────────────────────────────────────────────────
   function entradaVR(dt) {
-    ctx.manos.forEach((mano, k) => {
-      const h = historiales[k];
-      h.n = (h.n + 1) % 8;
-      h.pos[h.n].copy(mano.posicion);
-      h.dt[h.n] = dt;
-      if (!mano.activa) return;
-      const cogido = aros.find((a) => a.mano === mano);
+    for (let k = 0; k < ctx.manos.length; k++) {
+      const mano = ctx.manos[k];
+      let cogido = null;
+      for (const a of aros) if (a.mano === mano) cogido = a;
+      if (!mano.activa) {
+        // Si el mando desaparece con un aro cogido, el aro vuelve al poste (si no, la partida no acabaría)
+        if (cogido) enPoste(cogido);
+        continue;
+      }
+      // La mano se cierra al coger el aro (con curva, sin saltos)
+      const d = dibujosMano[k];
+      const cierre = cogido ? 0.8 : mano.gatillo ? 0.45 : 0;
+      d.cierre += (cierre - d.cierre) * Math.min(1, dt * 18);
+      d.dibujo.cerrar(d.cierre);
       if (cogido) {
         if (!mano.gatillo) {
-          const atras = (h.n + 8 - 4) % 8;
-          let tiempo = 0;
-          for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(1.1);
-          lanzar(cogido, tmp);
+          // Media de los últimos 55 ms en tiempo real (la shell la mide; no le afecta la micro-pausa)
+          lanzar(cogido, mano.velocidadReciente(0.055, velLanzar).multiplyScalar(1.1));
           ctx.vibrar(mano, 0.3, 30);
         }
-        return;
+        continue;
       }
       if (mano.gatilloPulsado && estado === 'juego') {
         // El de arriba del poste, si la mano está cerca
-        const arriba = aros.filter((a) => a.estado === 'poste').sort((x, y) => y.malla.position.y - x.malla.position.y)[0];
+        let arriba = null;
+        for (const a of aros) if (a.estado === 'poste' && (!arriba || a.malla.position.y > arriba.malla.position.y)) arriba = a;
         if (arriba && arriba.malla.position.distanceTo(mano.posicion) < 0.2) {
           arriba.estado = 'mano';
           arriba.mano = mano;
@@ -339,7 +345,7 @@ export function iniciar(ctx) {
           ctx.sonido('recepcion');
         }
       }
-    });
+    }
     for (const a of aros) {
       if (a.estado !== 'mano') continue;
       a.mano.grip.localToWorld(a.malla.position.set(0, 0, -0.09));
@@ -349,7 +355,8 @@ export function iniciar(ctx) {
 
   function entradaRaton() {
     if (!ctx.raton.clic || estado !== 'juego') return;
-    const a = aros.find((x) => x.estado === 'poste');
+    let a = null;
+    for (const x of aros) if (!a && x.estado === 'poste') a = x;
     if (!a) return;
     if (!ctx.raton.rayo.ray.intersectPlane(planoApunte, tmp)) return;
     // El pulso tiembla un poco: unos centímetros al azar
@@ -373,7 +380,7 @@ export function iniciar(ctx) {
         // Baja por el cuello girando hasta quedarse
         a.malla.position.y += (a.bajar - a.malla.position.y) * Math.min(1, dt * 10);
         a.malla.rotation.y += dt * 4;
-        a.malla.rotation.x *= 0.85;
+        a.malla.rotation.x *= Math.pow(0.85, dt * 60);
         if (Math.abs(a.malla.position.y - a.bajar) < 0.002) a.estado = 'quieto';
         continue;
       }
@@ -396,12 +403,16 @@ export function iniciar(ctx) {
             break;
           }
           if (d < R_ARO + R_CUELLO + TUBO_ARO) {
-            // Da en el cuello y rebota hacia fuera
+            // Da en el cuello y rebota. El cuello empuja el tubo del aro hacia fuera de sí mismo: si el
+            // cuello queda fuera del aro, el aro se aparta de la botella; si queda dentro (le da el borde
+            // de dentro), el aro se desliza un poco hacia el cuello y puede acabar entrando, como de verdad.
             tmp.set(p.x - b.x, 0, p.z - b.z).normalize();
-            if (d > R_ARO) tmp.negate();
-            a.vel.set(tmp.x * 0.9, 0.9, tmp.z * 0.9);
+            const dentro = d < R_ARO;
+            if (dentro) tmp.negate();
+            const lateral = dentro ? 0.6 : 0.7;
+            a.vel.set(tmp.x * lateral, dentro ? 0.6 : 0.8, tmp.z * lateral);
             a.balanceo = 0.5;
-            ctx.sonido('clac');
+            ctx.sonido('clac', { pos: p });
             break;
           }
         }
@@ -439,7 +450,9 @@ export function iniciar(ctx) {
     moverAros(dt, t);
 
     // Cuando se han lanzado todos y ya no queda ninguno en el aire, se acaba
-    if (estado === 'juego' && lanzados >= N_AROS && !aros.some((a) => a.estado === 'vuelo' || a.estado === 'mano' || a.estado === 'bajando')) {
+    let quedan = false;
+    for (const a of aros) if (a.estado === 'vuelo' || a.estado === 'mano' || a.estado === 'bajando') quedan = true;
+    if (estado === 'juego' && lanzados >= N_AROS && !quedan) {
       espera += dt;
       if (espera > 1) terminar();
     }

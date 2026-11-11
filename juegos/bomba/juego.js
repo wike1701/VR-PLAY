@@ -723,8 +723,14 @@ export function iniciar(ctx) {
       lineas = [{ texto: ctx.t(victoria ? 'victoria' : 'fin', { n: puntos }), tam: 1.05, color: victoria ? '#69f0ae' : '#ff8a65' },
         { texto: ctx.t('partida.recordNuevaPartida', { record, n: Math.ceil(espera) }), tam: 0.62 }];
     } else {
-      const pendientes = activos.filter((m) => !m.resuelto);
-      const tipo = pendientes.length ? pendientes[Math.floor(ayuda / 3.5) % pendientes.length].tipo : null;
+      // La ayuda va rotando por los módulos que quedan (sin crear listas en cada fotograma)
+      let pendientes = 0;
+      for (const m of activos) if (!m.resuelto) pendientes++;
+      let tipo = null;
+      if (pendientes) {
+        let k = Math.floor(ayuda / 3.5) % pendientes;
+        for (const m of activos) if (!m.resuelto && k-- === 0) tipo = m.tipo;
+      }
       lineas = [{ texto: ctx.t('marcador', { b: bomba.indice + 1, total: BOMBAS.length, n: puntos }), tam: 1.0, color: '#ffffff' },
         aviso ? { texto: aviso.texto, tam: 0.66, color: aviso.color }
           : { texto: tipo && estado === 'bomba' ? ctx.t(AYUDAS[tipo]) : '', tam: 0.58, color: '#ffe082' }];
@@ -841,7 +847,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     espera = 6;
     victoria = gana;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js): puntos de las bombas desactivadas
+    ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js): puntos de las bombas desactivadas, una sola vez
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -850,6 +856,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     puntos = 0;
     erroresPartida = 0;
     aviso = null;
@@ -955,9 +962,13 @@ export function iniciar(ctx) {
   function actualizarVR(dt) {
     // Los alicates están en la mesa: solo se ven con cables por cortar y, si no los lleva una mano, vuelven a la mesa
     const hayCables = estado === 'bomba' && cables.activo && !cables.resuelto;
-    if (!hayCables) manos.forEach((m) => { m.tiene = false; });
-    alicatesMesa.visible = hayCables && !manos.some((m) => m.tiene);
-    manos.forEach((m) => {
+    let alguienTiene = false;
+    for (const m of manos) {
+      if (!hayCables) m.tiene = false;
+      if (m.tiene) alguienTiene = true;
+    }
+    alicatesMesa.visible = hayCables && !alguienTiene;
+    for (const m of manos) {
       m.alicates.visible = m.tiene;
       m.dedo.visible = m.mano.activa && !m.tiene;
       m.matPunta.color.setHex(0xffffff);
@@ -966,7 +977,7 @@ export function iniciar(ctx) {
       m.mitades[1].rotation.y = -cerrado;
       if (!m.mano.activa) {
         m.agarre = null;
-        return;
+        continue;
       }
       // Punta de los alicates
       m.mano.grip.localToWorld(m.punta.set(0, -0.01, -0.092));
@@ -974,9 +985,9 @@ export function iniciar(ctx) {
       if (m.agarre) {
         girarRueda(m);
         if (!m.mano.gatillo) soltarRueda(m);
-        return;
+        continue;
       }
-      if (estado !== 'bomba' || aparicion < 1) return;
+      if (estado !== 'bomba' || aparicion < 1) continue;
       const pulsa = m.mano.gatilloPulsado;
       // Coger los alicates de la mesa
       if (pulsa && alicatesMesa.visible &&!m.tiene && m.punta.distanceTo(alicatesMesa.position) < R_COGER) {
@@ -984,7 +995,7 @@ export function iniciar(ctx) {
         alicatesMesa.visible = false;
         ctx.vibrar(m.mano, 0.4, 40);
         ctx.sonido('clac');
-        return;
+        continue;
       }
       // La pieza más cercana a la punta
       let mejor = null;
@@ -1001,9 +1012,9 @@ export function iniciar(ctx) {
           distancia = dist;
         }
       }
-      if (!mejor) return;
+      if (!mejor) continue;
       m.matPunta.color.setHex(0x69f0ae); // pieza al alcance
-      if (!pulsa) return;
+      if (!pulsa) continue;
       if (mejor.modulo.tipo === 'rueda') {
         m.agarre = rueda;
         m.quatInicial.copy(m.quat);
@@ -1011,7 +1022,7 @@ export function iniciar(ctx) {
         ctx.vibrar(m.mano, 0.3, 30);
         ctx.sonido('tic');
       } else tocarPieza(mejor, m.mano);
-    });
+    }
   }
 
   // Cuánto ha girado la muñeca alrededor de la normal de la tapa desde que se cogió la rueda
@@ -1069,7 +1080,9 @@ export function iniciar(ctx) {
       p.eje.rotation.x = p.angulo;
     }
     // La rueda: con ratón, gira suave hasta su paso; en VR la mueve la mano y al soltarla encaja
-    if (!manos.some((m) => m.agarre)) {
+    let agarrada = false;
+    for (const m of manos) if (m.agarre) agarrada = true;
+    if (!agarrada) {
       const objetivo = -rueda.paso * (Math.PI / 4);
       let d = objetivo - rueda.angulo;
       while (d > Math.PI) d -= Math.PI * 2;

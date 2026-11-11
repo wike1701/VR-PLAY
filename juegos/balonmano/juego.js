@@ -412,14 +412,13 @@ export function iniciar(ctx) {
   const sombraPortero = ctx.crearSombra({ radio: 0.45, opacidad: 0.5 });
   raiz.add(sombraBalon, sombraPortero);
 
-  // Manos visibles en VR
-  const geoMano = R(new THREE.SphereGeometry(0.045, 12, 8));
-  geoMano.scale(1, 0.6, 1.3);
-  const matMano = R(new THREE.MeshLambertMaterial({ color: 0xffcc80 }));
-  const manos = ctx.manos.map((mano) => {
-    ctx.adjuntarAMano(mano, new THREE.Mesh(geoMano, matMano));
-    return { mano, historial: [], apretonAntes: false };
+  // Manos visibles en VR: se cierran al coger el balón
+  const manos = ctx.manos.map((mano, i) => {
+    const dibujo = ctx.crearMano(i === 0 ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0x1f5fa8 });
+    ctx.adjuntarAMano(mano, dibujo.objeto);
+    return { mano, dibujo, cierre: 0, apretonAntes: false };
   });
+  const velLanzar = new THREE.Vector3();
 
   // Barra de fuerza (ratón) y mira sobre la portería
   const barra = new THREE.Group();
@@ -484,8 +483,8 @@ export function iniciar(ctx) {
   // Portero: punto de las manos (kx, ky) y su movimiento hacia el objetivo
   let kx = 0;
   let ky = 1;
-  let de = { x: 0, y: 1 };
-  let a = { x: 0, y: 1 };
+  const de = { x: 0, y: 1 };
+  const a = { x: 0, y: 1 };
   let tk = 0;
   let retardo = 0;
   let duracion = 1;
@@ -548,8 +547,8 @@ export function iniciar(ctx) {
       objX = [-1.1, 0, 1.1][Math.floor(Math.random() * 3)];
       objY = [0.55, 1, 1.5][Math.floor(Math.random() * 3)];
     }
-    de = { x: kx, y: ky };
-    a = { x: objX, y: objY };
+    de.x = kx; de.y = ky;
+    a.x = objX; a.y = objY;
     tk = 0;
     retardo = (0.13 + Math.random() * 0.06) / RAPIDEZ;
     duracion = (0.15 + 0.22 * Math.hypot(objX - kx, (objY - ky) / 1.3)) / RAPIDEZ;
@@ -593,12 +592,14 @@ export function iniciar(ctx) {
       const escuadra = Math.abs(x) > 0.95 && y > 1.4;
       let valor = VALOR_GOL + (escuadra ? VALOR_ESCUADRA : 0);
       if (racha >= 3) valor *= 2;
+      if (!ctx.partida.activa) valor = 0;
       puntos += valor;
       meneoRed = 1;
       ctx.sonido('red');
       ctx.sonido('gol');
       for (const m of ctx.manos) ctx.vibrar(m, 0.4, 60);
-      ctx.efectos.impacto(escuadra || racha >= 3 ? 'grande' : 'medio', { pos: puntoEfecto, color: racha >= 3 ? 0xffd54f : 0xff8a3d });
+      // Lo normal es medio; grande solo con una racha larga (5 seguidos)
+      ctx.efectos.impacto(racha >= 5 ? 'grande' : 'medio', { pos: puntoEfecto, color: racha >= 3 ? 0xffd54f : 0xff8a3d });
       puntoTexto.set(x, y + 0.35, GZ + 0.3);
       ctx.efectos.texto(puntoTexto, `+${valor}`, { color: racha >= 3 ? '#ffd54f' : '#ffffff', tam: 1 + valor * 0.03 });
       if (racha >= 3) avisar(ctx.t('racha', { n: racha, valor }));
@@ -616,8 +617,8 @@ export function iniciar(ctx) {
       pintarDisco(n - 1, tipo === 'palo' || tipo === 'larguero' ? 0xffb74d : 0xe0453a);
     }
     // El portero vuelve al centro mientras tanto
-    de = { x: kx, y: ky };
-    a = { x: 0, y: 1 };
+    de.x = kx; de.y = ky;
+    a.x = 0; a.y = 1;
     tk = 0;
     retardo = 0.5;
     duracion = 0.7;
@@ -738,19 +739,6 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  function velocidadMano(m) {
-    // Media de los últimos ~80 ms para que el lanzamiento no dependa de un solo fotograma
-    const h = m.historial;
-    let tiempo = 0;
-    let i = h.length - 1;
-    while (i > 0 && tiempo < 0.08) {
-      tiempo += h[i].dt;
-      i--;
-    }
-    if (tiempo <= 0) return tmp.set(0, 0, 0);
-    return tmp.copy(h[h.length - 1].pos).sub(h[i].pos).divideScalar(tiempo);
-  }
-
   function manosVR(dt) {
     for (const m of manos) {
       const mano = m.mano;
@@ -759,17 +747,12 @@ export function iniciar(ctx) {
           manoQueLleva = null;
           estadoBalon = 'puesto';
         }
-        m.historial.length = 0;
         continue;
       }
-      if (m.historial.length >= 12) {
-        const viejo = m.historial.shift();
-        viejo.pos.copy(mano.posicion);
-        viejo.dt = dt;
-        m.historial.push(viejo);
-      } else {
-        m.historial.push({ pos: mano.posicion.clone(), dt });
-      }
+      // La mano se cierra al coger el balón (con curva, sin saltos)
+      const cierre = manoQueLleva === m ? 1 : mano.gatillo || mano.apreton ? 0.45 : 0;
+      m.cierre += (cierre - m.cierre) * Math.min(1, dt * 18);
+      m.dibujo.cerrar(m.cierre);
 
       const apretonPulsado = mano.apreton && !m.apretonAntes;
       m.apretonAntes = mano.apreton;
@@ -784,7 +767,8 @@ export function iniciar(ctx) {
       if (estadoBalon === 'mano' && manoQueLleva === m) {
         mano.grip.localToWorld(balon.position.set(0, -0.02, -0.08));
         if (!mano.gatillo && !mano.apreton) {
-          const v = velocidadMano(m).multiplyScalar(FUERZA_VR);
+          // Media de los últimos 80 ms en tiempo real (la shell la mide; no le afecta la micro-pausa)
+          const v = mano.velocidadReciente(0.08, velLanzar).multiplyScalar(FUERZA_VR);
           manoQueLleva = null;
           const rapidez = v.length();
           if (rapidez >= 3.4 && rapidez < RAPIDEZ_MIN_VR) v.multiplyScalar(RAPIDEZ_MIN_VR / rapidez);
@@ -844,6 +828,7 @@ export function iniciar(ctx) {
     racha = 0;
     estadoBalon = 'puesto';
     silbato = 0.8;
+    ctx.partida.empezar();
     for (let i = 0; i < PENALTIS; i++) pintarDisco(i, 0x59607a);
     ctx.sonido('silbato');
   }
@@ -864,7 +849,7 @@ export function iniciar(ctx) {
         if (n >= PENALTIS) {
           estado = 'fin';
           reloj = 6;
-          ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+          ctx.partida.terminar(puntos); // a la clasificación (juegos/marcadores.js), una sola vez
           if (puntos > record) {
             record = puntos;
             ctx.guardar('record', record);
