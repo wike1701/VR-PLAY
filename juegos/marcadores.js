@@ -78,14 +78,8 @@ export const MARCADORES = {
   laberinto: { orden: 'mayor', unidad: 'puntos', min: 0, max: 2500, minSegundos: 110 },
   // Tambores: canción de 75 s; perfecto 3 y bien 1, por la racha (hasta x4). Unas 220 notas como mucho
   tambores: { orden: 'mayor', unidad: 'puntos', min: 0, max: 3500, minSegundos: 70 },
-  // Pesca en el Lago: 90 s; 10 puntos por kilo de cada pez (como mucho unos 120 el más grande)
-  pesca: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, minSegundos: 85 },
   // Bomberos: 10-15 puntos por fuego, sin límite de tiempo (acaba cuando se quema el edificio)
   bomberos: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 12, minSegundos: 5 },
-  // Campo de prácticas: 10 bolas, hasta 30 puntos por tiro y 80 si entra en el hoyo
-  golf: { orden: 'mayor', unidad: 'puntos', min: 0, max: 800, minSegundos: 30 },
-  // Piñata: 1-3 puntos por golpe y 10 + 5 por nivel al romperla, en 60 s
-  pinata: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1500, maxPorSegundo: 30, minSegundos: 55 },
   // Tortitas: hasta 15 puntos por vuelta y 10 por tortita servida, en 75 s
   tortitas: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1200, maxPorSegundo: 15, minSegundos: 70 },
   // Bolas de nieve: 10-15 puntos por acierto, sin tiempo (acaba al recibir tres bolas)
@@ -95,7 +89,6 @@ export const MARCADORES = {
   // Toques con pala: 1-6 puntos por toque y 10 por estrella, sin tiempo (acaba al caer tres pelotas)
   toques: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 15, minSegundos: 3 },
   // Mazo de feria: 10 golpes, hasta 135 puntos cada uno (altura, franja dorada o campana)
-  fuerza: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1400, minSegundos: 20 },
   // Xilófono: perfecto 3 y bien 1 por la racha (hasta x4), y 10 × el número de la canción al completarla
   // (como mucho 150); sin final fijo (hasta perder 3 notas). Simulando partidas perfectas sale de 28 puntos/s
   // a los 5 minutos a 43 en una hora, cuando ya va a la velocidad máxima
@@ -106,6 +99,24 @@ export const MARCADORES = {
   // Leñador: 1 punto por hachazo; sin final fijo (hasta que te da una rama o se acaba la barra de tiempo).
   // La barra obliga a ir cada vez más deprisa (hasta unos 3,75 hachazos por segundo); con ratón o dos dedos se puede ir mucho más rápido
   lenador: { orden: 'mayor', unidad: 'puntos', min: 0, max: 100000, maxPorSegundo: 14, minSegundos: 2 },
+  // Defensa del Castillo: 10/20/40 puntos por soldado/escudero/ariete (+5 desde lejos) y 15 por globo;
+  // sin final fijo (hasta que la puerta recibe 5 golpes). Los enemigos salen como mucho cada 0,4 s
+  castillo: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 10 },
+  // Billar de Trucos: 25 por reto cumplido y, por mesa superada, 100 + 60 por tiro de sobra (+150 si todo de un
+  // tiro); sin final fijo (hasta perder 3 vidas). Cada mesa necesita al menos unos segundos
+  billar: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 100, minSegundos: 10 },
+  // Combate de Boxeo: daño hecho al robot (de 2 a ~24 por golpe), +5 por esquivar y, por K.O., 50 × el número de
+  // combate (+100 si no te ha dado); sin final fijo (hasta que tu vida llega a 0)
+  ring: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 60, minSegundos: 8 },
+  // Futbolín: 100 × el número de máquina por gol tuyo y 500 × la máquina por partido ganado; la racha acaba
+  // al perder un partido (a 5 goles, así que dura al menos unos segundos)
+  futbolin: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 300, minSegundos: 20 },
+  // Prisma: 100 × el número de sala por sala superada; sin final fijo (hasta que se acaba el reloj, que empieza
+  // con 3 minutos y recupera de 1 minuto a medio por sala). Cada sala necesita al menos unos segundos
+  prisma: { orden: 'mayor', unidad: 'puntos', min: 0, max: 1000000, maxPorSegundo: 250, minSegundos: 5 },
+  // Escalada contra la Lava: metros subidos hasta caer o hasta que te alcanza la lava (con ratón se sube como
+  // mucho ~1 m por clic y la pared tarda un momento en llegar; con las manos, bastante menos)
+  escalada: { orden: 'mayor', unidad: 'metros', min: 0, max: 100000, maxPorSegundo: 4, minSegundos: 3 },
 };
 
 // ¿Es «a» mejor que «b» en este juego?

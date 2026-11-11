@@ -100,21 +100,23 @@ juegos/
   torre/juego.js        Torre de Bloques
   huevos/juego.js       Atrapa Huevos
   latas/juego.js        Tumba Latas
-  aros/juego.js         Lanza Aros (en pruebas)
+  aros/juego.js         Lanza Aros
   laberinto/juego.js    Laberinto
-  tambores/juego.js     Tambores (en pruebas)
-  pesca/juego.js        Pesca en el Lago (en pruebas)
-  bomberos/juego.js     Bomberos (en pruebas)
-  golf/juego.js         Campo de Prácticas (en pruebas)
-  pinata/juego.js       Piñata (en pruebas)
+  tambores/juego.js     Tambores
+  bomberos/juego.js     Bomberos
   tortitas/juego.js     Tortitas al Vuelo (en pruebas)
-  nieve/juego.js        Bolas de Nieve (en pruebas)
-  skeeball/juego.js     Skee-Ball (en pruebas)
-  toques/juego.js       Toques con Pala (en pruebas)
-  fuerza/juego.js       Mazo de Feria (en pruebas)
+  nieve/juego.js        Bolas de Nieve
+  skeeball/juego.js     Skee-Ball
+  toques/juego.js       Toques con Pala
   xilofono/juego.js     Xilófono
   fronton/juego.js      Frontón de Ping Pong
   lenador/juego.js      Leñador
+  castillo/juego.js     Defensa del Castillo
+  billar/juego.js       Billar de Trucos (su física y el generador de mesas, en fisica.js)
+  ring/juego.js         Combate de Boxeo
+  futbolin/juego.js     Futbolín
+  prisma/juego.js       Prisma (los rayos y el generador de salas, en tablero.js)
+  escalada/juego.js     Escalada contra la Lava
 ```
 
 three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `importmap` de `play.html`.
@@ -125,6 +127,7 @@ three.js se carga desde la CDN de jsDelivr (versión fija 0.160.0) mediante el `
 - Cada juego es un módulo que la shell monta y desmonta en la misma escena. Al cambiar, la sesión VR sigue abierta.
 - Mientras juegas, la shell descarga en segundo plano el siguiente juego de la lista. Así el cambio es casi instantáneo.
 - En VR, el botón flota detrás de tu hombro derecho, con un halo que late. Al empezar cada juego aparece unos segundos en la vista una flecha que señala dónde está (solo entonces, para que no moleste mientras juegas). Es grande y, al llevar la mano hacia atrás, el mando vibra cada vez más rápido cuanto más cerca estás. Se activa al dejar la mano **exactamente un segundo** encima: mientras tanto, delante de los ojos gira una rueda de carga que se completa con el nombre de la acción debajo (el botón está detrás y no se ve). Si sacas la mano antes, la carga vuelve a cero. Hay que sacar la mano para volver a usarlo, así que un golpe accidental no cambia de juego dos veces.
+- **Instrucciones al empezar.** En todos los juegos, durante los 5 primeros segundos (`SEGUNDOS_INTRO` en `shell/shell.js`) se ven el título y cómo se juega (los textos `controlesVR`, `controlesEscritorio` o `controlesTactil` del catálogo) con una cuenta atrás, y el juego espera congelado. En VR sale en un panel 3D delante de ti; sin gafas, en `#intro-juego`. Los juegos no tienen que hacer nada: basta con que su catálogo tenga los textos de controles.
 - Sin gafas: botón «Siguiente juego» o tecla **N**.
 - **Catálogo dentro de la VR.** Con las gafas puestas, «Volver al catálogo» del menú de pausa no sale de la realidad virtual: se cierra el juego y aparece delante una pared curva con los mismos juegos públicos que la portada (portada, título, género, partidas, «me gusta» y ★ favoritos), los filtros por género y por favoritos y páginas de 8. Se apunta con el mando y se aprieta el gatillo (la palanca, a los lados, pasa de página); al apuntar una tarjeta sale abajo su descripción y sus etiquetas. Debajo hay «⟲ Volver a …» (el juego que dejaste) y «✕ Salir de la realidad virtual», que lleva a la portada de la web. Sin gafas, «Volver al catálogo» sigue llevando a la portada. Está en `shell/catalogo-vr.js`: cada tarjeta es un plano con su dibujo en un canvas (unas 27 llamadas de dibujo en total).
 - **Volver al juego anterior.** La shell recuerda los juegos por los que has pasado (los últimos 20). Si has pasado uno sin querer o te ha gustado y quieres volver: en VR, desde el menú de pausa («⟲ Volver a …»); sin gafas, con el botón «⟲ Juego anterior» (sale en cuanto hay uno), la tecla **B** o el menú de pausa. Volver no apunta el juego en el historial, así que se puede ir hacia atrás varios seguidos.
@@ -188,6 +191,8 @@ export function iniciar(ctx) {
   // ctx.fondo(color), ctx.vistaEscritorio(pos, objetivo), ctx.guardar/leer(clave)
   // ctx.texturas.cesped/madera/tablas/grano/ladrillos/tela(...), ctx.texturaCanvas(...)
   // ctx.crearSombra({ radio }), ctx.colocarSombra(sombra, posicion, ySuelo), ctx.sueloBase(visible)
+  // ctx.crearMano('izquierda' | 'derecha', { color, colorPuno }) -> { objeto, cerrar(0-1) }: una mano que se
+  //   abre y se cierra, para adjuntar con ctx.adjuntarAMano (ver «Las manos se ven»)
   // ctx.t('clave', { n: 3 }) -> texto en el idioma del jugador (ver «Idiomas»). Nunca escribas textos a mano.
   // ctx.efectos.impacto(nivel, { pos, mano, color, sonido }) -> respuesta a un acierto o golpe: 'pequeño', 'medio' o 'grande'
   // ctx.efectos.texto(pos, '+3', { color, tam }), ctx.efectos.estallido(pos, { color, cantidad }) (ver docs/CALIDAD.md)
@@ -286,6 +291,7 @@ El objetivo es que todos los juegos se vean al mismo nivel sin bajar de los foto
 - **`MeshStandardMaterial` solo para los protagonistas pequeños** (balones, bolas, bates, armas…). El resto en `MeshLambertMaterial`.
 - **Pocas llamadas de dibujo.** Cada malla se dibuja dos veces en VR (una por ojo). Muchos objetos iguales → una textura, `InstancedMesh` o geometría fusionada. Mide con `vrPlay.dibujado()` en la consola: intenta no pasar de ~100 llamadas ni de 60.000 triángulos.
 - Nada de luces puntuales nuevas, postprocesado ni grandes superficies transparentes superpuestas. No crees objetos dentro de `actualizar`.
+- **Las manos se ven, en todos los juegos.** En VR siempre tiene que haber algo donde están tus manos: lo que llevas (raqueta, pistola, taco, guantes…) o, si el juego no pone nada en ellas, unas manos. La shell no dibuja nada por su cuenta. Lo más fácil es `ctx.crearMano('izquierda' | 'derecha', { color, colorPuno })` con `ctx.adjuntarAMano(mano, m.objeto)` y `m.cerrar(0…1)` en cada fotograma: abierta en reposo y cerrada al apretar o al agarrar. Si el objeto de la mano no va en el mando (por ejemplo, un taco que se coge con las dos manos), pon manos igualmente donde lo sujetas. Sin gafas, lo equivalente: que se vea qué controlas tú (los guantes delante de la cámara, el muñeco que se mueve, la mano que cuelga de la presa…).
 
 ## Encargos de voz (Discord → Claude)
 

@@ -24,7 +24,7 @@ import { activarAudio, sonido, sonidoContinuo } from './sonido.js';
 import { iniciarPantallaCompleta } from './pantalla-completa.js';
 import {
   crearCielo, coloresCielo, crearGeneradorEntorno, configurarTexturas,
-  texturas, texturaCanvas, crearSombra, colocarSombra,
+  texturas, texturaCanvas, crearSombra, colocarSombra, crearMano,
 } from './graficos.js';
 
 const COLOR_FONDO = 0x141826;
@@ -446,6 +446,10 @@ function montar(indice, modulo) {
     },
     crearSombra,
     colocarSombra,
+    // Una mano que se abre y se cierra, para los juegos que no llevan nada en las manos (README,
+    // «Las manos se ven»): const m = ctx.crearMano('derecha', { color }); ctx.adjuntarAMano(mano, m.objeto);
+    // m.cerrar(0…1) en cada fotograma.
+    crearMano,
     vistaEscritorio(posicion, objetivo) {
       vista.posicion.copy(posicion);
       vista.objetivo.copy(objetivo);
@@ -468,6 +472,7 @@ function montar(indice, modulo) {
   // jugado: segundos de juego sin contar la pausa; a los SEGUNDOS_PARTIDA cuenta como una partida
   actual = { indice, instancia, raiz, adjuntos, recursos, continuos, jugado: 0, contada: false };
   errorJuego = false;
+  iniciarIntro();
 }
 
 function desmontar() {
@@ -626,6 +631,82 @@ function actualizarAviso(dt) {
     colocarAviso = false;
   }
   aviso.mesh.visible = true;
+}
+
+// ─── Instrucciones al empezar cada juego ─────────────────────────────────
+// Durante los primeros segundos de cada juego (que espera congelado, como en la pausa) se ven
+// el título y cómo se juega. Sirve para todos los juegos: usa los textos de controles del catálogo.
+const SEGUNDOS_INTRO = 5;
+let introRestante = 0;
+let introColocada = false;
+const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
+introPanel.mesh.visible = false;
+// Es interfaz: se dibuja siempre por encima de los objetos del juego, nunca queda detrás de nada
+introPanel.mesh.material.depthTest = false;
+introPanel.mesh.renderOrder = 950;
+escena.add(introPanel.mesh);
+const $intro = document.getElementById('intro-juego');
+const $introTitulo = document.getElementById('intro-titulo');
+const $introTexto = document.getElementById('intro-texto');
+const $introCuenta = document.getElementById('intro-cuenta');
+
+// Parte un texto en líneas de unos «max» caracteres (también el que no lleva espacios, como el japonés)
+function partirTexto(texto, max) {
+  const lineas = [];
+  let linea = '';
+  for (const palabra of texto.split(' ')) {
+    for (let i = 0; i < palabra.length; i += max) {
+      const trozo = palabra.slice(i, i + max);
+      if (linea && (linea + ' ' + trozo).length > max) {
+        lineas.push(linea);
+        linea = trozo;
+      } else {
+        linea = linea ? linea + ' ' + trozo : trozo;
+      }
+    }
+  }
+  if (linea) lineas.push(linea);
+  return lineas;
+}
+
+function iniciarIntro() {
+  introRestante = SEGUNDOS_INTRO;
+  introColocada = false;
+}
+
+function actualizarIntro(dt) {
+  const visible = !!actual && !errorJuego && !pausado && !enCatalogo && introRestante > 0;
+  if (visible) introRestante -= dt;
+  if (!visible || introRestante <= 0) {
+    introPanel.mesh.visible = false;
+    $intro.hidden = true;
+    return;
+  }
+  const juego = JUEGOS[actual.indice];
+  const n = Math.ceil(introRestante);
+  const cuenta = t('jugar.introEmpieza', { n });
+  const textoWeb = TACTIL ? juego.controlesTactil || juego.controlesEscritorio : juego.controlesEscritorio;
+  $introTitulo.textContent = juego.titulo;
+  $introTexto.textContent = textoWeb;
+  $introCuenta.textContent = cuenta;
+  $intro.hidden = false;
+  if (!renderer.xr.isPresenting) {
+    introPanel.mesh.visible = false;
+    introColocada = false;
+    return;
+  }
+  introPanel.escribir([
+    { texto: juego.titulo, tam: 1.3, color: '#ffd54f' },
+    ...partirTexto(juego.controlesVR, 36).map((texto) => ({ texto, tam: 0.8 })),
+    { texto: cuenta, tam: 0.9, color: '#80e8dc' },
+  ]);
+  // Se recoloca en cada fotograma, delante y hacia la izquierda de la mirada, para leerlo sin girar mucho
+  const delante = cabezaDir.clone().setY(0).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.5).multiplyScalar(1.3);
+  introPanel.mesh.position.copy(cabezaPos).add(delante);
+  introPanel.mesh.position.y = cabezaPos.y - 0.05;
+  introPanel.mesh.lookAt(cabezaPos);
+  introColocada = true;
+  introPanel.mesh.visible = true;
 }
 
 // ─── Clasificación: aviso al terminar una partida ────────────────────────
@@ -984,7 +1065,9 @@ renderer.setAnimationLoop(() => {
 
   // Un error dentro de un juego no debe bloquear la shell (ni el botón de cambio)
   efectos.antes(); // quitar la sacudida del fotograma anterior antes de que el juego mueva nada
-  if (actual && !errorJuego && !pausado) {
+  const enIntro = introRestante > 0; // el juego espera mientras se ven las instrucciones
+  actualizarIntro(dt);
+  if (actual && !errorJuego && !pausado && !enIntro) {
     try {
       // Durante la micro-pausa de un impacto el juego recibe un dt casi nulo
       actual.instancia.actualizar?.(efectos.escalaTiempo(dt), tiempo);

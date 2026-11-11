@@ -121,6 +121,7 @@ ctx.orientarFondo(-rumbo);
   `CapsuleGeometry`), dos o tres materiales que se distingan por brillo (metal, madera, goma) y algún detalle
   funcional (empuñadura con textura, guarda, gatillo, cordón). Ejemplos: la katana de Corta Fruta, el bate de
   Batea Bolas, los guantes de Para Penaltis, la pistola de la Galería de Tiro.
+- **Las manos siempre se ven en VR.** Si el juego no pone nada en las manos, usa `ctx.crearMano` (ver «Las manos se ven» en el README).
 - **Que se lea en juego**: lo importante (fruta, blancos, la hoja de la espada) destaca del fondo por forma
   y por brillo, no solo por color. De noche, un `emissive` suave del color de la mano.
 - **Materiales por papel**: `MeshStandardMaterial` (con brillo y reflejos) para los protagonistas pequeños;

@@ -105,6 +105,16 @@
       pointer-events: none;
     }
     .aviso-clasificacion[hidden], body.en-vr .aviso-clasificacion { display: none; }
+    /* Instrucciones de los primeros segundos de cada juego (en VR salen en un panel 3D) */
+    .intro-juego {
+      position: fixed; z-index: 14; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(520px, calc(100% - 32px)); padding: 18px 22px; border-radius: 16px; text-align: center;
+      background: rgba(12, 14, 28, 0.88); border: 1px solid var(--accent-2); color: #fff; pointer-events: none;
+    }
+    .intro-juego h2 { margin: 0 0 8px; font-size: 1.4rem; color: #ffd54f; }
+    .intro-juego p { margin: 0 0 8px; font-size: 1.05rem; line-height: 1.4; }
+    .intro-juego .intro-cuenta { margin: 0; color: var(--accent-2); font-weight: 600; }
+    .intro-juego[hidden], body.en-vr .intro-juego { display: none; }
 
     /* Pantalla completa (o app instalada): solo el juego y dos botones flotantes */
     body.inmersivo .barra, body.inmersivo .pie { display: none; }
@@ -192,6 +202,11 @@
     </div>
   </div>
   <div class="aviso-clasificacion" id="aviso-clasificacion" role="status" hidden></div>
+  <div class="intro-juego" id="intro-juego" hidden>
+    <h2 id="intro-titulo"></h2>
+    <p id="intro-texto"></p>
+    <p class="intro-cuenta" id="intro-cuenta"></p>
+  </div>
 
   <script type="module" src="shell/shell.js"></script>
   <!-- Cloudflare Web Analytics: visitas y páginas vistas, sin cookies -->

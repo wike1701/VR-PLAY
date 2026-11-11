@@ -148,25 +148,15 @@ const SONIDOS = {
   tambor3: () => { tono(110, 50, 0.34, 'sine', 0.6); ruido(0.04, 700, 0.25, 1); }, // bombo
   pulso: () => { tono(1600, 1600, 0.03, 'sine', 0.06); },
   bajo: () => { tono(82, 80, 0.22, 'triangle', 0.22); },
-  // Pesca: el corcho que cae al agua, el pez que muerde y el carrete
-  chapuzon: () => { ruido(0.25, 1200, 0.35, 0.8); tono(400, 160, 0.12, 'sine', 0.2); },
-  picada: () => { ruido(0.12, 900, 0.5, 1); tono(260, 120, 0.1, 'sine', 0.35); },
-  carrete: () => { tono(2600, 2600, 0.02, 'square', 0.04); },
   // Bomberos: el chorro de la manguera, el vapor al apagar un fuego y el derrumbe de una ventana
   chorro: () => { ruido(0.2, 2200, 0.07, 0.9); },
   vapor: () => { ruido(0.4, 4200, 0.3, 1.2); tono(700, 300, 0.2, 'sine', 0.06); },
   derrumbe: () => { ruido(0.7, 320, 0.7, 0.5); tono(110, 45, 0.5, 'sawtooth', 0.2); },
-  // Campo de prácticas: el golpe seco del driver
-  driver: () => { tono(1900, 900, 0.06, 'triangle', 0.35); ruido(0.08, 3800, 0.55, 1.2); tono(260, 120, 0.08, 'sine', 0.25); },
-  // Piñata: el palo contra el cartón y el papel que se rasga al romperse
-  carton: () => { tono(150, 70, 0.12, 'triangle', 0.45); ruido(0.1, 1300, 0.5, 0.8); },
-  rasgar: () => { ruido(0.45, 2600, 0.6, 0.7); tono(220, 70, 0.3, 'sawtooth', 0.15); },
   // Tortitas: la masa que chisporrotea en la sartén
   chisporroteo: () => { ruido(0.5, 5200, 0.12, 0.9); ruido(0.3, 2600, 0.06, 1.5); },
   // Bolas de nieve: el golpe blando de una bola que se deshace
   nieve: () => { ruido(0.16, 900, 0.55, 0.6); tono(180, 90, 0.08, 'sine', 0.25); },
   // Mazo de feria: el disco que sube silbando por la torre
-  subida: () => { tono(300, 1400, 0.6, 'triangle', 0.1); ruido(0.4, 2400, 0.08, 1.2); },
   // Xilófono: el golpe de la baqueta en la madera y el pulso de fondo (un taco de madera).
   // Las ocho teclas (xilo0 … xilo7, de do a do agudo) se añaden debajo.
   xiloPulso: () => { tono(1900, 1700, 0.025, 'triangle', 0.07); },
@@ -176,6 +166,22 @@ const SONIDOS = {
   // Leñador: el hacha que se clava en la madera y la rama que te da
   hachazo: () => { tono(190, 85, 0.1, 'triangle', 0.45); ruido(0.07, 1300, 0.5, 0.9); tono(900, 600, 0.03, 'square', 0.06); },
   rama: () => { ruido(0.3, 2600, 0.5, 0.6); tono(140, 50, 0.3, 'sine', 0.5); ruido(0.2, 500, 0.4, 0.8); },
+  // Defensa del Castillo: la goma del tirachinas, la pedrada, el enemigo que cae, el cuerno de cada
+  // oleada y el poder que se consigue
+  tirachinas: () => { tono(320, 120, 0.12, 'triangle', 0.3); ruido(0.08, 2200, 0.25, 1.2); },
+  pedrada: () => { tono(260, 120, 0.08, 'square', 0.18); ruido(0.06, 1500, 0.35, 1); },
+  derribo: () => { tono(150, 60, 0.25, 'sine', 0.45); ruido(0.2, 600, 0.4, 0.7); },
+  cuerno: () => { tono(196, 200, 0.5, 'sawtooth', 0.08); tono(294, 298, 0.7, 'sawtooth', 0.07, 0.35); tono(147, 149, 1.0, 'triangle', 0.12); },
+  poder: () => { tono(660, 660, 0.08, 'square', 0.09); tono(880, 880, 0.08, 'square', 0.09, 0.08); tono(1320, 1320, 0.2, 'triangle', 0.14, 0.16); },
+  // Billar de Trucos: la bola que cae en la tronera y rueda por dentro, y el rebotador de goma
+  embocada: () => { tono(420, 180, 0.12, 'triangle', 0.3); ruido(0.25, 900, 0.18, 1.5); tono(240, 200, 0.3, 'sine', 0.08, 0.12); },
+  rebotador: () => { tono(380, 760, 0.12, 'square', 0.12); tono(190, 160, 0.1, 'sine', 0.3); },
+  // Combate de Boxeo: el robot carga el golpe, tu guante contra su chapa, el crítico, el bloqueo y el golpe que te dan
+  carga: () => { tono(300, 900, 0.32, 'sawtooth', 0.06); tono(150, 450, 0.32, 'square', 0.04); },
+  golpeRobot: () => { tono(140, 70, 0.12, 'sine', 0.5); ruido(0.08, 2600, 0.3, 1.4); tono(1900, 1500, 0.05, 'triangle', 0.06); },
+  critico: () => { tono(160, 60, 0.18, 'sine', 0.6); ruido(0.1, 3200, 0.45, 1.2); tono(2400, 3200, 0.1, 'triangle', 0.1, 0.04); },
+  bloqueo: () => { tono(220, 140, 0.08, 'triangle', 0.35); ruido(0.05, 800, 0.3, 1); },
+  teDan: () => { tono(90, 45, 0.25, 'sine', 0.7); ruido(0.18, 400, 0.5, 0.8); tono(600, 200, 0.2, 'sawtooth', 0.06, 0.05); },
   fin: () => {
     tono(523, 523, 0.15, 'triangle', 0.3);
     tono(659, 659, 0.15, 'triangle', 0.3, 0.15);

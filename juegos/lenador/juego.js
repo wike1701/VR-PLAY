@@ -2,8 +2,8 @@
 // Un árbol enorme delante de ti, en un claro del bosque al atardecer, con ramas a la izquierda y
 // a la derecha. Llevas un hacha en cada mano: cortar con la izquierda es cortar desde la
 // izquierda, y con la derecha desde la derecha. Cada hachazo se lleva el trozo de abajo y el
-// árbol baja un trozo. Si cortas del lado en el que hay una rama a tu altura, o del lado en el
-// que va a bajar la siguiente, la rama te da y se acaba. La barra de tiempo se vacía sola y
+// árbol baja un trozo. Si golpeas del lado en el que hay una rama a tu altura, la rama te da
+// y se acaba (una rama más arriba no hace nada hasta que la golpeas). La barra de tiempo se vacía sola y
 // cada hachazo la rellena un poco, pero cada vez se vacía más deprisa. Sin final fijo.
 // Sin gafas: clic (o toque) en la mitad izquierda o derecha de la pantalla.
 import * as THREE from 'three';
@@ -180,9 +180,10 @@ export function iniciar(ctx) {
   formaHoja.closePath();
   const geoHoja = R(new THREE.ExtrudeGeometry(formaHoja, { depth: 0.022, bevelEnabled: true, bevelSize: 0.004, bevelThickness: 0.004, bevelSegments: 2, curveSegments: 8 }));
   geoHoja.translate(0, 0, -0.011);
-  geoHoja.rotateX(-Math.PI / 2); // la hoja queda tumbada: el filo apunta a +X
-  geoHoja.rotateZ(Math.PI / 2);  // y de pie: el filo apunta hacia un lado, la hoja en vertical
-  const geoFilo = R(new THREE.BoxGeometry(0.006, 0.15, 0.02));
+  // La hoja, plana en horizontal: su alto va a lo largo del mango (Z) y el filo apunta a +X,
+  // hacia un lado, que es el que golpea el tronco al dar el hachazo de lado
+  geoHoja.rotateX(Math.PI / 2);
+  const geoFilo = R(new THREE.BoxGeometry(0.006, 0.02, 0.15));
   const matMango = R(new THREE.MeshStandardMaterial({ map: R(ctx.texturas.madera(0xc8955a, { tam: 128, semilla: 204 })), roughness: 0.55 }));
   const matAcero = R(new THREE.MeshStandardMaterial({ color: 0x6d7480, roughness: 0.35, metalness: 0.9 }));
   const matFilo = R(new THREE.MeshStandardMaterial({ color: 0xe8edf2, roughness: 0.15, metalness: 1 }));
@@ -369,8 +370,9 @@ export function iniciar(ctx) {
   function hachazo(lado, mano) {
     if (estado === 'fin') return;
     if (estado === 'espera') empezar();
-    // La rama del trozo que cortas (a tu altura) o la del siguiente (que baja) te dan si están de tu lado
-    const golpeada = pila[0].lado === lado || pila[1].lado === lado;
+    // Solo muere quien golpea por el lado de la rama del trozo que corta (a su altura);
+    // una rama que baja por encima no hace daño hasta que se golpea
+    const golpeada = pila[0].lado === lado;
     // El trozo de abajo sale volando hacia el otro lado y la pila baja
     const t = pila.shift();
     // Si se corta muy deprisa no quedan trozos libres: se reutiliza el que lleva más tiempo volando
@@ -447,7 +449,7 @@ export function iniciar(ctx) {
     hachaRaton.visible = estado !== 'fin' || golpeRaton > 0;
     tmp.set(lado * (0.55 - u * 0.3), Y_CORTE - 0.05, Z_TRONCO + 0.5 - u * 0.25);
     hachaRaton.position.copy(tmp);
-    hachaRaton.rotation.set(-0.1, lado * (0.9 - u * 0.7), 0);
+    hachaRaton.rotation.set(-0.1, lado * 0.25 * (1 - u), 0); // casi recta, con el filo hacia el tronco
   }
 
   function actualizarMarcador() {

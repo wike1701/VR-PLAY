@@ -653,12 +653,23 @@ export function iniciar(ctx) {
       b.velocidad = dt > 0 ? (b.anterior.y - b.cabeza.y) / dt : 0;
       xilofono.worldToLocal(tmp.copy(b.cabeza));
       const altura = tmp.y - R_CABEZA - ARRIBA;
-      const i = Math.round(tmp.x / PASO + (N - 1) / 2);
-      const dentro = i >= 0 && i < N && Math.abs(tmp.x - X(i)) < ANCHO_TECLA / 2 + 0.012 && Math.abs(tmp.z) < LARGOS[i] / 2 + 0.01;
+      let px = tmp.x, pz = tmp.z;
+      // Si la cabeza ha cruzado la tecla entre dos fotogramas (cambio rápido de mano o golpe veloz),
+      // se calcula por dónde la cruzó en vez de mirar solo dónde acabó
+      const antes = b.alturaAnt;
+      if (antes !== undefined && antes >= 0 && altura < 0 && b.xAnt !== undefined) {
+        const f = antes / (antes - altura);
+        px = b.xAnt + (px - b.xAnt) * f;
+        pz = b.zAnt + (pz - b.zAnt) * f;
+      }
+      b.alturaAnt = altura; b.xAnt = tmp.x; b.zAnt = tmp.z;
+      const i = Math.round(px / PASO + (N - 1) / 2);
+      // Zona de golpe más generosa que la tecla visible
+      const dentro = i >= 0 && i < N && Math.abs(px - X(i)) < ANCHO_TECLA / 2 + 0.03 && Math.abs(pz) < LARGOS[i] / 2 + 0.03;
       if (altura > 0.012) b.armada = true;
       else if (altura < 0) {
         // Solo cuenta si la cabeza baja desde arriba sobre una tecla (no si llega por debajo o de lado)
-        if (b.armada && dentro && altura > -0.06) golpear(i, b.mano, Math.min(1, Math.max(0, b.velocidad) / 2.5));
+        if (b.armada && dentro && altura > -0.12) golpear(i, b.mano, Math.min(1, Math.max(0, b.velocidad) / 2.5));
         b.armada = false;
       }
     }

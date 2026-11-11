@@ -443,3 +443,80 @@ export function colocarSombra(sombra, posicion, ySuelo = 0) {
   sombra.material.opacity = sombra.userData.opacidad * f;
   sombra.visible = f > 0.05;
 }
+
+// ─── Manos ────────────────────────────────────────────────────────────────
+// Una mano (o guante) que se puede abrir y cerrar, para los juegos que no llevan nada en las manos:
+// en VR siempre tiene que verse algo donde están tus manos (ver «Las manos se ven» en el README).
+// Está hecha en el espacio del mando (grip): los dedos hacia −z, el dorso hacia +y y la palma hacia
+// dentro (−x en la derecha; la izquierda es su reflejo). Las geometrías son de la shell; los
+// materiales, del juego, y se liberan con él.
+let geoMano = null;
+function geometriasMano() {
+  if (geoMano) return geoMano;
+  const palma = new THREE.BoxGeometry(0.03, 0.078, 0.085, 1, 2, 2);
+  // Redondea un poco la palma: aplasta las esquinas hacia el centro
+  const p = palma.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const y = p.getY(i);
+    const z = p.getZ(i);
+    const f = 1 - 0.12 * (Math.abs(y) / 0.039) * (Math.abs(z) / 0.0425);
+    p.setY(i, y * f);
+    p.setX(i, p.getX(i) * (1 - 0.35 * Math.abs(z) / 0.0425));
+  }
+  palma.computeVertexNormals();
+  // Cada dedo en dos falanges: cápsulas con la base (la articulación) en el origen, hacia −z
+  const falange = new THREE.CapsuleGeometry(0.0085, 0.02, 3, 8).rotateX(Math.PI / 2).translate(0, 0, -0.017);
+  const punta = new THREE.CapsuleGeometry(0.008, 0.014, 3, 8).rotateX(Math.PI / 2).translate(0, 0, -0.014);
+  const pulgar = new THREE.CapsuleGeometry(0.0095, 0.034, 3, 8).rotateX(Math.PI / 2).translate(0, 0, -0.024);
+  const puno = new THREE.CylinderGeometry(0.027, 0.03, 0.04, 16).rotateX(Math.PI / 2);
+  geoMano = { palma, falange, punta, pulgar, puno };
+  for (const g of Object.values(geoMano)) g.userData.compartido = true;
+  return geoMano;
+}
+
+// lado: 'izquierda' | 'derecha'. opciones: { color (piel o guante), colorPuno }.
+// Devuelve { objeto, cerrar(f) }: f = 0 abierta, 1 cerrada (agarrando).
+export function crearMano(lado = 'derecha', { color = 0xe0b088, colorPuno = 0x2a2e3a } = {}) {
+  const g = geometriasMano();
+  const material = new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0 });
+  const materialPuno = new THREE.MeshStandardMaterial({ color: colorPuno, roughness: 0.8, metalness: 0 });
+  const objeto = new THREE.Group();
+  objeto.name = 'mano';
+  if (lado === 'izquierda') objeto.scale.x = -1;
+  const palma = new THREE.Mesh(g.palma, material);
+  palma.position.set(0, -0.012, 0.02);
+  const puno = new THREE.Mesh(g.puno, materialPuno);
+  puno.position.set(0, -0.012, 0.078);
+  objeto.add(palma, puno);
+  // Cuatro dedos en fila (del índice al meñique), algo más cortos hacia fuera
+  const articulaciones = [];
+  [0.027, 0.009, -0.009, -0.026].forEach((y, i) => {
+    const largo = [0.95, 1.05, 1, 0.8][i];
+    const nudillo = new THREE.Group();
+    nudillo.position.set(-0.002, -0.012 + y, -0.022);
+    const primera = new THREE.Mesh(g.falange, material);
+    primera.scale.z = largo;
+    const medio = new THREE.Group();
+    medio.position.z = -0.032 * largo;
+    const segunda = new THREE.Mesh(g.punta, material);
+    segunda.scale.z = largo;
+    medio.add(segunda);
+    nudillo.add(primera, medio);
+    objeto.add(nudillo);
+    articulaciones.push(nudillo, medio);
+  });
+  const pulgar = new THREE.Group();
+  pulgar.position.set(-0.012, 0.024, 0.03);
+  pulgar.rotation.set(0.5, 0.55, 0);
+  pulgar.add(new THREE.Mesh(g.pulgar, material));
+  objeto.add(pulgar);
+  return {
+    objeto,
+    cerrar(f) {
+      const c = Math.max(0, Math.min(1, f));
+      // Los dedos se doblan hacia la palma (−x) y el pulgar se cruza por encima
+      for (const a of articulaciones) a.rotation.y = 0.08 + c * 1.35;
+      pulgar.rotation.set(0.5 - c * 0.2, 0.55 + c * 0.6, 0);
+    },
+  };
+}

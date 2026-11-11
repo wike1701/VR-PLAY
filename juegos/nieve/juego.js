@@ -179,8 +179,29 @@ export function iniciar(ctx) {
   // Historial de posiciones de cada mano para la velocidad del lanzamiento
   const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
 
+  // Manos visibles (guantes): palma y cuatro dedos curvados alrededor de la bola que sostienes
+  const matGuante = R(new THREE.MeshLambertMaterial({ color: 0xd6283a }));
+  const geoPalma = R(new THREE.BoxGeometry(0.075, 0.03, 0.08).translate(0, 0, 0.02));
+  const geoDedoMano = R(new THREE.CapsuleGeometry(0.011, 0.04, 4, 8).rotateX(Math.PI / 2));
+  const geoPulgar = R(new THREE.CapsuleGeometry(0.012, 0.035, 4, 8).rotateX(Math.PI / 2));
+  for (const mano of ctx.manos) {
+    const guante = new THREE.Group();
+    guante.add(new THREE.Mesh(geoPalma, matGuante));
+    for (let i = 0; i < 4; i++) {
+      const dedo = new THREE.Mesh(geoDedoMano, matGuante);
+      dedo.position.set(-0.027 + i * 0.018, -0.005, -0.045);
+      dedo.rotation.x = 0.35;
+      guante.add(dedo);
+    }
+    const pulgar = new THREE.Mesh(geoPulgar, matGuante);
+    pulgar.position.set(0.045, 0.0, -0.01);
+    pulgar.rotation.y = -0.5;
+    guante.add(pulgar);
+    ctx.adjuntarAMano(mano, guante);
+  }
+
   // ─── Marcador ──────────────────────────────────────────────────────────
-  const marcador = ctx.crearPanel({ ancho: 1.1, alto: 0.32 });
+  const marcador =ctx.crearPanel({ ancho: 1.1, alto: 0.32 });
   marcador.mesh.position.set(-1.3, 1.75, -2.2);
   marcador.mesh.rotation.y = 0.3;
   raiz.add(marcador.mesh);
@@ -357,6 +378,30 @@ export function iniciar(ctx) {
     }
   }
 
+  // Ayuda de puntería: si la bola va más o menos hacia un pingüino, gira la velocidad hacia él
+  const dirTmp = new THREE.Vector3();
+  function ayudaPuntería(origen, vel) {
+    const rapidez = vel.length();
+    dirTmp.copy(vel).normalize();
+    let mejorCos = Math.cos(0.45); // unos 26°
+    let blanco = null;
+    for (const p of pinguinos) {
+      if (p.estado === 'escondido' || p.estado === 'bajando' || p.estado === 'golpeado') continue;
+      tmp2.copy(p.centro).sub(origen).normalize();
+      const c = tmp2.dot(dirTmp);
+      if (c > mejorCos) {
+        mejorCos = c;
+        blanco = p;
+      }
+    }
+    if (!blanco) return;
+    const dist = blanco.centro.distanceTo(origen);
+    const t = Math.max(0.12, dist / rapidez);
+    tmp2.copy(blanco.centro).sub(origen).divideScalar(t);
+    tmp2.y += 0.5 * G * t; // compensa la caída
+    vel.lerp(tmp2, 0.6);
+  }
+
   // ─── Entrada ───────────────────────────────────────────────────────────
   function entradaVR(dt) {
     ctx.manos.forEach((mano, k) => {
@@ -372,10 +417,14 @@ export function iniciar(ctx) {
           const atras = (h.n + 8 - 4) % 8;
           let tiempo = 0;
           for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(1.5);
-          if (tmp.length() < 1.5) {
+          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(2.6);
+          if (tmp.length() < 1.2) {
             soltar(cogida); // la suelta sin lanzarla
           } else {
+            // Un lanzamiento flojo sale con una fuerza mínima y se corrige un poco hacia el pingüino más cercano a la dirección
+            const vmin = 9;
+            if (tmp.length() < vmin) tmp.setLength(vmin);
+            ayudaPuntería(cogida.malla.position, tmp);
             lanzarMia(cogida, tmp);
             ctx.vibrar(mano, 0.3, 30);
           }
