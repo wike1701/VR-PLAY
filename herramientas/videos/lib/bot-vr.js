@@ -335,10 +335,29 @@ window.__iniciarBotVR = function iniciarBotVR(cfg) {
     if (++cuadros < 20) {
       // Quietas al empezar, para medir el desfase del grip (ver medirDesfase)
       if (cuadros === 19) manos.forEach(medirDesfase);
+    } else if (window.__jugada?.vr) {
+      // Jugada a medida del juego (lib/jugadas/<id>.js): pone mano.meta, mano.gatillo y, si quiere,
+      // cabeza.mira; aquí se mueven las manos con su muelle (mano.rigidez o cfg.rigidez)
+      window.__jugada.vr(apiJugada, ahora, dt);
+      for (const mano of manos) mover(mano, dt, mano.rigidez ?? cfg.rigidez ?? 160);
     } else (PASOS[cfg.modo] || pasoGolpear)(lista, ahora, dt);
     for (const mano of manos) colocarMando(mano);
     requestAnimationFrame(paso);
   }
+  // Lo que ve una jugada a medida (lib/jugadas/<id>.js, ver lib/jugadas/LEEME.md)
+  const apiJugada = {
+    fab, THREE: fab.THREE, V3, Quat, manos, cabeza, cfg, bot, ALTURA,
+    raiz: () => fab.escena.children.find((c) => c.name?.startsWith('juego-')),
+    candidatos: () => candidatos(performance.now(), 0),
+    // Todas las mallas del juego que cumplan filtro(malla), con su posición en el mundo
+    buscar(filtro) {
+      const raiz = apiJugada.raiz();
+      const r = [];
+      raiz?.traverseVisible((m) => { if (filtro(m)) r.push({ malla: m, p: m.getWorldPosition(new V3()) }); });
+      return r;
+    },
+    impacto: (nivel = 0.6) => fab.eventos.push({ tipo: 'impacto', nivel, t: performance.now() }),
+  };
   bot.manos = manos; // para depurar desde fuera
   requestAnimationFrame(paso);
   return true;

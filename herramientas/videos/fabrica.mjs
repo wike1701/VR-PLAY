@@ -4,6 +4,7 @@
 //   node herramientas/videos/fabrica.mjs editar <video> [--clips clips.json] [--encuadre 0.5] [--encajar]
 //   node herramientas/videos/fabrica.mjs bruto <partida en bruto> [--solo-trocear] [--juegos id,id] [--nombre n]
 //   node herramientas/videos/fabrica.mjs voz-prueba <id>   (muestras de entonación para elegir)
+//   node herramientas/videos/fabrica.mjs probar-bot <id> [--modo vr|raton] [--segundos 12]   (¿juega bien el bot?)
 // Opciones: --idioma es|en (por defecto los dos), --sin-grabar (monta con la grabación ya hecha),
 //   --modo vr|raton (cómo se graba; por defecto vr), --gancho web|persona|impacto|reto (fuerza el
 //   gancho), --voz natural|kokoro (natural = Chatterbox; por defecto, si está), --sin-voz,
@@ -19,7 +20,7 @@ const opcion = (nombre) => {
   const i = args.indexOf('--' + nombre);
   return i < 0 ? null : args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true;
 };
-const sueltos = args.slice(1).filter((a, i, l) => !a.startsWith('--') && !(l[i - 1]?.startsWith('--') && ['idioma', 'clips', 'encuadre', 'modo', 'gancho', 'voz', 'juegos', 'nombre', 'estilo'].includes(l[i - 1].slice(2))));
+const sueltos = args.slice(1).filter((a, i, l) => !a.startsWith('--') && !(l[i - 1]?.startsWith('--') && ['idioma', 'clips', 'encuadre', 'modo', 'gancho', 'voz', 'juegos', 'nombre', 'estilo', 'segundos', 'reloj'].includes(l[i - 1].slice(2))));
 const idiomas = opcion('idioma') ? [opcion('idioma')] : ['es', 'en'];
 
 async function ordenJuego() {
@@ -103,6 +104,13 @@ async function ordenVozPrueba() {
   for (const m of await pruebaDeVoz(id, idioma, destino)) log(`${m.nombre}: ${path.relative(process.cwd(), m.salida)} (expresividad ${m.expresividad.join(' / ')})`);
 }
 
+async function ordenProbarBot() {
+  const id = sueltos[0];
+  if (!id) throw new Error('Di qué juego: probar-bot <id>');
+  const { probarBot } = await import('./lib/probar.mjs');
+  await probarBot({ id, modo: opcion('modo') === 'raton' ? 'raton' : 'vr', segundos: +(opcion('segundos') || 12), idioma: opcion('idioma') || 'es' });
+}
+
 async function principal() {
   crear(TRABAJO);
   if (orden === 'comprobar') return (await import('./lib/comprobar.mjs')).comprobarInstalacion();
@@ -110,6 +118,7 @@ async function principal() {
   if (orden === 'editar') return ordenEditar();
   if (orden === 'bruto') return ordenBruto();
   if (orden === 'voz-prueba') return ordenVozPrueba();
+  if (orden === 'probar-bot') return ordenProbarBot();
   console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(0, 10).join('\n').replace(/^\/\/ ?/gm, ''));
 }
 

@@ -80,7 +80,9 @@ export async function grabarPartida({ urlBase, id, idioma, estrategia, carpeta, 
   for (const f of [webm, webmEsp, path.join(carpeta, 'espectador.mp4')]) fs.rmSync(f, { force: true });
   const navegador = await abrirNavegador(chromium);
   try {
-    const contexto = await navegador.newContext({ viewport: { width: ANCHO, height: ALTO }, deviceScaleFactor: 1, locale: idioma });
+    // VRPLAY_ESCALA=0.5 graba a media resolución (para probar un bot deprisa: probar-bot)
+    const escala = +(process.env.VRPLAY_ESCALA || 1);
+    const contexto = await navegador.newContext({ viewport: { width: Math.round(ANCHO * escala), height: Math.round(ALTO * escala) }, deviceScaleFactor: 1, locale: idioma });
     const pagina = await contexto.newPage();
     const errores = [];
     pagina.on('pageerror', (e) => errores.push(String(e.message || e)));
@@ -96,6 +98,8 @@ export async function grabarPartida({ urlBase, id, idioma, estrategia, carpeta, 
     // El reloj virtual va el primero, para que IWER, la shell y los bots usen sus funciones de tiempo
     if (reloj === 'virtual') await pagina.addInitScript({ path: path.join(CARPETA, 'lib/reloj-virtual.js') });
     await pagina.addInitScript(ENGANCHE_AUDIO);
+    const jugada = path.join(CARPETA, 'lib/jugadas', id + '.js');
+    if (fs.existsSync(jugada)) await pagina.addInitScript({ path: jugada });
     if (modo === 'vr') {
       await pagina.addInitScript({ path: require.resolve('iwer/build/iwer.min.js') });
       await pagina.addInitScript(GAFAS);
@@ -246,14 +250,14 @@ async function grabarVirtual({ pagina, id, idioma, estrategia, modo, carpeta, er
   const juego = codificador(mudo, 14);
   const esp = modo === 'vr' ? codificador(path.join(carpeta, 'espectador.mp4'), 16) : null;
   const inicio = Date.now();
-  await pagina.evaluate(({ estrategia, modo }) => {
+  await pagina.evaluate(({ estrategia, modo, escala }) => {
     window.__reloj.activar();
     window.__grab = { inicio: performance.now(), eventosAntes: window.__fabrica.eventos.length };
     // El espectador, a 720×1280 (FFmpeg lo escala): es el plano secundario y así va más rápido
-    if (modo === 'vr') window.__iniciarEspectador({ ...estrategia.vr.espectador, ancho: 720, alto: 1280 });
+    if (modo === 'vr') window.__iniciarEspectador({ ...estrategia.vr.espectador, ancho: Math.round(720 * escala), alto: Math.round(1280 * escala) });
     if (modo === 'vr') window.__iniciarBotVR(estrategia.vr);
     else window.__iniciarBot(estrategia);
-  }, { estrategia, modo });
+  }, { estrategia, modo, escala: +(process.env.VRPLAY_ESCALA || 1) });
   // Sin GPU cada segundo de partida cuesta ~20-25 s: se graban como mucho SEGUNDOS_VIRTUAL (el vídeo
   // usa 15-45 s de los mejores momentos)
   const fin = Math.min(estrategia.segundos, +(process.env.VRPLAY_SEGUNDOS || SEGUNDOS_VIRTUAL)) * 1000;
