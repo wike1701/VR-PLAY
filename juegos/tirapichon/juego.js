@@ -301,14 +301,24 @@ export function iniciar(ctx) {
 
   const geoTrozo = R(new THREE.TetrahedronGeometry(0.008));
   const matPolvo = R(new THREE.MeshBasicMaterial({ color: 0xbfa98a }));
-  const particulas = [];
+  // Bolsa de trocitos creada al empezar (nada se crea al disparar): se reutilizan por turnos
+  const N_TROZOS = 32;
+  const particulas = Array.from({ length: N_TROZOS }, () => {
+    const malla = new THREE.Mesh(geoTrozo, matPolvo);
+    malla.visible = false;
+    raiz.add(malla);
+    return { malla, vel: new THREE.Vector3(), vida: 0 };
+  });
+  let siguienteTrozo = 0;
   function trozos(punto, material, n, fuerza) {
     for (let i = 0; i < n; i++) {
-      const p = new THREE.Mesh(geoTrozo, material);
-      p.position.copy(punto);
-      const vel = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.8, Math.random() * 0.6).multiplyScalar(fuerza);
-      raiz.add(p);
-      particulas.push({ malla: p, vel, vida: 0.6 });
+      const p = particulas[siguienteTrozo];
+      siguienteTrozo = (siguienteTrozo + 1) % N_TROZOS;
+      p.malla.material = material;
+      p.malla.position.copy(punto);
+      p.malla.visible = true;
+      p.vel.set(Math.random() - 0.5, Math.random() * 0.8, Math.random() * 0.6).multiplyScalar(fuerza);
+      p.vida = 0.6;
     }
   }
 
@@ -450,6 +460,7 @@ export function iniciar(ctx) {
 
   function empezar() {
     estado = 'jugando';
+    ctx.partida.empezar();
     puntos = 0;
     premios = 0;
     balines = BALINES;
@@ -460,9 +471,14 @@ export function iniciar(ctx) {
 
   // Distancia mínima entre el rayo del balín (dir unitaria) y el eje de un palillo (a-b).
   // Devuelve { d, t, punto } (t: distancia a lo largo del rayo) o null si queda detrás.
+  const segU = new THREE.Vector3();
+  const segW = new THREE.Vector3();
+  const segPunto = new THREE.Vector3();
+  const segRes = { d: 0, t: 0, punto: segPunto };
+  // Devuelve siempre el mismo objeto (y el mismo punto): cópialo si hace falta guardarlo
   function rayoContraSegmento(o, dir, a, b) {
-    const u = new THREE.Vector3().subVectors(b, a);
-    const w = new THREE.Vector3().subVectors(o, a);
+    const u = segU.subVectors(b, a);
+    const w = segW.subVectors(o, a);
     const uu = u.dot(u);
     const ud = u.dot(dir);
     const uw = u.dot(w);
@@ -471,9 +487,23 @@ export function iniciar(ctx) {
     const s = Math.min(1, Math.max(0, den > 1e-9 ? (uw - dw * ud) / den : 0));
     const t = s * ud - dw;
     if (t <= 0) return null;
-    const punto = a.clone().addScaledVector(u, s);
-    const d = o.clone().addScaledVector(dir, t).distanceTo(punto);
-    return { d, t, punto };
+    segPunto.copy(a).addScaledVector(u, s);
+    segRes.d = segW.copy(o).addScaledVector(dir, t).distanceTo(segPunto);
+    segRes.t = t;
+    return segRes;
+  }
+
+  // Lo que toca el balín (un solo objeto reutilizado, sin crear nada en cada disparo)
+  const auxA = new THREE.Vector3();
+  const auxB = new THREE.Vector3();
+  const auxP = new THREE.Vector3();
+  const tocado = { tipo: '', h: null, t: 0, punto: new THREE.Vector3() };
+  function elegir(tipo, h, t, punto) {
+    tocado.tipo = tipo;
+    tocado.h = h;
+    tocado.t = t;
+    tocado.punto.copy(punto);
+    return tocado;
   }
 
   function disparar(origen, direccion, mano) {
@@ -487,8 +517,8 @@ export function iniciar(ctx) {
     // ¿Qué es lo primero que toca el balín?
     let mejor = null;
     let casi = Infinity;
-    const a = new THREE.Vector3();
-    const b = new THREE.Vector3();
+    const a = auxA;
+    const b = auxB;
     for (const h of huecos) {
       if (h.estado !== 'colgado' && h.estado !== 'apareciendo') continue;
       h.pivote.localToWorld(a.set(0, 0, 0));
@@ -496,7 +526,7 @@ export function iniciar(ctx) {
       const r = rayoContraSegmento(origen, direccion, a, b);
       if (r) {
         const holgura = h.tipo.radio + RADIO_BALIN;
-        if (r.d <= holgura && (!mejor || r.t < mejor.t)) mejor = { tipo: 'palillo', h, t: r.t, punto: r.punto };
+        if (r.d <= holgura && (!mejor || r.t < mejor.t)) mejor = elegir('palillo', h, r.t, r.punto);
         else casi = Math.min(casi, r.d - holgura);
       }
       // El premio, como una esfera
@@ -509,7 +539,7 @@ export function iniciar(ctx) {
         const r2 = premio.radio * premio.radio;
         if (d2 < r2) {
           const t = tc - Math.sqrt(r2 - d2);
-          if (!mejor || t < mejor.t) mejor = { tipo: 'premio', h, t, punto: origen.clone().addScaledVector(direccion, t) };
+          if (!mejor || t < mejor.t) mejor = elegir('premio', h, t, auxP.copy(origen).addScaledVector(direccion, t));
         }
       }
     }
@@ -525,7 +555,7 @@ export function iniciar(ctx) {
       // Al fondo: deja la marca para corregir el siguiente tiro
       if (direccion.z < -1e-3) {
         const t = (Z_FONDO - origen.z) / direccion.z;
-        const p = origen.clone().addScaledVector(direccion, t);
+        const p = auxP.copy(origen).addScaledVector(direccion, t);
         if (Math.abs(p.x) < ANCHO / 2 && p.y > 0 && p.y < ALTO) {
           marcar(p);
           trozos(p, matPolvo, 4, 0.6);
@@ -550,7 +580,7 @@ export function iniciar(ctx) {
     h.estado = 'cayendo';
     h.t = 0;
     h.sombra.visible = true;
-    puntos += h.tipo.puntos;
+    if (ctx.partida.activa) puntos += h.tipo.puntos;
     premios += 1;
     trozos(punto, matPalillo, 7, 1.2);
     ctx.sonido('clac');
@@ -614,19 +644,28 @@ export function iniciar(ctx) {
   }
 
   // ─── Disparo en VR ─────────────────────────────────────────────────────
+  let soporteAdjunto = false;
   function apuntarVR() {
-    const activas = ctx.manos.filter((m) => m.activa);
     // La escopeta va en la mano que aprieta el gatillo (sin estar sujetando el cañón)
-    for (const m of activas) {
-      if (m.gatilloPulsado && m.lado && m.lado !== ladoArma && !m.apreton) {
+    for (const m of ctx.manos) {
+      if (m.activa && m.gatilloPulsado && m.lado && m.lado !== ladoArma && !m.apreton) {
         ladoArma = m.lado;
         manoArma = null;
       }
     }
-    const mano = activas.find((m) => m.lado === ladoArma) || activas[0] || null;
+    // La mano de la escopeta (o la primera que se vea), sin crear listas
+    let mano = null;
+    for (const m of ctx.manos) {
+      if (!m.activa) continue;
+      if (m.lado === ladoArma) { mano = m; break; }
+      if (!mano) mano = m;
+    }
     if (mano !== manoArma) {
-      if (soporte.parent) soporte.parent.remove(soporte);
-      if (mano) ctx.adjuntarAMano(mano, soporte);
+      // Se registra en la shell una sola vez; después solo se cambia de mando
+      if (mano && !soporteAdjunto) {
+        ctx.adjuntarAMano(mano, soporte);
+        soporteAdjunto = true;
+      } else if (mano) mano.grip.add(soporte);
       manoArma = mano;
     }
     soporte.visible = !!mano;
@@ -634,7 +673,8 @@ export function iniciar(ctx) {
 
     // Con la otra mano sujetando el cañón (botón lateral cerca del guardamanos),
     // la escopeta apunta de una mano a la otra, como una de verdad.
-    const apoyo = activas.find((m) => m !== mano && m.apreton);
+    let apoyo = null;
+    for (const m of ctx.manos) if (m.activa && m !== mano && m.apreton) apoyo = m;
     soporte.updateMatrixWorld();
     let dosManos = false;
     if (apoyo) {
@@ -720,7 +760,7 @@ export function iniciar(ctx) {
     if (pulsadoAntes && !pulsado) {
       if (estado === 'jugando' && recarga <= 0 && balines > 0) {
         escopetaRaton.fogonazo.visible = true;
-        disparar(origenTiro, dir.clone(), null);
+        disparar(origenTiro, dir, null);
       }
     }
     if (!pulsado) {
@@ -755,7 +795,7 @@ export function iniciar(ctx) {
     } else if (estado === 'jugando' && balines <= 0 && recarga <= 0 && !huecos.some((h) => h.estado === 'cayendo')) {
       estado = 'fin';
       reloj = 7;
-      ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+      if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
       if (puntos > record) {
         record = puntos;
         nuevoRecord = puntos > 0;
@@ -769,16 +809,13 @@ export function iniciar(ctx) {
     for (const h of huecos) actualizarHueco(h, dt, t);
     raiz.updateMatrixWorld();
 
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
+    for (const p of particulas) {
+      if (p.vida <= 0) continue;
       p.vida -= dt;
       p.vel.y -= 6 * dt;
       p.malla.position.addScaledVector(p.vel, dt);
       p.malla.scale.setScalar(Math.max(0.01, p.vida / 0.6));
-      if (p.vida <= 0) {
-        raiz.remove(p.malla);
-        particulas.splice(i, 1);
-      }
+      if (p.vida <= 0) p.malla.visible = false;
     }
 
     if (ctx.enVR()) {
@@ -800,7 +837,6 @@ export function iniciar(ctx) {
   return {
     actualizar,
     liberar() {
-      particulas.length = 0;
       bombillas.dispose();
       marcas.dispose();
     },

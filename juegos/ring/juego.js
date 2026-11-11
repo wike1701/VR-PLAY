@@ -579,6 +579,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     puntos = 0;
     vida = VIDA_JUGADOR;
     combate = 1;
@@ -623,8 +624,12 @@ export function iniciar(ctx) {
     const esquivado = ctx.enVR() && cabezaJugador.distanceTo(destino) > ESQUIVA;
     if (esquivado) {
       decir(ctx.t('esquivado'), '#7fe8ff', 0.8);
-      ctx.sonido('zas');
       puntos += 5;
+      // Entre el robot y tú, a la altura de los ojos (no pegado a la cara)
+      tmp.lerpVectors(cabezaJugador, robot.position, 0.5);
+      tmp.y = cabezaJugador.y;
+      ctx.efectos.impacto('pequeño', { pos: tmp, color: 0x7fe8ff, sonido: 'zas' });
+      ctx.efectos.texto(tmp, '+5', { color: '#7fe8ff', tam: 0.8 });
       abrirRobot();
     } else if (bloqueado) {
       decir(ctx.t('bloqueado'), '#cfd8dc', 0.8);
@@ -666,7 +671,7 @@ export function iniciar(ctx) {
     reloj = 7;
     decir(ctx.t('fin'), '#ff8a80', 7);
     ctx.sonido('campana');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       nuevoRecord = puntos > 0;
@@ -681,7 +686,7 @@ export function iniciar(ctx) {
   // ─── Tus golpes ────────────────────────────────────────────────────────
   // donde: 'cabeza' o 'torso'; punto: en el mundo; fuerza: m/s
   function pegar(donde, punto, fuerza, mano) {
-    if (estado !== 'combate' || caida > 0) return;
+    if (estado !== 'combate' || caida > 0 || !ctx.partida.activa) return;
     const abierto = accion === 'abierto';
     // En guardia, la cabeza la tapan sus guantes: casi no hace daño
     if (!abierto && donde === 'cabeza' && (accion === 'guardia' || accion === 'prepara')) {
@@ -730,7 +735,8 @@ export function iniciar(ctx) {
   }
 
   // VR: el guante entra en la cabeza o el torso del robot con velocidad
-  function golpesVR(dt) {
+  // dtReal: la velocidad del guante se mide con el tiempo real (no la frena la micro-pausa)
+  function golpesVR(dtReal) {
     for (const g of guantes) {
       if (!g.mano.activa) {
         g.listo = false;
@@ -742,7 +748,7 @@ export function iniciar(ctx) {
         g.listo = true;
         continue;
       }
-      g.vel.subVectors(g.centro, g.anterior).divideScalar(Math.max(dt, 1e-3));
+      g.vel.subVectors(g.centro, g.anterior).divideScalar(Math.max(dtReal, 1e-3));
       g.anterior.copy(g.centro);
       // ¿Toca la cabeza o el torso?
       craneo.getWorldPosition(tmp);
@@ -894,7 +900,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     tiempo += dt;
     tiempoMensaje -= dt;
     reloj -= dt;
@@ -940,7 +946,7 @@ export function iniciar(ctx) {
     }
     if (ctx.enVR()) {
       for (const g of guantesRaton) g.objeto.visible = false;
-      golpesVR(dt);
+      golpesVR(dtReal);
     } else {
       for (const g of guantesRaton) g.objeto.visible = true;
       golpesRaton(dt);

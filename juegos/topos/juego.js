@@ -326,9 +326,13 @@ export function iniciar(ctx) {
   }
 
   function sacarTopo(progreso) {
-    const libres = topos.filter((t) => t.estado === 'abajo');
-    if (libres.length === 0) return;
-    const topo = libres[Math.floor(Math.random() * libres.length)];
+    // Uno al azar de los que están escondidos (sin crear listas)
+    let libres = 0;
+    for (const t of topos) if (t.estado === 'abajo') libres++;
+    if (libres === 0) return;
+    let elegido = Math.floor(Math.random() * libres);
+    let topo = null;
+    for (const t of topos) if (t.estado === 'abajo' && elegido-- === 0) { topo = t; break; }
     topo.estado = 'subiendo';
     topo.t = 0;
     topo.dorado = Math.random() < 0.12;
@@ -342,6 +346,7 @@ export function iniciar(ctx) {
 
   function golpear(topo, mano) {
     if (topo.estado !== 'subiendo' && topo.estado !== 'arriba') return;
+    if (!ctx.partida.activa) return; // el que aún asoma al acabar el tiempo ya no cuenta
     topo.estado = 'golpeado';
     topo.t = 0;
     const valor = topo.dorado ? 3 : 1;
@@ -389,7 +394,8 @@ export function iniciar(ctx) {
   }
 
   // ─── Golpes con los mandos VR ──────────────────────────────────────────
-  function golpesVR(dt) {
+  // dtReal: la velocidad del martillo se mide con el tiempo real (no la frena la micro-pausa)
+  function golpesVR(dtReal) {
     for (const m of martillos) {
       if (!m.mano.activa) {
         m.listo = false;
@@ -398,8 +404,9 @@ export function iniciar(ctx) {
       m.mano.grip.localToWorld(m.cabeza.set(0, 0, CABEZA_MARTILLO));
       // Solo vale un martillazo de arriba abajo: la velocidad tiene que ir sobre
       // todo hacia abajo (un barrido de lado o un golpe desde abajo no cuenta)
-      const bajada = (m.cabezaAnterior.y - m.cabeza.y) / dt;
-      const rapidez = m.cabeza.distanceTo(m.cabezaAnterior) / dt;
+      const paso = Math.max(dtReal, 1e-4);
+      const bajada = (m.cabezaAnterior.y - m.cabeza.y) / paso;
+      const rapidez = m.cabeza.distanceTo(m.cabezaAnterior) / paso;
       if (m.listo && bajada > VELOCIDAD_GOLPE && bajada >= rapidez * VERTICALIDAD) {
         for (const topo of topos) {
           if (topo.estado !== 'subiendo' && topo.estado !== 'arriba') continue;
@@ -420,6 +427,8 @@ export function iniciar(ctx) {
   }
 
   // ─── Golpes con el ratón ───────────────────────────────────────────────
+  const visibles = [];
+  const choquesRaton = [];
   function golpesRaton(dt) {
     const raton = ctx.raton;
     pivote.visible = raton.dentro;
@@ -427,8 +436,10 @@ export function iniciar(ctx) {
 
     if (raton.clic) {
       golpeRaton = 0.16;
-      const visibles = mallasGolpeables.filter((m) => ['subiendo', 'arriba'].includes(m.userData.topo.estado));
-      const choque = raton.rayo.intersectObjects(visibles, false)[0];
+      visibles.length = 0;
+      for (const m of mallasGolpeables) if (m.userData.topo.estado === 'subiendo' || m.userData.topo.estado === 'arriba') visibles.push(m);
+      choquesRaton.length = 0;
+      const choque = raton.rayo.intersectObjects(visibles, false, choquesRaton)[0];
       if (choque) golpear(choque.object.userData.topo, null);
     }
     golpeRaton = Math.max(0, golpeRaton - dt);
@@ -443,10 +454,11 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
-  function actualizar(dt) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     if (estado === 'intro' && reloj <= 0) {
       estado = 'jugando';
+      ctx.partida.empezar();
       tiempoRestante = DURACION;
       proximoTopo = 0.3;
     } else if (estado === 'jugando') {
@@ -455,7 +467,8 @@ export function iniciar(ctx) {
       proximoTopo -= dt;
       // Cada vez salen más a la vez y más seguidos
       const maxArriba = 1 + Math.floor(progreso * 3.5);
-      const arriba = topos.filter((t) => t.estado !== 'abajo').length;
+      let arriba = 0;
+      for (const t of topos) if (t.estado !== 'abajo') arriba++;
       if (proximoTopo <= 0 && arriba < maxArriba) {
         sacarTopo(progreso);
         proximoTopo = THREE.MathUtils.lerp(1.0, 0.32, progreso) + Math.random() * 0.2;
@@ -463,7 +476,7 @@ export function iniciar(ctx) {
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 5;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);
@@ -472,6 +485,7 @@ export function iniciar(ctx) {
       }
     } else if (estado === 'fin' && reloj <= 0) {
       estado = 'jugando';
+      ctx.partida.empezar();
       puntos = 0;
       tiempoRestante = DURACION;
       proximoTopo = 0.5;
@@ -481,7 +495,7 @@ export function iniciar(ctx) {
 
     if (ctx.enVR()) {
       pivote.visible = false;
-      golpesVR(dt);
+      golpesVR(dtReal);
     } else {
       golpesRaton(dt);
     }

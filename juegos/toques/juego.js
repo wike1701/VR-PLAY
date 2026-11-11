@@ -224,6 +224,7 @@ export function iniciar(ctx) {
 
   function empezarPartida() {
     estado = 'juego';
+    ctx.partida.empezar();
     puntos = 0;
     vidas = VIDAS;
     mejorRacha = 0;
@@ -235,7 +236,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -258,7 +259,7 @@ export function iniciar(ctx) {
     if (enfriar > 0) return;
     enfriar = 0.15;
     if (fase === 'cae') fase = 'juego';
-    if (estado !== 'juego') return;
+    if (estado !== 'juego' || !ctx.partida.activa) return;
     racha += 1;
     mejorRacha = Math.max(mejorRacha, racha);
     const valor = Math.min(5, 1 + Math.floor((racha - 1) / 10)) + (remate ? 1 : 0);
@@ -322,7 +323,8 @@ export function iniciar(ctx) {
   }
   const qTmp = new THREE.Quaternion();
 
-  // Choque con la pala de VR, con la pala interpolada entre fotogramas
+  // Choque con la pala de VR, con la pala interpolada entre fotogramas.
+  // h: tiempo real del fotograma (lo que ha tardado la pala en moverse de centroAntes a centro)
   function chocarPalaVR(p, f, h) {
     const centro = tmp.lerpVectors(p.centroAntes, p.centro, f);
     const normal = tmp2.lerpVectors(p.normalAntes, p.normal, f).normalize();
@@ -361,7 +363,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Física ────────────────────────────────────────────────────────────
-  function moverBola(dt) {
+  function moverBola(dt, dtReal) {
     if (fase === 'perdida') return;
     const h = dt / PASOS;
     for (let k = 1; k <= PASOS; k++) {
@@ -370,13 +372,13 @@ export function iniciar(ctx) {
       if (fase === 'cae') vel.y = Math.max(vel.y, -2.2);
       bola.position.addScaledVector(vel, h);
       if (ctx.enVR()) {
-        if (indicePala && indicePala.lista && chocarPalaVR(indicePala, k / PASOS, dt)) break;
+        if (indicePala && indicePala.lista && chocarPalaVR(indicePala, k / PASOS, dtReal)) break;
       } else if (chocarPalaRaton()) break;
     }
     bola.rotation.x += vel.z * dt * 8;
     bola.rotation.z -= vel.x * dt * 8;
     // ¿Pasa por la estrella?
-    if (estado === 'juego' && bola.position.distanceTo(posEstrella) < 0.14) {
+    if (estado === 'juego' && ctx.partida.activa && bola.position.distanceTo(posEstrella) < 0.14) {
       puntos += 10;
       ctx.efectos.impacto('grande', { pos: posEstrella, color: 0xff6a3d, sonido: 'anillo' });
       ctx.efectos.estallido(posEstrella, { color: 0xffd23f, cantidad: 24 });
@@ -426,7 +428,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempoAviso -= dt;
     enfriar -= dt;
@@ -435,7 +437,7 @@ export function iniciar(ctx) {
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
 
     situarPalas(dt);
-    moverBola(dt);
+    moverBola(dt, dtReal);
     if (fase === 'perdida') {
       espera -= dt;
       if (espera <= 0 && (estado === 'juego' || estado === 'intro')) nuevaBola();

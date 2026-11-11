@@ -462,9 +462,13 @@ export function iniciar(ctx) {
   }
 
   function levantarMuneco(progreso) {
-    const libres = munecos.filter((m) => m.estado === 'abajo');
-    if (libres.length === 0) return;
-    const m = libres[Math.floor(Math.random() * libres.length)];
+    // Uno al azar de los que están abajo (sin crear listas)
+    let libres = 0;
+    for (const x of munecos) if (x.estado === 'abajo') libres++;
+    if (libres === 0) return;
+    let elegido = Math.floor(Math.random() * libres);
+    let m = null;
+    for (const x of munecos) if (x.estado === 'abajo' && elegido-- === 0) { m = x; break; }
     m.estado = 'subiendo';
     m.t = 0;
     m.inocente = Math.random() < 0.22;
@@ -477,23 +481,37 @@ export function iniciar(ctx) {
 
   const activo = (m) => m.estado === 'subiendo' || m.estado === 'arriba';
 
+  // Listas reutilizadas (nada se crea en cada fotograma)
+  const listaActivas = [];
+  const choques = [];
   function mallasActivas() {
-    const lista = [];
-    for (const m of munecos) if (activo(m)) lista.push(...m.mallas);
-    return lista;
+    listaActivas.length = 0;
+    for (const m of munecos) if (activo(m)) for (const malla of m.mallas) listaActivas.push(malla);
+    return listaActivas;
+  }
+  function contarActivos() {
+    let n = 0;
+    for (const m of munecos) if (activo(m)) n++;
+    return n;
+  }
+  function primerChoque(r, mallas) {
+    choques.length = 0;
+    return r.intersectObjects(mallas, false, choques)[0] || null;
   }
 
   // Lanza el rayo y devuelve el primer impacto contra un muñeco activo
   function apuntar(origen, direccion, mallas) {
     rayo.set(origen, direccion);
-    return rayo.intersectObjects(mallas, false)[0] || null;
+    return primerChoque(rayo, mallas);
   }
 
   function disparar(choque, mano) {
-    disparos += 1;
     ctx.sonido('disparo');
     if (mano) ctx.vibrar(mano, 0.6, 40);
-    if (!choque || estado !== 'jugando') return;
+    // Fuera de la partida (intro o pantalla final) se puede disparar, pero no cuenta para la puntería
+    if (estado !== 'jugando' || !ctx.partida.activa) return;
+    disparos += 1;
+    if (!choque) return;
 
     const m = choque.object.userData.muneco;
     const cabeza = choque.object.userData.cabeza;
@@ -598,13 +616,14 @@ export function iniciar(ctx) {
     if (raton.clic) {
       retrocesoRaton = 1;
       flashRaton = 0.05;
-      disparar(raton.rayo.intersectObjects(mallas, false)[0] || null, null);
+      disparar(primerChoque(raton.rayo, mallas), null);
     }
   }
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezar() {
     estado = 'jugando';
+    ctx.partida.empezar();
     puntos = 0;
     disparos = 0;
     aciertos = 0;
@@ -623,14 +642,14 @@ export function iniciar(ctx) {
       const progreso = 1 - tiempoRestante / DURACION;
       proximoMuneco -= dt;
       const maxArriba = 2 + Math.floor(progreso * 2.5);
-      if (proximoMuneco <= 0 && munecos.filter(activo).length < maxArriba) {
+      if (proximoMuneco <= 0 && contarActivos() < maxArriba) {
         levantarMuneco(progreso);
         proximoMuneco = 1.0 - progreso * 0.5 + Math.random() * 0.3;
       }
       if (tiempoRestante <= 0) {
         estado = 'fin';
         reloj = 6;
-        ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+        if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
         if (puntos > record) {
           record = puntos;
           ctx.guardar('record', record);

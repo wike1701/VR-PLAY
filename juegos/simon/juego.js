@@ -354,6 +354,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     secuencia.length = 0;
     puntos = 0;
     nuevaRonda();
@@ -364,7 +365,7 @@ export function iniciar(ctx) {
     reloj = 5;
     parpadeo = 0.9;
     ctx.sonido('zumbador');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -375,7 +376,7 @@ export function iniciar(ctx) {
   function pulsar(i, mano) {
     const t = teclas[i];
     t.pulsada = 0.12;
-    if (estado !== 'turno') {
+    if (estado !== 'turno' || !ctx.partida.activa) {
       // Fuera de su turno solo suena, para que se note que la tecla responde
       encender(i, 0.6);
       ctx.vibrar(mano, 0.2, 20);

@@ -78,6 +78,7 @@ export function iniciar(ctx) {
   const { raiz } = ctx;
   const R = (r) => ctx.recurso(r);
 
+  ctx.efectos.sinPausa(true); // juego de ritmo: los impactos no paran la música
   ctx.fondo(0x14082e, {
     cenit: 0x04020c, horizonte: 0x4a1270, suelo: 0x06030f, estrellas: 0.9, niebla: [14, 70],
     paisaje: { tipo: 'ciudad', color: 0x1a0d33, radio: 72 },
@@ -483,6 +484,7 @@ export function iniciar(ctx) {
     siguienteNota = 0;
     siguientePulso = 0;
     tiempoAviso = 0;
+    ctx.partida.empezar();
     programar(0, 0.6);
     programar(1, canciones[0].fin);
     estado = 'juego';
@@ -491,7 +493,7 @@ export function iniciar(ctx) {
   function terminar() {
     estado = 'fin';
     reloj = 8;
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       nuevoRecord = puntos > 0;
@@ -540,7 +542,7 @@ export function iniciar(ctx) {
     tecla.golpe = 0.12;
     tecla.luz = Math.max(tecla.luz, 0.5);
     ctx.sonido('xilo' + i);
-    if (estado !== 'juego') {
+    if (estado !== 'juego' || !ctx.partida.activa) {
       ctx.vibrar(mano, 0.15 + 0.2 * fuerza, 25);
       return;
     }
@@ -644,13 +646,13 @@ export function iniciar(ctx) {
   }
 
   // ─── Golpes con las baquetas (VR) ──────────────────────────────────────
-  function baquetasVR(dt) {
+  function baquetasVR(dtReal) {
     for (const b of baquetas) {
       if (!b.mano.activa) continue;
       b.anterior.copy(b.cabeza);
       b.objeto.localToWorld(b.cabeza.copy(CABEZA_EN_MANO)); // con la inclinación de la baqueta en la mano
       // Velocidad hacia abajo de la cabeza (para la fuerza del golpe)
-      b.velocidad = dt > 0 ? (b.anterior.y - b.cabeza.y) / dt : 0;
+      b.velocidad = dtReal > 0 ? (b.anterior.y - b.cabeza.y) / dtReal : 0; // con el tiempo real
       xilofono.worldToLocal(tmp.copy(b.cabeza));
       const altura = tmp.y - R_CABEZA - ARRIBA;
       let px = tmp.x, pz = tmp.z;
@@ -708,13 +710,14 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
 
     if (estado === 'juego') {
-      tiempo += dt;
+      // La partitura va con el tiempo real: el ritmo no se para nunca
+      tiempo += dtReal;
       // Pulso de fondo (un toque seco) y la línea de golpe y los arcos que laten con él
       while (siguientePulso < pulsos.length && pulsos[siguientePulso].t <= tiempo) {
         const fuerte = pulsos[siguientePulso].fuerte;
@@ -778,7 +781,7 @@ export function iniciar(ctx) {
 
     if (ctx.enVR()) {
       baquetaRaton.grupo.visible = false;
-      baquetasVR(dt);
+      baquetasVR(dtReal);
     } else {
       raton(dt);
     }

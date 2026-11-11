@@ -29,6 +29,7 @@ export function iniciar(ctx) {
   const R = (r) => ctx.recurso(r);
 
   ctx.fondo(0x120a24, { cenit: 0x070312, horizonte: 0x2a1048, suelo: 0x0c0818, estrellas: 0.6, niebla: [10, 30] });
+  ctx.efectos.sinPausa(true); // juego de ritmo: los impactos no paran la música
   ctx.sueloBase(false);
   ctx.vistaEscritorio(new THREE.Vector3(0, 1.45, 0.42), new THREE.Vector3(0, 0.95, -1.2));
 
@@ -299,6 +300,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     componer();
     for (const tb of tambores) tb.pendientes.length = 0;
     for (const m of notasMalla) m.visible = false;
@@ -317,7 +319,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 7;
     ctx.sonido('ovacion');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -348,7 +350,7 @@ export function iniciar(ctx) {
     tb.golpe = 0.12;
     tb.luz = Math.max(tb.luz, 0.5);
     ctx.sonido(tb.sonido);
-    if (estado !== 'juego') {
+    if (estado !== 'juego' || !ctx.partida.activa) {
       ctx.vibrar(mano, 0.2 * fuerza, 20);
       return;
     }
@@ -461,13 +463,14 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
 
     if (estado === 'juego') {
-      tiempo += dt;
+      // La partitura va con el tiempo real: el ritmo no se para nunca
+      tiempo += dtReal;
       // Pulso de fondo
       while (siguientePulso < pulsos.length && pulsos[siguientePulso].t <= tiempo) {
         ctx.sonido(pulsos[siguientePulso].fuerte ? 'bajo' : 'pulso');

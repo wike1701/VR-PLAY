@@ -744,6 +744,7 @@ export function iniciar(ctx) {
       c.aparece = 1;
     }
     rival.factor = nuevoFactorRival();
+    ctx.partida.empezar();
     tiempoCarrera = 0;
     ganada = false;
     nuevoRecord = false;
@@ -873,7 +874,7 @@ export function iniciar(ctx) {
     jugador.tiempoFinal = tiempoCarrera;
     ganada = !rival.tiempoFinal;
     puntosCarrera = puntosDe(tiempoCarrera);
-    ctx.puntuacion(puntosCarrera); // puntos según la carrera perfecta de este circuito (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntosCarrera); // puntos según la carrera perfecta de este circuito (juegos/marcadores.js)
     if (puntosCarrera > record) {
       record = puntosCarrera;
       nuevoRecord = true;
@@ -884,19 +885,28 @@ export function iniciar(ctx) {
 
   // ─── Mandos ────────────────────────────────────────────────────────────
   // Devuelve cuánto se aprieta el acelerador (0 a 1)
+  let soporteAdjunto = false;
   function leerMando(dt) {
     if (ctx.enVR()) {
-      const activas = ctx.manos.filter((m) => m.activa);
       const valor = (m) => {
         const b = m.fuente?.gamepad?.buttons?.[0];
         return b ? Math.max(b.value || 0, b.pressed ? 0.05 : 0) : 0;
       };
       // El mando va en la última mano que ha apretado el gatillo
-      for (const m of activas) if (m.gatilloPulsado && m.lado && m.lado !== ladoMando) ladoMando = m.lado;
-      const mano = activas.find((m) => m.lado === ladoMando) || activas[0] || null;
+      for (const m of ctx.manos) if (m.activa && m.gatilloPulsado && m.lado && m.lado !== ladoMando) ladoMando = m.lado;
+      // La mano del mando (o la primera que se vea), sin crear listas
+      let mano = null;
+      for (const m of ctx.manos) {
+        if (!m.activa) continue;
+        if (m.lado === ladoMando) { mano = m; break; }
+        if (!mano) mano = m;
+      }
       if (mano !== manoMando) {
-        if (soporte.parent) soporte.parent.remove(soporte);
-        if (mano) ctx.adjuntarAMano(mano, soporte);
+        // Se registra en la shell una sola vez; después solo se cambia de mando
+        if (!soporteAdjunto) {
+          ctx.adjuntarAMano(mano, soporte);
+          soporteAdjunto = true;
+        } else if (mano) mano.grip.add(soporte);
         manoMando = mano;
       }
       soporte.visible = !!mano;

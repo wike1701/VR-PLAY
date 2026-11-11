@@ -365,6 +365,7 @@ export function iniciar(ctx) {
 
   function empezarPartida() {
     estado = 'juego';
+    ctx.partida.empezar();
     tiempo = DURACION;
     puntos = 0;
     servidas = 0;
@@ -376,7 +377,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -454,9 +455,12 @@ export function iniciar(ctx) {
       let gana = lanzamiento.gana;
       const doble = medias >= 3;
       if (doble) gana += 5;
-      puntos += gana;
-      ctx.efectos.impacto(gana >= 10 ? 'medio' : 'pequeño', { pos: tortita.position, mano, color: 0xffd23f, sonido: gana >= 10 ? 'punto' : null });
-      ctx.efectos.texto(tmp, `+${gana}`, { color: lanzamiento.color, tam: gana >= 10 ? 1.3 : 1 });
+      if (ctx.partida.activa) {
+        // Con la partida terminada (la tortita aún en el aire), la vuelta ya no suma
+        puntos += gana;
+        ctx.efectos.impacto(gana >= 10 ? 'medio' : 'pequeño', { pos: tortita.position, mano, color: 0xffd23f, sonido: gana >= 10 ? 'punto' : null });
+        ctx.efectos.texto(tmp, `+${gana}`, { color: lanzamiento.color, tam: gana >= 10 ? 1.3 : 1 });
+      }
       aviso = doble ? ctx.t('doble') : lanzamiento.texto;
       tiempoAviso = 1.3;
     } else {
@@ -484,6 +488,10 @@ export function iniciar(ctx) {
   }
 
   function servir() {
+    tortita.visible = false;
+    fase = 'perdida';
+    espera = 0.6;
+    if (!ctx.partida.activa) return; // se ha acabado el tiempo antes de servirla
     const extra = 10;
     puntos += extra;
     servidas += 1;
@@ -499,13 +507,10 @@ export function iniciar(ctx) {
     ctx.efectos.texto(tmp, `+${extra}`, { color: '#ff6a3d', tam: 1.5 });
     aviso = ctx.t('servida', { n: servidas });
     tiempoAviso = 1.4;
-    tortita.visible = false;
-    fase = 'perdida';
-    espera = 0.6;
   }
 
   // ─── Sartén: dónde está y cómo se mueve ────────────────────────────────
-  function situarSarten(dt) {
+  function situarSarten(dt, dtReal) {
     if (ctx.enVR()) {
       for (const m of ctx.manos) if (m.activa && m.gatilloPulsado) manoSarten = m;
       if (!manoSarten || !manoSarten.activa) manoSarten = ctx.manos.find((m) => m.activa) || null;
@@ -525,7 +530,7 @@ export function iniciar(ctx) {
         tmp.z = Math.max(-0.75, Math.min(-0.3, tmp.z));
         // La sartén se mueve rápido pero no al instante
         tmp2.set(tmp.x, ALTURA_RATON, tmp.z);
-        sartenRaton.position.lerp(tmp2.sub(CENTRO_SARTEN), Math.min(1, dt * 14));
+        sartenRaton.position.lerp(tmp2.sub(CENTRO_SARTEN), Math.min(1, dtReal * 14));
       }
       sartenRaton.rotation.set(0, 0, 0);
       // Al soltar, la sartén da un golpe hacia arriba
@@ -539,14 +544,15 @@ export function iniciar(ctx) {
       centroAntes.copy(centroSarten);
       hayAntes = true;
     }
-    velSarten.copy(centroSarten).sub(centroAntes).divideScalar(Math.max(dt, 1e-3));
+    // Con el tiempo real: la micro-pausa de un impacto frena la tortita, no tu mano
+    velSarten.copy(centroSarten).sub(centroAntes).divideScalar(Math.max(dtReal, 1e-3));
     centroAntes.copy(centroSarten);
     ctx.colocarSombra(sombraSarten, centroSarten, 0.912);
     return true;
   }
 
   // ─── Entrada ───────────────────────────────────────────────────────────
-  function entrada() {
+  function entrada(dtReal) {
     if (estado !== 'juego' || fase !== 'sarten') {
       velSubidaAntes = velSarten.y;
       return;
@@ -570,7 +576,7 @@ export function iniciar(ctx) {
       cargando = true;
       carga = 0;
     }
-    if (cargando && ctx.raton.pulsado) carga = Math.min(1, carga + 1 / 60 * 1.6);
+    if (cargando && ctx.raton.pulsado) carga = Math.min(1, carga + dtReal * 1.6); // lo hace el jugador: tiempo real
     if (cargando && !ctx.raton.pulsado) {
       cargando = false;
       tmp2.set((Math.random() - 0.5) * 0.5, carga < 0.6 ? 2.3 + carga * 0.8 : 3.1 + (carga - 0.6) * 1.2, -0.05 - Math.random() * 0.15);
@@ -671,7 +677,7 @@ export function iniciar(ctx) {
   }
 
   // ─── Bucle ─────────────────────────────────────────────────────────────
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
@@ -682,8 +688,8 @@ export function iniciar(ctx) {
         terminar();
       }
     }
-    situarSarten(dt);
-    entrada();
+    situarSarten(dt, dtReal);
+    entrada(dtReal);
     moverTortita(dt);
     if (fase === 'servir' || fase === 'perdida') {
       espera -= dt;

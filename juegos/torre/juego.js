@@ -261,12 +261,15 @@ export function iniciar(ctx) {
   const colorDe = (n, destino) => destino.setHSL((0.02 + n * 0.035) % 1, 0.62, 0.58);
   const yDe = (n) => BASE + ALTO / 2 + n * ALTO;
 
+  // Hueco de la InstancedMesh para el piso i: pasados MAX_BLOQUES pisos se reutilizan los de abajo del
+  // todo, que hace rato que quedaron muy por debajo de la vista (el mundo baja al subir la torre)
+  const hueco = (i) => i % MAX_BLOQUES;
   function ponerEnTorre(i) {
     const b = pila[i];
     matrizTmp.compose(posTmp.set(TORRE.x + b.x, yDe(i), TORRE.z + b.z), quatUno, escTmp.set(b.ax, ALTO, b.az));
-    torre.setMatrixAt(i, matrizTmp);
-    torre.setColorAt(i, colorDe(i, colorTmp));
-    torre.count = Math.max(torre.count, i + 1);
+    torre.setMatrixAt(hueco(i), matrizTmp);
+    torre.setColorAt(hueco(i), colorDe(i, colorTmp));
+    torre.count = Math.min(MAX_BLOQUES, Math.max(torre.count, i + 1));
     torre.instanceMatrix.needsUpdate = true;
     if (torre.instanceColor) torre.instanceColor.needsUpdate = true;
   }
@@ -284,6 +287,7 @@ export function iniciar(ctx) {
   }
 
   function empezarPartida() {
+    ctx.partida.empezar();
     pila.length = 0;
     torre.count = 0;
     pila.push({ x: 0, z: 0, ax: LADO, az: LADO });
@@ -316,7 +320,7 @@ export function iniciar(ctx) {
     ctx.sonido('caida');
     ctx.vibrar(ctx.manos[0], 0.7, 200);
     ctx.vibrar(ctx.manos[1], 0.7, 200);
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -330,7 +334,7 @@ export function iniciar(ctx) {
 
   // Suelta el bloque que se desliza
   function soltar(mano) {
-    if (estado !== 'juego') return;
+    if (estado !== 'juego' || !ctx.partida.activa) return;
     const abajo = pila[pila.length - 1];
     const eje = actualB.eje;
     const lado = eje === 'x' ? 'ax' : 'az';
@@ -460,7 +464,7 @@ export function iniciar(ctx) {
       const b = pila[i];
       const s = 1 + Math.sin(rebote * Math.PI) * 0.06;
       matrizTmp.compose(posTmp.set(TORRE.x + b.x, yDe(i), TORRE.z + b.z), quatUno, escTmp.set(b.ax * s, ALTO / s, b.az * s));
-      torre.setMatrixAt(i, matrizTmp);
+      torre.setMatrixAt(hueco(i), matrizTmp);
       torre.instanceMatrix.needsUpdate = true;
     }
 

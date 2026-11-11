@@ -339,6 +339,7 @@ export function iniciar(ctx) {
   const base = new THREE.Matrix4();
 
   const total = () => resultados.reduce((s, r) => s + r.puntos, 0);
+  const completados = () => resultados.reduce((s, r) => s + (r.completado ? 1 : 0), 0);
   const fila = () => Array.from({ length: CABLES }, (_, i) => (i < resultados.length ? (resultados[i].completado ? '✔' : '✘') : '·')).join(' ');
 
   function actualizarMarcador() {
@@ -352,7 +353,7 @@ export function iniciar(ctx) {
     } else if (estado === 'fin') {
       marcador.escribir([
         { texto: ctx.t('partida.finPuntos', { n: total() }), tam: 1.3, color: '#ffe082' },
-        { texto: ctx.t('completados', { n: resultados.filter((r) => r.completado).length, total: CABLES }), tam: 0.75 },
+        { texto: ctx.t('completados', { n: completados(), total: CABLES }), tam: 0.75 },
         { texto: `${fila()}   ·   ${ctx.t('partida.recordOtraRonda', { record, n: Math.ceil(reloj) })}`, tam: 0.75, color: '#ffe082' },
       ]);
     } else if (tiempoMensaje > 0 && estado === 'esperando') {
@@ -444,7 +445,7 @@ export function iniciar(ctx) {
     if (nivel >= CABLES) {
       estado = 'fin';
       reloj = 8;
-      ctx.puntuacion(total()); // a la clasificación (juegos/marcadores.js)
+      if (ctx.partida.terminar()) ctx.puntuacion(total()); // a la clasificación (juegos/marcadores.js)
       if (total() > record) {
         record = total();
         ctx.guardar('record', record);
@@ -460,17 +461,22 @@ export function iniciar(ctx) {
     const enVR = ctx.enVR();
     if (enVR) {
       varitaRaton.visible = false;
-      const activas = ctx.manos.filter((m) => m.activa);
       // Cambiar de mano solo antes de empezar el cable
       if (estado !== 'recorrido' && estado !== 'listo') {
-        for (const m of activas) {
-          if (m.gatilloPulsado && (m.lado === 'left' || m.lado === 'right') && m.lado !== ladoAro) {
+        for (const m of ctx.manos) {
+          if (m.activa && m.gatilloPulsado && (m.lado === 'left' || m.lado === 'right') && m.lado !== ladoAro) {
             ladoAro = m.lado;
             ctx.sonido('tic');
           }
         }
       }
-      const mano = activas.find((m) => m.lado === ladoAro) || activas[0] || null;
+      // La mano del aro (o, si no está, la primera que se vea), sin crear listas
+      let mano = null;
+      for (const m of ctx.manos) {
+        if (!m.activa) continue;
+        if (m.lado === ladoAro) { mano = m; break; }
+        if (!mano) mano = m;
+      }
       for (const vv of varitasVR) vv.objeto.visible = vv.mano === mano;
       // La salida queda en el lado de la mano del aro
       if (estado !== 'recorrido' && estado !== 'listo') grupoCable.scale.x = (mano?.lado ?? ladoAro) === 'left' ? 1 : -1;
@@ -547,6 +553,7 @@ export function iniciar(ctx) {
   // Distancia más corta del cable (con corriente) al alambre del aro, y dónde.
   // Distancia de un punto a una circunferencia (centro, eje, radio): √(h² + (ρ − r)²).
   const contacto = new THREE.Vector3();
+  const puntoChoque = new THREE.Vector3(); // dónde salta la chispa (reutilizado)
   function distanciaAlAro(centro, eje, r) {
     let minima = Infinity;
     const alcance = (r + 0.03) ** 2;
@@ -619,11 +626,11 @@ export function iniciar(ctx) {
       const d = distanciaAlAro(tmp, tmp2, r);
       minimo = Math.min(minimo, d);
       if (d < CONTACTO) {
-        terminar(false, contacto.clone().applyMatrix4(grupoCable.matrixWorld));
+        terminar(false, puntoChoque.copy(contacto).applyMatrix4(grupoCable.matrixWorld));
         return Infinity;
       }
       if (fuera && indice > iInicio && indice < iFin) {
-        terminar(false, puntos[indice].clone().applyMatrix4(grupoCable.matrixWorld));
+        terminar(false, puntoChoque.copy(puntos[indice]).applyMatrix4(grupoCable.matrixWorld));
         return Infinity;
       }
       progreso = THREE.MathUtils.clamp((indice - iInicio) / (iFin - iInicio), 0, 1);
@@ -638,6 +645,7 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarRonda() {
+    ctx.partida.empezar();
     nivel = 0;
     resultados = [];
     prepararCable();

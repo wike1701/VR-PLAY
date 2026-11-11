@@ -294,17 +294,22 @@ export function iniciar(ctx) {
     return { distancia: Math.hypot(simPos.x - origen.x, simPos.z - origen.z), pasaRed };
   }
 
-  // Velocidad para caer en "destino" saliendo con ese ángulo (lo sube si no pasa la red)
+  // Velocidad para caer en "destino" saliendo con ese ángulo (lo sube si no pasa la red).
+  // Devuelve siempre el mismo vector (cópialo). Para no gastar: la búsqueda empieza cerca de la
+  // velocidad del tiro parabólico sin aire (con aire hace falta algo más) y se afina en 12 pasos
+  // (antes 18 entre 1 y 30 m/s).
+  const velLanzamiento = new THREE.Vector3();
   function lanzamiento(origen, destino, angulo) {
     const dx = destino.x - origen.x;
     const dz = destino.z - origen.z;
-    const objetivo = Math.hypot(dx, dz);
-    const v = new THREE.Vector3();
+    const objetivo = Math.max(0.05, Math.hypot(dx, dz));
+    const v = velLanzamiento;
     for (let intento = 0; intento < 8; intento++) {
-      let bajo = 1;
-      let alto = 30;
+      const sinAire = Math.sqrt((objetivo * G) / Math.max(0.2, Math.sin(2 * angulo)));
+      let bajo = Math.max(0.3, sinAire * 0.2); // desde arriba y cerca hace falta mucho menos
+      let alto = Math.min(30, sinAire * 1.9 + 1);
       let pasaRed = true;
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 12; i++) {
         const s = (bajo + alto) / 2;
         v.set((dx / objetivo) * s * Math.cos(angulo), s * Math.sin(angulo), (dz / objetivo) * s * Math.cos(angulo));
         const r = simular(origen, v);
@@ -342,7 +347,7 @@ export function iniciar(ctx) {
   }
 
   function puntoPara(quien, texto) {
-    if (estado !== 'vivo') return;
+    if (estado !== 'vivo' || !ctx.partida.activa) return;
     tanteo[quien] += 1;
     mensaje = texto;
     colorMensaje = quien === 'jugador' ? '#b9f6ca' : '#ff8a80';
@@ -358,8 +363,10 @@ export function iniciar(ctx) {
     if ((j >= PUNTOS_SET || m >= PUNTOS_SET) && Math.abs(j - m) >= 2) {
       estado = 'fin';
       reloj = 7;
+      // Al perder se cierra la partida sin resultado (en los juegos de diferencia solo se envía al ganar)
+      const cerrada = ctx.partida.terminar();
       if (j > m) {
-        ctx.puntuacion(j - m); // diferencia al ganar (juegos/marcadores.js)
+        if (cerrada) ctx.puntuacion(j - m); // diferencia al ganar (juegos/marcadores.js)
         ganadas += 1;
         ctx.guardar('ganadas', ganadas);
         mensaje = ctx.t('partida.hasGanado');
@@ -407,8 +414,11 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos VR ──────────────────────────────────────────────────────────
-  function manosVRActualizar(dt) {
-    const activas = [];
+  const activasVR = []; // lista reutilizada (nada se crea en cada fotograma)
+  const sinManos = [];
+  function manosVRActualizar(dtReal) {
+    const activas = activasVR;
+    activas.length = 0;
     for (const m of manosVR) {
       // Mano izquierda o derecha según el mando (si aún no se sabe, el primero es el izquierdo)
       const esIzquierda = m.mano.lado ? m.mano.lado === 'left' : m.mano.indice === 0;
@@ -427,7 +437,8 @@ export function iniciar(ctx) {
       }
       // Velocidad de la mano suavizada: la de un solo fotograma tiembla mucho y
       // mandaba el balón hacia donde no ibas
-      tmp.subVectors(m.centro, m.centroAntes).divideScalar(Math.max(dt, 1e-4));
+      // Con el tiempo real: la micro-pausa de un impacto no cambia lo que se mueve tu mano
+      tmp.subVectors(m.centro, m.centroAntes).divideScalar(Math.max(dtReal, 1e-4));
       m.vel.lerp(tmp, 0.6);
       activas.push(m);
     }
@@ -483,14 +494,14 @@ export function iniciar(ctx) {
   }
 
   // ─── Manos con ratón ───────────────────────────────────────────────────
-  function manosRaton(dt) {
+  function manosRaton(dt, dtReal) {
     const r = ctx.raton;
     parRaton.visible = r.dentro || ctx.tactil;
     if (r.rayo.ray.intersectPlane(planoRaton, tmp)) {
       tmp.x = THREE.MathUtils.clamp(tmp.x, -MEDIO_ANCHO, MEDIO_ANCHO);
       tmp.y = THREE.MathUtils.clamp(tmp.y, 0.4, 2.8);
-      velRaton.subVectors(tmp, parRaton.position).divideScalar(Math.max(dt, 1e-3));
-      parRaton.position.lerp(tmp, Math.min(1, dt * 25));
+      velRaton.subVectors(tmp, parRaton.position).divideScalar(Math.max(dtReal, 1e-3));
+      parRaton.position.lerp(tmp, Math.min(1, dtReal * 25));
     }
     const cerca = Math.hypot(pos.x - parRaton.position.x, pos.y - parRaton.position.y) < R_CONTACTO_RATON &&
       Math.abs(pos.z - Z_RATON) < 0.35;
@@ -510,6 +521,26 @@ export function iniciar(ctx) {
   }
 
   // ─── Máquina ───────────────────────────────────────────────────────────
+  // La máquina devuelve el balón (o falla a propósito: a la red, largo o ancho)
+  const destinoGolpe = new THREE.Vector3();
+  function devolver(fallo) {
+    saltoRival = 1;
+    let angulo = Math.random() < 0.7 ? 1.0 : 0.7;
+    if (fallo === 'red') {
+      // Golpe bajo que se queda en su campo, contra la red
+      destinoGolpe.set(pos.x * 0.5 + (Math.random() - 0.5), 0, Z_RED - 0.25);
+      angulo = 0.3;
+    } else if (fallo === 'largo') {
+      destinoGolpe.set((Math.random() - 0.5) * 1.6, 0, Z_FONDO_JUGADOR + 0.6 + Math.random());
+    } else if (fallo === 'ancho') {
+      destinoGolpe.set(ladoFallo * (MEDIO_ANCHO + 0.5 + Math.random() * 0.6), 0, -0.5 + Math.random() * 1.5);
+    } else {
+      destinoGolpe.set((Math.random() - 0.5) * 1.6, 0, 0.1 + Math.random() * 0.6);
+    }
+    vel.copy(lanzamiento(pos, destinoGolpe, angulo));
+    falloMaquina = null;
+  }
+
   function maquina(dt) {
     let destino = null;
     if (estado === 'vivo' && golpeador === 'jugador' && vel.z < 0) destino = predecir(1.5);
@@ -526,25 +557,6 @@ export function iniciar(ctx) {
     brazos.position.y = 1.45 + saltoRival * 0.4;
     ctx.colocarSombra(sombraRival, tmp.set(rival.position.x, 0, rival.position.z), 0);
 
-    const devolver = (fallo) => {
-      saltoRival = 1;
-      let destinoGolpe;
-      let angulo = Math.random() < 0.7 ? 1.0 : 0.7;
-      if (fallo === 'red') {
-        // Golpe bajo que se queda en su campo, contra la red
-        destinoGolpe = new THREE.Vector3(pos.x * 0.5 + (Math.random() - 0.5), 0, Z_RED - 0.25);
-        angulo = 0.3;
-      } else if (fallo === 'largo') {
-        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.6, 0, Z_FONDO_JUGADOR + 0.6 + Math.random());
-      } else if (fallo === 'ancho') {
-        destinoGolpe = new THREE.Vector3(ladoFallo * (MEDIO_ANCHO + 0.5 + Math.random() * 0.6), 0, -0.5 + Math.random() * 1.5);
-      } else {
-        destinoGolpe = new THREE.Vector3((Math.random() - 0.5) * 1.6, 0, 0.1 + Math.random() * 0.6);
-      }
-      vel.copy(lanzamiento(pos, destinoGolpe, angulo));
-      falloMaquina = null;
-    };
-
     if (estado === 'saque' && sacador === 'maquina' && reloj <= 0 && golpe('maquina')) {
       devolver(decidirFallo(0.5)); // el saque falla menos
       return;
@@ -558,9 +570,10 @@ export function iniciar(ctx) {
 
   // ─── Física del balón ──────────────────────────────────────────────────
   function moverBalon(dt, manos) {
-    let rapidez = vel.length();
-    for (const m of manos) rapidez = Math.max(rapidez, m.centro.distanceTo(m.centroAntes) / dt);
-    const pasos = Math.min(24, Math.max(1, Math.ceil((rapidez * dt) / 0.02)));
+    // Subpasos de unos 2 cm según lo que más se mueva este fotograma: el balón o una mano
+    let recorrido = vel.length() * dt;
+    for (const m of manos) recorrido = Math.max(recorrido, m.centro.distanceTo(m.centroAntes));
+    const pasos = Math.min(24, Math.max(1, Math.ceil(recorrido / 0.02)));
     const h = dt / pasos;
     for (let i = 1; i <= pasos; i++) {
       anterior.copy(pos);
@@ -586,22 +599,23 @@ export function iniciar(ctx) {
 
   // ─── Bucle del juego ───────────────────────────────────────────────────
   function empezarPartido() {
+    ctx.partida.empezar();
     tanteo.jugador = 0;
     tanteo.maquina = 0;
     sacador = 'jugador';
     prepararSaque();
   }
 
-  function actualizar(dt, t) {
+  function actualizar(dt, t, dtReal = dt) {
     reloj -= dt;
     enfriamiento = Math.max(0, enfriamiento - dt);
     const vr = ctx.enVR();
-    let manos = [];
+    let manos = sinManos;
     if (vr) {
       parRaton.visible = false;
-      manos = manosVRActualizar(dt);
+      manos = manosVRActualizar(dtReal);
     } else {
-      manosRaton(dt);
+      manosRaton(dt, dtReal);
     }
 
     switch (estado) {

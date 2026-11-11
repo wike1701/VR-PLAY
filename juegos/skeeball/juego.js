@@ -247,8 +247,8 @@ export function iniciar(ctx) {
   mira.visible = false;
   raiz.add(mira);
 
-  // Historial de posiciones de cada mano para la velocidad del lanzamiento
-  const historiales = ctx.manos.map(() => ({ pos: Array.from({ length: 8 }, () => new THREE.Vector3()), dt: new Array(8).fill(0.016), n: 0 }));
+  // La bola, en la palma de la mano que pone la shell (la palma mira a −x en la derecha y a +x en la izquierda)
+  const enLaMano = (mano, destino) => mano.grip.localToWorld(destino.set((mano.lado === 'left' ? 1 : -1) * 0.05, -0.012, -0.03));
 
   // ─── Marcador ──────────────────────────────────────────────────────────
   const marcador = ctx.crearPanel({ ancho: 1.0, alto: 0.3 });
@@ -279,6 +279,8 @@ export function iniciar(ctx) {
 
   function empezarPartida() {
     estado = 'juego';
+    ctx.partida.empezar();
+    manoBola = null;
     tiradas = 0;
     puntos = 0;
     bolasBandeja.count = BOLAS;
@@ -289,7 +291,7 @@ export function iniciar(ctx) {
     estado = 'fin';
     reloj = 6;
     ctx.sonido('fin');
-    ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
+    if (ctx.partida.terminar()) ctx.puntuacion(puntos); // a la clasificación (juegos/marcadores.js)
     if (puntos > record) {
       record = puntos;
       ctx.guardar('record', record);
@@ -316,6 +318,7 @@ export function iniciar(ctx) {
     fase = 'cayendo';
     espera = 0.9;
     caida.copy(pos);
+    if (!ctx.partida.activa) valor = 0;
     puntos += valor;
     tmp.copy(pos);
     tmp.y += 0.25;
@@ -349,46 +352,49 @@ export function iniciar(ctx) {
   }
 
   // ─── Entrada ───────────────────────────────────────────────────────────
-  function entradaVR(dt) {
+  function entradaVR() {
     barra.visible = false;
     mira.visible = false;
-    ctx.manos.forEach((mano, k) => {
-      const h = historiales[k];
-      h.n = (h.n + 1) % 8;
-      h.pos[h.n].copy(mano.posicion);
-      h.dt[h.n] = dt;
-      if (!mano.activa) return;
+    // Si la mano que lleva la bola deja de verse (pierde el seguimiento), la bola vuelve a la bandeja
+    if (fase === 'mano' && !manoBola?.activa) devolverBola();
+    for (const mano of ctx.manos) {
+      if (!mano.activa) continue;
       if (fase === 'mano' && manoBola === mano) {
-        mano.grip.localToWorld(bola.position.set(0, -0.01, -0.05));
+        enLaMano(mano, bola.position);
         if (!mano.gatillo) {
-          const atras = (h.n + 8 - 4) % 8;
-          let tiempo = 0;
-          for (let j = 0; j < 4; j++) tiempo += h.dt[(h.n + 8 - j) % 8];
-          tmp.copy(h.pos[h.n]).sub(h.pos[atras]).divideScalar(Math.max(tiempo, 1e-3)).multiplyScalar(1.2);
+          // Velocidad del gesto de soltar (la mide la shell en tiempo real, sin saltos)
+          mano.velocidadReciente(0.08, tmp).multiplyScalar(1.2);
           manoBola = null;
           if (-tmp.z < 0.6) {
             // Sin impulso hacia delante: la bola vuelve a la bandeja
-            fase = 'lista';
-            bola.visible = false;
-            return;
+            devolverBola();
+            continue;
           }
           soltarEnPista(tmp);
           ctx.vibrar(mano, 0.25, 25);
         }
-        return;
+        continue;
       }
       if (mano.gatilloPulsado && estado === 'juego' && fase === 'lista' && tiradas < BOLAS) {
         fase = 'mano';
         manoBola = mano;
         bola.visible = true;
-        mano.grip.localToWorld(bola.position.set(0, -0.01, -0.05));
+        enLaMano(mano, bola.position);
         ctx.vibrar(mano, 0.2, 20);
         ctx.sonido('recepcion');
       }
-    });
+    }
+  }
+
+  // La bola cogida vuelve a la bandeja sin gastarse (sin impulso, mando perdido o al salir de VR)
+  function devolverBola() {
+    manoBola = null;
+    fase = 'lista';
+    bola.visible = false;
   }
 
   function entradaRaton(dt) {
+    if (fase === 'mano') devolverBola(); // se ha salido de VR con la bola en la mano
     const apunta = ctx.raton.rayo.ray.intersectPlane(planoPista, tmp);
     const x = apunta ? Math.max(-0.2, Math.min(0.2, tmp.x)) : 0;
     const listo = estado === 'juego' && fase === 'lista' && tiradas < BOLAS;
@@ -534,7 +540,7 @@ export function iniciar(ctx) {
     tiempoAviso -= dt;
     if ((estado === 'intro' || estado === 'fin') && reloj <= 0) empezarPartida();
 
-    if (ctx.enVR()) entradaVR(dt);
+    if (ctx.enVR()) entradaVR();
     else entradaRaton(dt);
     moverBola(dt);
     if (fase === 'cayendo' || fase === 'fuera') {
