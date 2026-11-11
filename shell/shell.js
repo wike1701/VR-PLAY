@@ -636,8 +636,17 @@ function actualizarAviso(dt) {
 // ─── Instrucciones al empezar cada juego ─────────────────────────────────
 // Durante los primeros segundos de cada juego (que espera congelado, como en la pausa) se ven
 // el título y cómo se juega. Sirve para todos los juegos: usa los textos de controles del catálogo.
-const SEGUNDOS_INTRO = 5;
+// Duran 8 segundos como mínimo, y más cuanto más largo es el texto de los controles que se ve
+// (el de VR en las gafas y el de ratón o táctil en la página): 1 s más por cada 18 caracteres
+// pasados los 80, hasta 25 s.
+const SEGUNDOS_INTRO_MIN = 8;
+const SEGUNDOS_INTRO_MAX = 25;
+function segundosIntro(texto) {
+  const extra = Math.max(0, (texto || '').length - 80) / 18;
+  return Math.min(SEGUNDOS_INTRO_MAX, SEGUNDOS_INTRO_MIN + extra);
+}
 let introRestante = 0;
+let introTranscurrido = 0;
 let introColocada = false;
 const introPanel = crearPanel({ ancho: 1.5, alto: 0.78, resolucion: 1024 });
 introPanel.mesh.visible = false;
@@ -669,14 +678,25 @@ function partirTexto(texto, max) {
   return lineas;
 }
 
+// El texto de controles que se lee ahora: el de VR con las gafas puestas y si no el de la página
+function textoIntro(juego) {
+  if (renderer.xr.isPresenting) return juego.controlesVR;
+  return TACTIL ? juego.controlesTactil || juego.controlesEscritorio : juego.controlesEscritorio;
+}
+
 function iniciarIntro() {
-  introRestante = SEGUNDOS_INTRO;
+  introTranscurrido = 0;
+  introRestante = actual ? segundosIntro(textoIntro(JUEGOS[actual.indice])) : SEGUNDOS_INTRO_MIN;
   introColocada = false;
 }
 
 function actualizarIntro(dt) {
   const visible = !!actual && !errorJuego && !pausado && !enCatalogo && introRestante > 0;
-  if (visible) introRestante -= dt;
+  if (visible) {
+    // Se recalcula cada fotograma: si te pones o te quitas las gafas a mitad, cambia el texto
+    introTranscurrido += dt;
+    introRestante = segundosIntro(textoIntro(JUEGOS[actual.indice])) - introTranscurrido;
+  }
   if (!visible || introRestante <= 0) {
     introPanel.mesh.visible = false;
     $intro.hidden = true;

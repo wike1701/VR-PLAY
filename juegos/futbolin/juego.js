@@ -236,6 +236,7 @@ export function iniciar(ctx) {
   // Cuentas del marcador: 5 por equipo en un alambre, sobre cada fondo
   const geoCuenta = R(new THREE.SphereGeometry(0.018, 10, 8));
   const cuentas = new THREE.InstancedMesh(geoCuenta, R(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })), GOLES * 2);
+  cuentas.frustumCulled = false;
   mesa.add(cuentas);
   mesa.add(new THREE.Mesh(fusionar([
     colocar(new THREE.CylinderGeometry(0.003, 0.003, 0.36, 6), -0.3, MESA_Y + 0.17, Z_LEJOS - 0.02, 0, 0, Math.PI / 2),
@@ -246,10 +247,14 @@ export function iniciar(ctx) {
   const geoBarra = R(new THREE.CylinderGeometry(0.008, 0.008, Z_CERCA - Z_LEJOS + 0.26, 10).rotateX(Math.PI / 2));
   const barrasMalla = new THREE.InstancedMesh(geoBarra, R(new THREE.MeshStandardMaterial({ color: 0xd9dee5, roughness: 0.15, metalness: 1 })), BARRAS.length);
   barrasMalla.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // Las mallas instanciadas guardan su esfera de recorte la primera vez que se dibujan (con los
+  // muñecos aún sin colocar, todos en el origen): sin esto desaparecían según hacia dónde mirases
+  barrasMalla.frustumCulled = false;
   mesa.add(barrasMalla);
   const geoPuno = R(new THREE.CylinderGeometry(0.02, 0.018, 0.12, 12).rotateX(Math.PI / 2));
   const punos = new THREE.InstancedMesh(geoPuno, R(new THREE.MeshLambertMaterial({ color: 0x1a1a1e })), BARRAS.length);
   punos.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  punos.frustumCulled = false;
   mesa.add(punos);
   // Muñecos: cabeza, pelo y bigote, camiseta, pantalón y pie, en una malla instanciada por equipo
   function geoMuneco(camiseta, pantalon) {
@@ -267,6 +272,7 @@ export function iniciar(ctx) {
     const n = BARRAS.filter((b) => b.equipo === e).reduce((a, b) => a + b.munecos.length, 0);
     const m = new THREE.InstancedMesh(geo, R(new THREE.MeshLambertMaterial({ vertexColors: true })), n);
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    m.frustumCulled = false;
     mesa.add(m);
     return m;
   });
@@ -304,7 +310,8 @@ export function iniciar(ctx) {
   let primerGolpe = true;
   const tmp = new THREE.Vector3();
   const manoPos = new THREE.Vector3();
-  const ejeMano = new THREE.Vector3();
+  const qMano = new THREE.Quaternion();
+  const qRel = new THREE.Quaternion();
   const planoMesa = new THREE.Plane(new THREE.Vector3(0, 1, 0), -MESA_Y);
 
   function decir(texto, color = '#ffffff', duracion = 1.4) {
@@ -475,17 +482,25 @@ export function iniciar(ctx) {
   // ─── Tus barras ────────────────────────────────────────────────────────
   // VR: se agarra la empuñadura con el gatillo (una barra por mano, dos a la vez); acercar o alejar
   // la mano la desliza y girar la muñeca la gira. Las barras sueltas se quedan quietas.
-  const agarres = new Map(); // mano -> { barra, z0, s0, giro0 }
+  const agarres = new Map(); // mano -> { barra, z0, s0, q0inv }
+  const AGARRE_MARGEN = 0.35; // s después de apretar en los que aún puedes llegar a la empuñadura
+  const SOLTAR_LEJOS = 0.3;   // si la mano se aleja tanto (m) de la barra, la suelta
   const manosVisibles = ctx.manos.map((mano, k) => {
     const izq = mano.lado === 'left' || (mano.lado !== 'right' && (mano.indice ?? k) === 0);
     const m = ctx.crearMano(izq ? 'izquierda' : 'derecha', { color: 0xe0b088, colorPuno: 0x2a2e3a });
     ctx.adjuntarAMano(mano, m.objeto);
-    return { mano, m, cierre: 0 };
+    return { mano, m, cierre: 0, apretaba: false, desdeApretar: Infinity, q0inv: new THREE.Quaternion() };
   });
-  function giroMano(mano) {
-    // Giro de la muñeca: cuánto se inclina el eje X del mando
-    ejeMano.set(1, 0, 0).transformDirection(mano.grip.matrixWorld);
-    return Math.atan2(ejeMano.y, Math.hypot(ejeMano.x, ejeMano.z));
+  // Giro de la muñeca desde que cogiste la barra, SOLO alrededor del eje de la barra (z de la sala):
+  // inclinar o torcer la mano hacia otro lado no la gira (antes se colaban esos giros y la barra
+  // se movía sola)
+  function giroMano(mano, q0inv) {
+    mano.grip.getWorldQuaternion(qMano);
+    qRel.multiplyQuaternions(qMano, q0inv);
+    let a = 2 * Math.atan2(qRel.z, qRel.w);
+    if (a > Math.PI) a -= Math.PI * 2;
+    if (a < -Math.PI) a += Math.PI * 2;
+    return a;
   }
   function soltar(mano) {
     const g = agarres.get(mano);
@@ -496,10 +511,24 @@ export function iniciar(ctx) {
       const mano = v.mano;
       // Se agarra con el gatillo o con el botón lateral, y la barra se lleva mientras sigas apretando
       // (gatilloPulsado solo vale true el fotograma en que se pulsa: con él la barra se soltaba sola)
-      const aprieta = mano.gatillo || mano.apreton;
-      if (!mano.activa || !aprieta) soltar(mano);
+      const aprieta = mano.activa && (mano.gatillo || mano.apreton);
+      // Solo se coge una barra al apretar (o un instante después): llevar el botón apretado y pasar
+      // la mano cerca de otra empuñadura ya no la arrastra
+      if (aprieta && !v.apretaba) v.desdeApretar = 0;
+      else v.desdeApretar += dt;
+      v.apretaba = aprieta;
+      if (!aprieta) soltar(mano);
       let g = agarres.get(mano);
-      if (!g && mano.activa && aprieta) {
+      if (g) {
+        // Si la mano se va lejos de su barra (a por el botón del hombro, por ejemplo), la suelta
+        mano.grip.getWorldPosition(manoPos);
+        if (Math.hypot(manoPos.x - g.barra.x * ESCALA, manoPos.y - yMundo(MESA_Y + ALTO_BARRA)) > SOLTAR_LEJOS) {
+          soltar(mano);
+          g = null;
+          v.desdeApretar = Infinity;
+        }
+      }
+      if (!g && aprieta && v.desdeApretar < AGARRE_MARGEN) {
         // Coge la empuñadura libre más cercana, si la mano está lo bastante cerca
         mano.grip.getWorldPosition(manoPos);
         let mejor = RADIO_AGARRE;
@@ -512,7 +541,7 @@ export function iniciar(ctx) {
         }
         if (elegida) {
           elegida.agarrada = true;
-          g = { barra: elegida, z0: zMesa(manoPos.z), s0: elegida.s, giro0: giroMano(mano) };
+          g = { barra: elegida, z0: zMesa(manoPos.z), s0: elegida.s, phi0: elegida.phi, q0inv: mano.grip.getWorldQuaternion(v.q0inv).invert() };
           agarres.set(mano, g);
           ctx.vibrar(mano, 0.4, 40);
           ctx.sonido('toc');
@@ -521,7 +550,7 @@ export function iniciar(ctx) {
       if (g) {
         mano.grip.getWorldPosition(manoPos);
         g.barra.objetivoS = g.s0 + (zMesa(manoPos.z) - g.z0);
-        g.barra.objetivoPhi = Math.max(-1.6, Math.min(1.6, (giroMano(mano) - g.giro0) * 1.4));
+        g.barra.objetivoPhi = Math.max(-1.7, Math.min(1.7, g.phi0 + giroMano(mano, g.q0inv) * 1.3));
       }
       v.cierre += ((g ? 1 : aprieta ? 0.7 : 0.15) - v.cierre) * Math.min(1, dt * 20);
       v.m.cerrar(v.cierre);
@@ -580,6 +609,7 @@ export function iniciar(ctx) {
         // Pie adelante de golpe y arriba un momento (al volver despacio ya no se lleva la bola)
         barra.objetivoPhi = -1.3;
         if (barra.chute > 0.18) barra.objetivoS += (barra.cruce * dt) / 0.04;
+        barra.objetivoS = Math.max(-barra.recorrido, Math.min(barra.recorrido, barra.objetivoS));
       } else if (delante < 0 && delante > -0.05 && barra.munecos.length > 1) {
         // La bola, justo detrás de sus muñecos (menos el portero): levanta los pies para dejarla pasar
         // hacia su campo
@@ -707,10 +737,16 @@ export function iniciar(ctx) {
   }
 
   empezarPartido();
+  // Se coloca todo ya, para que mientras se leen las instrucciones (el juego aún no se actualiza)
+  // se vean los muñecos en sus barras y no amontonados en el origen
+  dibujar();
   actualizarMarcador();
 
   return {
     actualizar,
-    liberar() { agarres.clear(); },
+    liberar() {
+      for (const g of agarres.values()) g.barra.agarrada = false;
+      agarres.clear();
+    },
   };
 }
